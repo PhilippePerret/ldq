@@ -21,6 +21,7 @@ defmodule LdQWeb.Router do
     pipe_through :browser
   
     get "/", ChantierController, :voie_sans_issue
+    get "/soumettre", ChantierController, :voie_sans_issue
   	get "/choisir", ChantierController, :voie_sans_issue
   	get "/classement", ChantierController, :voie_sans_issue
 	  get "/new", ChantierController, :voie_sans_issue
@@ -30,8 +31,20 @@ defmodule LdQWeb.Router do
   scope "/apropos", LdQWeb do
     pipe_through :browser
 
+    get "/qualite_me_discutee", ChantierController, :voie_sans_issue
+    get "/bons_livres_en_ae", ChantierController, :voie_sans_issue
+    get "/filtrage_des_livres", ChantierController, :voie_sans_issue
+    get "/publication_en_chiffres", ChantierController, :voie_sans_issue
     get "/faq", ChantierController, :voie_sans_issue
     # get "/faq", AproposController, :faq
+  end
+
+  scope "/comite", LdQWeb do
+    pipe_through :browser
+
+    get "/", ChantierController, :voie_sans_issue # fichier le_comite.html.md de apropos
+    get "/conditions_admission", ChantierController, :voie_sans_issue
+    get "/soumettre_candidature", ChantierController, :voie_sans_issue
   end
 
   scope "/", LdQWeb do
