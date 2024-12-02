@@ -11,22 +11,22 @@
 msgid ""
 msgstr ""
 
-#: lib/ldq_web/components/layouts/root.html.heex:65
-#, elixir-autogen, elixir-format
-msgid "Log in"
-msgstr "S’identifier"
-
-#: lib/ldq_web/components/layouts/root.html.heex:48
+#: lib/ldq_web/components/layouts/root.html.heex:72
 #, elixir-autogen, elixir-format
 msgid "Log out"
 msgstr "Se déconnecter"
 
-#: lib/ldq_web/components/layouts/root.html.heex:57
+#: lib/ldq_web/components/layouts/root.html.heex:82
 #, elixir-autogen, elixir-format
 msgid "Register"
 msgstr "S’inscrire"
 
-#: lib/ldq_web/components/layouts/root.html.heex:39
+#: lib/ldq_web/components/layouts/root.html.heex:63
 #, elixir-autogen, elixir-format
 msgid "Settings"
 msgstr "Vos réglages"
+
+#: lib/ldq_web/components/layouts/root.html.heex:89
+#, elixir-autogen, elixir-format
+msgid "Sign in"
+msgstr "S’identifier"

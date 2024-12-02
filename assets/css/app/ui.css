@@ -198,3 +198,7 @@ div.main-links a.main {
   border-style:solid;
   border-color: white transparent transparent transparent;
 }
+
+div#flash-group p {
+  font-family: Arial, Helvetica, Geneva;
+}
