@@ -1,0 +1,9 @@
+Discuter de la qualité de la production des grandes maisons d’édition comme Gallimard ou Seuil est un troll, un sujet polémique récurrent, surtout dans les groupes (Facebook) d’autrices et d’auteurs ***autoédités*.
+
+Bien sûr qu’il peut arriver, pour des raisons financières ou stratégiques, qu’un éditeur ou qu’une éditrice publie un livre moyen quand il sait qu’il représente un succès assuré. Ce succès, ce *livre locomotive*, lui permettra d’en publier dix autres de meilleure qualité, peut-être le vôtre, qu’il ne publierait pas sans cette publication de moindre qualité.
+
+Mais dans l’ensemble, sauf lorsque l’on ne sait pas ce qu’est un *bon* livre<sup>(*)</sup>, il est indiscutable que la qualité est souvent au rendez-vous des pages d’un livre de fiction publié par une grand maison d’édition.
+
+<p class="fs-10"><sup>(*)</sup> Il existe encore trop de gens qui pensent qu’un *bon* livre, c’est un livre qu’ils aiment *eux* (voir <a href="/un_bon_livre">ce que le label en pense</a>).
+
+<div class="center mt-20"><a href="#qualite_me_discutee">Retourner au manifeste</a></div>

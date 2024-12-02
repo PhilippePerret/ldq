@@ -29,6 +29,7 @@ config :ldq, LdQWeb.Endpoint,
     tailwind: {Tailwind, :install_and_run, [:ldq, ~w(--watch)]}
   ]
 
+
 # ## SSL Support
 #
 # In order to use HTTPS in development, a self-signed
@@ -58,7 +59,8 @@ config :ldq, LdQWeb.Endpoint,
     patterns: [
       ~r"priv/static/(?!uploads/).*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
-      ~r"lib/ldq_web/(controllers|live|components)/.*(ex|heex)$"
+      ~r"lib/ldq_web/(controllers|live|components)/.*(ex|heex)$",
+      ~r{web/templates/.*(eex|md)$}
     ]
   ]
 

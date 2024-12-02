@@ -70,6 +70,9 @@ defmodule LdQWeb do
     quote do
       use Phoenix.Component
 
+      # Mes helpers à moi (dans le module view_helpers.ex)
+      import LdQWeb.ViewHelpers
+
       # Import convenience functions from controllers
       import Phoenix.Controller,
         only: [get_csrf_token: 0, view_module: 1, view_template: 1]
