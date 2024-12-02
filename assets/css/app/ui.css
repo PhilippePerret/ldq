@@ -2,12 +2,41 @@ body {
   font-family: serif;
   font-size:16pt;
   margin:0;
+  padding:0;
 }
 
 header.main {
+  height:6em;
+  margin-top:0;
   margin-bottom: 0rem;
   border-bottom: 1px solid white;
-  background-color: purple;
+  position:relative;
+}
+header.main img#logo-header {
+  position:absolute;
+  width:400pt;
+  left:calc(50% - 200pt);
+}
+header.main div#bord-dark-blue,
+header.main div#bord-light-blue {
+  display:block;
+  position:absolute;
+  z-index:-1;
+}
+header.main div#bord-dark-blue {
+  left: 0;
+  top: 0;
+  height:4.5em;
+  background-color: rgb(65, 88, 224);
+  width:100%;
+}
+header.main div#bord-light-blue {
+  left: 0;
+  top: 4.5em;
+  height: 1.5em;
+  width:100%;
+  border-top:0.5px solid white;
+  background-color: rgb(100, 130, 227);
 }
 
 content#main {
