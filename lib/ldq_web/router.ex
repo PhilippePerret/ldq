@@ -17,6 +17,12 @@ defmodule LdQWeb.Router do
     plug :accepts, ["json"]
   end
 
+  scope "/livres", LdQWeb do
+    pipe_through :browser
+  
+    get "/", ChantierController, :voie_sans_issue
+  end
+
   scope "/", LdQWeb do
     pipe_through :browser
 
