@@ -14,7 +14,7 @@ header.main {
 }
 header.main img#logo-header {
   position:absolute;
-  width:400pt;
+  width:330pt;
   left:calc(50% - 200pt);
   z-index:5;
 }
@@ -144,16 +144,6 @@ span.lettrine {
   font-size: 1.8em;
 }
 
-
-div#header-name {
-  color: yellow;
-  font-size: 2em;
-  padding: 0em 1.5em 0.3em;
-}
-div#header-name span.label {
-  font-size: 1.4em;
-}
-
 h2 {
   font-size: 1.7em;
   margin-bottom: 1.5em;
@@ -182,10 +172,11 @@ div.main-links {
 }
 div.main-links a.main {
   @apply px-4;
-  font-family:Arial, Geneva;
-  font-size:16pt;
+  font-family:Arial, Geneva, Helvetica;
+  font-size: 12pt;
+  letter-spacing: 1.1px;
   font-weight:bold;
-  color: var(--ppdark-dark);
+  color: var(--maintheme-dark);
 }
 
 .fleche-droite::before {
