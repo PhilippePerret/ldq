@@ -5,6 +5,8 @@ const plugin = require("tailwindcss/plugin")
 const fs = require("fs")
 const path = require("path")
 
+const rozy = "#FFAAFF"
+
 module.exports = {
   content: [
     "./js/**/*.js",
@@ -15,10 +17,36 @@ module.exports = {
     extend: {
       colors: {
         brand: "#FD4F00",
+        rozy: rozy,
+        ppDark: {
+          dark: "#0505050",
+          DEFAULT: "#AAAAAA",
+          light: "#676767"
+        },
+        ppColored: {
+          dark:     "#293db3",
+          DEFAULT:  "#005555",
+          light:    "#6482e3",
+          rozy: rozy
+        }
+      },
+      fontFamily:{
+        brand: ["MaFonte", "BelFonte"],
+        avenir: ["PAvenir", "sans-serif"]
       }
     },
   },
   plugins: [
+    plugin(function({ addBase, theme }) {
+      addBase({
+        ':root': {
+          '--maintheme-dark': theme('colors.ppColored.dark'),
+          '--maintheme-light': theme('colors.ppColored.light'),
+          '--maintheme-rozy': theme('colors.ppColored.rozy'),
+          '--rozy': theme('colors.ppColored.rozy'),
+        }
+      })
+    }),
     require("@tailwindcss/forms"),
     // Allows prefixing tailwind classes with LiveView classes to add rules
     // only when LiveView classes are applied, for example:
