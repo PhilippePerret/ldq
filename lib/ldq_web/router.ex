@@ -50,7 +50,7 @@ defmodule LdQWeb.Router do
   scope "/", LdQWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    get "/", AproposController, :manifeste
   end
 
   # Other scopes may use custom stacks.
