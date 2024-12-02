@@ -10,7 +10,7 @@ Cette définition se présente comme un compromis entre les exigences, les atten
 
 ### 1. Un *bon livre* plait au plus grand nombre
 
- De prime abord, une règle comme « Plaire au plus grand nombre » peut sembler extrêmement suspecte, sujette à caution, à discussion. Pourtant, si l’on y réfléchit un tant soit peu, on en arrivera à la conclusion qu’effectivement les plus grands chefs-d’œuvre des différents arts sont toujours des œuvres qui plaisent — ou ont plu, à l'époque de leur renommée — au plus grand nombre de personnes.
+ De prime abord, une règle comme celle-ci peut sembler extrêmement suspecte, sujette à caution, à discussion. Pourtant, si l’on y réfléchit un tant soit peu, on en arrivera à la conclusion qu’effectivement les plus grands chefs-d’œuvre des différents arts sont toujours des œuvres qui plaisent — ou ont plu, à l'époque de leur renommée — au plus grand nombre de personnes.
 
 Bien sûr que Jean va aime l’œuvre A, l’œuvre B et l’œuvre C, que Kevin va, lui, préfère la D et la E, même s’il aime aussi la C et que Robert va n’aimer que l’œuvre T alors que Christine va apprécier aussi bien la A que la D et la E et bien sûr l’œuvre C, chacun aura ses propres préférences, ses propres gouts, et pas un ou une ne se ressemble. Mais au final, si vous relisez attentivement cette description, l’œuvre C a plu à presque tout le monde.
 
