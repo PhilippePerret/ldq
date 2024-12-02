@@ -21,6 +21,17 @@ defmodule LdQWeb.Router do
     pipe_through :browser
   
     get "/", ChantierController, :voie_sans_issue
+  	get "/choisir", ChantierController, :voie_sans_issue
+  	get "/classement", ChantierController, :voie_sans_issue
+	  get "/new", ChantierController, :voie_sans_issue
+ 
+  end
+
+  scope "/apropos", LdQWeb do
+    pipe_through :browser
+
+    get "/faq", ChantierController, :voie_sans_issue
+    # get "/faq", AproposController, :faq
   end
 
   scope "/", LdQWeb do

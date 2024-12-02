@@ -1,0 +1,120 @@
+body {
+  font-family: serif;
+  font-size:16pt;
+  margin:0;
+}
+
+header.main {
+  margin-bottom: 0rem;
+  border-bottom: 1px solid white;
+  background-color: purple;
+}
+
+content#main {
+  display: block;
+/*  margin: 1em;*/
+}
+
+
+p {
+  font-family: BelFonte, serif;
+  text-align: justify;
+  line-height: 1.5em;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  color:#333333;
+}
+
+p strong, p b {
+  color: #333;
+  font-family: BelFonte, serif;
+  font-weight: bold;
+}
+
+p.question {
+  font-size: 1.1em;
+  font-style: italic;
+  font-weight:400;
+  color: #000000;
+}
+p.reponse {
+  font-size: 1em;
+  margin-left:2em;
+}
+
+p.exergue {
+  font-family: "Asap Condensed", sans-serif;
+  margin: 1.5em 4em ;
+  text-align: center;
+  font-weight: 500;
+  font-size: 1.05em;
+}
+
+a {
+  color:rgb(1, 150, 213);
+}
+
+/* Pour entourer la marque "Lecture de Qualité" */
+span.label  {
+  font-family: "Great Vibes", cursive;
+  font-size: 24pt;
+  font-weight: 200;
+/*  font-variant: small-caps;*/
+}
+
+span.label:before {
+  content:"« ";
+  vertical-align: middle;
+}
+span.label:after {
+  content:" »";
+  vertical-align: middle;
+}
+
+span.lettrine {
+  font-size: 1.8em;
+}
+
+
+div#header-name {
+  color: yellow;
+  font-size: 2em;
+  padding: 0em 1.5em 0.3em;
+}
+div#header-name span.label {
+  font-size: 1.4em;
+}
+
+h2 {
+  font-size: 1.7em;
+  margin-bottom: 1.5em;
+  margin-top:1.5em;
+}
+
+h3 {
+  font-size:1.2em;
+  margin-top:1.4em;
+  margin-bottom:1em;
+}
+
+footer {
+  margin-top: 2rem;
+  border-top: 1px solid white;
+}
+footer > div {
+  margin: 1em;
+}
+
+div.main-links {
+  @appl block text-center;
+  text-align: center;
+  user-select:none;
+  font-variant:all-small-caps;
+}
+div.main-links a.main {
+  @apply px-4;
+  font-family:Arial, Geneva;
+  font-size:16pt;
+  font-weight:bold;
+  color: var(--ppdark-dark);
+}

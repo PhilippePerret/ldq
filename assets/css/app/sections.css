@@ -1,0 +1,18 @@
+
+
+section.as_page {
+  font-family:BelFonte;
+}
+section.as_page h1 {
+  font-size:32pt;
+  font-family: BelFonte;
+  margin-top:1.25em;
+  margin-bottom:1em;
+}
+
+section.as_page h2 {
+  font-size:24pt;
+  font-family:BelFonte;
+  margin-top:1.25em;
+  margin-bottom:1em;
+}

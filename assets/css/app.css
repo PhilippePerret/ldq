@@ -3,3 +3,8 @@
 @import "tailwindcss/utilities";
 
 /* This file is for your main application CSS */
+
+@import "app/fonts";
+@import "app/ui";
+@import "app/common";
+@import "app/sections";
