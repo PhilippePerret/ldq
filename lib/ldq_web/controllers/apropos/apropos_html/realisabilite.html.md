@@ -1,0 +1,19 @@
+## *Réalisabilité* du label
+
+Il fallait au moins un néologisme tel que *réalisabilité* pour parler de la *faisabilité*, de la *viabilité*, de ld’un projet aussi fou et aussi complexe et délicat que celui du label <.ldq_label/> qui se porte volontaire pour tenter de révolutionner l’approche de l’édition littéraire en matière de publication.
+
+Il faut avoir conscience que les pierres d’achoppement, dans un projet de cette ambition, ne manquent pas, ni les pièges, il y en a à chaque coin de la réflexion et de la mise en place. Ce projet s’est échaffaudé sur des questions restées longtemps sans réponse avant que son concepteur, Philippe PERRET, ne les résolvent de la façon la plus simple possible, la plus pragmatique.
+
+
+  Ces questions étaient légions.
+  Comment, même avec un comité d’une centaine de membres, traiter des dizaines de milliers de livres (voir [Les chiffres de l’édition](/apropos/chiffres_publication)) ?
+  Comment en choisir les <.membres/> ? Par qui les évaluer ? Sur quels critères ?
+  Comment, sans être financé, attendre des <.membres fem={true}/> un investissement pertinent ?
+  Comment les garder motivés ?
+  Comment garantir que les choix soient objectifs et pertinents ?
+  Comment, en d’autres termes, réduire le niveau de subjectivité pour offrir un service de qualité, tout en assurant une régularité de « production » qui permette d’épuiser ce marché sauvage.
+
+
+
+  Cette complexité a été résorbée en appliquant quelques principes directeurs, non exempt de failles, qui sont décrit en détail dans la section sur le [filtrage des livres](/apropos/filtrage_livre) ainsi que le [choix des membres du comité de lecture](/apropos/choix_membres).
+

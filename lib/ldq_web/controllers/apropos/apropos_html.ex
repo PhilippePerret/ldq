@@ -7,4 +7,15 @@ defmodule LdQWeb.AproposHTML do
 	use LdQWeb, :html
 	
 	embed_templates "apropos_html/*"
+
+  def retour_manifeste(assigns) do 
+    ~H"""
+    <center class="mt-20"><a href="/apropos/manifeste{@anchor}">Retour au manifeste</a></center>
+    """
+  end
+
+  def asterisque_sup(assigns) do
+    ~H"<sup>*</sup>"
+  end
+
 end

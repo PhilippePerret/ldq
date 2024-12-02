@@ -31,12 +31,13 @@ defmodule LdQWeb.Router do
   scope "/apropos", LdQWeb do
     pipe_through :browser
 
-    get "/qualite_me_discutee", ChantierController, :voie_sans_issue
-    get "/bons_livres_en_ae", ChantierController, :voie_sans_issue
+    get "/:page", AproposController, :afficher
+    
     get "/filtrage_des_livres", ChantierController, :voie_sans_issue
     get "/publication_en_chiffres", ChantierController, :voie_sans_issue
     get "/faq", ChantierController, :voie_sans_issue
     # get "/faq", AproposController, :faq
+
   end
 
   scope "/comite", LdQWeb do
@@ -50,7 +51,7 @@ defmodule LdQWeb.Router do
   scope "/", LdQWeb do
     pipe_through :browser
 
-    get "/", AproposController, :manifeste
+    get "/", AproposController, :afficher
   end
 
   # Other scopes may use custom stacks.
