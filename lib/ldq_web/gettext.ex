@@ -20,5 +20,5 @@ defmodule LdQWeb.Gettext do
 
   See the [Gettext Docs](https://hexdocs.pm/gettext) for detailed usage.
   """
-  use Gettext, otp_app: :ldq
+  use Gettext, otp_app: :ldq, default_locale: "fr"
 end

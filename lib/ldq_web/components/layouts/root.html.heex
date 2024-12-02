@@ -36,7 +36,7 @@
                 href={~p"/users/settings"}
                 class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
               >
-                Settings
+                <%= dgettext("ui", "Settings") %>
               </.link>
             </li>
             <li>
@@ -45,8 +45,8 @@
                 method="delete"
                 class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
               >
-                Log out
-              </.link>
+              <%= dgettext("ui", "Log out") %>
+            </.link>
             </li>
           <% else %>
             <li>
@@ -54,16 +54,16 @@
                 href={~p"/users/register"}
                 class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
               >
-                Register
-              </.link>
+              <%= dgettext("ui", "Register") %>
+            </.link>
             </li>
             <li>
               <.link
                 href={~p"/users/log_in"}
                 class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
               >
-                Log in
-              </.link>
+              <%= dgettext("ui", "Log in") %>
+            </.link>
             </li>
           <% end %>
         </ul>    
