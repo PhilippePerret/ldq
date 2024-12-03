@@ -1,15 +1,15 @@
-## This file is a PO Template file.
-##
-## "msgid"s here are often extracted from source code.
-## Add new messages manually only if they're dynamic
-## messages that can't be statically extracted.
-##
-## Run "mix gettext.extract" to bring this file up to
-## date. Leave "msgstr"s empty as changing them here has no
-## effect: edit them in PO (.po) files instead.
-#
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
 msgid ""
 msgstr ""
+"Language: fr\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: lib/ldq_web/controllers/user_session_controller.ex:8
 #, elixir-autogen, elixir-format
@@ -36,7 +36,7 @@ msgstr "Votre mot de passe a bien été changé !"
 msgid "Welcome back!"
 msgstr "Bienvenue à nouveau !"
 
-#: lib/ldq_web/controllers/apropos/apropos_controller.ex:10
+#: lib/ldq_web/controllers/apropos/apropos_controller.ex:11
 #, elixir-autogen, elixir-format
-msgid "You cannot access this section."
-msgstr "Vous ne pouvez pas accéder à cette partie."
+msgid "The page “%{page}” is unknown."
+msgstr "La page %{page} est inconnue sur ce site."

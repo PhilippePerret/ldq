@@ -36,7 +36,7 @@ msgstr ""
 msgid "Welcome back!"
 msgstr ""
 
-#: lib/ldq_web/controllers/apropos/apropos_controller.ex:10
+#: lib/ldq_web/controllers/apropos/apropos_controller.ex:11
 #, elixir-autogen, elixir-format
-msgid "You cannot access this section."
+msgid "The page “%{page}” is unknown."
 msgstr ""

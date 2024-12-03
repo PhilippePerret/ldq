@@ -7,7 +7,8 @@ defmodule LdQWeb.AproposController do
 					render(conn, String.to_atom(page_a_voir), layout: {LdQWeb.Layouts, :as_page})
 				true -> 
 					conn 
-					|> put_flash(:error, dgettext("msg","You cannot access this section."))
+					# |> put_flash(:error, dgettext("msg","You cannot access this section."))
+					|> put_flash(:error, dgettext("msg","The page “%{page}” is unknown.", page: page_a_voir))
 					|> redirect(to: ~p"/")
 				end
 		end
