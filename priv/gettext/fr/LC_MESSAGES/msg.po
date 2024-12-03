@@ -35,3 +35,8 @@ msgstr "Votre mot de passe a bien été changé !"
 #, elixir-autogen, elixir-format
 msgid "Welcome back!"
 msgstr "Bienvenue à nouveau !"
+
+#: lib/ldq_web/controllers/apropos/apropos_controller.ex:10
+#, elixir-autogen, elixir-format
+msgid "You cannot access this section."
+msgstr "Vous ne pouvez pas accéder à cette partie."

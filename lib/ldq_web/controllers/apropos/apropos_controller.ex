@@ -2,12 +2,14 @@ defmodule LdQWeb.AproposController do
 	use LdQWeb, :controller
 	
 		def afficher(conn, %{"page" => page_a_voir} = _params) do
-			page_a_voir =
 				cond do
-				in_pages_list?(page_a_voir) -> String.to_atom(page_a_voir)
-				true -> :manifeste
+				in_pages_list?(page_a_voir) ->
+					render(conn, String.to_atom(page_a_voir), layout: {LdQWeb.Layouts, :as_page})
+				true -> 
+					conn 
+					|> put_flash(:error, dgettext("msg","You cannot access this section."))
+					|> redirect(to: ~p"/")
 				end
-			render(conn, page_a_voir, layout: {LdQWeb.Layouts, :as_page})
 		end
 
 		def	afficher(conn, _params) do
