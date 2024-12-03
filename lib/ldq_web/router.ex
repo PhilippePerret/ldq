@@ -44,6 +44,7 @@ defmodule LdQWeb.Router do
     pipe_through :browser
 
     get "/", ComiteController, :portail
+    get "/actu", ComiteController, :actu
     get "/conditions_admission", ChantierController, :voie_sans_issue
     get "/postuler", ChantierController, :voie_sans_issue
   end

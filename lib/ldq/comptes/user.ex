@@ -1,6 +1,8 @@
 defmodule LdQ.Comptes.User do
   use Ecto.Schema
   import Ecto.Changeset
+  import Bitwise
+
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "users" do
@@ -9,6 +11,7 @@ defmodule LdQ.Comptes.User do
     field :hashed_password, :string, redact: true
     field :current_password, :string, virtual: true, redact: true
     field :confirmed_at, :utc_datetime
+    field :privileges, :integer, default: 0
 
     timestamps(type: :utc_datetime)
   end
@@ -159,4 +162,37 @@ defmodule LdQ.Comptes.User do
       add_error(changeset, :current_password, "is not valid")
     end
   end
+
+
+  @doc """
+  Retourne true si l'utilisateur a les privilèges interrogés.
+  
+  """
+  @bit_reader 2
+  @bit_writer 4
+  @bit_membre 8
+  @bit_admin1 16
+  @bit_admin2 32
+  @bit_admin3 64
+
+  def reader?(user),  do: has_bit?(user, @bit_reader)
+  def writer?(user),  do: has_bit?(user, @bit_writer)
+  def membre?(user),  do: has_bit?(user, @bit_membre)
+  def admin?(u),      do: admin1?(u) || admin2?(u) || admin3?(u)
+  def admin1?(user),  do: has_bit?(user, @bit_admin1)
+  def admin2?(user),  do: has_bit?(user, @bit_admin2)
+  def admin3?(user),  do: has_bit?(user, @bit_admin3)
+  def admin?(user, level) do
+    case level do
+    1 -> has_bit?(user, @bit_admin1)
+    2 -> has_bit?(user, @bit_admin2)
+    3 -> has_bit?(user, @bit_admin3)
+    end
+  end
+
+  defp has_bit?(user, bit) do
+    (user.privileges &&& bit) == bit
+  end
+
+
 end
