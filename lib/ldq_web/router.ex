@@ -43,9 +43,9 @@ defmodule LdQWeb.Router do
   scope "/comite", LdQWeb do
     pipe_through :browser
 
-    get "/", ChantierController, :voie_sans_issue # fichier le_comite.html.md de apropos
+    get "/", ComiteController, :portail
     get "/conditions_admission", ChantierController, :voie_sans_issue
-    get "/soumettre_candidature", ChantierController, :voie_sans_issue
+    get "/postuler", ChantierController, :voie_sans_issue
   end
 
   scope "/", LdQWeb do

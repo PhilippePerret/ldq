@@ -1,7 +1,7 @@
 defmodule LdQWeb.AproposController do
 	use LdQWeb, :controller
 	
-		def afficher(conn, %{"page" => page_a_voir}) do
+		def afficher(conn, %{"page" => page_a_voir} = _params) do
 			page_a_voir =
 				cond do
 				in_pages_list?(page_a_voir) -> String.to_atom(page_a_voir)
@@ -16,10 +16,17 @@ defmodule LdQWeb.AproposController do
 
 		defp in_pages_list?(page) do
 			Enum.member?([
-					"qualite_me_discutee", 
 					"bons_livres_en_ae",
-					"un_bon_livre",
-					"le_comite"
+					"chiffres_publication",
+					"choix_membres",
+					"filtrage_livre",
+					"le_comite",
+					"manifeste",
+					"membres_comite",
+					"portail",
+					"qualite_me_discutee",
+					"realisabilite",
+					"un_bon_livre"
 				], 
 				page
 			)
