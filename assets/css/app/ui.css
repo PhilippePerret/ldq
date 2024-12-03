@@ -75,29 +75,9 @@ form > div {
   padding:2em;
 }
 
-
-
-
-
 content#main {
   display: block;
 /*  margin: 1em;*/
-}
-
-
-p {
-  font-family: BelFonte, serif;
-  text-align: justify;
-  line-height: 1.5em;
-  margin-top: 0.5em;
-  margin-bottom: 0.5em;
-  color:#333333;
-}
-
-p strong, p b {
-  color: #333;
-  font-family: BelFonte, serif;
-  font-weight: bold;
 }
 
 p.question {
@@ -119,9 +99,6 @@ p.exergue {
   font-size: 1.05em;
 }
 
-a {
-  color:rgb(1, 150, 213);
-}
 
 /* Pour entourer la marque "Lecture de Qualité" */
 span.label  {
@@ -142,18 +119,6 @@ span.label:after {
 
 span.lettrine {
   font-size: 1.8em;
-}
-
-h2 {
-  font-size: 1.7em;
-  margin-bottom: 1.5em;
-  margin-top:1.5em;
-}
-
-h3 {
-  font-size:1.2em;
-  margin-top:1.4em;
-  margin-bottom:1em;
 }
 
 footer {
