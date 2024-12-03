@@ -18,4 +18,18 @@ defmodule LdQWeb.AproposHTML do
     ~H"<sup>*</sup>"
   end
 
+  def submission_book_form(titre) when is_binary(titre) do
+    submission_book_form(%{titre: titre})
+  end
+
+  def submission_book_form(%{} = assigns) do
+    ~H"""
+    <a href={~p"/livres/soumettre"}><%= @titre %></a>
+    """
+  end
+ 
+  def submission_book_form() do 
+    submission_book_form(%{titre: "formulaire de soumission d’un livre"})
+  end
+
 end

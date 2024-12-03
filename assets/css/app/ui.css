@@ -80,26 +80,6 @@ content#main {
 /*  margin: 1em;*/
 }
 
-p.question {
-  font-size: 1.1em;
-  font-style: italic;
-  font-weight:400;
-  color: #000000;
-}
-p.reponse {
-  font-size: 1em;
-  margin-left:2em;
-}
-
-p.exergue {
-  font-family: "Asap Condensed", sans-serif;
-  margin: 1.5em 4em ;
-  text-align: center;
-  font-weight: 500;
-  font-size: 1.05em;
-}
-
-
 /* Pour entourer la marque "Lecture de Qualité" */
 span.label  {
   font-family: "Great Vibes", cursive;

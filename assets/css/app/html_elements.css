@@ -14,6 +14,21 @@ a {
   color: var(--maintheme-light);
 }
 
+
+ol, ul {
+  @apply list-outside ml-20
+}
+
+ul {
+  @apply list-[square]
+}
+
+/* 
+
+    === PARAGRAPHES ===
+    
+*/
+
 p {
   font-family: BelFonte, serif;
   text-align: justify;
@@ -29,11 +44,21 @@ p strong, p b {
   font-weight: bold;
 }
 
-
-ol, ul {
-  @apply list-outside ml-20
+p.question {
+  font-size: 1em;
+  font-style: italic;
+  font-weight:400;
+  color: #000000;
+}
+p.reponse {
+  font-size: 0.9em;
+  margin-left:2em;
 }
 
-ul {
-  @apply list-[square]
+p.exergue {
+  font-family: "Asap Condensed", sans-serif;
+  margin: 1.5em 4em ;
+  text-align: center;
+  font-weight: 500;
+  font-size: 1.05em;
 }
