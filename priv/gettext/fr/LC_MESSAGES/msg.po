@@ -40,3 +40,8 @@ msgstr "Bienvenue à nouveau !"
 #, elixir-autogen, elixir-format
 msgid "The page “%{page}” is unknown."
 msgstr "La page %{page} est inconnue sur ce site."
+
+#: lib/ldq_web/user_auth.ex:163
+#, elixir-autogen, elixir-format
+msgid "You must log in to access this page."
+msgstr ""

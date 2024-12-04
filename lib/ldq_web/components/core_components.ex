@@ -19,6 +19,28 @@ defmodule LdQWeb.CoreComponents do
   alias Phoenix.LiveView.JS
   import LdQWeb.Gettext
 
+
+  @doc """
+  Pour ajouter un lien vers la page précédente
+  """
+  attr :previous, :string, default: nil
+
+  def block_previous_page(assigns) do
+    if assigns[:previous] do
+      ~H"""
+      <div class="previous-page-link top">
+        <a
+          href={@previous}>
+          <span style="vertical-align:text-top;">↩︎</span>
+          <%= dgettext("ui", "Back to previous page") %>
+        </a>
+      </div>
+      """
+    else
+      ~H""
+    end
+  end
+
   @doc """
   Renders a modal.
 

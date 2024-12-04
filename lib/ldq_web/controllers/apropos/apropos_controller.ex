@@ -3,7 +3,6 @@ defmodule LdQWeb.AproposController do
 	
 		def afficher(conn, %{"page" => page_a_voir} = params) do
 			page_pre = get_referer(conn, params)
-			|> IO.inspect(label: "REFERER retourné : ")
 			cond do
 			in_pages_list?(page_a_voir) ->
 				render(conn, String.to_atom(page_a_voir), layout: {LdQWeb.Layouts, :as_page}, page_pre: page_pre)
@@ -16,17 +15,31 @@ defmodule LdQWeb.AproposController do
 
 		def	afficher(conn, _params), do: afficher(conn, %{"page" => "manifeste"})
 
-		def get_referer(conn, %{"anchor" => anchor} = _params) do
-			referer = get_referer(conn, %{})
-			referer && (referer <> "##{anchor}") || nil
+		def get_referer(conn, params) do
+			if params["anchor"] do
+				[referer] = get_req_header(conn, "referer") || [nil]
+				[host] 		= get_req_header(conn, "host")
+				if String.match?(referer, ~r/#{host}/) do
+					referer <> "##{params["anchor"]}"
+				else
+					nil
+				 end
+			else
+				nil
+			end
 		end
+		
+		# def get_referer(conn, %{"anchor" => anchor} = _params) do
+		# 	referer = get_referer(conn, %{})
+		# 	referer && (referer <> "##{anchor}") || nil
+		# end
 
-		def get_referer(conn, _params) do
-			[referer] = get_req_header(conn, "referer") || [nil]
-			[host] 		= get_req_header(conn, "host")
-			IO.inspect([referer, host], label: "[REFERER, HOST]:")
-			String.match?(referer, ~r/#{host}/) && referer || nil
-		end
+		# def get_referer(conn, _params) do
+		# 	[referer] = get_req_header(conn, "referer") || [nil]
+		# 	[host] 		= get_req_header(conn, "host")
+		# 	IO.inspect([referer, host], label: "[REFERER, HOST]:")
+		# 	String.match?(referer, ~r/#{host}/) && referer || nil
+		# end
 
 
 		defp in_pages_list?(page) do

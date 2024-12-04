@@ -30,3 +30,8 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Sign in"
 msgstr ""
+
+#: lib/ldq_web/components/core_components.ex:35
+#, elixir-autogen, elixir-format
+msgid "Back to previous page"
+msgstr ""
