@@ -52,6 +52,7 @@ defmodule LdQWeb.Router do
   scope "/", LdQWeb do
     pipe_through :browser
 
+    # get "/", ComiteController, :actu # POUR ESSAYER CETTE ROUTE VITE
     get "/", AproposController, :afficher
   end
 

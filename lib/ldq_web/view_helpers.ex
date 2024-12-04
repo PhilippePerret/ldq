@@ -29,19 +29,19 @@ defmodule LdQWeb.ViewHelpers do
     end
   end
 
-  def lien_credibilite(assigns) do
-    lien_mot("crédit", "credit", assigns)
-  end
+  # def lien_credibilite(assigns) do
+  #   lien_mot("crédit", "credit", assigns)
+  # end
 
-  def lien_parrain(assigns) do
-    lien_mot("parrain", nil, assigns)
-  end
+  # def lien_parrain(assigns) do
+  #   lien_mot("parrain", nil, assigns)
+  # end
 
 
-  defp lien_mot(mot, id, assigns) do
-    id = if id == nil, do: mot, else: id
-    lien = "/mot/#{id}"
-    ~H'<a href={lien}><%= mot %></a>'
-  end
+  # defp lien_mot(mot, id, assigns) do
+  #   id = if id == nil, do: mot, else: id
+  #   lien = "/mot/#{id}"
+  #   ~H'<a href={lien}><%= mot %></a>'
+  # end
 
 end

@@ -16,14 +16,20 @@ defmodule LdQWeb.ComiteController do
     cuser = conn.assigns[:current_user]
     cond do
     cuser == nil ->
-      conn 
-      |> put_flash(:info, dgettext("request", "You have to log in."))
-      |> assign(:backroute, ~p"/comite/actu")
-      |> redirect(to: ~p"/users/log_in")
+      authentify_and_getback(conn, ~p"/comite/actu")
     User.membre?(cuser) ->
       render(conn, :actu)
     true ->
         render(conn, :acces_interdit)
     end
   end
+
+  def authentify_and_getback(conn, backroute) do
+    msg = dgettext("request", "Please log in before accessing this section.")
+    conn 
+    |> put_flash(:info, msg)
+    |> put_session(:backroute, backroute)
+    |> redirect(to: ~p"/users/log_in")
+  end
+
 end

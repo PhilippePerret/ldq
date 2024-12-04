@@ -10,7 +10,7 @@ defmodule LdQWeb.UserSessionController do
 
   def create(conn, %{"_action" => "password_updated"} = params) do
     conn
-    |> put_session(:user_return_to, ~p"/users/settings")
+    |> put_session(:backroute, ~p"/users/settings")
     |> create(params, dgettext("msg", "Password updated successfully!"))
   end
 

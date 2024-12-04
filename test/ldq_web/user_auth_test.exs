@@ -32,7 +32,7 @@ defmodule LdQWeb.UserAuthTest do
     end
 
     test "redirects to the configured path", %{conn: conn, user: user} do
-      conn = conn |> put_session(:user_return_to, "/hello") |> UserAuth.log_in_user(user)
+      conn = conn |> put_session(:backroute, "/hello") |> UserAuth.log_in_user(user)
       assert redirected_to(conn) == "/hello"
     end
 
@@ -244,7 +244,7 @@ defmodule LdQWeb.UserAuthTest do
         |> UserAuth.require_authenticated_user([])
 
       assert halted_conn.halted
-      assert get_session(halted_conn, :user_return_to) == "/foo"
+      assert get_session(halted_conn, :backroute) == "/foo"
 
       halted_conn =
         %{conn | path_info: ["foo"], query_string: "bar=baz"}
@@ -252,7 +252,7 @@ defmodule LdQWeb.UserAuthTest do
         |> UserAuth.require_authenticated_user([])
 
       assert halted_conn.halted
-      assert get_session(halted_conn, :user_return_to) == "/foo?bar=baz"
+      assert get_session(halted_conn, :backroute) == "/foo?bar=baz"
 
       halted_conn =
         %{conn | path_info: ["foo"], query_string: "bar", method: "POST"}
@@ -260,7 +260,7 @@ defmodule LdQWeb.UserAuthTest do
         |> UserAuth.require_authenticated_user([])
 
       assert halted_conn.halted
-      refute get_session(halted_conn, :user_return_to)
+      refute get_session(halted_conn, :backroute)
     end
 
     test "does not redirect if user is authenticated", %{conn: conn, user: user} do

@@ -42,7 +42,7 @@ defmodule LdQWeb.UserSessionControllerTest do
     test "logs the user in with return to", %{conn: conn, user: user} do
       conn =
         conn
-        |> init_test_session(user_return_to: "/foo/bar")
+        |> init_test_session(backroute: "/foo/bar")
         |> post(~p"/users/log_in", %{
           "user" => %{
             "email" => user.email,

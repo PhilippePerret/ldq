@@ -6,6 +6,9 @@ defmodule LdQWeb.UserAuth do
 
   alias LdQ.Comptes
 
+  import LdQWeb.Gettext # ajouté par moi
+
+
   # Make the remember me cookie valid for 60 days.
   # If you want bump or reduce this value, also change
   # the token expiry itself in UserToken.
@@ -27,7 +30,7 @@ defmodule LdQWeb.UserAuth do
   """
   def log_in_user(conn, user, params \\ %{}) do
     token = Comptes.generate_user_session_token(user)
-    user_return_to = get_session(conn, :user_return_to)
+    user_return_to = get_session(conn, :backroute) # c'est moi qui ait mis :backroute, c'était :user_return_to
 
     conn
     |> renew_session()
@@ -157,7 +160,7 @@ defmodule LdQWeb.UserAuth do
     else
       socket =
         socket
-        |> Phoenix.LiveView.put_flash(:error, "You must log in to access this page.")
+        |> Phoenix.LiveView.put_flash(:error, dgettext("msg", "You must log in to access this page."))
         |> Phoenix.LiveView.redirect(to: ~p"/users/log_in")
 
       {:halt, socket}
@@ -220,10 +223,11 @@ defmodule LdQWeb.UserAuth do
   end
 
   defp maybe_store_return_to(%{method: "GET"} = conn) do
-    put_session(conn, :user_return_to, current_path(conn))
+    put_session(conn, :backroute, current_path(conn))
   end
 
   defp maybe_store_return_to(conn), do: conn
 
   defp signed_in_path(_conn), do: ~p"/"
+
 end
