@@ -4,7 +4,7 @@ Chacun, évidemment, possède sa propre définition de ce qu’est un *bon livre
 
 <p class="exergue">Il est impossible de trouver une définition<br />qui contenterait tout monde.</p>
 
-S’il est vrai qu’il serait utopique de vouloir définir des critères qui contenteraient tout le monde, nous avons dû pourtant en adopter un certain nombre, appliqués par les membres du comité, pour définir le label <span class="label">Lecture de Qualité</span>.
+S’il est vrai qu’il serait utopique de vouloir définir des critères qui contenteraient tout le monde, nous avons dû pourtant en adopter un certain nombre, appliqués par les membres du comité, pour définir le label <%= raw label_lecture_qualite() %>.
 
 Cette définition se présente comme un compromis entre les exigences, les attentes et les fantasmes les plus divers et nombreux. Pour le comité, un *bon livre*, répond à TROIS critères simples :
 
@@ -36,7 +36,7 @@ Notons, en passant, que ce critère tempère quelque peu le « plaire au plus g
 
 ### 3. Un *bon livre* se présente sous une forme convenable
 
-Sans attendre des livres autoédités la qualité esthétique des livres publiés par les maisons prestigieuses en collaboration avec les meilleurs illustrateurs et illustratrices, l’aspect d’un *bon livre* susceptible de recevoir le label <.ldq_label/>, est regardée avec soin.
+Sans attendre des livres autoédités la qualité esthétique des livres publiés par les maisons prestigieuses en collaboration avec les meilleurs illustrateurs et illustratrices, l’aspect d’un *bon livre* susceptible de recevoir le label <%= raw label_lecture_qualite() %>, est regardée avec soin.
 
 Sa couverture doit être adaptée à son contenu, elle doit rester simple — sauf si le sujet exige le contraire —, le titre doit être parfaitement lisible. L’aspect intérieur est tout aussi important et comprend sa mise en page et le respect des règles minimums de l’édition traditionnelle — l’alignement sur les lignes de références, la présence des pages attendues par les lecteurs, etc.
 
@@ -44,7 +44,7 @@ Dans le cas où un livre remplirait les critères précédent mais pas ce dernie
 
 <hr />
 
-Notons pour conclure que pour être complet, il pourra arriver qu’un livre n’ayant pas plu au plus grand nombre des <.membres fem={true}/> du comité pourra exceptionnellement recevoir le label <.ldq_label/> lorsque les autres qualités sont jugées extraordinairepment élevées. Une mention spéciale sera alors appliquée, pour indiquer que la lecture peut être plus exigeante. Certaines lectrices et certains lecteurs pourraient être intéressés. 
+Notons pour conclure que pour être complet, il pourra arriver qu’un livre n’ayant pas plu au plus grand nombre des <.membres fem={true}/> du comité pourra exceptionnellement recevoir le label <%= raw label_lecture_qualite() %> lorsque les autres qualités sont jugées extraordinairepment élevées. Une mention spéciale sera alors appliquée, pour indiquer que la lecture peut être plus exigeante. Certaines lectrices et certains lecteurs pourraient être intéressés. 
 
 ### D’autres sujets susceptibles de vous intéresser
 

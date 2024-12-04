@@ -2,7 +2,7 @@
 
 {Partie présentant le comité de lecture}
 
-Le comité de lecture du label <%= ldq_label(nil) %> est constitué d’un grand nombre de membres issus aussi bien de la lecture que de l’écriture (comprendre : il s’agit autant de lectrices que de lecteurs, d’autrices que d’auteurs — dont certains ont même soumis leur livre au label, et l'ont reçu).
+Le comité de lecture du label <%= raw label_lecture_qualite() %> est constitué d’un grand nombre de membres issus aussi bien de la lecture que de l’écriture (comprendre : il s’agit autant de lectrices que de lecteurs, d’autrices que d’auteurs — dont certains ont même soumis leur livre au label, et l'ont reçu).
 
 Vous êtes lectrice, lecteur, autrice ou auteur et vous voulez rejoindre le comité ? Après avoir consulté les [condition d’admission au comité](<%= ~p"/comite/conditions_admission" %>), vous pouvez [soumettre votre candidature](<%= ~p"/comite/postuler" %>).
 

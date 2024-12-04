@@ -14,6 +14,13 @@ defmodule LdQWeb.ViewHelpers do
   end
   def label_ldq(assigns), do: ldq_label(assigns)
 
+  # Utiliser :
+  #   <%= raw label_lecture_qualite() %>
+  # Même dans une page markdown
+  def label_lecture_qualite do
+    "<span class=\"label\">Lecture de Qualité</span>"
+  end
+
   def membres(assigns) do
     case assigns[:fem] do
       true -> ~H'membres<font face="serif">-</font>lectrices/lecteurs'
