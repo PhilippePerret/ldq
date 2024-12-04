@@ -34,4 +34,4 @@ msgstr "S’identifier"
 #: lib/ldq_web/components/core_components.ex:35
 #, elixir-autogen, elixir-format
 msgid "Back to previous page"
-msgstr ""
+msgstr "Retour à la page précédente"

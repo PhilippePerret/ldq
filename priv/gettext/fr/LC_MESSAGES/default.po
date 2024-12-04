@@ -14,7 +14,7 @@ msgstr ""
 #: lib/ldq_web/components/core_components.ex:504
 #, elixir-autogen, elixir-format
 msgid "Actions"
-msgstr ""
+msgstr "Actions"
 
 #: lib/ldq_web/components/core_components.ex:182
 #, elixir-autogen, elixir-format

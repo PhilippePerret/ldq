@@ -14,4 +14,4 @@ msgstr ""
 #: lib/ldq_web/controllers/comite/comite_controller.ex:28
 #, elixir-autogen, elixir-format
 msgid "Please log in before accessing this section."
-msgstr ""
+msgstr "Merci de vous identifier avant d’accèder à cette section."
