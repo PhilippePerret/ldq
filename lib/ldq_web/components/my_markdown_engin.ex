@@ -33,18 +33,16 @@ defmodule MyMarkdown.Engine do
     # |> IO.inspect(label: "après transformation de path")
   end
 
-  @doc """
-  Méthode qui traite tous les `var(<variable id>)' dans les codes markdown
-
-  Ces variables doivent être définies dans une table implémentée dans config/config.ex
-  de l'application, définie par :
-
-    config :my_markdown, :table_vars, %{var: val, var: val, ...}
-
-    (pour le moment, comme 'my_markdonw' n'est pas encore définitif, on passe
-     par config :phoenix_markdown, :table_vars, %{...})
-     
-  """
+  
+  # Méthode qui traite tous les `var(<variable id>)' dans les codes markdown
+  #
+  # Ces variables doivent être définies dans une table implémentée dans config/config.ex
+  # de l'application, définie par :
+  #
+  #   config :my_markdown, :table_vars, %{var: val, var: val, ...}
+  #
+  #   (pour le moment, comme 'my_markdonw' n'est pas encore définitif, on passe
+  #    par config :phoenix_markdown, :table_vars, %{...})
   defp transforme_vars(code) do
     code = Regex.replace(~r/var\((.*)\)/U, code, fn _, varid -> get_in_table_vars(varid) end)
     code

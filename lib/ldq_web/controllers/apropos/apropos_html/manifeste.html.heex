@@ -50,20 +50,24 @@
 
 <p>Si vous êtes parvenu(e) jusqu’ici, c’est que cette initiative a peut-être trouvé un écho chez vous. Que vous soyez lectrice, lecteur, auteur ou autrice, vous avez plusieurs moyens de profiter, d’accompagner ou de participer activement à ce label.</p>
 
-<% lien_faire_connaitre = "<a href=\"/apropos/faire_connaitre\">faire connaitre ce label</a>" %>
+<a name="si_auteur"></a>
+
 <p class="question">Vous êtes autrice ou auteur :</p>
 <ul>
   <li>Vous pouvez <a href={~p"/livres/soumettre"}>soumettre votre livre</a> au comité pour recevoir ce label qui vous ouvrira grand les horizons des lectrices et des lecteurs.</li>
   <li>Vous pouvez <a href={~p"/comite/postuler"}>devenir membre du comité de lecture</a> qui compte en ses rangs de nombreuses autrices et auteurs labellisés (ou pas — car on peut être piètre auteur et excellent lecteur).</li>
-  <li>Vous pouvez <%= raw lien_faire_connaitre %> autour de vous !</li>
+  <li>Vous pouvez <%= raw lien_faire_connaitre("si_auteur") %> autour de vous !</li>
 </ul>
 
+<a name="si_lecteur"></a>
 <p class="question">Vous êtes ici comme lectrice ou lecteur :</p>
 <ul>
   <li>Vous pouvez <a href={~p"/comite/postuler"}>rejoindre le comité de lecture du label</a>.</li>
   <li>Vous pouvez <a href={~p"/livres/choisir"}>choisir un livre</a> ayant reçu le label</li>
-  <li>Vous pouvez <%= raw lien_faire_connaitre %> autour de vous !</li>
+  <li>Vous pouvez <%= raw lien_faire_connaitre("si_lecteur") %> autour de vous !</li>
 </ul>
+
+<a name="tout_cela"></a>
 
 <p class="question">Vous êtes tout cela en même temps ou simplement un visiteur ou une visiteuse curieuse :</p>
 <ul>
@@ -71,6 +75,6 @@
   <li>Vous pouvez voir <a href={~p"/apropos/publication_en_chiffres"}>comment les chiffres de cette page ont été obtenus</a></li>
   <li>Vous pouvez <.link href={~p"/comite"}>découvrir le comité de lecture</.link>.</li>
   <li>Vous pouvez encourager le label en <a href="">faisant un don</a> pour le voir poursuivre son travail indispensable.</li>
-  <li>Vous pouvez <%= raw lien_faire_connaitre %> autour de vous !</li>
+  <li>Vous pouvez <%= raw lien_faire_connaitre("tout_cela") %> autour de vous !</li>
 </ul>
 
