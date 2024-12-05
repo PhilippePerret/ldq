@@ -21,6 +21,8 @@ defmodule LdQWeb.ViewHelpers do
     "<span class=\"label\">Lecture de Qualité</span>"
   end
 
+
+
   def membres(assigns) do
     case assigns[:fem] do
       true -> ~H'membres<font face="serif">-</font>lectrices/lecteurs'

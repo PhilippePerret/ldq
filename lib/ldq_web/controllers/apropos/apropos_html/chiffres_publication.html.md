@@ -14,5 +14,3 @@ D’après les dépôts obligatoires à la BNF, environ 80 000 titres sont dépo
 Notez que dans notre manisfeste, nous ne nous limitons pas aux livres *autoédités*, nous incluons dans notre réflexion les livres édités à compte d’auteur — c’est-à-dire ceux où un éditeur fait le travail rémunéré par l’auteur — et ceux édités par des petites maisons d’édition qui se retrouvent quasiment dans la position des autres éditions.
 
 À prendre en compte aussi : le fait que la grande majorité des livres se situent dans le domaine de la littérature Jeunesse et de la Bande Dessinée. Ce que l’on a coutume d’appeler *la Littérature générale* représente une moindre part des publications.
-
-<center class="mt-20">[Retourner au manifeste](/qualite_me_discutee)</center>

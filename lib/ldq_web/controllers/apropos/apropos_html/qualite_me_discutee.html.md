@@ -7,5 +7,3 @@ Bien sûr qu’il peut arriver, pour des raisons financières ou stratégiques, 
 Mais dans l’ensemble, sauf lorsque l’on ne sait pas ce qu’est un *bon* livre<%= asterisque_sup(nil) %>, il est indiscutable que la qualité est souvent au rendez-vous des pages d’un livre de fiction publié par une grand maison d’édition.
 
 <%= asterisque_sup(nil) %> Il existe encore trop de gens qui pensent qu’un *bon* livre, c’est un livre qu’ils aiment *eux* (voir [ce que le label en pense](/apropos/un_bon_livre)).
-
-<%= retour_manifeste(%{anchor: "qualite_me_discutee"}) %>

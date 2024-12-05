@@ -62,15 +62,21 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+# --- Pour Markdown ---
 config :phoenix, :template_engines, md: PhoenixMarkdown.Engine
-
 config :phoenix_markdown, :server_tags, :all
-
 config :phoenix_markdown, :earmark, %{
     gfm: true,
     smartypants: false,
     breaks: true
   }
+
+# --- Pour mon markdown à moi ---
+config :phoenix, :template_engines, mmd: MyMarkdown.Engine
+
+config :phoenix_markdown, :table_vars, %{
+  label_ldq: "<span class=\"label\">Lecture de Qualité</span>"
+}
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
