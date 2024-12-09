@@ -1,4 +1,4 @@
-## Des lois de l’écriture
+## Des lois (de l’écriture)
 
 Disons-le tout net : aussi pertinentes et subtiles soient-elles, on ne définira jamais un bon livre à partir de _règles objectives_. Encore moins un chef-d’œuvre. À peine aurait-on posé une condition que des contre exemples traverseraient aussitôt l’esprit pour la contredire.
 
@@ -45,6 +45,7 @@ reponse. Aussi, si un texte ne doit pas obliger à garder un dictionnaire en per
 <p class="reponse">La lecture d’un bon livre ne souffre d’aucun retour en arrière — sauf pour le plaisir de la relecture d’une belle phrase… — et d’aucun besoin de s’arrêter pour comprendre ou pour esquiver une proposition trop difficile à lire. Les pages doivent se lire de façon fluide.</p>
 <p class="reponse">Sauf recherche volontaire, affirmée et perceptible, c’est la plus grande simplicité qui sera toujours privilégiée.</p>
 
+<a name="conclusion"></a>
 
 <p class="question">Cohérence du style</p>
 <p class="reponse">Un <em>bon livre</em>, pour le comité de lecture du label <.ldq_label/> présente une cohérence stylistique. Cette cohérence s’applique en général à toute l’œuvre mais il est possible d’imaginer qu’elle ne s’applique que de chapitre en chapitre, dans une forme de recherche expérimentale.</p>
@@ -53,4 +54,4 @@ reponse. Aussi, si un texte ne doit pas obliger à garder un dictionnaire en per
 
 ### Conclusion
 
-Les <.membres fem={true}/> du comité de lecture du <.ldq_label/> seront particulièrement attentifs à tous ses aspects dans les livres. Aidez-vous : avant de soumettre votre livre, vérifiez que vous ne tombez pas dans un de ces écueils !</p>
+Les [membres du comité de lecture](<%= ~p"/apropos/membres_comite?anchor=conclusion" %>) du var(label_ldq) seront particulièrement attentifs à tous ses aspects dans les livres. Amies autrices et amis auteurs, aidez-vous : avant de [soumettre votre livre](<%= ~p"/livres/soumettre" %>), vérifiez que vous ne tombez pas dans un de ces écueils !
