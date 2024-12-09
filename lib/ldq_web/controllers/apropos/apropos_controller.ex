@@ -7,7 +7,7 @@ defmodule LdQWeb.AproposController do
 		"choix_membres",
 		"faire_connaitre",
 		"faq",
-		"filtrage_livre",
+		"filtrage_des_livres",
 		"le_comite",
 		"manifeste",
 		"membres_comite",

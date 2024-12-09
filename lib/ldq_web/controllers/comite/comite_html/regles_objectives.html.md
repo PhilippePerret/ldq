@@ -1,8 +1,14 @@
-## Quelques règles objectives
+## Des lois de l’écriture
 
-Ci-dessous sont décrites certaines règles d’écriture objectives qui peuvent guider dans l’appréciation des livres soumis au label <.ldq_label/>. Leur connaissance et leur reconnaissance serviront tout autant [au lecteur ou à la lectrice du comité](/apropos/membre_comite) qu’à l’autrice ou à l’auteur qui voudra [soumettre un livre](/livres/soumettre) pour recevoir le label.
+Disons-le tout net : aussi pertinentes et subtiles soient-elles, on ne définira jamais un bon livre à partir de _règles objectives_. Encore moins un chef-d’œuvre. À peine aurait-on posé une condition que des contre exemples traverseraient aussitôt l’esprit pour la contredire.
 
-### Règles objectives
+Si cette vérité est incontestable et peut-être incontournable, il n’en reste pas moins qu’il existe certaines _lois naturelles_ qui se retrouvent d’un bon livre à l’autre, d’un chef-d’œuvre à l’autre. Mieux, lorsqu’elles ne sont pas respectées, les raisons s’en expliquent d’elles-mêmes et font sens à l'intérieur même de l'œuvre qui y déroge.
+
+Cette page — en permanente évolution — a pour objet de tenter de rassembler ces _règles d’écriture objectives_, ces _lois naturelles_, principalement stylistiques, qui pourront guider dans l’appréciation des livres soumis au label var(label_ldq). 
+
+Leur connaissance et leur _reconnaissance_ serviront, nous l’espérons, tout autant [au lecteur ou à la lectrice du comité](<%= ~p"/apropos/membres_comite" %>) qu’à l’autrice ou à l’auteur qui voudra [soumettre un livre](<%= ~p"/livres/soumettre" %>) pour recevoir le label.
+
+### Quelques règles objectives
 
 <p class="question">Non répétition des termes</p>
 <p class="reponse">Une des règles stylistiques propre au français, et qui participe à la beauté de la langue, consiste à ne pas répéter les mots. La distance entre deux mots doit être d’au moins une page. Il ne s’agit pas, évidemment, ici, des mots <em>invisible</em> que sont les auxiliaires, les mots tels que « mais », etc.</p>
@@ -31,8 +37,11 @@ Ci-dessous sont décrites certaines règles d’écriture objectives qui peuvent
 <p class="reponse">Un <em>bon livre</em> ne se regarde pas écrire… Il n’est rien de pire que ce style qu’on trouve souvent sur les forums d’écriture où, pour prouver qu’il ou elle maitrise la langue, l’autrice ou l’auteur abuse des tournures et des termes compliqués, faisant passer au premier rang sa virtuosité (de pacotille bien souvent) au détriment du propos, de l’histoire.</p>
 <p class="reponse">Rien de tel, pour emporter le lecteur et la lectrice, que la simplicité. Simplicité qui, seule, permet de faire sentir, voir, entendre, la profondeur du propos, l’intensité des sentiments, la richesse des émotions.</p>
 
-<p class="question">Fluidité</p>
+question. Richesse verbale
+reponse. La _simplicité_ dont il est question ci-dessus n’exclut pas la _richesse de vocabulaire_. Surtout lorsque cette richesse découle non d’une volonté d’impressionner le lecteur — démarche condamnable en soi — mais d’un souci de _précision_, de _clarté_, autant dans la description des choses que des sentiments, de l’impalpable ou la mise en relief des éléments narratifs.
+reponse. Aussi, si un texte ne doit pas obliger à garder un dictionnaire en permanence à côté de soi, il doit néanmoins savoir mettre à profit, et à bon escient, la richesse du vocabulaire de sa langue.
 
+<p class="question">Fluidité</p>
 <p class="reponse">La lecture d’un bon livre ne souffre d’aucun retour en arrière — sauf pour le plaisir de la relecture d’une belle phrase… — et d’aucun besoin de s’arrêter pour comprendre ou pour esquiver une proposition trop difficile à lire. Les pages doivent se lire de façon fluide.</p>
 <p class="reponse">Sauf recherche volontaire, affirmée et perceptible, c’est la plus grande simplicité qui sera toujours privilégiée.</p>
 

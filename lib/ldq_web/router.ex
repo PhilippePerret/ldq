@@ -45,6 +45,7 @@ defmodule LdQWeb.Router do
 
     get "/", ComiteController, :portail
     get "/actu", ComiteController, :actu
+    get "/regles_objectives", ComiteController, :regles_objectives
     get "/conditions_admission", ChantierController, :voie_sans_issue
     get "/postuler", ChantierController, :voie_sans_issue
   end

@@ -12,6 +12,10 @@ defmodule LdQWeb.ComiteController do
     end
   end
 
+  def regles_objectives(conn, _params) do
+    render(conn, :regles_objectives)
+  end
+
   def actu(conn, _params) do
     cuser = conn.assigns[:current_user]
     cond do

@@ -12,9 +12,10 @@ Cette définition se présente comme un compromis entre les exigences, les atten
 
  De prime abord, une règle comme celle-ci peut sembler extrêmement suspecte, sujette à caution, à discussion. Pourtant, si l’on y réfléchit un tant soit peu, on en arrivera à la conclusion qu’effectivement les plus grands chefs-d’œuvre des différents arts sont toujours des œuvres qui plaisent — ou ont plu, à l'époque de leur renommée — au plus grand nombre de personnes.
 
+<a name="oeuvreschef"></a>
 Bien sûr que Jean va aime l’œuvre A, l’œuvre B et l’œuvre C, que Kevin va, lui, préfère la D et la E, même s’il aime aussi la C et que Robert va n’aimer que l’œuvre T alors que Christine va apprécier aussi bien la A que la D et la E et bien sûr l’œuvre C, chacun aura ses propres préférences, ses propres gouts, et pas un ou une ne se ressemble. Mais au final, si vous relisez attentivement cette description, l’œuvre C a plu à presque tout le monde.
 
-Alors bien sûr, il existe également des œuvres qui sont déclarées chefs-d’œuvre non pas par le public lambda mais par les spécialistes d’un art ou ses pratiquantes et pratiquants les plus aguerri(e)s, et pourtant des œuvres que le public boude (qu'on ne comprenne pas cette affirmation de travers : il existe aussi des œuvres, nombreuses, qui trouvent les faveurs aussi bien des spécialistes que du public lambda). Ces œuvres pourront, exceptionnellement, passer, grâce au [système de filtrage](/apropos/filtrage_livre) des livres et notamment la *clause d’engagement* à laquelle peut avoir recours un membre du comité de lecture.
+Alors bien sûr, il existe également des œuvres qui sont déclarées chefs-d’œuvre non pas par le public lambda mais par les spécialistes d’un art ou ses pratiquantes et pratiquants les plus aguerri(e)s, et pourtant des œuvres que le public boude (qu'on ne comprenne pas cette affirmation de travers : il existe aussi des œuvres, nombreuses, qui trouvent les faveurs aussi bien des spécialistes que du public lambda). Ces œuvres pourront, exceptionnellement, passer, grâce au [système de filtrage](<%= ~p"/apropos/filtrage_des_livres?anchor=oeuvreschef" %>) des livres et notamment la *clause d’engagement* à laquelle peut avoir recours un membre du comité de lecture.
 
 Prenons aussi le problème à l’envers : que serait une soi-disante *grande œuvre* qui ne plairait à personne ?... Ou à seulement un petit nombre, un petit groupe de connaisseurs ?
 
@@ -24,11 +25,13 @@ Mais surtout, ce qu’il est important de comprendre, c’est qua la vocation pr
 
 La vocation de ce label est destiné avant tout à proposer aux lectrices et aux lecteurs des livres susceptibles de leur plaire, de leur faire passer un bon moment de lectures. Le label, et son comité, part donc du principe que si l’œuvre a plu à une majorité importante de <.membres fem={true}/>, des membres comme vous et moi, alors elle plaira forcément au plus grand nombre. Si un livre a passé le filtre des 100 membres-lecteurs du comité, chacun avec ses propres préférences, il y a de grandes chances pour que ce livre plaise à cette lectrice et ce lecteur.
 
+<a name="certainesregles"></a>
+
 Aussi, quand bien même il y aurait un petit aspect subjectif dans ce critère de *plaire au plus grand nombre*, nous l’assumons pleinement.
 
 ### 2. Les qualités d’un *bon livre* répondent à certaines règles objectives
 
-Même si l’on a coutume, en matière de qualité littéraire, d’invoquer les gouts et les couleurs à tous bouts de champ, nous croyons, au sein du comité, que l’alignement des mots pour former un texte répond, comme tout dans la nature, à [certaines règles objectives](/comite/regles_objectives) — qu’on préfère appeler *lois naturelles*, comme est une loi naturelle *l’apesanteur* — qui, lorsqu’elles ne sont pas respectées, portent préjudice au propos, au texte, au plaisir de lecture.
+Même si l’on a coutume, en matière de qualité littéraire, d’invoquer les gouts et les couleurs à tous bouts de champ, nous croyons, au sein du comité, que l’alignement des mots pour former un texte répond, comme tout dans la nature, à [certaines règles objectives](<%= ~p"/comite/regles_objectives?anchor=certainesregles" %>) — qu’on préfère appeler *lois naturelles*, comme est une loi naturelle *l’apesanteur* — qui, lorsqu’elles ne sont pas respectées, portent préjudice au propos, au texte, au plaisir de lecture.
 
 {{TODO: Un lien vers les règles de styles objectives — faire une page pour les rassembler, qui servira aussi aux membres-lecteurs eux-mêmes.}}
 

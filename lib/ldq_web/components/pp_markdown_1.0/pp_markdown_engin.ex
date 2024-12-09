@@ -1,4 +1,4 @@
-defmodule MyMarkdown.Engine do
+defmodule PPMarkdown.Engine do
   @behaviour Phoenix.Template.Engine
 
   # Ça râle un peu, mais ça passe
