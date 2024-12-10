@@ -1,9 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" class="[scrollbar-gutter:stable]">
   <head>
-    <%= if Application.get_env(:ldq, :env) == :prod do %>
-      <base href="https://www.lecture-de-qualite.fr/" />
-    <% end %>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
