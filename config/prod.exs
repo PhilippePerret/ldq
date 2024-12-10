@@ -12,7 +12,7 @@ config :ldq, LdQWeb.Endpoint,
   debug_errors: true, #, # true pour voir les erreurs en production
   cache_static_manifest: "priv/static/cache_manifest.json"
 
-config :ldq, env: :prod, # pour pouvoir faire Application.get_env(:ldq, :env) 
+config :ldq, env: :prod # pour pouvoir faire Application.get_env(:ldq, :env) 
 
   # Configures Swoosh API Client
 config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: LdQ.Finch
