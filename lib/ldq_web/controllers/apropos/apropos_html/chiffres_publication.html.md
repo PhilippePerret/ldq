@@ -1,0 +1,16 @@
+## Les Chiffres de la publication
+
+Les chiffres de la publications utilisés pour le texte de [notre manifeste](/apropos/manifeste) ont été volontairement et drastiquement arrondis pour les besoins et l’efficacité de la démonstration. On nous pardonnera ces approximations.
+
+Ces chiffres s’appuient cependant sur des études sérieuses extraits par exemple d’une étude statistiques faite pour l’année 2021 par le Syndicat National de l’édition ou des chiffres fournis par la BNF.
+
+Cette étude révèle que 109 480 livres ont été publiés en 2021. à noter qu’une grosse moitié est consacrée à la réimpression (69 577 contre 39 903 nouveautés) — mais l’autoédition comporte aussi une forme de réimpression par la voie de l’impression à la demande.
+
+
+D’autres études revèlent que sur les 100 000 livres de fiction publiés par an en France et en langue française, 50 % le sont dans des maisons d’édition de taille très variable, de la maison d’édition confidentielle ne publiant que deux ou trois ouvrages par ans jusqu’à la plus grosse en publiant plusieurs centaines (comme Albin Michel par exemple). Voir aussi les chiffres de la BNF ci-dessous.
+
+D’après les dépôts obligatoires à la BNF, environ 80 000 titres sont déposés, dont 15 000 en autoéditions. Noter que la différence de chiffres — ici bien moindre — se justifie simplement par le fait des réimpressions qui ne nécessitent pas, sauf nouvelle version, de dépôt BNF. Et la part des réimpressions, comme nous l’avons vu plus haut, est importante et pèse dans le nombre total des livres sur le marché. 
+
+Notez que dans notre manisfeste, nous ne nous limitons pas aux livres *autoédités*, nous incluons dans notre réflexion les livres édités à compte d’auteur — c’est-à-dire ceux où un éditeur fait le travail rémunéré par l’auteur — et ceux édités par des petites maisons d’édition qui se retrouvent quasiment dans la position des autres éditions.
+
+À prendre en compte aussi : le fait que la grande majorité des livres se situent dans le domaine de la littérature Jeunesse et de la Bande Dessinée. Ce que l’on a coutume d’appeler *la Littérature générale* représente une moindre part des publications.

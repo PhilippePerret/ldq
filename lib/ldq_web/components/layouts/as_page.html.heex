@@ -1,0 +1,10 @@
+<main>
+  <div class="mx-40 max-w-2xl">
+    <.flash_group flash={@flash} />
+    <section class="as_page mt-20" style="margin-left:2em;width:800px;padding:1em 3em 5em;box-shadow: 10px 10px 20px 2px grey; background-color:#F9FDEF;">
+      <.block_previous_page previous={@page_pre} />
+      <%= @inner_content %>
+      <.block_previous_page previous={@page_pre} />
+    </section>
+  </div>
+</main>

@@ -1,0 +1,14 @@
+<h1>Accès interdit</h1>
+
+<p>Vous n'avez pas le niveau de privilège suffisant pour rejoindre cette partie. Seuls les membres du comité de lecture du label ont accès à cette partie.</p>
+
+<p>Que voulez-vous faire maintenant ?</p>
+
+<ul>
+  <%= if @current_user do %>
+    <li><a href={~p"/comite/postuler"}>Soumettre ma candidature</a> pour rejoindre le comité de lecture,</li>
+  <% else %>
+    <li><a href={~p"/users/log_in"}>Vous identifier</a></li>
+    <li><a href={~p"/users/register"}>Vous inscrire</a> (pour soumettre votre candidature)</li>
+  <% end %>
+</ul>

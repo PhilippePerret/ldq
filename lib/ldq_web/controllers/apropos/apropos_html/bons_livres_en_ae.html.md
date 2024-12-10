@@ -1,0 +1,13 @@
+## Comment être sûr que les bons livres en autoédition existent ?
+
+Cette question est légitime. On pourrait se dire — on l’entend dire — qu’un bon livre trouve toujours éditeur. Dans ce cas-là, tous les bons livres seraient donc édités par des maisons d’édition officielles, ou n’existeraient pas. Alors comment être certain que parmi les livres autoédités on puisse en trouver des bons, des excellents mêmes ?…
+
+La réponse est simple : parce que les maisons d’édition officielles et compétentes sont incapables, à elles seules, pour des raisons de budget, pour des raisons de lignes éditoriales, d’éditer tous les livres qu’ils aimeraient publier (à leur grand dam souvent).
+
+Parfois, lorsqu’un ouvrage est assuré de faire un immense succès, les maisons d’édition peuvent déroger à leur ligne éditoriale, mais un livre assuré d’être un succès avant sa publication est une exception rarissime (sauf lorsqu’il émane d’une personne publiques et, là, sa qualité peut être sujette à caution).
+
+Et puis, aussi, n’oublions pas que c’est toujours le haut du panier que publiera une maison d’édition. Parfois le seul meilleur livre dans sa catégorie. Est-ce à dire que le second, le troisième, le quatrième seraient mauvais au point de les jeter aux orties ?… Ce serait étonnant. Et il ne leur restera alors plus que l’autoédition pour exister.
+
+On peut donc les trouver, perdus dans le marasme de l’autoédition. CQDF.
+
+

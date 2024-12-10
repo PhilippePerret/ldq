@@ -1,0 +1,3 @@
+## Choix des membres du comité de lecture
+
+{TODO: Cette page doit décrire comment son choisis les membres du comité de lecture.}

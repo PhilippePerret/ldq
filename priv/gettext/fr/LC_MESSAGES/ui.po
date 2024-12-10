@@ -1,0 +1,37 @@
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: fr\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: lib/ldq_web/components/layouts/root.html.heex:72
+#, elixir-autogen, elixir-format
+msgid "Log out"
+msgstr "Se déconnecter"
+
+#: lib/ldq_web/components/layouts/root.html.heex:82
+#, elixir-autogen, elixir-format
+msgid "Register"
+msgstr "S’inscrire"
+
+#: lib/ldq_web/components/layouts/root.html.heex:63
+#, elixir-autogen, elixir-format
+msgid "Settings"
+msgstr "Vos réglages"
+
+#: lib/ldq_web/components/layouts/root.html.heex:89
+#, elixir-autogen, elixir-format
+msgid "Sign in"
+msgstr "S’identifier"
+
+#: lib/ldq_web/components/core_components.ex:35
+#, elixir-autogen, elixir-format
+msgid "Back to previous page"
+msgstr "Retour à la page précédente"

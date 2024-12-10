@@ -1,0 +1,59 @@
+## Un bon livre, qu’est-ce que c’est ?
+
+Chacun, évidemment, possède sa propre définition de ce qu’est un *bon livre*, ses propres exigences en matière de lecture, ses propres attentes et fantasmes — nous parlons ici de fantasmes tout à fait sages, rassurez-vous.
+
+<p class="exergue">Il est impossible de trouver une définition<br />qui contenterait tout monde.</p>
+
+S’il est vrai qu’il serait utopique de vouloir définir des critères qui contenteraient tout le monde, nous avons dû pourtant en adopter un certain nombre, appliqués par les membres du comité, pour définir le label var(label_ldq).
+
+Cette définition se présente comme un compromis entre les exigences, les attentes et les fantasmes les plus divers et nombreux. Pour le comité, un *bon livre*, répond à TROIS critères simples :
+
+### 1. Un *bon livre* plait au plus grand nombre
+
+ De prime abord, une règle comme celle-ci peut sembler extrêmement suspecte, sujette à caution, à discussion. Pourtant, si l’on y réfléchit un tant soit peu, on en arrivera à la conclusion qu’effectivement les plus grands chefs-d’œuvre des différents arts sont toujours des œuvres qui plaisent — ou ont plu, à l'époque de leur renommée — au plus grand nombre de personnes.
+
+<a name="oeuvreschef"></a>
+Bien sûr que Jean va aime l’œuvre A, l’œuvre B et l’œuvre C, que Kevin va, lui, préfère la D et la E, même s’il aime aussi la C et que Robert va n’aimer que l’œuvre T alors que Christine va apprécier aussi bien la A que la D et la E et bien sûr l’œuvre C, chacun aura ses propres préférences, ses propres gouts, et pas un ou une ne se ressemble. Mais au final, si vous relisez attentivement cette description, l’œuvre C a plu à presque tout le monde.
+
+Alors bien sûr, il existe également des œuvres qui sont déclarées chefs-d’œuvre non pas par le public lambda mais par les spécialistes d’un art ou ses pratiquantes et pratiquants les plus aguerri(e)s, et pourtant des œuvres que le public boude (qu'on ne comprenne pas cette affirmation de travers : il existe aussi des œuvres, nombreuses, qui trouvent les faveurs aussi bien des spécialistes que du public lambda). Ces œuvres pourront, exceptionnellement, passer, grâce au [système de filtrage](<%= ~p"/apropos/filtrage_des_livres?anchor=oeuvreschef" %>) des livres et notamment la *clause d’engagement* à laquelle peut avoir recours un membre du comité de lecture.
+
+Prenons aussi le problème à l’envers : que serait une soi-disante *grande œuvre* qui ne plairait à personne ?... Ou à seulement un petit nombre, un petit groupe de connaisseurs ?
+
+Mais surtout, ce qu’il est important de comprendre, c’est qua la vocation première de ce label n’est pas d’évaluer la qualité artistique des œuvres, même si son énoncé, <.ldq_label/> semble prétendre le contraire.
+
+<p class="exergue">La vocation première du label n’est pas<br /> d’évaluer la qualité artistique des œuvres</p>
+
+La vocation de ce label est destiné avant tout à proposer aux lectrices et aux lecteurs des livres susceptibles de leur plaire, de leur faire passer un bon moment de lectures. Le label, et son comité, part donc du principe que si l’œuvre a plu à une majorité importante de <.membres fem={true}/>, des membres comme vous et moi, alors elle plaira forcément au plus grand nombre. Si un livre a passé le filtre des 100 membres-lecteurs du comité, chacun avec ses propres préférences, il y a de grandes chances pour que ce livre plaise à cette lectrice et ce lecteur.
+
+<a name="certainesregles"></a>
+
+Aussi, quand bien même il y aurait un petit aspect subjectif dans ce critère de *plaire au plus grand nombre*, nous l’assumons pleinement.
+
+### 2. Les qualités d’un *bon livre* répondent à certaines règles objectives
+
+Même si l’on a coutume, en matière de qualité littéraire, d’invoquer les gouts et les couleurs à tous bouts de champ, nous croyons, au sein du comité, que l’alignement des mots pour former un texte répond, comme tout dans la nature, à [certaines règles objectives](<%= ~p"/comite/regles_objectives?anchor=certainesregles" %>) — qu’on préfère appeler *lois naturelles*, comme est une loi naturelle *l’apesanteur* — qui, lorsqu’elles ne sont pas respectées, portent préjudice au propos, au texte, au plaisir de lecture.
+
+{{TODO: Un lien vers les règles de styles objectives — faire une page pour les rassembler, qui servira aussi aux membres-lecteurs eux-mêmes.}}
+
+Notons, en passant, que ce critère tempère quelque peu le « plaire au plus grand nombre » dont il est question plus haut. Le filtre d’une qualité minimale sera appliquée sur tous les choix.
+
+### 3. Un *bon livre* se présente sous une forme convenable
+
+Sans attendre des livres autoédités la qualité esthétique des livres publiés par les maisons prestigieuses en collaboration avec les meilleurs illustrateurs et illustratrices, l’aspect d’un *bon livre* susceptible de recevoir le label var(label_ldq), est regardée avec soin.
+
+Sa couverture doit être adaptée à son contenu, elle doit rester simple — sauf si le sujet exige le contraire —, le titre doit être parfaitement lisible. L’aspect intérieur est tout aussi important et comprend sa mise en page et le respect des règles minimums de l’édition traditionnelle — l’alignement sur les lignes de références, la présence des pages attendues par les lecteurs, etc.
+
+Dans le cas où un livre remplirait les critères précédent mais pas ce dernier, il sera évidemment proposé à son autrice ou son auteur de revoir cet aspect avant de soumettre à nouveau son œuvre.
+
+<hr />
+
+Notons pour conclure que pour être complet, il pourra arriver qu’un livre n’ayant pas plu au plus grand nombre des <.membres fem={true}/> du comité pourra exceptionnellement recevoir le label var(label_ldq) lorsque les autres qualités sont jugées extraordinairepment élevées. Une mention spéciale sera alors appliquée, pour indiquer que la lecture peut être plus exigeante. Certaines lectrices et certains lecteurs pourraient être intéressés. 
+
+### D’autres sujets susceptibles de vous intéresser
+
+
+{{TODO: Petite note pour parler des [paramètres] (narration, style, personnages, thèmes), qui seront évalués pour tous les livres ayant reçu le label}}
+
+{{TODO: Petite note pour dire que l’histoire — une narration serrée — ne sera pas demandée obligatoirement — la mettre en fait dans la section mentionnée ci-dessus}}
+
+{{TODO: Lien vers la section des labels "spéciaux" de livres exceptionnels qui n’ont pas été appréciés par le plus grand nombre.}}

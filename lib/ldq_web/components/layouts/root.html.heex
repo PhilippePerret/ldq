@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" class="[scrollbar-gutter:stable]">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content={get_csrf_token()} />
+    <.live_title suffix=" · Phoenix Framework">
+      <%= assigns[:page_title] || "Label Lecture de Qualité" %>
+    </.live_title>
+    <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
+    <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
+    </script>
+
+    <%# Fontes Google %>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Asap+Condensed:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Great+Vibes&&display=swap" rel="stylesheet">
+
+  </head>
+  <body class="bg-white">
+ 
+    <header class="main">
+      <img 
+        id="logo-header"
+        src={~p"/images/label-header-light-1000px.png"}
+        />
+      <div id="bord-dark-blue">
+        <div 
+        id="header-bloc-user" 
+        class="absolute block right-8 top-2 bg-blue-500 w-100 h-10 rounded-full"
+        phx-click="toggle_menu_avatar"
+        >
+        <button 
+          id="avatar" 
+          class="block w-10 h-10 bg-red-500 rounded-full fleche-droite"
+          phx-click={LdQWeb.Layouts.App.toggle_menu_avatar}
+          >
+          <% 
+            avatar_default = "default_avatar.png"
+            image_name = if @current_user do
+              avatar_name = "#{@current_user.email}_avatar.jpg"
+              if File.exists?(~p"/images/users/#{avatar_name}") do
+                avatar_name
+              else
+                avatar_default
+              end
+            end || avatar_default
+          %>
+          <img class="rounded-full" src={~p"/images/users/#{image_name}"} />
+        </button>
+        <div 
+          id="main-menu-user"
+          class="absolute"
+          hidden="true"
+          >
+          <%= if @current_user do %>
+            <.link
+              href={~p"/users/settings"}
+              method="get"
+              class=""
+              tabindex="-1"
+            >
+              <%= dgettext("ui", "Settings") %>
+            </.link>
+
+            <.link
+            href={~p"/users/log_out"}
+            method="delete"
+            class=""
+            tabindex="-1"
+          >
+          <%= dgettext("ui", "Log out") %>
+          </.link>
+
+          <% else %>
+
+            <.link
+            href={~p"/users/register"}
+            class=""
+            tabindex="-1"
+          >
+            <%= dgettext("ui", "Register") %>
+          </.link>
+          <.link
+            href={~p"/users/log_in"}
+            class=""
+            tabindex="-1"
+          >
+          <%= dgettext("ui", "Sign in") %>
+          </.link>
+          <% end %>
+        </div>
+      </div>
+      </div>
+      <div id="bord-light-blue"></div>
+    </header>
+
+    <.main_links/>
+
+    <%= @inner_content %>
+    
+    <footer class="block text-center" style="margin-bottom:30em;">
+      <.main_links/>
+    </footer>
+
+  </body>
+</html>

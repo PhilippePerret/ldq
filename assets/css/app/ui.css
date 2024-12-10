@@ -1,0 +1,140 @@
+body {
+  font-family: serif;
+  font-size:16pt;
+  margin:0;
+  padding:0;
+}
+
+header.main {
+  height:6em;
+  margin-top:0;
+  margin-bottom: 0rem;
+  border-bottom: 1px solid white;
+  position:relative;
+}
+header.main img#logo-header {
+  position:absolute;
+  width:330pt;
+  left:calc(50% - 200pt);
+  z-index:5;
+}
+header.main div#bord-dark-blue,
+header.main div#bord-light-blue {
+  display:block;
+  position:absolute;
+}
+header.main div#bord-dark-blue {
+  left: 0;
+  top: 0;
+  height:4.5em;
+  background-color: var(--maintheme-dark);
+  /* background-color: ; */
+  width:100%;
+  z-index:0;
+}
+header.main div#bord-light-blue {
+  left: 0;
+  top: 4.5em;
+  height: 1.5em;
+  width:100%;
+  border-top:0.5px solid white;
+  background-color:  var(--maintheme-light);
+  z-index:-1;
+}
+
+header div#main-menu-user {
+  position:absolute;
+  left:calc(-160px - 2em);
+  padding:1em;
+  background-color: white;
+  color: var(--maintheme-dark);
+  border: 1.5px solid var(--maintheme-dark);
+  border-radius:12px 0 12px 12px;
+  box-shadow: 5px 5px 25px 0px grey;
+  z-index:10;
+}
+
+header div#main-menu-user a {
+  display: block;
+  width: 200px;
+  color: var(--maintheme-dark);
+  background:white;
+  z-index:10;
+}
+header div#main-menu-user a:not(:last-child) {
+  padding-bottom:8px;
+  border-bottom:1px solid white;
+}
+header div#main-menu-user a:not(:first-child) {
+  margin-top:8px;
+}
+
+/* Pour que les champs des formulaires ne soient pas
+collés au bord */
+form > div {
+  padding:2em;
+}
+
+content#main {
+  display: block;
+/*  margin: 1em;*/
+}
+
+/* Pour entourer la marque "Lecture de Qualité" */
+span.label  {
+  font-family: "Great Vibes", cursive;
+  font-size: 24pt;
+  font-weight: 200;
+/*  font-variant: small-caps;*/
+}
+
+span.label:before {
+  content:"« ";
+  vertical-align: middle;
+}
+span.label:after {
+  content:" »";
+  vertical-align: middle;
+}
+
+span.lettrine {
+  font-size: 1.8em;
+}
+
+footer {
+  margin-top: 2rem;
+  border-top: 1px solid white;
+}
+footer > div {
+  margin: 1em;
+}
+
+div.main-links {
+  @appl block text-center;
+  text-align: center;
+  user-select:none;
+  font-variant:all-small-caps;
+}
+div.main-links a.main {
+  @apply px-4;
+  font-family:Arial, Geneva, Helvetica;
+  font-size: 12pt;
+  letter-spacing: 1.1px;
+  font-weight:bold;
+  color: var(--maintheme-dark);
+}
+
+.fleche-droite::before {
+  content:"";
+  position: absolute;
+  top:45%;
+  right:-16px;
+  border-radius:25%;
+  border-width:8px 6px 0 6px;
+  border-style:solid;
+  border-color: white transparent transparent transparent;
+}
+
+div#flash-group p {
+  font-family: Arial, Helvetica, Geneva;
+}
