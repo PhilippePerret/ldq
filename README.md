@@ -9,6 +9,10 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
 Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
 
+## Le site Lecture de Qualité
+
+On peut trouver le site en ligne à l'adresse [https://www.lecture-de-qualite.fr](https://www.lecture-de-qualite.fr) ou [https://www.lecture-de-qualite.net](https://www.lecture-de-qualite.net).
+
 ## Learn more
 
   * Official website: https://www.phoenixframework.org/
