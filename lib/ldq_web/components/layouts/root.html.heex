@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="[scrollbar-gutter:stable]">
   <head>
-    <%= if config_env() == :prod %>
+    <%= if config_env() == :prod do %>
       <base href="https://www.lecture-de-qualite.fr/" />
     <% end %>
     <meta charset="utf-8" />
