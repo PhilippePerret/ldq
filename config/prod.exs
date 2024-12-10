@@ -6,7 +6,8 @@ import Config
 # which you should run after static files are built and
 # before starting your production server.
 config :ldq, LdQWeb.Endpoint,
-  url: [host: "icare.alwaysdata.net", path: "/label", port: 8103],
+  url: [host: "www.lecture-de-qualite.fr", port: 8103],
+  # url: [host: "icare.alwaysdata.net", path: "/label", port: 8103],
   http: [port: 8103],
   server: true, # ajouté par Phil
   debug_errors: true, #, # true pour voir les erreurs en production
