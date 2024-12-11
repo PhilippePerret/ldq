@@ -7,7 +7,7 @@ import Config
 # before starting your production server.
 config :ldq, LdQWeb.Endpoint,
   url: [host: "www.lecture-de-qualite.net", port: 8103],
-  check_origin: ["https://www.lecture-de-qualite.net", "https://www.lecture-de-qualite.fr"]
+  check_origin: ["https://www.lecture-de-qualite.net", "https://www.lecture-de-qualite.fr"],
   # url: [host: "icare.alwaysdata.net", path: "/label", port: 8103],
   http: [port: 8103],
   server: true, # ajouté par Phil
