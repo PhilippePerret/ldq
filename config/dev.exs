@@ -8,7 +8,7 @@ config :ldq, LdQ.Repo,
   database: "ldq_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
-  pool_size: 10,
+  pool_size: 10
 
 config :ldq, env: :dev
 
