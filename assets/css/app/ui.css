@@ -138,3 +138,14 @@ div.main-links a.main {
 div#flash-group p {
   font-family: Arial, Helvetica, Geneva;
 }
+
+header div#app-version {
+  position: absolute;
+  left: -9pt;
+  top: 16pt;
+  color: white;
+  font-size: 9pt;
+  z-index: 1;
+  letter-spacing: 3px;
+  rotate: 270deg;
+}

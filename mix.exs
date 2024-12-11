@@ -4,7 +4,7 @@ defmodule LdQ.MixProject do
   def project do
     [
       app: :ldq,
-      version: "0.2.9",
+      version: "0.2.10",
       elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
@@ -19,7 +19,7 @@ defmodule LdQ.MixProject do
   def application do
     [
       mod: {LdQ.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools],
     ]
   end
 

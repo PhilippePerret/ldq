@@ -32,6 +32,9 @@ config :ldq, LdQWeb.Endpoint,
 # at the `config/runtime.exs`.
 config :ldq, LdQ.Mailer, adapter: Swoosh.Adapters.Local
 
+# Pour pouvoir utiliser le numéro de version
+config :ldq, :app_version, LdQ.MixProject.project()[:version]
+
 # Configure esbuild (the version is required)
 config :esbuild,
   version: "0.17.11",
