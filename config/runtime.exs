@@ -31,12 +31,13 @@ if config_env() == :prod do
   maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
 
   config :ldq, LdQ.Repo,
-    ssl: true,
     url: database_url,
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
     socket_options: maybe_ipv6,
-    verify: :verify_peer,
-    cacertfile: "/home/icare/www/label/certificat.pem"
+    ssl: true,
+    ssl_opts: [verify: :verify_peer, cacertfile: '/home/icare/www/label/certificat.pem']
+    # verify: :verify_peer,
+    # cacerts: "/home/icare/www/label/certificat.pem"
     # socket_options: maybe_ipv6 ++ [
     #   verify: :verify_peer,
     #   cacertfile: "/home/icare/www/label/certificat.pem"
