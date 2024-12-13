@@ -11,8 +11,8 @@ config :ldq, LdQWeb.Endpoint,
   # url: [host: "icare.alwaysdata.net", path: "/label", port: 8103],
   http: [port: 8103],
   server: true, # ajouté par Phil
-  debug_errors: true, #, # true pour voir les erreurs en production
-  cache_static_manifest: "priv/static/cache_manifest.json"
+  debug_errors: true #, #, # true pour voir les erreurs en production
+  # cache_static_manifest: "priv/static/cache_manifest.json"
 
 config :ldq, env: :prod # pour pouvoir faire Application.get_env(:ldq, :env) 
 

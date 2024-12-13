@@ -36,6 +36,7 @@ if config_env() == :prod do
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
     socket_options: maybe_ipv6,
     verify: true,
+    verify_peer: true,
     cacertfile: "/home/icare/www/label/certificat.pem"
 
   # The secret key base is used to sign/encrypt cookies and other secrets.
@@ -109,7 +110,7 @@ if config_env() == :prod do
     #       adapter: Swoosh.Adapters.Mailgun,
     #       api_key: System.get_env("MAILGUN_API_KEY"),
     #       domain: System.get_env("MAILGUN_DOMAIN")
-    config :ldq, LdQ.Mailer, 
+    config :ldq, LdQ.Mailer,
       adapter: Swoosh.Adapters.SMTP,
       relay: System.get_env("SMTP_SERVER"),
       username: System.get_env("SMTP_USERNAME"),

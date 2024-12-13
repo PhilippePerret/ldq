@@ -4,7 +4,7 @@ defmodule LdQ.MixProject do
   def project do
     [
       app: :ldq,
-      version: "0.2.14",
+      version: "0.2.15",
       elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
@@ -56,6 +56,7 @@ defmodule LdQ.MixProject do
       {:pp_markdown, git: "https://github.com/PhilippePerret/pp_markdown.git"},
       {:earmark, "~> 1.4"},
       {:swoosh, "~> 1.5"},
+      {:mimemail, "~> 1.0"}, # Ajouté pour tenter de régler problème mail
       {:finch, "~> 0.13"},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
