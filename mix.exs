@@ -4,7 +4,7 @@ defmodule LdQ.MixProject do
   def project do
     [
       app: :ldq,
-      version: "0.2.20",
+      version: "0.2.21",
       elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
