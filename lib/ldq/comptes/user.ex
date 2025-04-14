@@ -189,6 +189,9 @@ defmodule LdQ.Comptes.User do
     3 -> has_bit?(user, @bit_admin3)
     end
   end
+  def admin?(u) do
+    Flag.has?(u.privileges, 16) or Flag.has?(u.privileges, 32) or Flag.has?(u.privileges, 64)
+  end
 
   defp has_bit?(user, bit) do
     (user.privileges &&& bit) == bit

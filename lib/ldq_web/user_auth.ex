@@ -5,6 +5,7 @@ defmodule LdQWeb.UserAuth do
   import Phoenix.Controller
 
   alias LdQ.Comptes
+  alias LdQ.Comptes.User
 
   use Gettext, backend: LdQWeb.Gettext
 
@@ -221,7 +222,9 @@ defmodule LdQWeb.UserAuth do
   """
   def required_admin(conn, _opts) do
     u = conn.assigns[:current_user]
-    case Flag.has?(u.privileges, 16) do
+    |> IO.inspect(label: "User courant")
+    IO.inspect(Flag.has?(u.privileges, 16), label: "Flag.has?(u.privileges, 16) = ")
+    case User.admin?(u) do
     true  -> conn
     false -> 
       conn

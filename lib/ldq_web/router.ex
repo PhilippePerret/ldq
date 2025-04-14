@@ -20,6 +20,7 @@ defmodule LdQWeb.Router do
   scope "/", LdQWeb do
     pipe_through [:browser, :require_authenticated_user, :required_admin]
 
+    get "/admin-section", AdminController, :home
     resources "/pages", PageController
     resources "/page_locales", PageLocaleController
   end

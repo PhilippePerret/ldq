@@ -1,5 +1,5 @@
 defmodule Flag do
-  use Bitwise
+  import Bitwise
 
   @doc """
   Pour savoir si un drapeau contient un bit
