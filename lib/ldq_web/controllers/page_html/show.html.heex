@@ -1,0 +1,18 @@
+<.header>
+  Page <%= @page.id %>
+  <:subtitle>This is a page record from your database.</:subtitle>
+  <:actions>
+    <.link href={~p"/pages/#{@page}/edit"}>
+      <.button>Edit page</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.list>
+  <:item title="Slug"><%= @page.slug %></:item>
+  <:item title="Template"><%= @page.template %></:item>
+  <:item title="Status"><%= @page.status %></:item>
+  <:item title="Publised at"><%= @page.publised_at %></:item>
+</.list>
+
+<.back navigate={~p"/pages"}>Back to pages</.back>

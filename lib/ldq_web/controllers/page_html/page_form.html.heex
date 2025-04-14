@@ -1,0 +1,12 @@
+<.simple_form :let={f} for={@changeset} action={@action}>
+  <.error :if={@changeset.action}>
+    Oops, something went wrong! Please check the errors below.
+  </.error>
+  <.input field={f[:slug]} type="text" label="Slug" />
+  <.input field={f[:template]} type="text" label="Template" />
+  <.input field={f[:status]} type="number" label="Status" />
+  <.input field={f[:publised_at]} type="datetime-local" label="Publised at" />
+  <:actions>
+    <.button>Save Page</.button>
+  </:actions>
+</.simple_form>

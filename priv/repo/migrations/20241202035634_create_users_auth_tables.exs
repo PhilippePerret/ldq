@@ -6,9 +6,11 @@ defmodule LdQ.Repo.Migrations.CreateUsersAuthTables do
 
     create table(:users, primary_key: false) do
       add :id, :binary_id, primary_key: true
+      add :name, :string, null: false
       add :email, :citext, null: false
       add :hashed_password, :string, null: false
       add :confirmed_at, :utc_datetime
+      add :privileges, :integer, default: 0
 
       timestamps(type: :utc_datetime)
     end
@@ -21,6 +23,7 @@ defmodule LdQ.Repo.Migrations.CreateUsersAuthTables do
       add :token, :binary, null: false
       add :context, :string, null: false
       add :sent_to, :string
+
 
       timestamps(type: :utc_datetime, updated_at: false)
     end

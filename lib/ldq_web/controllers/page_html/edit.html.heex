@@ -1,0 +1,8 @@
+<.header>
+  Edit Page <%= @page.id %>
+  <:subtitle>Use this form to manage page records in your database.</:subtitle>
+</.header>
+
+<.page_form changeset={@changeset} action={~p"/pages/#{@page}"} />
+
+<.back navigate={~p"/pages"}>Back to pages</.back>

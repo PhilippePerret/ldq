@@ -17,6 +17,13 @@ defmodule LdQWeb.Router do
     plug :accepts, ["json"]
   end
 
+  scope "/", LdQWeb do
+    pipe_through :browser # TODO SEULEMENT ADMINISTRATEUR
+
+    resources "/pages", PageController
+    resources "/page_locales", PageLocaleController
+  end
+
   scope "/livres", LdQWeb do
     pipe_through :browser
   

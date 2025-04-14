@@ -4,7 +4,6 @@ defmodule LdQ.Repo.Migrations.AddColumnPrivilegesToUsers do
   def change do
 
     alter table(:users) do
-      add :privileges, :integer, default: 0
     end
   end
 end

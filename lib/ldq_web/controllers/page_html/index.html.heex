@@ -1,0 +1,26 @@
+<.header>
+  Listing Pages
+  <:actions>
+    <.link href={~p"/pages/new"}>
+      <.button>New Page</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table id="pages" rows={@pages} row_click={&JS.navigate(~p"/pages/#{&1}")}>
+  <:col :let={page} label="Slug"><%= page.slug %></:col>
+  <:col :let={page} label="Template"><%= page.template %></:col>
+  <:col :let={page} label="Status"><%= page.status %></:col>
+  <:col :let={page} label="Publised at"><%= page.publised_at %></:col>
+  <:action :let={page}>
+    <div class="sr-only">
+      <.link navigate={~p"/pages/#{page}"}>Show</.link>
+    </div>
+    <.link navigate={~p"/pages/#{page}/edit"}>Edit</.link>
+  </:action>
+  <:action :let={page}>
+    <.link href={~p"/pages/#{page}"} method="delete" data-confirm="Are you sure?">
+      Delete
+    </.link>
+  </:action>
+</.table>
