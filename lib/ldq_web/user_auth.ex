@@ -216,8 +216,19 @@ defmodule LdQWeb.UserAuth do
     end
   end
 
+  @doc """
+  Barrière administrateur (cf. router.ex)
+  """
   def required_admin(conn, _opts) do
-
+    u = conn.assigns[:current_user]
+    case Flag.has?(u.privileges, 16) do
+    true  -> conn
+    false -> 
+      conn
+      |> put_flash(:error, gettext("You are not authorized to access this section."))
+      |> redirect(to: ~p"/")
+      |> halt()
+    end
   end
 
   defp put_token_in_session(conn, token) do
