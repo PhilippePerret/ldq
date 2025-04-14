@@ -17,7 +17,8 @@ defmodule LdQWeb.CoreComponents do
   use Phoenix.Component
 
   alias Phoenix.LiveView.JS
-  import LdQWeb.Gettext
+  # import LdQWeb.Gettext
+  use Gettext, backend: LdQWeb.Gettext
 
 
   @doc """

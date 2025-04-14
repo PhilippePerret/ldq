@@ -35,6 +35,8 @@ config :ldq, LdQ.Mailer, adapter: Swoosh.Adapters.Local
 # Pour pouvoir utiliser le numéro de version
 config :ldq, :app_version, LdQ.MixProject.project()[:version]
 
+config :ldq, LdQWeb.Gettext, default_locale: "fr"
+
 # Configure esbuild (the version is required)
 config :esbuild,
   version: "0.17.11",
@@ -87,6 +89,7 @@ config :pp_markdown, options: %{
 config :pp_markdown, table_vars: %{
   label_ldq: "<span class=\"label\">Lecture de Qualité</span>"
 }
+
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

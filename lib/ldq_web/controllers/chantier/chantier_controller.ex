@@ -9,4 +9,9 @@ defmodule LdQWeb.ChantierController do
     render(conn, :en_travaux, route: conn.request_path)
   end
 	
+
+  def test_mail(conn, _params) do
+    LdQ.Mailer.send_test_email()
+    render(conn, :en_travaux, route: conn.request_path)    
+  end
 end

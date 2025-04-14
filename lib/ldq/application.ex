@@ -1,3 +1,10 @@
+# defmodule CertTest do
+#   def check_cert do
+#     File.read!("/home/icare/www/label/fullchain.pem")
+#     |> IO.inspect(label: "Certificat")
+#   end
+# end
+
 defmodule LdQ.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications

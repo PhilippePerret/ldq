@@ -30,14 +30,42 @@ if config_env() == :prod do
 
   maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
 
+  _cacerts =
+    File.read!("/home/icare/www/label/certificat.pem")
+    |> :public_key.pem_decode()
+    |> Enum.map(fn {:Certificate, cert, :not_encrypted} -> cert end)
+
   config :ldq, LdQ.Repo,
     url: database_url,
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
     socket_options: maybe_ipv6,
     ssl: true,
-    ssl_opts: [verify: :verify_peer, cacertfile: '/home/icare/www/label/certificat.pem']
+    # Ne plante pas mais ne change rien :
+    ssl_options: [
+      verify: :verify_peer, 
+      cacertfile: "/home/icare/www/label/certificat.pem"
+    ]
+    # # PLANTE (donné par chatGPT)
+    # ssl: [
+    #   verify: :verify_peer,
+    #   cacertfile: "/home/icare/www/label/certificat.pem"
+    # ]
+    # # PLANTE (trouvé sur un site)
+    # ssl: [
+    #   verify: :verify_peer, 
+    #   cacerts: cacerts,
+    # ]
+    # PLANTE : 
+    # ssl: [cacertfile: '/home/icare/www/label/certificat.pem']
+    # # (conseillé par message d’erreur) PLANTE
+    # # (variante) PLANTE
+    # ssl: [
+    #   verify: :verify_peer, 
+    #   cacertfile: '/home/icare/www/label/certificat.pem'
+    # ]
     # verify: :verify_peer,
     # cacerts: "/home/icare/www/label/certificat.pem"
+    # ssl_opts: [verify: :verify_peer, cacertfile: '/home/icare/www/label/certificat.pem']
     # socket_options: maybe_ipv6 ++ [
     #   verify: :verify_peer,
     #   cacertfile: "/home/icare/www/label/certificat.pem"

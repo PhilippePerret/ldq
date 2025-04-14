@@ -6,7 +6,7 @@ defmodule LdQWeb.UserAuth do
 
   alias LdQ.Comptes
 
-  import LdQWeb.Gettext # ajouté par moi
+  use Gettext, backend: LdQWeb.Gettext
 
 
   # Make the remember me cookie valid for 60 days.

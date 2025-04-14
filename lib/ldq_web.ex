@@ -43,7 +43,8 @@ defmodule LdQWeb do
         layouts: [html: LdQWeb.Layouts]
 
       import Plug.Conn
-      import LdQWeb.Gettext
+      # import LdQWeb.Gettext
+      use Gettext, backend: LdQWeb.Gettext
 
       unquote(verified_routes())
     end
@@ -69,6 +70,7 @@ defmodule LdQWeb do
   def html do
     quote do
       use Phoenix.Component
+      use Gettext, backend: LdQWeb.Gettext
 
       # Mes helpers à moi (dans le module view_helpers.ex)
       import LdQWeb.ViewHelpers
@@ -88,7 +90,7 @@ defmodule LdQWeb do
       import Phoenix.HTML
       # Core UI components and translation
       import LdQWeb.CoreComponents
-      import LdQWeb.Gettext
+      # import LdQWeb.Gettext
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS
