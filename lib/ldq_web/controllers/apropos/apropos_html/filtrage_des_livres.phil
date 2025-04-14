@@ -1,13 +1,12 @@
-## Comment sont filtrés les livres
+h2: Comment sont filtrés les livres
 
 La question du *filtrage* des livres, tel que décrit dans le [manifeste](/) du site, est un des problèmes les plus épineux, concernant ce que nous avons appelé la [*réalisabilité*](/apropos/realisabilite) du label.
 
-
-Pour ce qui est de la subjectivité, la solution est simple : nous partons du principe que cette subjectivité se dilue dans le nombre. Plus les <.membres fem={true}/> sont nombreux et moins leur subjectivité est à l’œuvre.
+Pour ce qui est de la subjectivité, la solution est simple : nous partons du principe que cette subjectivité se dilue dans le nombre. Plus les <: membres(true) :> sont nombreux et moins leur subjectivité est à l’œuvre.
 
 Mais pour avoir un grand nombre de lectrices et de lecteurs dans le comité, les règles doivent être communes et susceptibles de garantir une homogénénité, une compétence et une pertinence dans les choix et les rejets.
 
-C’est le *Principe du rejet immédiat* qui permet 1) de rassurer le <.membre/> sur le fait qu’il n’aura pas à passer des heures à lire de la médiocrité — il peut rejeter, sans raison à défendre —, qui permet 2) de traiter un grand nombre de livres et 3) qui permet une évaluation naturelle des <.membres fem={true}/>.
+C’est le *Principe du rejet immédiat* qui permet 1) de rassurer le <: membre :> sur le fait qu’il n’aura pas à passer des heures à lire de la médiocrité — il peut rejeter, sans raison à défendre —, qui permet 2) de traiter un grand nombre de livres et 3) qui permet une évaluation naturelle des <: membres(true) :>.
 
 {TODO: Traiter : on table sur le fait qu’une partie infime de la publication sauvage est estimable}
 
