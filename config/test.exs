@@ -14,7 +14,7 @@ config :ldq, LdQ.Repo,
   hostname: "localhost",
   database: "ldq_test#{System.get_env("MIX_TEST_PARTITION")}",
   pool: Ecto.Adapters.SQL.Sandbox,
-  pool_size: System.schedulers_online() * 2,
+  pool_size: System.schedulers_online() * 2
 
 config :ldq, env: :test
 

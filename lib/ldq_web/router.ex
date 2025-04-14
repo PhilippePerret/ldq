@@ -18,7 +18,7 @@ defmodule LdQWeb.Router do
   end
 
   scope "/", LdQWeb do
-    pipe_through :browser # TODO SEULEMENT ADMINISTRATEUR
+    pipe_through [:browser, :require_authenticated_user, :required_admin]
 
     resources "/pages", PageController
     resources "/page_locales", PageLocaleController

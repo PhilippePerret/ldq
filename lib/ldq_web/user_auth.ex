@@ -216,6 +216,10 @@ defmodule LdQWeb.UserAuth do
     end
   end
 
+  def required_admin(conn, _opts) do
+
+  end
+
   defp put_token_in_session(conn, token) do
     conn
     |> put_session(:user_token, token)
