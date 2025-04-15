@@ -1,0 +1,9 @@
+h2: Page d'accueil de l'administration
+
+Bienvenue <:: @current_user.name ::>.
+
+list:
+* [Liste des pages](/pages)
+* [Liste des pages localisées](/pages_locales)
+* [Liste des membres du comité](/users)
+:list

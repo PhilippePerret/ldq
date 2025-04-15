@@ -1,8 +1,6 @@
 defmodule LdQWeb.PageLocaleHTML do
   use LdQWeb, :html
 
-  import Phoenix.HTML.Form
-
   embed_templates "page_locale_html/*"
 
   @doc """

@@ -222,8 +222,8 @@ defmodule LdQWeb.UserAuth do
   """
   def required_admin(conn, _opts) do
     u = conn.assigns[:current_user]
-    |> IO.inspect(label: "User courant")
-    IO.inspect(Flag.has?(u.privileges, 16), label: "Flag.has?(u.privileges, 16) = ")
+    # |> IO.inspect(label: "User courant")
+
     case User.admin?(u) do
     true  -> conn
     false -> 

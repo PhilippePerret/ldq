@@ -18,6 +18,7 @@ defmodule LdQWeb.UserSettingsLive do
           phx-submit="update_email"
           phx-change="validate_email"
         >
+          <input type="hidden" name="email_form[:name]" value={@email_form[:name]} />
           <.input field={@email_form[:email]} type="email" label="Email" required />
           <.input
             field={@email_form[:current_password]}
@@ -29,7 +30,7 @@ defmodule LdQWeb.UserSettingsLive do
             required
           />
           <:actions>
-            <.button phx-disable-with="Changing...">Change Email</.button>
+            <.button phx-disable-with="Changing...">Change Settings</.button>
           </:actions>
         </.simple_form>
       </div>

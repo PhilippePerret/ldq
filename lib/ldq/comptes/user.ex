@@ -6,6 +6,7 @@ defmodule LdQ.Comptes.User do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "users" do
+    field :name, :string
     field :email, :string
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
@@ -41,7 +42,8 @@ defmodule LdQ.Comptes.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:email, :password])
+    |> cast(attrs, [:name, :email, :password])
+    |> validate_required([:name])
     |> validate_email(opts)
     |> validate_password(opts)
   end
@@ -178,7 +180,6 @@ defmodule LdQ.Comptes.User do
   def reader?(user),  do: has_bit?(user, @bit_reader)
   def writer?(user),  do: has_bit?(user, @bit_writer)
   def membre?(user),  do: has_bit?(user, @bit_membre)
-  def admin?(u),      do: admin1?(u) || admin2?(u) || admin3?(u)
   def admin1?(user),  do: has_bit?(user, @bit_admin1)
   def admin2?(user),  do: has_bit?(user, @bit_admin2)
   def admin3?(user),  do: has_bit?(user, @bit_admin3)
