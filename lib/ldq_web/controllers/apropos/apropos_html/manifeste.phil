@@ -12,9 +12,7 @@ p: Parmi ces cent-mille livres publiés…
 
 p.exergue: seuls 5 % peuvent garantir la qualité<br />de leur contenu.
 
-<a name="qualite_me_discutee"></a>
-
-p: Ce sont les 5000 livres publiés à compte d’éditeur dans des maisons dont le prestige suffit à assurer, aux yeux des lectrices et des lecteurs, la qualité de leur contenu (quand bien même <.loclink fname="qualite_me_discutee" titre="cette qualité pourrait être discutée"/>).
+p#qualite_me_discutee: Ce sont les 5000 livres publiés à compte d’éditeur dans des maisons dont le prestige suffit à assurer, aux yeux des lectrices et des lecteurs, la qualité de leur contenu (quand bien même <.loclink fname="qualite_me_discutee" titre="cette qualité pourrait être discutée"/>).
 
 p.exergue: Les 95 % des livres restants se noient <em>le marasme de la publication sauvage</em>…
 
@@ -26,9 +24,7 @@ p.exergue: Tout le monde a le droit de publier !
 
 p: C’est vrai, aucune loi n’interdit de publier, même sans la moindre compétence, et même sans le moindre respect pour les lecteurs. On a le droit de s’y adonner, juste pour se faire du bien *à soi*, se faire plaisir *à soi*.
 
-<a name="bons_livres_en_ae"></a>
-
-p: Rien ne l’interdit, et surtout pas la *liberté d’expression* !
+p#bons_livres_en_ae: Rien ne l’interdit, et surtout pas la *liberté d’expression* !
 
 p: Malheureusement, les bons livres qui pourraient exister — car il y en a (<.loclink fname="bons_livres_en_ae" titre="voir pourquoi"/>) — se dilluent comme les gouttes d’eau dans l’océan des livres publiés en autoédition, à compte d’auteur ou à compte de petits éditeurs. Aujourd’hui, donc, …
 
@@ -51,27 +47,21 @@ p.exergue: pour permettre à l’auteur ou l’autrice<br />de rendre son œuvre
 
 p: Si vous êtes parvenu(e) jusqu’ici, c’est que cette initiative a peut-être trouvé un écho chez vous. Que vous soyez lectrice, lecteur, auteur ou autrice, vous avez plusieurs moyens de profiter, d’accompagner ou de participer activement à ce label.
 
-<a name="si_auteur"></a>
-
-p.question: Vous êtes autrice ou auteur :
+p#si_auteur.question: Vous êtes autrice ou auteur :
 list:
 * Vous pouvez [soumettre votre livre](/livres/soumettre) au comité pour recevoir ce label qui vous ouvrira grand les horizons des lectrices et des lecteurs.
 * Vous pouvez [devenir membre du comité de lecture](/comite/postuler) qui compte en ses rangs de nombreuses autrices et auteurs labellisés (ou pas — car on peut être piètre auteur et excellent lecteur).
 * Vous pouvez <: lien_faire_connaitre("si_auteur") :> autour de vous !
 :list
 
-<a name="si_lecteur"></a>
-
-p.question: Vous êtes ici comme lectrice ou lecteur :
+p#si_lecteur.question: Vous êtes ici comme lectrice ou lecteur :
 list:
 * Vous pouvez [rejoindre le comité de lecture du label](/comite/postuler).
 * Vous pouvez [choisir un livre](/livres/choisir) ayant reçu le label.
 * Vous pouvez <%= raw lien_faire_connaitre("si_lecteur") %> autour de vous !
 :list
 
-<a name="tout_cela"></a>
-
-p.question: Vous êtes tout cela en même temps ou simplement un visiteur ou une visiteuse curieuse :
+p#tout_cela.question: Vous êtes tout cela en même temps ou simplement un visiteur ou une visiteuse curieuse :
 list:
 * Vous pouvez voir [comment son filtrés et classés les livres](/apropos/filtrage_des_livres).
 * Vous pouvez voir [comment les chiffres de cette page ont été obtenus](/apropos/publication_en_chiffres).
