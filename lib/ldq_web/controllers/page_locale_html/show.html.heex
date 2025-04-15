@@ -9,14 +9,14 @@
 </.header>
 
 <.list>
-  <:item title="Locale"><%= @page_locale.locale %></:item>
   <:item title="Title"><%= @page_locale.title %></:item>
+  <:item title="Locale"><%= @page_locale.locale %></:item>
+  <:item title="Status"><%= Site.PageLocale.Status.get(@page_locale.status) %></:item>
   <:item title="Summary"><%= @page_locale.summary %></:item>
   <:item title="Raw content"><%= @page_locale.raw_content %></:item>
   <:item title="Content"><%= raw @page_locale.content %></:item>
   <:item title="Meta title"><%= @page_locale.meta_title %></:item>
   <:item title="Meta description"><%= @page_locale.meta_description %></:item>
-  <:item title="Status"><%= @page_locale.status %></:item>
   <:item title="Image"><%= @page_locale.image %></:item>
 </.list>
 

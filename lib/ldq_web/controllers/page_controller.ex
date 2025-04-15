@@ -9,9 +9,22 @@ defmodule LdQWeb.PageController do
     render(conn, :index, pages: pages)
   end
 
+  # Les propriétés communes qu'il faut envoyer à l'édition
+  # et la création
+  defp common_params do
+    layouts_path = Path.join([".", "lib", "ldq_web", "components", "layouts"])
+    templates = File.ls!(layouts_path)
+    |> Enum.filter(fn path -> String.ends_with?(path, ".html.heex") end)
+    |> Enum.filter(fn path -> not String.match?(path, ~r/^(root|app)/) end)
+    |> Enum.map(fn path -> Path.rootname(path) |> Path.rootname() end)
+    |> Enum.map(fn root -> {root, root} end)
+
+    %{templates: templates}
+  end
+
   def new(conn, _params) do
     changeset = Site.change_page(%Page{})
-    render(conn, :new, changeset: changeset)
+    render(conn, :new, changeset: changeset, params: common_params())
   end
 
   def create(conn, %{"page" => page_params}) do
@@ -22,7 +35,7 @@ defmodule LdQWeb.PageController do
         |> redirect(to: ~p"/pages/#{page}")
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, :new, changeset: changeset)
+        render(conn, :new, changeset: changeset, params: common_params())
     end
   end
 
@@ -34,7 +47,7 @@ defmodule LdQWeb.PageController do
   def edit(conn, %{"id" => id}) do
     page = Site.get_page!(id)
     changeset = Site.change_page(page)
-    render(conn, :edit, page: page, changeset: changeset)
+    render(conn, :edit, page: page, changeset: changeset, params: common_params())
   end
 
   def update(conn, %{"id" => id, "page" => page_params}) do

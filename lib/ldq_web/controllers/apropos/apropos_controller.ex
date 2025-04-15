@@ -21,7 +21,7 @@ defmodule LdQWeb.AproposController do
 		page_pre = get_referer(conn, params)
 		case in_pages_list?(page_a_voir) do
 		true ->
-			render(conn, String.to_atom(page_a_voir), layout: {LdQWeb.Layouts, :as_page}, page_pre: page_pre)
+			render(conn, String.to_atom(page_a_voir), layout: {LdQWeb.Layouts, :plain_page}, page_pre: page_pre)
 		false -> 
 			conn 
 			|> put_flash(:error, dgettext("msg","The page “%{page}” is unknown.", page: page_a_voir))

@@ -18,6 +18,6 @@ defmodule LdQ.Site.Page do
   def changeset(page, attrs) do
     page
     |> cast(attrs, [:slug, :template, :status, :publised_at])
-    |> validate_required([:slug, :template, :status, :publised_at])
+    |> validate_required([:slug, :template, :status])
   end
 end

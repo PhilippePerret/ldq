@@ -14,12 +14,23 @@ defmodule Site.PageLocale.Status do
 
   def type, do: :string
 
-  def cast(value) when is_binary(value) do
+  def get(status_id) do
+    case cast(status_id) do
+    {:ok, _} -> Map.get(@status, status_id)
+    :error -> "- statut inconnu -"
+    end
+  end
+
+  def cast(value) when is_integer(value) do
     if Map.has_key?(@status, value) do
       {:ok, value}
     else
       :error
     end
+  end
+
+  def cast(value) when is_binary(value) do
+    cast(String.to_integer(value))
   end
   def cast(_), do: :error
 
