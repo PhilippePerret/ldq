@@ -2,7 +2,7 @@
   <.error :if={@changeset.action}>
     Oops, something went wrong! Please check the errors below.
   </.error>
-  <.input field={f[:slug]} type="text" label="Slug" />
+  <.input field={f[:slug]} type="text" label="URL-Id" placeholder="Caractères simples, pas d'espace" />
   <.input field={f[:template]} type="select" options={@params.templates} label="Template" />
   <.input field={f[:status]} label="Status" type="select" options={Site.PageLocale.Status.values()} />
   <.input field={f[:publised_at]} type="datetime-local" label="Publised at" />

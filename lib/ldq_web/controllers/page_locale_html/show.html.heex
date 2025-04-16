@@ -13,6 +13,7 @@
   <:item title="Locale"><%= @page_locale.locale %></:item>
   <:item title="Status"><%= Site.PageLocale.Status.get(@page_locale.status) %></:item>
   <:item title="Summary"><%= @page_locale.summary %></:item>
+  <a href="/page_locales/update_content/#{@page_locale.id}">Actualiser le contenu d'après le fichier</a>
   <:item title="Raw content"><%= @page_locale.raw_content %></:item>
   <:item title="Content"><%= raw @page_locale.content %></:item>
   <:item title="Meta title"><%= @page_locale.meta_title %></:item>

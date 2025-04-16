@@ -5,4 +5,15 @@
 
 <.page_form changeset={@changeset} params={@params} action={~p"/pages/#{@page}"} />
 
-<.back navigate={~p"/pages"}>Back to pages</.back>
+<.simple_form for={} action={~p"/page_locales/new"} method="POST">
+  <p>Créer la page localisée en</p>
+  <.input value="fr" type="select" name="page[lang]" options={Site.PageLocale.Locale.values()} />
+  <input type="hidden" name="page[page_id]" value={@page.id}>
+  <:actions>
+    <.button>Créer</.button>
+  </:actions>
+  <p>Note : Cette page sera crée :<ul>
+    <li>dans la base de données</li>
+    <li>dans le dossier `assets/pages/&lt;lang>` pour pouvoir être définies (leur contenu)</li>
+  </ul></p>
+</.simple_form>

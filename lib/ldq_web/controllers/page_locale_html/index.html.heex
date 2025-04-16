@@ -1,15 +1,13 @@
 <.header>
   Listing Page locales
-  <:actions>
-    <.link href={~p"/page_locales/new"}>
-      <.button>New Page locale</.button>
-    </.link>
-  </:actions>
+  <:subtitle>
+    Pour créer une nouvelle page localisée, éditer la <a href={~p"/pages"}>page canonique</a> et choisissez la langue.
+  </:subtitle>
 </.header>
 
 <.table id="page_locales" rows={@page_locales} row_click={&JS.navigate(~p"/page_locales/#{&1}")}>
+  <:col :let={page_locale} label="URL-Id"><%= page_locale.page.slug %></:col>
   <:col :let={page_locale} label="Locale"><%= page_locale.locale %></:col>
-  <:col :let={page_locale} label="Page"><%= page_locale.page.slug %></:col>
   <:col :let={page_locale} label="Status"><%= page_locale.status %></:col>
   <:col :let={page_locale} label="Title"><%= page_locale.title %></:col>
   <:action :let={page_locale}>

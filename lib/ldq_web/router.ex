@@ -21,6 +21,8 @@ defmodule LdQWeb.Router do
     pipe_through [:browser, :require_authenticated_user, :required_admin]
 
     get "/admin-section", AdminController, :home
+    post "/page_locales/new", PageLocaleController, :new
+    get "/page_locales/update_content/:id", PageLocaleController, :update_content
     resources "/pages", PageController
     resources "/page_locales", PageLocaleController
   end

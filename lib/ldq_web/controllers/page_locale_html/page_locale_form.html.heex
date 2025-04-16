@@ -2,13 +2,13 @@
   <.error :if={@changeset.action}>
     Oops, something went wrong! Please check the errors below.
   </.error>
-  <.input field={f[:page_id]} type="select" options={@params.pages} label="Page" />
+  <.input field={f[:title]} type="text" label="Title" />
+  <.input field={f[:page_id]} type="select" options={@params.pages} label="URL-id" />
   <.input field={f[:locale]} type="select" options={Site.PageLocale.Locale.values()} label="Lang" />
   <.input field={f[:status]} label="Status" type="select" options={Site.PageLocale.Status.values()} />
-  <.input field={f[:title]} type="text" label="Title" />
   <.input field={f[:summary]} type="textarea" label="Summary" />
-  <.input field={f[:raw_content]} type="textarea" label="Raw content" placeholder="Contenu brut (philhtml)" />
-  <.input field={f[:content]} type="textarea" label="Content" class="hidden" />
+  <.input field={f[:raw_content]} type="textarea" label="Raw content" placeholder="Contenu brut (philhtml)" disabled />
+  <.input field={f[:content]} type="textarea" label="Content" class="hidden" disabled />
   <.input field={f[:meta_title]} type="text" label="Meta title" />
   <.input field={f[:meta_description]} type="text" label="Meta description" />
   <.input field={f[:image]} type="text" label="Image" placeholder="path/to/image/in/images/folder" />
