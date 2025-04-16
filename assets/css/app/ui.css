@@ -69,6 +69,14 @@ header div#main-menu-user a:not(:first-child) {
   margin-top:8px;
 }
 
+.error {color:red}
+
+/* Grand titre, un seul par page */
+p#grand-titre {
+  margin-top: 20px;
+  font-size: 32pt;
+}
+
 /* Pour que les champs des formulaires ne soient pas
 collés au bord */
 form > div {

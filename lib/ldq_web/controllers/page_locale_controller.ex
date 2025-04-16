@@ -25,9 +25,7 @@ defmodule LdQWeb.PageLocaleController do
   """
   # Quand la page canonique est définie
   def new(conn, %{"page" => _page} = params) do
-    IO.puts "-> new avec paramètre page"
     {dpage, params} = Map.pop!(params, "page")
-    IO.inspect(dpage, label: "dpage")
     page = Site.get_page!(Map.get(dpage, "page_id"))
     lang = Map.get(dpage, "lang")
     path = Path.join(["assets", "pages", lang, "#{page.slug}.phil"])
@@ -55,7 +53,7 @@ defmodule LdQWeb.PageLocaleController do
         locale: params["locale"], 
         page_id: params["page_id"],
         raw_content: File.read!(path),
-        content: PhilHtml.to_html(path, [no_header: true, evaluation: false])
+        content: PhilHtml.to_html(path, [no_header: true, evaluation: false, helpers: [LdQ.Site.PageHelpers]])
       }
     else
       %PageLocale{}
@@ -96,20 +94,24 @@ defmodule LdQWeb.PageLocaleController do
     slug = page_locale.page.slug
     lang = page_locale.locale
     path = Path.join(["assets","pages", lang, "#{slug}.phil"])
+    dest_path = Path.join(["assets","pages", lang, "#{slug}.html"])
+    if File.exists?(dest_path), do: File.rm(dest_path)
+    PhilHtml.to_html(path, [no_header: true, evaluation: false, helpers: [LdQ.Site.PageHelpers]])
+    content = File.read!(dest_path)
     params = %{
       "id" => id, 
       "page_locale" => %{
+        "id"          => id,
         "raw_content" => File.read!(path),
-        "content"     => PhilHtml.to_html(path, [no_header: true, evaluation: false])
+        "content"     => content
       }
     }
     update(conn, params)
   end
 
   def show(conn, %{"id" => id}) do
-    IO.puts "-> show"
     page_locale = Site.get_page_locale!(id)
-    IO.inspect(page_locale, label: "Page local dans :show")
+    # IO.inspect(page_locale, label: "Page local dans :show")
     render(conn, :show, page_locale: page_locale)
   end
 
@@ -120,6 +122,7 @@ defmodule LdQWeb.PageLocaleController do
   end
 
   def update(conn, %{"id" => id, "page_locale" => page_locale_params}) do
+    IO.inspect(page_locale_params, label: "params pour actualisation")
     page_locale = Site.get_page_locale!(id)
 
     case Site.update_page_locale(page_locale, page_locale_params) do
