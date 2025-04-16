@@ -20,8 +20,9 @@ defmodule LdQWeb.AproposController do
 	def afficher(conn, %{"page" => page_a_voir} = params) do
 		page_pre = get_referer(conn, params)
 		case in_pages_list?(page_a_voir) do
-		true ->
-			render(conn, String.to_atom(page_a_voir), layout: {LdQWeb.Layouts, :plain_page}, page_pre: page_pre)
+			true ->
+				check_phil_page(page_a_voir)
+				render(conn, String.to_atom(page_a_voir), layout: {LdQWeb.Layouts, :plain_page}, page_pre: page_pre)
 		false -> 
 			conn 
 			|> put_flash(:error, dgettext("msg","The page “%{page}” is unknown.", page: page_a_voir))
@@ -48,4 +49,17 @@ defmodule LdQWeb.AproposController do
 	defp in_pages_list?(page) do
 		Enum.member?(@pages_valides, page)
 	end
+
+  def check_phil_page(base) do
+    root = Path.join([__DIR__,"apropos_html","#{base}"])
+    phil = "#{root}.phil"
+    PhilHtml.to_html(phil, [
+      dest_name: "#{base}.html.heex", 
+      no_header: true,
+      evaluation: false
+      ])
+  end
+
+
+
 end

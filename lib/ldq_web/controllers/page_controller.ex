@@ -41,7 +41,7 @@ defmodule LdQWeb.PageController do
 
   def show(conn, %{"id" => id}) do
     page = Site.get_page!(id)
-    render(conn, :show, page: page)
+    render(conn, :show, page: page, params: common_params())
   end
 
   def edit(conn, %{"id" => id}) do

@@ -10,4 +10,10 @@ defmodule LdQWeb.PageHTML do
   attr :action, :string, required: true
 
   def page_form(assigns)
+
+  @doc """
+  Retourne l'explication des pages
+  """
+  def explication(assigns)
+
 end

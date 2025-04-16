@@ -7,6 +7,8 @@
   </:actions>
 </.header>
 
+<.explication />
+
 <.table id="pages" rows={@pages} row_click={&JS.navigate(~p"/pages/#{&1}")}>
   <:col :let={page} label="Slug"><%= page.slug %></:col>
   <:col :let={page} label="Template"><%= page.template %></:col>

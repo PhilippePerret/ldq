@@ -1,6 +1,8 @@
+raw:
 <stytle>
   p#grand-titre { font-size: 32px; }
 </stytle>
+:raw
 
 p#grand-titre.mt-20.center: MANIFESTE
 
@@ -24,7 +26,7 @@ p.exergue: Tout le monde a le droit de publier !
 
 p: C’est vrai, aucune loi n’interdit de publier, même sans la moindre compétence, et même sans le moindre respect pour les lecteurs. On a le droit de s’y adonner, juste pour se faire du bien *à soi*, se faire plaisir *à soi*.
 
-p#bons_livres_en_ae: Rien ne l’interdit, et surtout pas la *liberté d’expression* !
+p#bons_livres_en_ae: Rien ne l’interdit, et surtout pas la *liberté d’expression !*
 
 p: Malheureusement, les bons livres qui pourraient exister — car il y en a (<.loclink fname="bons_livres_en_ae" titre="voir pourquoi"/>) — se dilluent comme les gouttes d’eau dans l’océan des livres publiés en autoédition, à compte d’auteur ou à compte de petits éditeurs. Aujourd’hui, donc, …
 
