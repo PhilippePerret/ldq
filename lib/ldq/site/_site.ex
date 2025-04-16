@@ -149,7 +149,10 @@ defmodule LdQ.Site do
       ** (Ecto.NoResultsError)
 
   """
-  def get_page_locale!(id), do: Repo.get!(PageLocale, id)
+  def get_page_locale!(id) do
+    Repo.get!(PageLocale, id)
+    |> Repo.preload(:page)
+  end
 
   @doc """
   Creates a page_locale.
