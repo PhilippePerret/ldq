@@ -6,7 +6,25 @@ defmodule LdQ.Site do
   import Ecto.Query, warn: false
   alias LdQ.Repo
 
-  alias LdQ.Site.Page
+  alias LdQ.Site.{Page, PageLocale}
+
+  @doc """
+  Pour vérifier qu'une page locale n'existe pas déjà
+
+  @return {:yes, <page locale>} en cas de succès et :no en cas d'échec
+  """
+  def has_locale_page?(params) do
+    pageid = params["page_id"]
+    locale = params["locale"]
+    
+    res =
+    from(pl in PageLocale, where: pl.page_id == ^pageid and pl.locale == ^locale, select: pl.id)
+    |> Repo.one()
+    case res do
+      nil -> :no
+      _ -> {:yes, res}
+    end
+  end
 
   @doc """
   Returns the list of pages.
@@ -101,8 +119,6 @@ defmodule LdQ.Site do
   def change_page(%Page{} = page, attrs \\ %{}) do
     Page.changeset(page, attrs)
   end
-
-  alias LdQ.Site.PageLocale
 
   @doc """
   Returns the list of page_locales.

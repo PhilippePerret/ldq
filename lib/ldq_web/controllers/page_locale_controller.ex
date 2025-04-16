@@ -65,14 +65,23 @@ defmodule LdQWeb.PageLocaleController do
   end
 
   def create(conn, %{"page_locale" => page_locale_params}) do
-    case Site.create_page_locale(page_locale_params) do
-      {:ok, page_locale} ->
-        conn
-        |> put_flash(:info, "Page locale created successfully.")
-        |> redirect(to: ~p"/page_locales/#{page_locale}")
+    # On ne doit pas pouvoir créer une page avec le même :page_id et le
+    # même :locale qu'une page existante.
+    case Site.has_locale_page?(page_locale_params) do
+      {:yes, id_page_locale} ->
+        conn = conn 
+        |> put_flash(:error, "Cette page locale existe déjà")
+        show(conn, %{"id" => id_page_locale})
+      :no ->
+        case Site.create_page_locale(page_locale_params) do
+          {:ok, page_locale} ->
+            conn
+            |> put_flash(:info, "Page locale created successfully.")
+            |> redirect(to: ~p"/page_locales/#{page_locale}")
 
-      {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, :new, changeset: changeset, params: common_params())
+          {:error, %Ecto.Changeset{} = changeset} ->
+            render(conn, :new, changeset: changeset, params: common_params())
+        end
     end
   end
 
@@ -96,7 +105,9 @@ defmodule LdQWeb.PageLocaleController do
   end
 
   def show(conn, %{"id" => id}) do
+    IO.puts "-> show"
     page_locale = Site.get_page_locale!(id)
+    IO.inspect(page_locale, label: "Page local dans :show")
     render(conn, :show, page_locale: page_locale)
   end
 
