@@ -22,7 +22,8 @@ defmodule LdQWeb.Router do
 
     get "/admin-section", AdminController, :home
     post "/page_locales/new", PageLocaleController, :new
-    get "/page_locales/update_content/:id", PageLocaleController, :update_content
+    get "/page_locales/:id/update-content", PageLocaleController, :update_content
+    
     resources "/pages", PageController
     resources "/page_locales", PageLocaleController
   end

@@ -91,6 +91,7 @@ defmodule LdQWeb.PageLocaleController do
   page dans la base de donnée (et le contenu formaté)
   """
   def update_content(conn,  %{"id" => id}) do
+    IO.puts "-> update_content avec id = #{id}"
     page_locale = Site.get_page_locale!(id)
     slug = page_locale.page.slug
     lang = page_locale.locale

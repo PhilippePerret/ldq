@@ -1,7 +1,9 @@
 <.header>
-  Edit Page locale <%= @page_locale.id %>
+  Edit Page locale « <%= @page_locale.title %> »
   <:subtitle>Use this form to manage page_locale records in your database.</:subtitle>
 </.header>
+
+<.lien_update_content page_locale={@page_locale} />
 
 <.page_locale_form changeset={@changeset} params={@params} action={~p"/page_locales/#{@page_locale}"} />
 

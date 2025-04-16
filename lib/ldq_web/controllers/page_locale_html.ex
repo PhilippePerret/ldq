@@ -13,4 +13,14 @@ defmodule LdQWeb.PageLocaleHTML do
   def page_locale_form(assigns)
 
   def html, do: Phoenix.HTML.Form
+
+  attr :title, :string, default: "Actualiser le contenu d'après le fichier"
+  attr :page_locale, :map, required: true
+
+  def lien_update_content(assigns) do
+    ~H"""
+    <a href={"/page_locales/#{@page_locale.id}/update-content"}><%= @title %></a>
+    """
+
+  end
 end
