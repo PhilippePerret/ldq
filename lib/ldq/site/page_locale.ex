@@ -28,7 +28,7 @@ defmodule LdQ.Site.PageLocale do
 
     page_locale
     |> cast(attrs, [:locale, :page_id, :status, :title, :raw_content, :content, :summary, :meta_title, :meta_description, :image])
-    |> validate_required([:page_id, :locale, :status, :title, :raw_content, :content, :summary])
+    |> validate_required([:page_id, :locale, :status, :title, :summary])
   end
 
   # Fonction qui prend le raw content de la page locale et crée le 

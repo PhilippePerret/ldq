@@ -80,6 +80,7 @@ defmodule LdQWeb.PageLocaleController do
             |> redirect(to: ~p"/page_locales/#{page_locale}")
 
           {:error, %Ecto.Changeset{} = changeset} ->
+            IO.inspect(changeset, label: "\nErreur à l'enregistrement de la page locale")
             render(conn, :new, changeset: changeset, params: common_params())
         end
     end
