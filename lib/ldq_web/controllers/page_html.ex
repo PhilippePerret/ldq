@@ -8,6 +8,7 @@ defmodule LdQWeb.PageHTML do
   """
   attr :changeset, Ecto.Changeset, required: true
   attr :action, :string, required: true
+  attr :params, :map, required: true
 
   def page_form(assigns)
 

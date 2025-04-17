@@ -2,7 +2,8 @@ defmodule LdQWeb.PageLocaleController do
   use LdQWeb, :controller
 
   alias LdQ.Site
-  alias LdQ.Site.{Page, PageLocale}
+  # alias LdQ.Site.{Page, PageLocale}
+  alias LdQ.Site.PageLocale
 
   def index(conn, _params) do
     page_locales = Site.list_page_locales()
@@ -62,16 +63,16 @@ defmodule LdQWeb.PageLocaleController do
     render(conn, :new, changeset: changeset, params: common_params())
   end
 
-  def create(conn, %{"page_locale" => page_locale_params}) do
+  def create(conn, %{"page_locale" => locpage_params}) do
     # On ne doit pas pouvoir créer une page avec le même :page_id et le
     # même :locale qu'une page existante.
-    case Site.has_locale_page?(page_locale_params) do
+    case Site.has_locale_page?(locpage_params) do
       {:yes, id_page_locale} ->
         conn = conn 
         |> put_flash(:error, "Cette page locale existe déjà")
         show(conn, %{"id" => id_page_locale})
       :no ->
-        case Site.create_page_locale(page_locale_params) do
+        case Site.create_page_locale(locpage_params) do
           {:ok, page_locale} ->
             conn
             |> put_flash(:info, "Page locale created successfully.")
@@ -82,31 +83,6 @@ defmodule LdQWeb.PageLocaleController do
             render(conn, :new, changeset: changeset, params: common_params())
         end
     end
-  end
-
-  @doc """
-  Fonction appelée pour actualiser le contenu brut (philhtml) de la
-  page dans la base de donnée (et le contenu formaté)
-  """
-  def update_content(conn,  %{"id" => id}) do
-    IO.puts "-> update_content avec id = #{id}"
-    page_locale = Site.get_page_locale!(id)
-    slug = page_locale.page.slug
-    lang = page_locale.locale
-    path = Path.join(["assets","pages", lang, "#{slug}.phil"])
-    dest_path = Path.join(["assets","pages", lang, "#{slug}.html"])
-    if File.exists?(dest_path), do: File.rm(dest_path)
-    PhilHtml.to_html(path, [no_header: true, evaluation: false, helpers: [LdQ.Site.PageHelpers]])
-    content = File.read!(dest_path)
-    params = %{
-      "id" => id, 
-      "page_locale" => %{
-        "id"          => id,
-        "raw_content" => File.read!(path),
-        "content"     => content
-      }
-    }
-    update(conn, params)
   end
 
   def show(conn, %{"id" => id}) do
@@ -121,11 +97,14 @@ defmodule LdQWeb.PageLocaleController do
     render(conn, :edit, page_locale: page_locale, changeset: changeset, params: common_params())
   end
 
-  def update(conn, %{"id" => id, "page_locale" => page_locale_params}) do
-    IO.inspect(page_locale_params, label: "params pour actualisation")
+  def update(conn, %{"id" => id, "page_locale" => locpage_params}) do
+    IO.inspect(locpage_params, label: "params pour actualisation")
     page_locale = Site.get_page_locale!(id)
 
-    case Site.update_page_locale(page_locale, page_locale_params) do
+    # On doit ajouter le contenu brut et formaté
+    locpage_params = add_content_to_attrs(id, locpage_params)
+
+    case Site.update_page_locale(page_locale, locpage_params) do
       {:ok, page_locale} ->
         conn
         |> put_flash(:info, "Page locale updated successfully.")
@@ -134,6 +113,33 @@ defmodule LdQWeb.PageLocaleController do
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, :edit, page_locale: page_locale, changeset: changeset)
     end
+  end
+
+  @doc """
+  Fonction qui reçoit les attributs de la page locale tels qu'ils
+  ont été fournis par le formulaire et y ajoute le contenu brut et le
+  contenu formaté en les relevant dans les fichiers assets/pages
+  """
+  def add_content_to_attrs(id, attrs) do
+    page_locale = Site.get_page_locale!(id)
+    slug = page_locale.page.slug
+    lang = page_locale.locale
+    phil_path = Path.join(["assets","pages", lang, "#{slug}.phil"])
+    html_path = Path.join(["assets","pages", lang, "#{slug}.html"])
+    # if File.exists?(dest_path), do: File.rm(dest_path)
+    PhilHtml.to_html(phil_path, [no_header: true, evaluation: false, helpers: [LdQ.Site.PageHelpers]])
+    raw_content = File.read!(phil_path)
+    content = File.read!(html_path)
+    Map.merge(attrs, %{"raw_content" => raw_content, "content" => content})
+  end
+
+  @doc """
+  Fonction pour forcer l'actualisation du contenu formaté de la page
+  """
+  def update_content(conn, %{"id" => _id} = params) do
+    # Peut-être ici faudrait-il détruire la page html pour être sûr
+    # d'actualiser le contenu.
+    update(conn, Map.put(params, "page_locale", %{}))
   end
 
   def delete(conn, %{"id" => id}) do

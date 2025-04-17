@@ -24,7 +24,7 @@ defmodule LdQ.Site.PageLocale do
   @doc false
   def changeset(page_locale, attrs) do
     attrs = attrs
-    |> compose_content()
+    |> compose_content_if_needed()
 
     page_locale
     |> cast(attrs, [:locale, :page_id, :status, :title, :raw_content, :content, :summary, :meta_title, :meta_description, :image])
@@ -32,9 +32,13 @@ defmodule LdQ.Site.PageLocale do
   end
 
   # Fonction qui prend le raw content de la page locale et crée le 
-  # code provisoire.
-  defp compose_content(attrs) do
-    formatted_content = PhilHtml.to_heex(Map.get(attrs, "raw_content", "[Page sans contenu]"), [no_header: true])
-    Map.put(attrs, "content", formatted_content)
+  # content, mais seulement s'il n'est pas défini. En général, ce
+  # code vient d'un fichier .phil qui est traité avant
+  defp compose_content_if_needed(attrs) do
+    if Map.has_key?(attrs, "content") do attrs else
+      options = [no_header: true, evaluation: false, helpers: [LdQ.Site.PageHelpers]]
+      formatted_content = PhilHtml.to_heex(Map.get(attrs, "raw_content", "[Page sans contenu]"), options)
+      Map.put(attrs, "content", formatted_content)
+    end
   end
 end

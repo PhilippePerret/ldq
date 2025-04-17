@@ -187,6 +187,7 @@ defmodule LdQ.Site do
   def update_page_locale(%PageLocale{} = page_locale, attrs) do
     page_locale
     |> PageLocale.changeset(attrs)
+    |> IO.inspect(label: "\nCHANGESET")
     |> Repo.update()
   end
 
