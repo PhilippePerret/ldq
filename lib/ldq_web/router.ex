@@ -28,6 +28,13 @@ defmodule LdQWeb.Router do
     resources "/page_locales", PageLocaleController
   end
 
+  # Nouvel affichage des pages (depuis la base de donnée)
+  scope "/pg", LdQWeb do
+    pipe_through :browser
+
+    get "/:slug", PageLocaleController, :display
+  end
+
   scope "/livres", LdQWeb do
     pipe_through :browser
   

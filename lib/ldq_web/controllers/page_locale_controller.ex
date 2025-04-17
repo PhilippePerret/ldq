@@ -5,6 +5,13 @@ defmodule LdQWeb.PageLocaleController do
   # alias LdQ.Site.{Page, PageLocale}
   alias LdQ.Site.PageLocale
 
+  def display(conn, %{"slug" => slug} = params) do
+    lang = Map.get(params, "lang", "en")
+    content = Site.get_page_locale_content(slug, lang)
+    render(conn, "display.html", content: content, page_pre: nil, layout: {LdQWeb.Layouts, :plain_page})
+  end
+
+
   def index(conn, _params) do
     page_locales = Site.list_page_locales()
     render(conn, :index, page_locales: page_locales)

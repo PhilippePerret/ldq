@@ -19,8 +19,22 @@ defmodule LdQWeb.PageLocaleHTML do
 
   def lien_update_content(assigns) do
     ~H"""
-    <a href={"/page_locales/#{@page_locale.id}/update-content"}><%= @title %></a>
+    <a href={"/page_locales/#{@page_locale.id}/update-content"} style="margin-right:2em;"><%= @title %></a>
     """
+  end
 
+  attr :page_locale, :map, required: true
+
+  @doc """
+  Génère une lien vers la page publique
+  """
+  def lien_display(assigns) do
+    assigns = assigns 
+    |> assign(:slug, assigns.page_locale.page.slug)
+    |> assign(:lang, assigns.page_locale.locale)
+
+    ~H"""
+    <a href={~p"/pg/#{@slug}?lang=#{@lang}"} target="_blank">⇱ Voir sur le site</a>
+    """
   end
 end

@@ -55,6 +55,28 @@ defmodule LdQ.Site do
   """
   def get_page!(id), do: Repo.get!(Page, id)
 
+  def get_page_by_slug(slug) do
+    from(pg in Page, where: pg.slug == ^slug, select: [:id])
+    |> Repo.one()
+    |> IO.inspect(label: "Retour de Repo.one")
+  end
+
+  def get_locale_page_by_slug(slug, lang \\ "en") do
+    page = get_page_by_slug(slug)
+    page_id = page.id
+    from(pg in PageLocale, where: pg.page_id == ^page_id and pg.locale == ^lang)
+    |> Repo.one()
+  end
+
+  def get_page_locale_content(slug, lang \\ "en") do
+    page = get_page_by_slug(slug)
+    page_id = page.id
+    from(pg in PageLocale, where: pg.page_id == ^page_id and pg.locale == ^lang, select: [:content])
+    |> Repo.one()
+    |> Map.get(:content)
+    |> IO.inspect(label: "Retour de get_page_locale_content")
+  end
+
   @doc """
   Creates a page.
 
