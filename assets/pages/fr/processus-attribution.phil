@@ -1,0 +1,20 @@
+h2: Le processus d'attribution du label
+
+Cette page décrit tout le processus que suit un livre pour arriver jusqu'à se voir attribué le label <: ldq_label :>
+
+list:
+* **Soumission du livre**. Le livre est proposé par son autrice ou son auteur.
+* Le livre est soumis à un premier groupe de 10 lecteurs qui en font une première évaluation.
+* Si le livre *passe*, il est soumis à un deuxième groupe de 10 lectrices et lecteurs (d'un crédit supérieur) qui en font une seconde évaluation.
+* Si à nouveau le livre *passe*, il est soumis de la même manière à un troisième groupe d'évaluation composé de lectrices et de lecteurs ayant le plus fort crédit.
+* Si le livre *passe* ce troisième groupe, il reçoit le <: ldq_label :>.
+* S'il a atteint une certaine note, son entrée dans le classement des meilleures lectures de qualité est soumise à validation (elle est pratiquement automatique).
+:list
+
+h3: Pour encore mieux comprendre
+
+list: 
+* qu'est-ce que le <: loclink(terme-credit, Crédit) :> ?
+:list
+{TODO: Expliquer ce que signifie "passer", et renvoyer peut-être à une page qui expliquer comment un livre est validé}
+
