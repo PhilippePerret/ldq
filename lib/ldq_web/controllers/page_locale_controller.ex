@@ -5,10 +5,21 @@ defmodule LdQWeb.PageLocaleController do
   # alias LdQ.Site.{Page, PageLocale}
   alias LdQ.Site.PageLocale
 
+  @doc """
+  Fonction publique permettant d'afficher la page pour tout le monde
+
+
+  @param {Map} params Les paramètres
+  @param {String} params["back"] Slug de la page de retour (pour page_pre) (if any)
+  @param {String} params["anchor"] Ancre de retour (if any)
+  """
   def display(conn, %{"slug" => slug} = params) do
     lang = Map.get(params, "lang", "fr") # TODO PRENDRE LA LANGUE
     content = Site.get_page_locale_content(slug, lang)
-    render(conn, "display.html", content: content, page_pre: nil, layout: {LdQWeb.Layouts, :plain_page})
+    page_pre = if params["back"] do
+      ~s(/pg/#{params["back"]}##{params["anchor"]})
+    else nil end
+    render(conn, "display.html", content: content, page_pre: page_pre, layout: {LdQWeb.Layouts, :plain_page})
   end
 
 
@@ -150,7 +161,7 @@ defmodule LdQWeb.PageLocaleController do
     page_locale = Site.get_page_locale!(id)
     slug = page_locale.page.slug
     lang = page_locale.locale
-    html_path = Path.join(["assets","pages", lang, "#{slug}.html"])
+    html_path = Path.join(["assets","pages", lang, "xhtml", "#{slug}.html"])
     File.exists?(html_path) && File.rm(html_path)
 
     update(conn, Map.put(params, "page_locale", %{}))

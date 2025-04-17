@@ -11,8 +11,14 @@ defmodule LdQ.Site.PageHelpers do
     ~s(<font face="serif">-</font>)
   end
 
-  def loclink(slug, title) do
-    ~s(<a href="/pg/#{slug}">#{title}</a>)
+  def loclink(slug, title, retour \\ nil) do
+    back =
+      if is_nil(retour) do "" else
+        [slug, ancre] = String.split(retour, "#")
+        |> IO.inspect(label: "retour")
+        ~s(?back=#{slug}&anchor=#{ancre})
+      end
+    ~s(<a href="/pg/#{slug}#{back}">#{title}</a>)
   end
 
   def lien_faire_connaitre(type) do
