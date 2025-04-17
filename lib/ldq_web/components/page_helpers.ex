@@ -4,11 +4,15 @@ defmodule LdQ.Site.PageHelpers do
   """
 
   def ldq_label do
-    "LABEL LECTURE DE QUALITÉ"
+    ~s(<span class="label">Lecture de Qualité</span>)
+  end
+
+  def tiret do
+    ~s(<font face="serif">-</font>)
   end
 
   def loclink(slug, title) do
-    "<a>Je dois faire un lien vers #{slug} de titre #{title}</a>"
+    ~s(<a href="/pg/#{slug}">#{title}</a>)
   end
 
   def lien_faire_connaitre(type) do

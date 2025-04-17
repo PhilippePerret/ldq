@@ -6,7 +6,7 @@ defmodule LdQWeb.PageLocaleController do
   alias LdQ.Site.PageLocale
 
   def display(conn, %{"slug" => slug} = params) do
-    lang = Map.get(params, "lang", "en")
+    lang = Map.get(params, "lang", "fr") # TODO PRENDRE LA LANGUE
     content = Site.get_page_locale_content(slug, lang)
     render(conn, "display.html", content: content, page_pre: nil, layout: {LdQWeb.Layouts, :plain_page})
   end
@@ -132,9 +132,8 @@ defmodule LdQWeb.PageLocaleController do
     slug = page_locale.page.slug
     lang = page_locale.locale
     phil_path = Path.join(["assets","pages", lang, "#{slug}.phil"])
-    html_path = Path.join(["assets","pages", lang, "#{slug}.html"])
-    # if File.exists?(dest_path), do: File.rm(dest_path)
-    PhilHtml.to_html(phil_path, [no_header: true, evaluation: false, helpers: [LdQ.Site.PageHelpers]])
+    html_path = Path.join(["assets","pages", lang, "xhtml", "#{slug}.html"])
+    PhilHtml.to_html(phil_path, [dest_folder: "./xhtml", no_header: true, evaluation: false, helpers: [LdQ.Site.PageHelpers]])
     raw_content = File.read!(phil_path)
     content = File.read!(html_path)
     Map.merge(attrs, %{"raw_content" => raw_content, "content" => content})

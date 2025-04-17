@@ -5,15 +5,6 @@ defmodule LdQWeb.ViewHelpers do
   # Pour les utiliser dans les pages Markdown, il faut mettre :
   #   <%= <function>(nil) %>
 
-  def tiret(assigns) do
-    ~H'<font face="serif">-</font>'
-  end
-
-  def ldq_label(assigns) do
-    ~H'<span class="label">Lecture de Qualité</span>'
-  end
-  def label_ldq(assigns), do: ldq_label(assigns)
-
   def membres(assigns) do
     case assigns[:fem] do
       true -> ~H'membres<font face="serif">-</font>lectrices/lecteurs'
