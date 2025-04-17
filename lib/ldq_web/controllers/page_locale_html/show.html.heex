@@ -8,6 +8,8 @@
   </:actions>
 </.header>
 
+<.back navigate={~p"/page_locales"} mt={12} mb={12}>Retour à la liste des pages localisées</.back>
+
 <.lien_update_content page_locale={@page_locale} />
 <.lien_display page_locale={@page_locale} />
 
@@ -23,4 +25,3 @@
   <:item title="Image"><%= @page_locale.image %></:item>
 </.list>
 
-<.back navigate={~p"/page_locales"}><%= gettext("Back to the locale pages") %></.back>

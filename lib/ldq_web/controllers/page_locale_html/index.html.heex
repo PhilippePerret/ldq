@@ -6,9 +6,31 @@
 </.header>
 
 <style type="text/css">
-  table {width: 100%}
-  table tr td:nth-child(1) {width: 940px!important}
+  table { width: 980px!important}
+  table tr td {
+    margin:0!important;
+    padding:0!important;
+    max-height: 30px!important;
+    height: 30px!important;
+  }
+  table tr td:nth-child(1){
+    width: 300px!important;
+  }
+  table tr td:nth-child(4){
+    font-size:11pt!important;
+  }
+  table tr td:nth-child(5){
+    width: 200px;
+  }
+  span div {display:inline-block!important;}
+  div.sr-only {display:none!important;}
+  span * {
+    display:inline!important;
+  }
 </style>
+
+
+
 
 <.table id="page_locales" rows={@page_locales} row_click={&JS.navigate(~p"/page_locales/#{&1}")}>
   <:col :let={page_locale} label="URL-Id"><%= page_locale.page.slug %></:col>
