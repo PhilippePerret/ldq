@@ -105,7 +105,7 @@ defmodule LdQWeb.PageLocaleController do
   end
 
   def update(conn, %{"id" => id, "page_locale" => locpage_params}) do
-    IO.inspect(locpage_params, label: "params pour actualisation")
+    # IO.inspect(locpage_params, label: "params pour actualisation")
     page_locale = Site.get_page_locale!(id)
 
     # On doit ajouter le contenu brut et formaté
@@ -142,10 +142,18 @@ defmodule LdQWeb.PageLocaleController do
 
   @doc """
   Fonction pour forcer l'actualisation du contenu formaté de la page
+
+  Ça force l'actualisation même si le fichier .phil n'a pas été 
+  modifié. C'est nécessaire lorsque l'on change des fonctions, voire
+  l'extension philhtml par exemple.
   """
-  def update_content(conn, %{"id" => _id} = params) do
-    # Peut-être ici faudrait-il détruire la page html pour être sûr
-    # d'actualiser le contenu.
+  def update_content(conn, %{"id" => id} = params) do
+    page_locale = Site.get_page_locale!(id)
+    slug = page_locale.page.slug
+    lang = page_locale.locale
+    html_path = Path.join(["assets","pages", lang, "#{slug}.html"])
+    File.exists?(html_path) && File.rm(html_path)
+
     update(conn, Map.put(params, "page_locale", %{}))
   end
 
