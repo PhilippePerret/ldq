@@ -18,6 +18,16 @@ defmodule LdQWeb.Router do
   end
 
   scope "/", LdQWeb do
+    pipe_through :browser
+
+    get "/testmail", ChantierController, :test_mail
+    
+    # L'accueil
+    get "/", PageLocaleController, :home
+  end
+
+  
+  scope "/", LdQWeb do
     pipe_through [:browser, :require_authenticated_user, :required_admin]
 
     get "/admin-section", AdminController, :home
@@ -68,14 +78,6 @@ defmodule LdQWeb.Router do
     get "/postuler", ChantierController, :voie_sans_issue
   end
 
-  scope "/", LdQWeb do
-    pipe_through :browser
-
-    get "/testmail", ChantierController, :test_mail
-    
-    # get "/", ComiteController, :actu # POUR ESSAYER CETTE ROUTE VITE
-    get "/", AproposController, :afficher
-  end
 
   # Other scopes may use custom stacks.
   # scope "/api", LdQWeb do

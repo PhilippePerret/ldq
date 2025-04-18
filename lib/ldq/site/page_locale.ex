@@ -36,7 +36,7 @@ defmodule LdQ.Site.PageLocale do
   # code vient d'un fichier .phil qui est traité avant
   defp compose_content_if_needed(attrs) do
     if Map.has_key?(attrs, "content") do attrs else
-      options = [no_header: true, evaluation: false, helpers: [LdQ.Site.PageHelpers]]
+      options = [no_header: true, evaluation: false, helpers: [LdQ.Site.PageHelpers], dest_folder: "./xhtml"]
       formatted_content = PhilHtml.to_heex(Map.get(attrs, "raw_content", "[Page sans contenu]"), options)
       Map.put(attrs, "content", formatted_content)
     end

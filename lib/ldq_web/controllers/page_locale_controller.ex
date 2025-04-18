@@ -22,6 +22,13 @@ defmodule LdQWeb.PageLocaleController do
     render(conn, "display.html", content: content, page_pre: page_pre, layout: {LdQWeb.Layouts, :plain_page})
   end
 
+  @doc """
+  Fonction atteinte par le route "/"
+  """
+  def home(conn, params) do
+    display(conn, Map.put(params, "slug", "manifeste"))
+  end
+
 
   def index(conn, _params) do
     page_locales = Site.list_page_locales()
