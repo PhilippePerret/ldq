@@ -78,8 +78,7 @@ defmodule LdQWeb.PageLocaleController do
       %PageLocale{
         locale: params["locale"], 
         page_id: params["page_id"],
-        raw_content: File.read!(path),
-        content: PhilHtml.to_html(path, [no_header: true, evaluation: false, helpers: [LdQ.Site.PageHelpers]])
+        raw_content: File.read!(path)
       }
     else
       %PageLocale{}
