@@ -56,18 +56,6 @@ defmodule LdQWeb.Router do
  
   end
 
-  scope "/apropos", LdQWeb do
-    pipe_through :browser
-
-    get "/:page", AproposController, :afficher
-    
-    get "/filtrage_des_livres", ChantierController, :voie_sans_issue
-    get "/publication_en_chiffres", ChantierController, :voie_sans_issue
-    get "/faq", ChantierController, :voie_sans_issue
-    # get "/faq", AproposController, :faq
-
-  end
-
   scope "/comite", LdQWeb do
     pipe_through :browser
 
