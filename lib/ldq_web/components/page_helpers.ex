@@ -37,4 +37,18 @@ defmodule LdQ.Site.PageHelpers do
     end
   end
 
+
+  @doc """
+  Formulaire pour soumettre sa candidature au comité de lecture du label.
+  """
+  def form_comitee_reader(params) do
+    current_user = Map.get(params, :current_user, nil)
+    """
+    <form>
+      [Formulaire pour soumettre sa candidature par #{inspect params.current_user}]
+    </form>
+    """
+  end
+
+
 end

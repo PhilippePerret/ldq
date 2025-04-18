@@ -14,12 +14,36 @@ defmodule LdQWeb.PageLocaleController do
   @param {String} params["anchor"] Ancre de retour (if any)
   """
   def display(conn, %{"slug" => slug} = params) do
+    # IO.inspect(conn, label: "conn")
+    
     lang = Map.get(params, "lang", "fr") # TODO PRENDRE LA LANGUE
     content = Site.get_page_locale_content(slug, lang)
     page_pre = if params["back"] do
       ~s(/pg/#{params["back"]}##{params["anchor"]})
     else nil end
-    render(conn, "display.html", content: content, page_pre: page_pre, layout: {LdQWeb.Layouts, :plain_page})
+
+    # Paramètres à envoyer à la page
+    # Ça peut être les paramètres pour une fonction
+    # - pas encore utilisé, mais les formulaires en ont besoin -
+    page_params = get_params_per_slug(conn, slug)
+
+    render(conn, "display.html", %{
+      content: content, 
+      page_pre: page_pre, 
+      layout: {LdQWeb.Layouts, :plain_page},
+      params: page_params
+      })
+  end
+
+  def get_params_per_slug(conn, slug) do
+    default_params = %{
+      current_user: Map.get(conn.assigns, :current_user, nil)
+    }
+    case slug do
+      "form-reader-submit"  -> default_params
+      "form-book-submit"    -> default_params
+    _ -> default_params
+    end
   end
 
   @doc """

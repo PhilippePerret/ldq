@@ -45,6 +45,11 @@ defmodule LdQWeb.Router do
     get "/:slug", PageLocaleController, :display
   end
 
+  scope "/form", LdQWeb do
+    get "/:form", FormController, :edit
+    post "/:form", FormController, :update
+  end
+
   scope "/livres", LdQWeb do
     pipe_through :browser
   
