@@ -13,10 +13,13 @@ defmodule LdQ.Site.PageHelpers do
 
   def loclink(slug, title, retour \\ nil) do
     back =
-      if is_nil(retour) do "" else
-        [slug, ancre] = String.split(retour, "#")
-        |> IO.inspect(label: "retour")
-        ~s(?back=#{slug}&anchor=#{ancre})
+      cond do
+        is_nil(retour) -> ""
+        Regex.match?(~r/#/, retour) ->
+          [slug, ancre] = String.split(retour, "#")
+          ~s(?back=#{slug}&anchor=#{ancre})
+        true -> 
+          "?back=#{retour}"
       end
     ~s(<a href="/pg/#{slug}#{back}">#{title}</a>)
   end
