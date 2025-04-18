@@ -8,7 +8,7 @@ Parmi ces cent-mille livres publiés…
 
 p.exergue: seuls 5 % peuvent garantir la qualité\nde leur contenu.
 
-p#qualite-me-discutee: Ce sont les 5000 livres publiés à compte d’éditeur dans des maisons dont le prestige suffit à assurer, aux yeux des lectrices et des lecteurs, la qualité de leur contenu (quand bien même <: loclink(qualite-me-discutee, cette qualité pourrait être discutée, manifeste#qualite-me-discutee) :>).
+p#qualite-me-discutee: Ce sont les 5000 livres publiés à compte d’éditeur dans des maisons dont le prestige suffit à assurer, aux yeux des lectrices et des lecteurs, la qualité de leur contenu (quand bien même <: pagelink(cette qualité pourrait être discutée,qualite-me-discutee,manifeste#qualite-me-discutee) :>).
 
 p.exergue: Les 95 % des livres restants se noient *le marasme de la publication sauvage*…
 
@@ -22,7 +22,7 @@ C’est vrai, aucune loi n’interdit de publier, même sans la moindre compéte
 
 p#bons_livres_en_ae: Rien ne l’interdit, et surtout pas la *liberté d’expression !*
 
-Malheureusement, les bons livres qui pourraient exister — car il y en a (<: loclink(bons-livres-en-ae, voir pourquoi) :>) — se dissolvent dans l’océan des livres publiés en autoédition, à compte d’auteur ou à compte de petits éditeurs. Aujourd’hui, donc, …
+Malheureusement, les bons livres qui pourraient exister — car il y en a (<: pagelink(voir pourquoi,bons-livres-en-ae) :>) — se dissolvent dans l’océan des livres publiés en autoédition, à compte d’auteur ou à compte de petits éditeurs. Aujourd’hui, donc, …
 
 p.exergue: Les bons livres autoédités se dissolvent\ndans le marasme de l’édition sauvage.
 
@@ -46,13 +46,13 @@ Si vous êtes parvenu jusqu’ici, c’est que cette initiative a peut-être tro
 p#si_auteur.question: Vous êtes autrice ou auteur :
 list:
 * Vous pouvez [soumettre votre livre](/livres/soumettre) au comité pour recevoir ce label qui vous ouvrira grand les horizons des lectrices et des lecteurs.
-* Vous pouvez [devenir membre du comité de lecture](/comite/postuler) qui compte en ses rangs de nombreuses autrices et auteurs labellisés (ou pas — car on peut être piètre auteur et excellent lecteur).
+* Vous pouvez <: formlink(devenir membre du comité de lecture,member-submit) :> qui compte en ses rangs de nombreuses autrices et auteurs labellisés (ou pas — car on peut être piètre auteur et excellent lecteur).
 * Vous pouvez <: lien_faire_connaitre(si_auteur) :> autour de vous !
 :list
 
 p#si_lecteur.question: Vous êtes ici comme lectrice ou lecteur :
 list:
-* Vous pouvez [rejoindre le comité de lecture du label](/comite/postuler).
+* Vous pouvez <: formlink(rejoindre le comité de lecture,member-submit) :>.
 * Vous pouvez [choisir un livre](/livres/choisir) ayant reçu le label.
 * Vous pouvez <: lien_faire_connaitre(si_lecteur) :> autour de vous !
 :list

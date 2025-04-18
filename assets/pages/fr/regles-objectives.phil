@@ -6,7 +6,7 @@ Si cette vérité est incontestable et peut-être incontournable, il n’en rest
 
 p#evolution: Cette page — en permanente évolution — a pour objet de tenter de rassembler ces __règles d’écriture objectives__, ces __lois naturelles__, principalement stylistiques, qui pourront guider dans l’appréciation des livres soumis au label <: ldq_label :>. 
 
-Leur connaissance et leur _reconnaissance_ serviront, nous l’espérons, tout autant <: loclink(membres-comite,au lecteur ou à la lectrice du comité,regles-objectives#evolution) :> qu’à l’autrice ou à l’auteur qui voudra <: loclink(form-book-submit,soumettre un livre,regles-objectives#evolution) :> pour recevoir le label.
+Leur connaissance et leur _reconnaissance_ serviront, nous l’espérons, tout autant <: pagelink(au lecteur ou à la lectrice du comité,membres-comite,regles-objectives#evolution) :> qu’à l’autrice ou à l’auteur qui voudra <: formlink(soumettre un livre,book-submit,regles-objectives#evolution) :> pour recevoir le label.
 
 h3: Quelques règles objectives
 
@@ -53,4 +53,4 @@ p.reponse: Un bon livre ne saute pas, d’une phrase à l’autre, d’un point 
 
 h3: Conclusion
 
-p#conclusion: Les <: loclink(membres-comite,membres du comité de lecture,regles-objectives#conclusion) :> du <: ldq_label :> seront particulièrement attentifs à tous ses aspects dans les livres. Amies autrices et amis auteurs, aidez-vous : avant de <: loclink(form-book-submit,soumettre votre livre,regles-objectives#conclusion), vérifiez que vous ne tombez pas dans un de ces écueils !
+p#conclusion: Les <: pagelink(membres du comité de lecture,membres-comite,regles-objectives#conclusion) :> du <: ldq_label :> seront particulièrement attentifs à tous ses aspects dans les livres. Amies autrices et amis auteurs, aidez-vous : avant de <: formlink(soumettre votre livre,book-submit,regles-objectives#conclusion), vérifiez que vous ne tombez pas dans un de ces écueils !

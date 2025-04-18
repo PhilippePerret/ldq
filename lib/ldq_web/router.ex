@@ -41,11 +41,13 @@ defmodule LdQWeb.Router do
   # Nouvel affichage des pages (depuis la base de donnée)
   scope "/pg", LdQWeb do
     pipe_through :browser
-
+    
     get "/:slug", PageLocaleController, :display
   end
-
+  
   scope "/form", LdQWeb do
+    pipe_through :browser
+    
     get "/:form", FormController, :edit
     post "/:form", FormController, :update
   end

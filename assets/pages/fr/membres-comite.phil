@@ -1,6 +1,6 @@
 h2: Les membres du comité de lecture
 
-Vous pouvez vous aussi proposer votre <: loclink(form-reader-submit,proposer votre candidature,membres-comite) :> pour rejoindre les membres du comité de lecture (vous pouvez lire avant <: loclink(choix-membres,comment sont choisis les membres,membres-comite) :>).
+Vous pouvez vous aussi proposer votre <: formlink(proposer votre candidature,member-submit,membres-comite) :> pour rejoindre les membres du comité de lecture (vous pouvez lire avant <: pagelink(comment sont choisis les membres,choix-membres,membres-comite) :>).
 
 Bientôt ici apparaitra la liste des membres du comité de lecture du label <: ldq_label :>.
 

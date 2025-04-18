@@ -2,6 +2,6 @@ h2: Choix des membres du comité de lecture
 
 Noter qu'on les appelle de préférence les *membres du comité de lecture* plutôt que les lectrices ou les lecteurs pour faire la distinctions avec les *lectrices* et les *lecteurs* qui sont de façon générale les personnes qui lisent les livres — récompensés par le label ou non.
 
-p#submitself: À l'occasion, l'administration de label peut se rapprocher d'un lecteur ou d'une lectrice pour lui proposer de rejoindre le comité de lecture du label <: ldq_label :>. Mais en règle générale, c'est le lecteur ou la lectrice elle-même — qui est très souvent autrice ou auteur — quoi qui propose spontanément sa candidature par les biais du <: loclink(form-reader-submit, formulaire de soumission de candidature,choix-membres) :>.
+p#submitself: À l'occasion, l'administration de label peut se rapprocher d'un lecteur ou d'une lectrice pour lui proposer de rejoindre le comité de lecture du label <: ldq_label :>. Mais en règle générale, c'est le lecteur ou la lectrice elle-même — qui est très souvent autrice ou auteur — quoi qui propose spontanément sa candidature par les biais du <: formlink(formulaire de soumission de candidature,member-submit,choix-membres) :>.
 
 Cette candidature est ensuite étudiée par l'administration du label, et un petite test simple peut être proposé au candidate ou à la candidate quand il peut y avoir un doute sur la pertinence de sa candidature.

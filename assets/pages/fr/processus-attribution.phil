@@ -14,7 +14,7 @@ list:
 h3: Pour encore mieux comprendre
 
 list: 
-* qu'est-ce que le <: loclink(terme-credit, Crédit) :> ?
+* qu'est-ce que le <: pagelink(Crédit,terme-credit) :> ?
 :list
 {TODO: Expliquer ce que signifie "passer", et renvoyer peut-être à une page qui expliquer comment un livre est validé}
 

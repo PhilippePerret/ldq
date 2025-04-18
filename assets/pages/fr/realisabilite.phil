@@ -7,7 +7,7 @@ Il faut avoir conscience que les pierres d’achoppement, dans un projet de cett
 p#questions: Ces questions étaient légions :
 
 list:
-* Comment, même avec un comité d’une centaine de membres, traiter des dizaines de milliers de livres (voir <: loclink(chiffres-publication,Les chiffres de l’édition,realisabilite#questions) :>) ?
+* Comment, même avec un comité d’une centaine de membres, traiter des dizaines de milliers de livres (voir <: pagelink(Les chiffres de l’édition,chiffres-publication,realisabilite#questions) :>) ?
 * Comment en choisir les membres ? Par qui les évaluer ? Sur quels critères ?
 * Comment, sans être financé, attendre des membres un investissement pertinent ?
 * Comment les garder motivés ?
@@ -15,5 +15,5 @@ list:
 * Comment, en d’autres termes, réduire le niveau de subjectivité pour offrir un service de qualité, tout en assurant une régularité de "production" qui permette d’épuiser ce marché sauvage.
 :list
 
-p#resorb: Cette complexité a été résorbée en appliquant quelques principes directeurs, non exempt de failles, qui sont décrits en détail dans la section sur le <: loclink(filtrage-des-livres,filtrage des livres,realisabilite) :> ainsi que le <: loclink(choix-membres,choix des membres du comité de lecture,realisabilite#resorb) :>.
+p#resorb: Cette complexité a été résorbée en appliquant quelques principes directeurs, non exempt de failles, qui sont décrits en détail dans la section sur le <: pagelink(filtrage des livres,filtrage-des-livres,realisabilite) :> ainsi que le <: pagelink(choix des membres du comité de lecture,choix-membres,realisabilite#resorb) :>.
 

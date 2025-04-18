@@ -40,8 +40,6 @@ defmodule LdQWeb.PageLocaleController do
       current_user: Map.get(conn.assigns, :current_user, nil)
     }
     case slug do
-      "form-reader-submit"  -> default_params
-      "form-book-submit"    -> default_params
     _ -> default_params
     end
   end

@@ -9,4 +9,4 @@ list: id=listop
 * ne manquez pas de parler des derniers livres labellisés que vous avez lus.
 :list
 
-N'hésitez pas à télécharger un <: loclink(logos-label,logo du label,faire-connaitre#listop) :> pour le partager.
+N'hésitez pas à télécharger un <: pagelink(logo du label,logos-label,faire-connaitre#listop) :> pour le partager.

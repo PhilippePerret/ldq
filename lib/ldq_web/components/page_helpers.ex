@@ -11,7 +11,23 @@ defmodule LdQ.Site.PageHelpers do
     ~s(<font face="serif">-</font>)
   end
 
-  def loclink(slug, title, retour \\ nil) do
+  def formlink(title, slug, retour \\ nil) do
+    build_link("form", slug, title, retour)
+  end
+
+  def pagelink(title, slug, retour \\ nil) do
+    build_link("pg", slug, title, retour)
+  end
+
+  @doc """
+  Fonction générique pour créer un lien vers une partie
+
+  @param {String} prefix Pour le moment "pg" ou "form"
+  @param {String} slug de la page (identifiant générique, indépendant de la langue)
+  @param {String} title Le titre affiché
+  @param {String} retour Pour retourner à la page précédente : "<slug>[#<anchor>]"
+  """
+  def build_link(prefix, slug, title, retour \\ nil) do
     back =
       cond do
         is_nil(retour) -> ""
@@ -21,7 +37,7 @@ defmodule LdQ.Site.PageHelpers do
         true -> 
           "?back=#{retour}"
       end
-    ~s(<a href="/pg/#{slug}#{back}">#{title}</a>)
+    ~s(<a href="/#{prefix}/#{slug}#{back}">#{title}</a>)
   end
 
   def lien_faire_connaitre(type) do
