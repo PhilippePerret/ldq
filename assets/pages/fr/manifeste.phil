@@ -59,8 +59,8 @@ list:
 
 p#tout_cela.question: Vous êtes tout cela en même temps ou simplement un visiteur ou une visiteuse curieuse :
 list:
-* Vous pouvez voir [comment son filtrés et classés les livres](/apropos/filtrage_des_livres).
-* Vous pouvez voir [comment les chiffres de cette page ont été obtenus](/apropos/publication_en_chiffres).
-* Vous pouvez [découvrir le comité de lecture](/comite).
+* Vous pouvez voir <: pagelink(comment son filtrés et classés les livres,filtrage-des-livres,manifeste#tout_cela) :>.
+* Vous pouvez voir <: pagelink(comment les chiffres de cette page ont été obtenus,chiffres-publication,manifeste#tout_cela) :>.
+* Vous pouvez <: pagelink(découvrir le comité de lecture,comite-lecture,manifeste#tout_cela) :>.
 * Vous pouvez <: lien_faire_connaitre("tout_cela") :> autour de vous !
 :list

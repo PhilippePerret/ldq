@@ -1,0 +1,12 @@
+<.simple_form :let={f} for={@data} action={~p"/form/member-submit"} method="POST">
+  <.error :if={@data.action}>
+    <%= gettext("Oops, something went wrong! Please check the errors below.") %>
+  </.error>
+  <input type="hidden" name="candidat[user_id]" value={@data.user_id} />
+  <.input field={f[:raison]} type="textarea" label="Motivation" />
+  <.input field={f[:has_genre]} type="checkbox" label="Des genres de prédilections ?" />
+  <.input field={f[:genres]} type="text" label="Genres de prédilections" />
+  <:actions>
+    <.button><%= gettext("Apply to join (comitee)") %></.button>
+  </:actions>
+</.simple_form>

@@ -1,0 +1,17 @@
+h2: Formulaire de soumission de candidature au comité de lecture
+
+Vous voulez donc rejoindre le comité de lecture du label <: ldq_label :> en tant que lectrice ou lecteur et nous vous en remercions.
+
+p#attention: Nous vous invitons, si ce n’est pas déjà fait, à lire avec attention les pages suivantes qui vous informerons :
+
+list:
+* <: pagelink(Choix des membres du comité de lecture,choix-membres,form/member-submit) :>
+* <: pagelink(Engagement des membres du comité de lecture,engagement-membres,form/member-submit) :>
+:list
+
+raw:
+<.form_member_submit data={@data} />
+:raw
+
+
+

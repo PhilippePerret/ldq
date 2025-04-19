@@ -183,10 +183,31 @@ step = Repo.insert!(%Proc.AbsStep{
   short_name: "acceptation-membre-comite-after-test",
   short_description: "Lorsque le candidat est accepté comme membre du comité de lecture.",
   data: %{mail: :default, destinataire: :owner},
-  fonction: "procedure_acceptation_membre_comite",
+  fonction: "procedure_acceptation_membre_comite"
+})
+steps = steps ++ [step.short_name]
+
+step = Repo.insert!(%Proc.AbsStep{
+  abs_proc_id: absproc.id,
+  name: "Signature de la charte de lecture au sein du comité",
+  short_name: "sign-charte-member-comite",
+  short_description: "Une fois accepté au sein du comité de lecture du comité, le candidat doit signer la charte.",
+  data: nil,
+  fonction: "on_signature_charte_member_comite"
+})
+steps = steps ++ [step.short_name]
+
+step = Repo.insert!(%Proc.AbsStep{
+  abs_proc_id: absproc.id,
+  name: "Confirmation de l'admission au sein du comité de lecture",
+  short_name: "confirm-adminission-comite",
+  short_description: "Tout est en règle, le candidat est un nouveau membre du comité et peut commencer à lire/évaluer les livres",
+  data: %{mail: :default, destinataire: :owner},
+  fonction: "send_mail",
   last: true
 })
 steps = steps ++ [step.short_name]
+
 
 query = from(p in Proc.AbsProc, where: p.id == ^absproc.id)
 |> Repo.update_all(set: [steps: steps])

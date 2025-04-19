@@ -18,8 +18,14 @@ defmodule LdQWeb.PageLocaleController do
     
     lang = Map.get(params, "lang", "fr") # TODO PRENDRE LA LANGUE
     content = Site.get_page_locale_content(slug, lang)
-    page_pre = if params["back"] do
-      ~s(/pg/#{params["back"]}##{params["anchor"]})
+    back = params["back"]
+    page_pre = if back do
+      back = cond do
+        String.starts_with?(back,"form/") -> back
+        String.starts_with?(back, "pg/")  -> back
+        true -> "pg/#{back}"
+      end
+      ~s(/#{back}##{params["anchor"]})
     else nil end
 
     # Paramètres à envoyer à la page
