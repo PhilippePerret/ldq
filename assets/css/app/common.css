@@ -5,3 +5,7 @@
 .text-sm {
   font-size:inherit!important;
 }
+
+.right {
+  text-align:right!important;
+}
