@@ -10,15 +10,10 @@ defmodule LdQWeb.FormController do
     current_user = Map.get(conn.assigns, :current_user, nil)
     params = Map.put(params, "user", current_user)
 
-    phil_path = Path.join([__DIR__,"form_html", "#{form}.phil"])
     html_path = Path.join([__DIR__,"form_html", "#{form}.html.heex"])
-    IO.puts "path: #{inspect html_path}"
-    IO.inspect(File.exists?(html_path), label: "File.exists?(path)")
     if false == File.exists?(html_path) do
-      IO.puts "-> PhilHtml.to_html"
+      phil_path = Path.join([__DIR__,"form_html", "#{form}.phil"])
       res = PhilHtml.to_html(phil_path, [dest_name: "#{form}.html.heex", no_header: true, helpers: [LdQ.Site.PageHelpers]])
-      IO.inspect(res, label: "Résultat")
-      raise "pour voir après la fabrication"
     end
 
     data = get_data_by_form(form, params)
