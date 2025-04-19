@@ -11,7 +11,7 @@ defmodule LdQ.Proc.RelProc do
     field :owner_id, :binary
     
     # field :followed_by, :binary_id
-    belongs_to :followed_user, LdQ.Accounts.User, foreign_key: :followed_by
+    belongs_to :followed_user, LdQ.Comptes.User, foreign_key: :followed_by
     
     # field :abs_proc_id, :binary_id
     belongs_to :abs_proc, Proc.AbsProc

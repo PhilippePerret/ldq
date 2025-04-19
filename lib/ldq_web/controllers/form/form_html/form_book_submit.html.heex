@@ -1,0 +1,22 @@
+<%
+# Formulaire de soumission d'un livre
+%>
+
+<.simple_form :let={f} for={@data} action={~p"/form/book-submit"} method="POST">
+  <.error :if={@data.action}>
+    <%= gettext("Oops, something went wrong! Please check the errors below.") %>
+  </.error>
+  <input type="hidden" name="book[user_id]" value={@data.user_id} />
+  <input type="hidden" name="book[user_mail]" value={@data.user_mail} />
+
+  <.input type="text" field={f[:title]} label="Titre du livre" />
+  <.input type="text" field={f[:isbn]} label="ISBN, EAN ou ASIN" />
+  <.input type="select" field={f[:main_genre]} label="Genre principal" options={LdQ.Book.Genre.values()} />
+  <.input type="select" field={f[:sub_genre]} label="Genre secondaire" options={LdQ.Book.Genre.values()} />
+  <.input type="email" field={f[:main_author_email]} label="Mail de l'autrice ou l'auteur principal" />
+  <.input type="textarea" field={f[:resume]} label="Résumé de l'histoire" />
+  <:actions>
+    <.button><%= gettext("Submit the book") %></.button>
+  </:actions>
+
+</.simple_form>

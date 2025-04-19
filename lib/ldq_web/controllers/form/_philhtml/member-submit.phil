@@ -1,5 +1,7 @@
 h2: Formulaire de soumission de candidature au comité de lecture
 
+c: Détruire le fichier form_html/member-submit.html.heex pour actualiser ce fichier
+
 Vous voulez donc rejoindre le comité de lecture du label <: ldq_label :> en tant que lectrice ou lecteur et nous vous en remercions.
 
 p#attention: Nous vous invitons, si ce n’est pas déjà fait, à lire avec attention les pages suivantes qui vous informerons sur cet engagement :

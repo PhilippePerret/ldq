@@ -1,7 +1,6 @@
 Pages à faire : 
 
 * comite-lecture
-* engagement-membres
 * form-book-submit
 
 À réfléchir
