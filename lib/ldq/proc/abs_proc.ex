@@ -15,6 +15,7 @@ defmodule LdQ.Proc.AbsProc do
     field :short_description, :string
 
     has_many :rel_procs, Proc.RelProc
+    has_many :abs_steps, Proc.AbsStep
 
     timestamps(type: :utc_datetime)
   end

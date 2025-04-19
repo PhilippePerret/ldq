@@ -10,8 +10,14 @@ defmodule LdQ.Repo.Migrations.CreateAbsSteps do
       add :data, :map
       add :short_description, :text
       add :description, :text
+      add :last, :boolean, default: false
+      add :abs_proc_id, references(:abs_procs, on_delete: :delete_all, type: :binary_id)
 
       timestamps(type: :utc_datetime)
     end
+
+    create index(:abs_steps, [:short_name])
+    create index(:abs_steps, [:abs_proc_id])
+
   end
 end
