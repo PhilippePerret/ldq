@@ -23,6 +23,7 @@ defmodule LdQWeb.ProcCandidatureMembreComite do
     test "avec un candidat non valide",  %{conn: conn, user: author} do
       conn = get(conn, "/form/member-submit")
       assert html_response(conn, 200) =~ "<h2>Formulaire de soumission de candidature"
+    
     end
 
     @tag :skip

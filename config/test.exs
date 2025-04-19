@@ -26,7 +26,8 @@ config :ldq, LdQWeb.Gettext, default_locale: "en"
 config :ldq, LdQWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
   secret_key_base: "S1Pdk9ZEqh/VmadAxayZLPvCRel0VyMmPmbMGVBfRiprdpANtdjC3qGd3HmT93Pe",
-  server: false
+  # server: false
+  server: true # Pour wallaby
 
 # In test we don't send emails
 config :ldq, LdQ.Mailer, adapter: Swoosh.Adapters.Test
@@ -43,3 +44,10 @@ config :phoenix, :plug_init_mode, :runtime
 # Enable helpful, but potentially expensive runtime checks
 config :phoenix_live_view,
   enable_expensive_runtime_checks: true
+
+config :wallaby,
+  driver: Wallaby.Chrome,
+  chrome: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  chromedriver: [
+    headless: true
+  ]
