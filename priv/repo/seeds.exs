@@ -45,6 +45,44 @@ defmodule Seeds do
   end
 end
 
+Seeds.remove_proc_if_exists("soumission-book")
+steps = []
+
+absproc = Repo.insert!(%Proc.AbsProc{
+  name: "Soumission d'un livre pour obtention du label",
+  short_name: "soumission-book",
+  owner_type: "book",
+  steps: [],
+  short_description: "Cette procédure permet à un auteur de soumettre son livre pour l'attribution du label « Lecture de Qualité »."
+})
+
+step = Repo.insert!(%Proc.AbsStep{
+  abs_proc_id: absproc.id,
+  name: "Soumission du formulaire",
+  short_name: "soumission-main-formulaire",
+  short_description: "Le candidat soumet le formulaire de soumission de son livre.",
+  description: nil,
+  data: nil,
+  fonction: nil
+})
+steps = steps ++ [step.short_name]
+
+# ... TODO DES ÉTAPES
+
+step = Repo.insert!(%Proc.AbsStep{
+  abs_proc_id: absproc.id,
+  name: "Réception du document PDF ou ePub",
+  short_name: "receave-book-document",
+  short_description: "Cette étape permet de valider la réception du document du livre.",
+  data: nil,
+  fonction: "marquer_reception_livre"
+  # note : un mail doit être envoyé pour confirmation
+})
+steps = steps ++ [step.short_name]
+  
+
+# ============ PROCÉDURE DE CANDIDATURE AU COMITÉ DE LECTURE ==============
+
 # Détruire cette procédure doit détruire toutes les étapes qui lui appartiennent
 Seeds.remove_proc_if_exists("soumission-lecteur")
 steps = []

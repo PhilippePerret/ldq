@@ -33,6 +33,16 @@ defmodule LdQ.Book.Genre do
   def load(value), do: cast(value)
 
   # Pour les select
-  def values, do: Enum.map(@genres, fn {k, v} -> {v, k} end)
+  def values(entete \\ nil) do
+    liste =
+    Enum.map(@genres, fn {k, v} -> {v, k} end)
+    |> Enum.sort_by(fn {v, k} -> v end)
+
+    if entete do
+      List.insert_at(liste, 0, {entete, ""})
+    else 
+      liste
+    end
+  end
     
 end

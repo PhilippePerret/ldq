@@ -39,13 +39,16 @@ defmodule LdQWeb.FormController do
     book = Map.get(params, "book", %{})
     %{
       title:              book["title"],
+      subtitle:           book["subtitle"],
       isbn:               book["isbn"],
       resume:             book["resume"],
       main_genre:         book["main_genre"],
       sub_genre:          book["sub_genre"],
-      user_id:            book["user_id"],
-      user_mail:          book["user_mail"],
+      user_id:            book["user_id"]||(book["user"] && book["user"].id),
+      user_mail:          book["user_mail"]||(book["user"] && book["user"].email),
       main_author_email:  book["main_author_email"],
+      transmit_book:      book["transmit_book"]||true,
+      command_url:        book["command_url"],
       action:             book["action"]
     }
   end

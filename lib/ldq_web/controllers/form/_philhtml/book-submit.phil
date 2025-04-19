@@ -1,19 +1,21 @@
 h2: Formulaire de soumission d'un livre
 
-Cette page vous permet de soumettre votre livre pour une demande d'attribution de label <: ldq_label :>.
+Cette page vous permet de soumettre votre livre pour une demande d'attribution du label <: ldq_label :>.
 
-Pour procéder à cette demande, les conditions sont les suivantes :
+Pour procéder à cette demande, votre livre doit remplir les conditions suivantes :
 
 list:
-* vous devez être l'autrice ou l'auteur de l'ouvrage,
-* l'ouvrage, dans sa version actuelle, ne doit pas avoir fait l'objet d'une soumission précédente,
 * l'ouvrage doit être en langue française,
+* il doit être disponible à la vente sur une plateforme de vente en ligne,
 * l'ouvrage doit avoir été autoédité ou édité par un petit éditeur,
+* le demandeur doit impérativement être l'autrice ou l'auteur de l'ouvrage (ou son co-auteur/sa co-autrice),
+* l'ouvrage, dans sa version actuelle, ne doit pas avoir fait l'objet d'une attribution précédemment refusée,
+* l'ouvrage peut avoir reçu le label dans une version précédente,
 * l'ouvrage doit être une œuvre de fiction (pas un livre de recette, un livre technique, un livre de sociologie, de développement personnel, etc. — seul exception : les ouvrages historiques romancés),
 * l'ouvrage ne doit pas être : une pièce de théâtre, une BD, un livre de poésie.
 :list
 
-Vous vous engagez à transmettre à l'administration du label le fichier PDF de ce livre ou son ePub (sans protection, pour usage multiple par les membres du comité de lecture). Cochez la case idoine du formulaire ci-dessous pour le stipuler.
+Vous vous engagez à transmettre à l'administration du label, dans un futur proche, le fichier PDF de ce livre ou son ePub (sans protection, pour usage multiple) afin que les membres du comité de lecture puisse le lire. Cochez la case idoine du formulaire ci-dessous pour le stipuler. L'administration du label s'engage, de son côté, à ne jamais diffuser ce document, sous aucun prétexte.
 
 raw:
 <.form_book_submit data={@data} />
