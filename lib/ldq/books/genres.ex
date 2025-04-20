@@ -36,7 +36,7 @@ defmodule LdQ.Book.Genre do
   def values(entete \\ nil) do
     liste =
     Enum.map(@genres, fn {k, v} -> {v, k} end)
-    |> Enum.sort_by(fn {v, k} -> v end)
+    |> Enum.sort_by(fn {v, _k} -> v end)
 
     if entete do
       List.insert_at(liste, 0, {entete, ""})

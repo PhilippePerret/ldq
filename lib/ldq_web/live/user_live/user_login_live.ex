@@ -16,17 +16,17 @@ defmodule LdQWeb.UserLoginLive do
       </.header>
 
       <.simple_form for={@form} id="login_form" action={~p"/users/log_in"} phx-update="ignore">
-        <.input field={@form[:email]} type="email" label="Email" required />
-        <.input field={@form[:password]} type="password" label="Password" required />
+        <.input field={@form[:email]} type="email" label="Mail" required />
+        <.input field={@form[:password]} type="password" label="Mot de passe" required />
         <:actions>
-          <.input field={@form[:remember_me]} type="checkbox" label="Keep me logged in" />
+          <.input field={@form[:remember_me]} type="checkbox" label="Me garder connecté" />
           <.link href={~p"/users/reset_password"} class="text-sm font-semibold">
             Forgot your password?
           </.link>
         </:actions>
         <:actions>
-          <.button phx-disable-with="Logging in..." class="w-full">
-            Log in <span aria-hidden="true">→</span>
+          <.button phx-disable-with="Connexion..." class="w-full">
+            Se connecter
           </.button>
         </:actions>
       </.simple_form>

@@ -4,10 +4,10 @@ defmodule LdQWeb.FormHTML do
   embed_templates "form_html/*"
 
 
-  attr :data, :map, required: true
+  attr :changeset, Ecto.Changeset, required: true
   def form_member_submit(assigns)
-
-  attr :data, :map, required: true
+  
+  attr :changeset, Ecto.Changeset, required: true
   def form_book_submit(assigns)
 
 end

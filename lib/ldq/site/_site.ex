@@ -69,12 +69,13 @@ defmodule LdQ.Site do
   end
 
   def get_page_locale_content(slug, lang \\ "en") do
+    # IO.inspect(slug, label: "\nSLUG")
     page = get_page_by_slug(slug)
+    # IO.inspect(page, label: "\nPAGE")
     page_id = page.id
     from(pg in PageLocale, where: pg.page_id == ^page_id and pg.locale == ^lang, select: [:content])
     |> Repo.one()
     |> Map.get(:content)
-    |> IO.inspect(label: "Retour de get_page_locale_content")
   end
 
   @doc """
