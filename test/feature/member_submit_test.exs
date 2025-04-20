@@ -31,13 +31,15 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     |> la_page_contient("p", "Votre candidature a été enregistrée.")
 
     # TODO Une procédure a dû être enregistrée
+    
     # TODO Des mails ont dû être envoyés
   end
 
   test "Un utilisateur ayant déjà soumis sa candidature ne peut plus le faire" do
-
+    # TODO
   end
   test "Un membre du comité ne peut soumettre sa candidature" do
+    # TODO
   end
-  
+
 end
