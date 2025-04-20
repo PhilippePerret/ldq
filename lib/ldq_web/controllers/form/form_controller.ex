@@ -1,29 +1,10 @@
 
-defmodule Candidat do
-  use Ecto.Schema
-  import Ecto.Changeset
-
-  @primary_key false
-  schema "candidats" do
-    field :user_id, :binary
-    field :raison, :string
-    field :has_genres, :boolean
-    field :genres, {:array, :string}
-  end
-
-  @doc false
-  def changeset(candidat, attrs) do
-    candidat 
-    |> cast(attrs, [:user_id, :raison, :has_genres, :genres])
-    |> validate_required([:user_id, :raison, :has_genres, :genres])
-  end
-
-end
-
 defmodule LdQWeb.FormController do
   use LdQWeb, :controller
 
   # alias LdQ.Forms
+
+  alias LdQ.{Candidat,SubmittedBook}
 
   @doc """
   Tous les formulaires personnalisés passent par ici
@@ -58,7 +39,7 @@ defmodule LdQWeb.FormController do
 
   def get_data_by_form("book-submit", params) do
     book = Map.get(params, "book", %{})
-    %{
+    SubmittedBook.changeset(%SubmittedBook{}, %{
       title:              book["title"],
       subtitle:           book["subtitle"],
       isbn:               book["isbn"],
@@ -77,4 +58,3 @@ defmodule LdQWeb.FormController do
     raise "Le formulaire #{inspect unknown} est inconnu"
   end
 end
-

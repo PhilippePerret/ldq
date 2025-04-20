@@ -12,7 +12,7 @@ list:
 :list
 
 raw:
-<.form_member_submit data={@data} />
+<.form_member_submit changeset={@changeset} />
 :raw
 
 

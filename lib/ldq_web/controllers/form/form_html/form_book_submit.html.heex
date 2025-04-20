@@ -2,12 +2,12 @@
 # Formulaire de soumission d'un livre
 %>
 
-<.simple_form :let={f} for={@data} action={~p"/form/book-submit"} method="POST">
-  <.error :if={@action}>
+<.simple_form :let={f} for={@changeset} action={~p"/form/book-submit"} method="POST">
+  <.error :if={@changeset.action}>
     <%= gettext("Oops, something went wrong! Please check the errors below.") %>
   </.error>
-  <input type="hidden" name="book[user_id]" value={@data.user_id} />
-  <input type="hidden" name="book[user_mail]" value={@data.user_mail} />
+  <input type="hidden" name="book[user_id]" value={@changeset.data.user_id} />
+  <input type="hidden" name="book[user_mail]" value={@changeset.data.user_mail} />
 
   <.input type="text" field={f[:title]} label="Titre du livre" required />
   <.input type="text" field={f[:subtitle]} label="Sous-titre éventuel" />

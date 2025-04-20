@@ -18,5 +18,5 @@ list:
 Vous vous engagez à transmettre à l'administration du label, dans un futur proche, le fichier PDF de ce livre ou son ePub (sans protection, pour usage multiple) afin que les membres du comité de lecture puisse le lire. Cochez la case idoine du formulaire ci-dessous pour le stipuler. L'administration du label s'engage, de son côté, à ne jamais diffuser ce document, sous aucun prétexte.
 
 raw:
-<.form_book_submit data={@data} />
+<.form_book_submit changeset={@changeset} />
 :raw
