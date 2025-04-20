@@ -50,8 +50,8 @@ defmodule LdQWeb.FormController do
       user_mail:          book["user_mail"]||(book["user"] && book["user"].email),
       main_author_email:  book["main_author_email"],
       transmit_book:      book["transmit_book"]||true,
-      command_url:        book["command_url"],
-    }
+      url_command:        book["url_command"]
+    })
   end
 
   def get_data_by_form(unknown, _params) do

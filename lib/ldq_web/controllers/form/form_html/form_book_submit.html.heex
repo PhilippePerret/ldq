@@ -16,7 +16,7 @@
   <.input type="select" field={f[:sub_genre]} label="" options={LdQ.Book.Genre.values("Genre secondaire…")} required />
   <.input type="email" field={f[:main_author_email]} label="Mail de l'autrice ou l'auteur principal" required />
   <.input type="textarea" field={f[:resume]} label="Résumé de l'histoire" required />
-  <.input type="string" field={f[:command_url]} label="Lien de commande du livre (Amazon…)" required />
+  <.input type="text" field={f[:url_command]} label="Lien de commande du livre (Amazon…)" required />
   <.input type="checkbox" field={f[:transmit_book]} label="Je m'engage à transmettre au comité de lecture une version du livre sans blocage" />
   <:actions>
     <.button><%= gettext("Submit the book") %></.button>

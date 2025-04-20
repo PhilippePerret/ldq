@@ -21,10 +21,11 @@ defmodule LdQ.Candidat do
 end
 
 defmodule LdQ.SubmittedBook do
+  use Ecto.Schema
   import Ecto.Changeset
 
   @primary_key false
-  shema "submitted_books" do
+  schema "submitted_books" do
     field :title, :string
     field :subtitle, :string
     field :isbn, :string
@@ -35,14 +36,14 @@ defmodule LdQ.SubmittedBook do
     field :user_mail, :string
     field :main_author_email, :string
     field :transmit_book, :boolean
-    field :command_url, :string
+    field :url_command, :string
   end
 
   @doc false
   def changeset(submittedbook, attrs) do
     submittedbook
-    |> cast(attrs, [:title, :subtitle, :isbn, :resume, :main_genre, :sub_genre, :user_id, :user_mail, :main_author_mail, :transmit_book, :command_url])
-    |> validate_required([:title, :subtitle, :isbn, :resume, :main_genre, :sub_genre, :user_id, :user_mail, :main_author_mail, :transmit_book, :command_url])
+    |> cast(attrs, [:title, :subtitle, :isbn, :resume, :main_genre, :sub_genre, :user_id, :user_mail, :main_author_mail, :transmit_book, :url_command])
+    |> validate_required([:title, :subtitle, :isbn, :resume, :main_genre, :sub_genre, :user_id, :user_mail, :main_author_mail, :transmit_book, :url_command])
   end
 
 end
