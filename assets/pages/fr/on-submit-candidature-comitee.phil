@@ -1,0 +1,23 @@
+h2: Candidature enregistrée
+
+Votre candidature a été enregistrée.
+
+Que va-t-il se passer maintenant ?…
+
+list:
+* l'administration du label va recevoir et étudier votre candidature,
+* elle va vous contacter pour vous indiquer la suite des opérations,
+* si tout est OK, vous rejoignez immédiatement le comité après avoir lu et approuvé quelques documents utiles au bon fonctionnement du comité,
+* si l'administration le juge utile, vous passez un petit test d'estimation de votre niveau pour valider définitivement votre candidature.
+:list
+
+En attendant, voici quelques pages que vous pouvoir lire ou relire :
+
+list:
+* <: pagelink(Notre manifeste bien sûr,manifeste,on-submit-candidature-comitee)) :>,
+* <: pagelink(Le comité de lecture,comite-lecture,on-submit-candidature-comitee)) :>,
+* <: pagelink(Les membres du comité de lecture,membres-comite,on-submit-candidature-comitee)) :>,
+* <: pagelink(Le processus d'attribution du label,processus-attribution,on-submit-candidature-comitee)) :>,
+* <: pagelink(Règles objectives,regles-objectives,on-submit-candidature-comitee)) :>,
+* <: pagelink(Un bon livre&sbquo; qu'est-ce que c'est ? &#40;pour le label&#41;,un-bon-livre,on-submit-candidature-comitee)) :>.
+:list

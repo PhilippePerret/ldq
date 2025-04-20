@@ -2,6 +2,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
   use LdQWeb.FeatureCase, async: false
 
   import TestHelpers
+  import FeaturesMethods # Méthodes je_rejoins, etc.
 
   alias Wallaby.Browser,  as: WB
   alias Wallaby.Query,    as: WQ
@@ -12,17 +13,31 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
 
     w("#{user.name} vient s'identifier", :blue)
     session
-    |> visit("/users/log_in")
-    |> fill_in(WQ.text_field("Mail"), with: user.email)
-    |> fill_in(WQ.text_field("Mot de passe"), with: attrs.password)
-    |> click(WQ.button("Se connecter"))
+    |> je_rejoins_la_page("/users/log_in")
+    |> je_remplis_le_champ("Mail") |> avec(user.email)
+    |> je_remplis_le_champ("Mot de passe") |> avec(attrs.password)
+    |> je_clique_le_bouton("Se connecter")
 
-    IO.puts "#{user.name} rejoint la page pour poser sa candidature"
     session
-    |> visit("/form/member-submit")
-    
-    IO.puts "Il trouve le bon titre et le formulaire"
-    assert WB.text(session, css("h2")) =~ "Formulaire de soumission de candidature"
+    |> je_rejoins_la_page("/form/member-submit", "pour poser ma candidature")
+    |> la_page_contient("h2", ~r/Formulaire de soumission de candidature/)
+    |> je_remplis_le_champ("Motivation") 
+      |> avec("Pour participer au label")
+    |> je_coche_la_case("candidat_has_genre")
+    |> je_remplis_le_champ("Genres de prédilections") 
+      |> avec("Fantaisie, Polar, Romance")
+    |> je_clique_le_bouton("Soumettre ma candidature")
+    |> la_page_contient("h2", "Candidature enregistrée")
+    |> la_page_contient("p", "Votre candidature a été enregistrée.")
+
+    # TODO Une procédure a dû être enregistrée
+    # TODO Des mails ont dû être envoyés
+  end
+
+  test "Un utilisateur ayant déjà soumis sa candidature ne peut plus le faire" do
 
   end
+  test "Un membre du comité ne peut soumettre sa candidature" do
+  end
+  
 end

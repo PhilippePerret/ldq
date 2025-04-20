@@ -36,12 +36,7 @@ msgstr "Votre mot de passe a bien été changé !"
 msgid "Welcome back!"
 msgstr "Bienvenue à nouveau !"
 
-#: lib/ldq_web/controllers/apropos/apropos_controller.ex:11
-#, elixir-autogen, elixir-format
-msgid "The page “%{page}” is unknown."
-msgstr "La page %{page} est inconnue sur ce site."
-
-#: lib/ldq_web/user_auth.ex:163
+#: lib/ldq_web/user_auth.ex:164
 #, elixir-autogen, elixir-format
 msgid "You must log in to access this page."
 msgstr "Vous devez vous identifier, pour accéder à cette page."

@@ -11,27 +11,27 @@ msgstr ""
 "Language: en\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: lib/ldq_web/components/layouts/root.html.heex:72
+#: lib/ldq_web/components/layouts/root.html.heex:73
 #, elixir-autogen, elixir-format
 msgid "Log out"
 msgstr ""
 
-#: lib/ldq_web/components/layouts/root.html.heex:82
+#: lib/ldq_web/components/layouts/root.html.heex:92
 #, elixir-autogen, elixir-format
 msgid "Register"
 msgstr ""
 
-#: lib/ldq_web/components/layouts/root.html.heex:63
+#: lib/ldq_web/components/layouts/root.html.heex:64
 #, elixir-autogen, elixir-format
 msgid "Settings"
 msgstr ""
 
-#: lib/ldq_web/components/layouts/root.html.heex:89
+#: lib/ldq_web/components/layouts/root.html.heex:99
 #, elixir-autogen, elixir-format
 msgid "Sign in"
 msgstr ""
 
-#: lib/ldq_web/components/core_components.ex:35
+#: lib/ldq_web/components/core_components.ex:36
 #, elixir-autogen, elixir-format
 msgid "Back to previous page"
 msgstr ""

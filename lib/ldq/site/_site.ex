@@ -58,7 +58,7 @@ defmodule LdQ.Site do
   def get_page_by_slug(slug) do
     from(pg in Page, where: pg.slug == ^slug, select: [:id])
     |> Repo.one()
-    |> IO.inspect(label: "Retour de Repo.one")
+    # |> IO.inspect(label: "Retour de Repo.one")
   end
 
   def get_locale_page_by_slug(slug, lang \\ "en") do

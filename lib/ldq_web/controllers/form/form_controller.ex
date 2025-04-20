@@ -27,6 +27,23 @@ defmodule LdQWeb.FormController do
     })
   end
 
+  def create(conn, %{"form" => form} = params) do
+    IO.inspect(params, label: "\nParams dans create")
+    {redirection, message} = on_create(form, params)
+
+    conn = if is_nil(message) do conn else
+      put_flash(conn, :notice, message)
+    end
+    conn
+    |> redirect(to: redirection)
+  end
+
+  def on_create("member-submit", params) do
+    # TODO On doit créer une nouvelle procédure de candidature
+    {~p"/pg/on-submit-candidature-comitee", nil}
+  end
+
+
   def get_data_by_form("member-submit", params) do
     candidat = Map.get(params, "candidat", %{})
     Candidat.changeset(%Candidat{}, %{

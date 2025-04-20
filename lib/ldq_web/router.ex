@@ -49,7 +49,7 @@ defmodule LdQWeb.Router do
     pipe_through [:browser, :require_authenticated_user]
     
     get "/:form", FormController, :edit
-    post "/:form", FormController, :update
+    post "/:form", FormController, :create
   end
 
   scope "/livres", LdQWeb do

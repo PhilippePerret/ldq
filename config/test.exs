@@ -18,7 +18,7 @@ config :ldq, LdQ.Repo,
 
 config :ldq, env: :test
 
-config :ldq, LdQWeb.Gettext, default_locale: "en"
+config :ldq, LdQWeb.Gettext, default_locale: "fr"
 
 
 # We don't run a server during test. If one is required,
