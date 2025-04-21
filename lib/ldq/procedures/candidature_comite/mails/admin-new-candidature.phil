@@ -1,0 +1,15 @@
+---
+subject = Soumission d'une candidature pour le comité de lecture
+---
+Cher administrateur,
+
+Je vous informe de la soumission de la candidature d'un nouvel utilisateur pour incorporer le comité de lecture.
+
+code:
+Name : <: user_name :>
+Mail : [<: user_mail :>](mailto:<: user_mail :>)
+:code
+
+Cette candidature doit être accepter, refusée ou soumise à un test. Vous pouvez en décider en rejoignant la procédure attachée.
+
+[Voir la procédure](<: proc_url :>)

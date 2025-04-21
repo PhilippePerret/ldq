@@ -55,7 +55,6 @@ defmodule LdQ.MixProject do
        compile: false,
        depth: 1},
       # {:phoenix_markdown, "~> 1.0"},
-      {:pp_markdown, git: "https://github.com/PhilippePerret/pp_markdown.git"},
       {:earmark, "~> 1.4"},
       {:swoosh, "~> 1.5"},
       {:gen_smtp, "~> 1.1"}, # chargement explicite

@@ -80,16 +80,6 @@ config :phoenix, :json_library, Jason
 config :phoenix, :template_engines, 
   md:  PPMarkdown.Engine,
   mmd: PPMarkdown.Engine
-config :pp_markdown, options: %{
-  server_tags: :all,
-  gfm: true, 
-  smartypants: false,
-  breaks: true
-}
-config :pp_markdown, table_vars: %{
-  label_ldq: "<span class=\"label\">Lecture de Qualité</span>"
-}
-
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
