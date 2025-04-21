@@ -54,8 +54,8 @@ data_pages = %{
   "un-bon-livre" => ["Ce qu'est un bon livre", "Page expliquant ce qui fait, au sein du label, un bon livre et ce qui n'est pas un bon livre."]
 }
 
-Repo.delete_all(Page)
 Repo.delete_all(PageLocale)
+Repo.delete_all(Page)
 
 path_folder = Path.join(["assets","pages","fr"])
 File.ls!(path_folder)
@@ -75,15 +75,19 @@ File.ls!(path_folder)
   end
   title = title || "#{slug} À RENOMMER"
 
+  html_path = Path.join([path_folder, "xhtml", "#{slug}.html"])
+  content = if File.exists?(html_path) do
+    File.read!(html_path)
+  else "À TRANSVASER" end
+
   locpage = Repo.insert!(%PageLocale{
     page_id:      page.id,
     locale:       "fr",
     status:       5,
     title:        title,
     raw_content:  File.read!(Path.join([path_folder, path])),
-    content:      "À transvaser",
+    content:      content,
     summary:      summary
-
   })
   IO.puts "-> #{slug} OK"
 end)
