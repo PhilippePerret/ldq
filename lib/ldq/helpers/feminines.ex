@@ -7,8 +7,5 @@ defmodule LdQ.Helpers.Feminines do
 
   def fem(:Chere, "F"), do: "Chère"
   def fem(:Chere, "H"), do: "Cher"
-  def fem(id, user) do
-
-  end
 
 end

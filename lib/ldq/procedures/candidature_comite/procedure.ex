@@ -5,7 +5,7 @@ defmodule LdQ.Procedure.CandidatureComite do
   son refus.
   """
 
-  import LdQ.Procedure
+  import LdQ.ProcedureMethods
 
   @steps [
     %{name: "Soumission de la candidature", fun: :start},

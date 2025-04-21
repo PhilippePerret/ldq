@@ -8,6 +8,7 @@ defmodule LdQ.Repo.Migrations.CreateUsersAuthTables do
       add :id, :binary_id, primary_key: true
       add :name, :string, null: false
       add :email, :citext, null: false
+      add :sexe, :string, null: false
       add :hashed_password, :string, null: false
       add :confirmed_at, :utc_datetime
       add :privileges, :integer, default: 0

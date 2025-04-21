@@ -8,6 +8,7 @@ defmodule LdQ.Comptes.User do
   schema "users" do
     field :name, :string
     field :email, :string
+    # field :sexe, :string
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :current_password, :string, virtual: true, redact: true
@@ -42,8 +43,8 @@ defmodule LdQ.Comptes.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:name, :email, :password])
-    |> validate_required([:name])
+    |> cast(attrs, [:name, :sexe, :email, :password])
+    |> validate_required([:sexe, :name])
     |> validate_email(opts)
     |> validate_password(opts)
   end

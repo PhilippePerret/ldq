@@ -22,7 +22,7 @@ defmodule LdQ.Repo.Migrations.CreateProcedures do
       timestamps(type: :utc_datetime)
     end
 
-    create index(:procedures, [:proc_id])
+    create index(:procedures, [:proc_dim])
 
   end
 end

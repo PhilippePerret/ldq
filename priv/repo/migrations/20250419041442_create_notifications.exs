@@ -9,7 +9,7 @@ defmodule LdQ.Repo.Migrations.CreateNotifications do
       add :procedure_id, references(:procedures, on_delete: :delete_all, type: :binary_id)
       add :data, :map
       add :title, :string
-      add :content, :text
+      add :body, :text
       # Pour adresser la notification à un groupe d'utilisateur
       add :group_target, :string # par exemple "admins", "readers", "members", "all"
       # Pour adresser la notification à un utilisateur en particulier
@@ -21,7 +21,7 @@ defmodule LdQ.Repo.Migrations.CreateNotifications do
       timestamps(type: :utc_datetime)
     end
 
-    create index(:notifications, [:notif_id])
+    create index(:notifications, [:notif_dim])
 
   end
 end

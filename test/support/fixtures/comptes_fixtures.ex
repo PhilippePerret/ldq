@@ -9,8 +9,9 @@ defmodule LdQ.ComptesFixtures do
 
   def valid_user_attributes(attrs \\ %{}) do
     Enum.into(attrs, %{
-      name: Map.get(attrs, :name, "Stranger"),
+      name: Map.get(attrs, :name, "Strangerine"),
       email: unique_user_email(),
+      sexe: "F", 
       password: Map.get(attrs, :password, valid_user_password())
     })
   end
