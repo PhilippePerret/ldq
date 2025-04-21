@@ -16,6 +16,20 @@ defmodule TestHelpers do
     IO.puts params
   end
 
+  @doc """
+  Pour pauser dans un pipe
+  Note : hors d'un pipe, mettre nil en premier argument
+  """
+  def pause(traversor, quantite, unit \\ :seconde) do
+    ms = case unit do
+      :minute   -> quantite * 60
+      :seconde  -> quantite
+    end
+    Process.sleep(ms * 1000)
+
+    traversor
+  end
+
 end
 
 defmodule FeaturesMethods do

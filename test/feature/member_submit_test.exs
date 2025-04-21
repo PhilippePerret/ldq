@@ -14,19 +14,24 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     w("#{user.name} vient s'identifier", :blue)
     session
     |> je_rejoins_la_page("/users/log_in")
+    |> pause(1)
     |> je_remplis_le_champ("Mail") |> avec(user.email)
     |> je_remplis_le_champ("Mot de passe") |> avec(attrs.password)
+    |> pause(2)
     |> je_clique_le_bouton("Se connecter")
 
     session
     |> je_rejoins_la_page("/form/member-submit", "pour poser ma candidature")
+    |> pause(2)
     |> la_page_contient("h2", ~r/Formulaire de soumission de candidature/)
     |> je_remplis_le_champ("Motivation") 
       |> avec("Pour participer au label")
     |> je_coche_la_case("candidat_has_genre")
-    |> je_remplis_le_champ("Genres de prédilections") 
+    |> je_remplis_le_champ("Genres de prédilections")
       |> avec("Fantaisie, Polar, Romance")
+    |> pause(2)
     |> je_clique_le_bouton("Soumettre ma candidature")
+    |> pause(2)
     |> la_page_contient("h2", "Candidature enregistrée")
     |> la_page_contient("p", "Votre candidature a été enregistrée.")
 

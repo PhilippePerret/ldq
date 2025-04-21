@@ -22,7 +22,10 @@ defmodule LdQWeb.FeatureCase do
     end
 
     metadata = Phoenix.Ecto.SQL.Sandbox.metadata_for(LdQ.Repo, self())
-    {:ok, session} = Wallaby.start_session(metadata: metadata)
+    {:ok, session} = Wallaby.start_session([
+      metadata: metadata,
+      window_size: [width: 1000, height: 1200]
+      ])
     {:ok, session: session}
   end
 end

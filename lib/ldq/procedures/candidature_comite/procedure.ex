@@ -7,28 +7,38 @@ defmodule LdQ.Procedure.CandidatureComite do
 
   import LdQ.ProcedureMethods
 
+  alias LdQ.Comptes
+
   @steps [
     %{name: "Soumission de la candidature", fun: :start},
     %{name: "Accepter, refuser ou soumettre à un test", fun: :accepte_refuse_or_test},
     %{name: "Refus de la candidature", fun: :refuser_candidature},
     %{name: "Accepter la candidature", fun: :accepter_candidature},
     %{name: "Soumettre à un test", fun: :soumettre_a_test}
-  ]
+  ] |> Enum.with_index() |> Enum.map(fn {s, index} -> Map.put(s, :index, index) end)
+
+
 
   def start(params) do
     # On doit créer une procédure pour cette candidature, procédure 
     # qui va accompagner toute la 
+    IO.inspect(params, label: "Paramètres à l'entrée de #{__MODULE__}.start")
+
+    candidat = params["candidat"]
+    user = Comptes.get_user!(candidat["user_id"])
+
     data = %{
-      user_id:    params["user_id"], 
-      user_mail:  params["user_mail"],
-      genres:     Enum.split(params["genres"]) |> Enum.map(fn g -> String.trim(g) end),
+      user_id:      candidat["user_id"], 
+      user_mail:    user.email,
+      genres:       String.split(candidat["genres"], ",") |> Enum.map(fn g -> String.trim(g) end),
       procedure_id: nil, 
       folder:     __DIR__
     }
-    user = Comptes.get_user!(params["user_id"])
     
     proc = create_procedure(%{
       proc_dim:     "candidature-comite",
+      owner_type:   "user",
+      owner_id:     user.id,
       data:         data,
       steps_done:   ["start"],
       current_step: "start",
@@ -39,15 +49,15 @@ defmodule LdQ.Procedure.CandidatureComite do
 
     mail_data = %{
       mail_id:    nil,
-      procedure:  procedure,
+      procedure:  proc,
       user:       user,
       folder:     __DIR__
     }
 
-    send_mail(:admins, user.mail, %{mail_data | mail_id: "user-candidature-recue"})
-    send_mail(user.mail, :admins, %{mail_data | mail_id: "admin-new-candidature"})
+    send_mail(:admin, user.email, %{mail_data | mail_id: "user-candidature-recue"})
+    send_mail(user.email, :admins, %{mail_data | mail_id: "admin-new-candidature"})
     notify(:admins, "accepte_refuse_or_test", %{
-      procedure_id:     proc.id,
+      procedure:        proc,
       notif_dim:         "accepte_refuse_or_test",
       group_target:     "admins",
       title:            "Accepter, refuser, ou demander de passer le test pour une candidature au comité de lecture",
@@ -74,27 +84,39 @@ defmodule LdQ.Procedure.CandidatureComite do
       "refuse" ->
         refuser_candidature(params)
       "tester" ->
-        tester_candidature(params)
+        soumettre_a_test(params)
     end
   end
 
   def refuser_candidature(params) do
     procedure = get_procedure(params["procedure_id"])
+
     raison = if params["notif"]["raison"] == "" do "Aucune" else
       String.trim(params["notif"]["raison"])
     end
-    send_mail(procedure.user.mail, :admins, "refuser-candidature-comite", procedure.data)
+    params = params
+    |> Map.put("procedure", procedure)
+    |> Map.put("raison", raison)
+    |> Map.put("mail_id", "user-soumission-refused")
+
+    send_mail(procedure.user.mail, :admins, params)
     delete_procedure(procedure)
   end
 
   def accepter_candidature(params) do
     procedure = get_procedure(params["procedure_id"])
-    send_mail(procedure.user.mail, :admins, "valider-candidature-comite", procedure.data)
+    params = params
+    |> Map.put("procedure", procedure)
+    |> Map.put("mail_id", "user-soumission-success")
+    send_mail(procedure.user.mail, :admins, params)
   end
 
   def soumettre_a_test(params) do
     procedure = get_procedure(params["procedure_id"])
-
+    params = params
+    |> Map.put("procedure", procedure)
+    |> Map.put("mail_id", "user-soumission-test")
+    send_mail(procedure.user.mail, :admins, params)
   end
 
 end

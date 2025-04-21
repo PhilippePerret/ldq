@@ -5,7 +5,10 @@ defmodule LdQ.Helpers.Feminines do
   <: fem(:Chere, sexe) :>
   """
 
-  def fem(:Chere, "F"), do: "Chère"
-  def fem(:Chere, "H"), do: "Cher"
+  def fem("rice", "F"), do: "rice" # administrat[eur]/aministrat[rice]
+  def fem("eur", _), do: "eur"
+
+  def fem("Chere", "F"), do: "Chère"
+  def fem("Chere", _), do: "Cher"
 
 end

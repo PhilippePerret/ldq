@@ -32,6 +32,7 @@ defmodule LdQWeb.UserRegistrationLive do
         </.error>
 
         <.input field={@form[:name]} type="text" label="Name" required />
+        <.input field={@form[:sexe]} type="select" label="Sexe" options={[["F", "Féminin"],["H", "Masculin"]]} required />
         <.input field={@form[:email]} type="email" label="Email" required />
         <.input field={@form[:password]} type="password" label="Password" required />
 

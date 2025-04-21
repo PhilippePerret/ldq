@@ -4,7 +4,7 @@ defmodule LdQWeb.FormController do
 
   # alias LdQ.Forms
 
-  alias LdQ.{Candidat,SubmittedBook}
+  alias LdQ.{Candidat,SubmittedBook,Procedure}
 
   @doc """
   Tous les formulaires personnalisés passent par ici
@@ -39,21 +39,8 @@ defmodule LdQWeb.FormController do
   end
 
   def on_create("member-submit", params) do
-    # TODO On doit créer une nouvelle procédure de candidature
-    # J'ai l'impression que ça serait plus simple avec un dossier "procedures"
-    # implémentant toutes les méthodes et seulement un enregistrement pour
-    # savoir où on se trouve. Donc une table procedures avec :
-    #   id            Identifiant type de la procédure (p.e. "soumission-lecteur")
-    #   owner_type    Le type de l'objet visé ("user" ou "book")
-    #   owner_id      L'identifiant de l'objet visé
-    #   steps_done    Liste des étapes déjà accomplies
-    #   current_step  L'étape courante, if any
-    #   data          Une map qui accumule les données nécessaires/utiles
-    # 
-    absproc = Proc.get_abs_proc_by_shortname("soumission-lecteur")
-    relproc = Proc.create_rel_proc!(absproc, params)
-    Enum.each(absproc.steps)
-
+    Procedure.CandidatureComite.start(params)
+    
     {~p"/pg/on-submit-candidature-comitee", nil}
   end
 

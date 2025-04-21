@@ -49,5 +49,9 @@ config :wallaby,
   driver: Wallaby.Chrome,
   chrome: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
   chromedriver: [
-    headless: true
+    # headless: true
+    headless: false, # pour voir la page s'ouvrir
+    capabilities: %{
+      chromeOptions: %{ args: ["--window-size=1200,1400"] }
+    }
   ]

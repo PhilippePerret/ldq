@@ -18,7 +18,7 @@ defmodule LdQ.Procedure do
 
   def changeset(%__MODULE__{} = procedure, attrs) do
     procedure
-    |> cast(attrs, [:proc_dim, :owner_type, :current_step, :next_step, :steps_done, :data])
+    |> cast(attrs, [:proc_dim, :owner_type, :owner_id, :current_step, :next_step, :steps_done, :data])
     |> validate_required([:proc_dim, :owner_type, :owner_id, :current_step, :data])
   end
 
