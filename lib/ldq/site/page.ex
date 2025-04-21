@@ -8,7 +8,7 @@ defmodule LdQ.Site.Page do
     field :status, :integer
     field :template, :string
     field :slug, :string
-    field :publised_at, :naive_datetime
+    field :published_at, :naive_datetime
     field :next_id, :binary_id
 
     timestamps(type: :utc_datetime)
@@ -17,7 +17,7 @@ defmodule LdQ.Site.Page do
   @doc false
   def changeset(page, attrs) do
     page
-    |> cast(attrs, [:slug, :template, :status, :publised_at])
+    |> cast(attrs, [:slug, :template, :status, :published_at])
     |> validate_required([:slug, :template, :status])
   end
 end

@@ -5,7 +5,7 @@
   <.input field={f[:slug]} type="text" label="URL-Id" placeholder="Caractères simples, pas d'espace" />
   <.input field={f[:template]} type="select" options={@params.templates} label="Template" />
   <.input field={f[:status]} label="Status" type="select" options={Site.PageLocale.Status.values()} />
-  <.input field={f[:publised_at]} type="datetime-local" label="Publised at" />
+  <.input field={f[:published_at]} type="datetime-local" label="Publised at" />
   <:actions>
     <.button>Save Page</.button>
   </:actions>

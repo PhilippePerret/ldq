@@ -11,7 +11,7 @@ defmodule LdQ.SiteFixtures do
     {:ok, page} =
       attrs
       |> Enum.into(%{
-        publised_at: ~N[2025-04-13 06:02:00],
+        published_at: ~N[2025-04-13 06:02:00],
         slug: "some slug",
         status: 42,
         template: "some template"

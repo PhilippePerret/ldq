@@ -3,9 +3,9 @@ defmodule LdQWeb.PageControllerTest do
 
   import LdQ.SiteFixtures
 
-  @create_attrs %{status: 42, template: "some template", slug: "some slug", publised_at: ~N[2025-04-13 06:02:00]}
-  @update_attrs %{status: 43, template: "some updated template", slug: "some updated slug", publised_at: ~N[2025-04-14 06:02:00]}
-  @invalid_attrs %{status: nil, template: nil, slug: nil, publised_at: nil}
+  @create_attrs %{status: 42, template: "some template", slug: "some slug", published_at: ~N[2025-04-13 06:02:00]}
+  @update_attrs %{status: 43, template: "some updated template", slug: "some updated slug", published_at: ~N[2025-04-14 06:02:00]}
+  @invalid_attrs %{status: nil, template: nil, slug: nil, published_at: nil}
 
   describe "index" do
     test "lists all pages", %{conn: conn} do

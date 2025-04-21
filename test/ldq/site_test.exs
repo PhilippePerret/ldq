@@ -8,7 +8,7 @@ defmodule LdQ.SiteTest do
 
     import LdQ.SiteFixtures
 
-    @invalid_attrs %{status: nil, template: nil, slug: nil, publised_at: nil}
+    @invalid_attrs %{status: nil, template: nil, slug: nil, published_at: nil}
 
     test "list_pages/0 returns all pages" do
       page = page_fixture()
@@ -21,13 +21,13 @@ defmodule LdQ.SiteTest do
     end
 
     test "create_page/1 with valid data creates a page" do
-      valid_attrs = %{status: 42, template: "some template", slug: "some slug", publised_at: ~N[2025-04-13 06:02:00]}
+      valid_attrs = %{status: 42, template: "some template", slug: "some slug", published_at: ~N[2025-04-13 06:02:00]}
 
       assert {:ok, %Page{} = page} = Site.create_page(valid_attrs)
       assert page.status == 42
       assert page.template == "some template"
       assert page.slug == "some slug"
-      assert page.publised_at == ~N[2025-04-13 06:02:00]
+      assert page.published_at == ~N[2025-04-13 06:02:00]
     end
 
     test "create_page/1 with invalid data returns error changeset" do
@@ -36,13 +36,13 @@ defmodule LdQ.SiteTest do
 
     test "update_page/2 with valid data updates the page" do
       page = page_fixture()
-      update_attrs = %{status: 43, template: "some updated template", slug: "some updated slug", publised_at: ~N[2025-04-14 06:02:00]}
+      update_attrs = %{status: 43, template: "some updated template", slug: "some updated slug", published_at: ~N[2025-04-14 06:02:00]}
 
       assert {:ok, %Page{} = page} = Site.update_page(page, update_attrs)
       assert page.status == 43
       assert page.template == "some updated template"
       assert page.slug == "some updated slug"
-      assert page.publised_at == ~N[2025-04-14 06:02:00]
+      assert page.published_at == ~N[2025-04-14 06:02:00]
     end
 
     test "update_page/2 with invalid data returns error changeset" do

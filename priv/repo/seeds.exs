@@ -13,14 +13,14 @@
 
 alias LdQ.Repo
 alias LdQ.Comptes.User
-alias LdQ.Proc
-
+alias LdQ.Site.{Page,PageLocale}
 import Ecto.Query
 
 hashed_password = Bcrypt.hash_pwd_salt("xadcaX-huvdo9-xidkun")
 
 email_phil = "philippe.perret@yahoo.fr"
 
+# Seulement en mode :dev et si je ne suis pas encore enregistré
 if (Mix.env() == :dev) and is_nil(Repo.one(from(u in User, where: u.email == ^email_phil))) do
   Repo.insert!(%User{
     name: "Phil", 
@@ -30,6 +30,63 @@ if (Mix.env() == :dev) and is_nil(Repo.one(from(u in User, where: u.email == ^em
     privileges: 64
   })
 end
+
+# ==== Pages et Pages Locales ====
+
+data_pages = %{
+  "bon-livres-en-ae" => ["Les Bons livres autoédités existent", "Page expliquant pourquoi les bons livres en autoédition existent tout à fait."],
+  "chiffres-publication" => ["Les Chiffres de la publication", "Page expliquant comment ont été recueillis et calculés les chiffres des publications."],
+  "choix-membres" => ["Le Choix des membres du comité de lecture", "Page expliquant comment sont choisis les membres du comité de lecture"],
+  "comite-lecture" => ["Le Comité de lecture", "Page présentant le comité de lecture du label"],
+  "engagement-membres" => ["L'Engagement des membres du comité", "Page décrivant ce que représente le fait de rejoindre le comité de lecture en tant que lectrice ou lecteur."],
+  "faire-connaitre" => ["Faire connaitre le label", "Page expliquant comment faire connaitre le label Lecture de Qualité autour de soi et son importance."],
+  "faq" => ["Foire Aux Questions", "Page répondant aux questions courantes"],
+  "filtrage-des-livres" => ["Filtrage des livres", "Page expliquant comment sont filtrés les livres pour recevoir ou non le label Lecture de Qualité"],
+  "logos-label" => ["Les Logos du label", "Page présentant les différents logos et images du label Lecture de Qualité"],
+  "manifeste" => ["Manifeste de label", "Page expliquant comment est né le label et ce qu'il espère produire."],
+  "membres-comite" => ["Les Membres du comité", "Page présentant les membres du comité de lecture du label, tous lectrices et lecteurs confondus"],
+  "on-submit-candidature-comitee" => ["Candidature enregistrée", "Page confirmant au candidat lecteur ou lectrice que sa demande a été déposée et sera bientôt étudiée."],
+  "processus-attribution" => ["Le Processus d'attribution", "Page décrivant tout le processus d'attribution du label."],
+  "qualite-me-discutee" => ["Discution sur la qualité des grandes maisons d'édition", "Page expliquant pourquoi on peut faire confiance aux grandes maisons d'édition."],
+  "realisabilite" => ["Réalisabilité du label", "Page expliquant ce qui a été mis au point pour rendre le label réalisable, viable et productif."],
+  "regles-objectives" => ["Les Règles objectives", "Page essayant de décrire les règles objectives pouvant déterminer pour une écriture est bonne ou ne l'est pas."],
+  "terme-credit" => ["Le Terme « Crédit »", "Explication du terme « crédit » au sein du label."],
+  "un-bon-livre" => ["Ce qu'est un bon livre", "Page expliquant ce qui fait, au sein du label, un bon livre et ce qui n'est pas un bon livre."]
+}
+
+Repo.delete_all(Page)
+Repo.delete_all(PageLocale)
+
+path_folder = Path.join(["assets","pages","fr"])
+File.ls!(path_folder)
+|> Enum.filter(fn path -> String.ends_with?(path, ".phil") end)
+|> Enum.each(fn path ->
+  slug = Path.rootname(path)
+  page = Repo.insert!(%Page{
+    slug: slug, 
+    template: "plain_page", 
+    status: 5
+  })
+
+  [title, summary] = Map.get(data_pages, slug, [nil, "-- RÉSUMÉ À DÉFINIR ---"])
+
+  if is_nil(title) do
+    IO.puts "Il faut définir les données du livre #{inspect slug}"
+  end
+  title = title || "#{slug} À RENOMMER"
+
+  locpage = Repo.insert!(%PageLocale{
+    page_id:      page.id,
+    locale:       "fr",
+    status:       5,
+    title:        title,
+    raw_content:  File.read!(Path.join([path_folder, path])),
+    content:      "À transvaser",
+    summary:      summary
+
+  })
+  IO.puts "-> #{slug} OK"
+end)
 
 # *======== Définition des procédures ===============*
 

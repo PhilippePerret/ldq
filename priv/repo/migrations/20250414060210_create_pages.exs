@@ -7,7 +7,7 @@ defmodule LdQ.Repo.Migrations.CreatePages do
       add :slug, :string
       add :template, :string
       add :status, :integer
-      add :publised_at, :naive_datetime
+      add :published_at, :naive_datetime
       add :next_id, references(:pages, on_delete: :nothing, type: :binary_id)
 
       timestamps(type: :utc_datetime)
