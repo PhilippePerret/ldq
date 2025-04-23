@@ -8,6 +8,10 @@ defmodule LdQ.Constantes do
           :prod -> "https://www.label-de-qualite"
           :test -> ""
         end
+      :mail_admin ->
+        "admin@lecture-de-qualite.fr"
+      :mail_admins -> 
+        "admins@lecture-de-qualite.fr"
     end
   end
 end

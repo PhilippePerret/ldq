@@ -54,15 +54,65 @@ defmodule LdQ.ProcedureMethods do
   end
 
   @doc """
-  Pour envoyer une mail
+  En mode test, au lieu d'envoyer le mail, on l'enregistre dans un 
+  fichier avec sa date d'envoi.
+  """
+  def consigne_mail_for_test(data_mail) do
+    path = Path.join(["test","xtmp", "mails_sent", "#{Ecto.UUID.generate()}"])
+    data_mail = Map.merge(data_mail, %{
+      sent_at: NaiveDateTime.utc_now()
+    })
+    # Pour le moment, pour ne pas alourdir, on retire l'objet PhilHtml
+    Map.delete(data_mail, :philhtml)
+    data_string = :erlang.term_to_binary(data_mail)
+    File.write!(path, data_string)
+  end
+
+  @doc """
+  Pour envoyer un mail
 
   @param {String|Atom} sender du message (si :admin, c'est l'administration)
-  @param {String|Atom} receiver du message (si :admins, à tous les administrateurs)
+  @param {String|Atom|User|Array>Users} receiver du message (si :admins, à tous les administrateurs)
   @param {Map} mail_data Les données du mail dont :
   @param {String|Atom} mail_data.id Identifiant du mail à envoyer
   @param {Map} mail_data.variables Les variables pour détemplatiser le message
   """
   def send_mail(sender, receiver, params) do
+
+    data_mail = compose_mail(sender, receiver, params)
+
+    data_mail.receivers |> Enum.reduce(%{errors: [], sent: []}, fn receiver, coll ->
+
+      # Sujet propre
+      subject = PhilHtml.Evaluator.customize!(data_mail.subject, data_mail.philhtml)
+      # Contenu propre
+      html_body = PhilHtml.Evaluator.customize!(data_mail.html_body, data_mail.philhtml)
+      
+      email = data_mail.email 
+      |> Swoosh.Email.to(receiver)
+      |> Swoosh.Email.subject(subject)
+      |> Swoosh.Email.html_body(html_body)
+
+      if Mix.env() == :test do
+        data_mail = Map.merge(data_mail, %{
+          receiver: receiver
+        })
+        consigne_mail_for_test(data_mail)
+      else
+        # Envoi de l'email
+        case LdQ.Mailer.deliver(email) do
+          {:ok, _} -> 
+            %{coll | sent: coll.sent ++ [email]}
+          {:error, reason} -> 
+            %{coll | errors: coll.errors ++ [reason]}
+        end
+      end
+    end)
+    |> IO.inspect(label: "Résultat de l'envoi")
+  end
+
+
+  defp compose_mail(sender, receiver, params) do
     mail_path = Path.join([params.folder, "mails", "#{params.mail_id}.phil"])
     params    = defaultize_mail_params(params)
     variables = params.variables
@@ -70,7 +120,7 @@ defmodule LdQ.ProcedureMethods do
     # On formate le mail
     phil_data = PhilHtml.to_data(mail_path, 
       [no_header: true, evaluation: false, variables: variables, helpers: [LdQ.Helpers.Feminines]])
-    |> IO.inspect(label: "Phil data du mail à envoyer")
+    # |> IO.inspect(label: "Phil data du mail à envoyer")
 
     subject = @prefix_mail_subject <> phil_data.options[:variables][:subject]
 
@@ -89,27 +139,22 @@ defmodule LdQ.ProcedureMethods do
       _ -> [receiver]
     end
 
-    receivers |> Enum.reduce(%{errors: [], sent: []}, fn receiver, coll ->
-      email = Swoosh.Email.new()
-      |> Swoosh.Email.to(receiver)
-      |> Swoosh.Email.from(sender)
-      |> Swoosh.Email.subject(subject)
-      |> Swoosh.Email.html_body(phil_data.html)
 
-      email =
-      if attached_file do
-        email |> Swoosh.Email.attach(attached_file)
-      else email end
+    email = Swoosh.Email.new()
+    |> Swoosh.Email.from(sender)
+    email =
+    if attached_file do
+      email |> Swoosh.Email.attach(attached_file)
+    else email end
 
-      # Envoie l'email
-      case LdQ.Mailer.deliver(email) do
-        {:ok, _} -> 
-          %{coll | sent: coll.sent ++ [email]}
-        {:error, reason} -> 
-          %{coll | errors: coll.errors ++ [reason]}
-      end
-    end)
-    |> IO.inspect(label: "Résultat de l'envoi")
+    %{
+      email:      email,
+      mail_id:    params.mail_id,
+      receivers:  receivers,
+      subject:    subject,
+      html_body:  phil_data.heex,
+      philhtml:   phil_data
+    }
   end
 
   defp defaultize_mail_params(params) do
@@ -159,8 +204,8 @@ defmodule LdQ.ProcedureMethods do
   Cette notification, suivant le destinataire (target), apparaitra
   sur le bureau d'administration ou le bureau du membre/user
   """
-  def notify(target, notify_id, params) do
-    IO.puts "IL FAUT APPRENDRE À ENREGISTRER UNE NOTIFICATION"
+  def notify(params) do
+    create_notification(params)
     :ok
   end
 

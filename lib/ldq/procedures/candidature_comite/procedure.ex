@@ -56,11 +56,11 @@ defmodule LdQ.Procedure.CandidatureComite do
 
     send_mail(:admin, user.email, %{mail_data | mail_id: "user-candidature-recue"})
     send_mail(user.email, :admins, %{mail_data | mail_id: "admin-new-candidature"})
-    notify(:admins, "accepte_refuse_or_test", %{
-      procedure:        proc,
-      notif_dim:         "accepte_refuse_or_test",
-      group_target:     "admins",
-      title:            "Accepter, refuser, ou demander de passer le test pour une candidature au comité de lecture",
+    notify(%{
+      notif_dim:      "accepte_refuse_or_test",
+      procedure_id:   proc.id,
+      group_target:   "admins",
+      title:          "Accepter, refuser, ou demander de passer le test pour une candidature au comité de lecture",
       body:             """
       <select name="notif[action]">
         <option value="accept">Accepter la candidature</option>

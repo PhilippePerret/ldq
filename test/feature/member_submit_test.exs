@@ -2,14 +2,16 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
   use LdQWeb.FeatureCase, async: false
 
   import TestHelpers
-  import FeaturesMethods # Méthodes je_rejoins, etc.
+  import FeaturePublicMethods # Méthodes je_rejoins, etc.
 
   alias Wallaby.Browser,  as: WB
   alias Wallaby.Query,    as: WQ
 
   feature "un utilisateur accède au formulaire de candidature", %{session: session} do
     attrs = %{password: "Un mot de passe pour cette session"}
-    user = LdQ.ComptesFixtures.user_fixture(attrs)
+    user = je = LdQ.ComptesFixtures.user_fixture(attrs)
+
+    detruire_les_mails()
 
     w("#{user.name} vient s'identifier", :blue)
     session
@@ -17,24 +19,29 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     |> pause(1)
     |> je_remplis_le_champ("Mail") |> avec(user.email)
     |> je_remplis_le_champ("Mot de passe") |> avec(attrs.password)
-    |> pause(2)
+    |> pause(1)
     |> je_clique_le_bouton("Se connecter")
+
+    point_test = NaiveDateTime.utc_now()
 
     session
     |> je_rejoins_la_page("/form/member-submit", "pour poser ma candidature")
-    |> pause(2)
+    |> pause(1)
     |> la_page_contient("h2", ~r/Formulaire de soumission de candidature/)
     |> je_remplis_le_champ("Motivation") 
       |> avec("Pour participer au label")
     |> je_coche_la_case("candidat_has_genre")
     |> je_remplis_le_champ("Genres de prédilections")
       |> avec("Fantaisie, Polar, Romance")
-    |> pause(2)
+    |> pause(1)
     |> je_clique_le_bouton("Soumettre ma candidature")
-    |> pause(2)
+    |> pause(1)
     |> la_page_contient("h2", "Candidature enregistrée")
     |> la_page_contient("p", "Votre candidature a été enregistrée.")
 
+    je |> recois_un_mail(after: point_test, subject: "Enregistrement de votre candidature", content: [~r/Ch(er|ère) #{user.name}/, "Nous vous confirmons que votre candidature", "L’Administration du Label"], strict: false)
+    :admin |> recoit_un_mail(after: point_test, subject: "Soumission d'une candidature", content: ["Cher administrateur", "Name : #{user.name}", ~s(Mail : <a href="mailto:#{user.email}">#{user.email}</a>), "acceptée, refusée ou soumise à un test"], strict: false)
+    
     # TODO Une procédure a dû être enregistrée
     
     # TODO Des mails ont dû être envoyés
