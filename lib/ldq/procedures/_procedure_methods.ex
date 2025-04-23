@@ -63,7 +63,7 @@ defmodule LdQ.ProcedureMethods do
       sent_at: NaiveDateTime.utc_now()
     })
     # Pour le moment, pour ne pas alourdir, on retire l'objet PhilHtml
-    Map.delete(data_mail, :philhtml)
+    data_mail = Map.delete(data_mail, :philhtml)
     data_string = :erlang.term_to_binary(data_mail)
     File.write!(path, data_string)
   end
@@ -88,8 +88,13 @@ defmodule LdQ.ProcedureMethods do
       # Contenu propre
       html_body = PhilHtml.Evaluator.customize!(data_mail.html_body, data_mail.philhtml)
       
+      receiver = case is_binary(receiver) do
+        true  -> %{name: "", email: receiver}
+        false -> receiver
+      end
+
       email = data_mail.email 
-      |> Swoosh.Email.to(receiver)
+      |> Swoosh.Email.to({receiver.name, receiver.email})
       |> Swoosh.Email.subject(subject)
       |> Swoosh.Email.html_body(html_body)
 
@@ -128,20 +133,23 @@ defmodule LdQ.ProcedureMethods do
     attached_file = params.attached_file
 
     sender = case sender do
-      :admin -> "admin@lecture-de-qualite.fr"
-      _ -> sender
+      :admin -> %{name: "Administrateur", email: "admin@lecture-de-qualite.fr", sexe: "H"}
+      _ -> 
+        case is_binary(sender) do
+        true -> %{name: "", email: sender}
+        false -> sender
+        end
     end
 
     receivers = case receiver do
-      :admins   -> ["admins@lecture-de-qualite.fr"]
-      :readers  -> ["readers@lecture-de-qualite.fr"]
-      :members  -> ["members@lecture-de-qualite.fr"]
+      :admins   -> [%{name: "Administrateurs", email: "admins@lecture-de-qualite.fr", sexe: "H"}]
+      :readers   -> [%{name: "Lecteurs", email: "readers@lecture-de-qualite.fr", sexe: "H"}]
+      :members   -> [%{name: "Membres du comité", email: "members@lecture-de-qualite.fr", sexe: "H"}]
       _ -> [receiver]
     end
 
-
     email = Swoosh.Email.new()
-    |> Swoosh.Email.from(sender)
+    |> Swoosh.Email.from({sender.name, sender.email})
     email =
     if attached_file do
       email |> Swoosh.Email.attach(attached_file)
