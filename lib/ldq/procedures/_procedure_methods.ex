@@ -94,8 +94,8 @@ defmodule LdQ.ProcedureMethods do
       # Contenu propre
       html_body = PhilHtml.Evaluator.customize!(data_mail.heex_body, data_mail.philhtml)
       
-      IO.inspect(subject, label: "\n+++ SUJET PROPRE")
-      IO.inspect(html_body, label: "\n+++ CONTENU PROPRE")
+      # IO.inspect(subject, label: "\n+++ SUJET PROPRE")
+      # IO.inspect(html_body, label: "\n+++ CONTENU PROPRE")
 
       receiver = case is_binary(receiver) do
         true  -> %{name: "", email: receiver}
@@ -108,8 +108,12 @@ defmodule LdQ.ProcedureMethods do
       |> Swoosh.Email.html_body(html_body)
 
       if Mix.env() == :test do
+        # Mode test : consigner les données du mail
+
         data_mail = Map.merge(data_mail, %{
-          receiver: receiver
+          receiver: receiver,
+          subject:  subject,
+          html_body: html_body
         })
         consigne_mail_for_test(data_mail)
       else

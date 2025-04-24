@@ -43,13 +43,35 @@ defmodule TestMailMethods do
     # On ne garde que les mails après le points-test fourni (if any)
     |> keep_only_mails_after_point_test()
     |> keep_only_mails_received_by_dest()
+    |> IO.inspect(label: "\nRÉSULTAT après by-dest")
     |> keep_only_mails_from_sender()
     |> keep_only_mails_by_identifiant()
     |> keep_only_mails_with_expected_subject()
+    |> keep_only_mails_with_expected_body()
+
+    mails_found = resultat.keptmails
+    nombre_mails_found = Enum.count(mails_found)
+    aucun_mail_trouved = nombre_mails_found == 0
+
+    if aucun_mail_trouved && params.count != 0 do
+      w("\n\n##### PROBLÈME DE MAILS AVEC PARAMS #{inspect params}", :red)
+      IO.inspect(resultat.exclusions, label: "\n##### RAISON DES EXCLUSIONS ###")
+    end
+
+    if is_nil(params.count) do
+      assert Enum.any?(mails_found), "Aucun mail trouvé répondant aux paramètres : #{inspect params})"
+    else
+      s = if params.count > 1, do: "s", else: ""
+      err_mess = "On devait trouver #{params.count} mail#{s}, on en a trouver #{nombre_mails_found} avec les paramètres #{inspect params}."
+      assert nombre_mails_found == params.count, err_mess
+    end
+
   end
 
   defp keep_only_mails_after_point_test(resultat) do
-    if is_nil(resultat.params.after) do resultat else
+    if is_nil(resultat.params.after) do 
+      resultat 
+    else
       Enum.reduce(resultat.allmails, resultat, fn mail, res ->
         if NaiveDateTime.after?(mail.sent_at, resultat.params.after) do
           %{res | keptmails: res.keptmails ++ [mail]}
@@ -61,10 +83,12 @@ defmodule TestMailMethods do
   end
   defp keep_only_mails_received_by_dest(resultat) do
     keptmails = resultat.keptmails
-    if is_nil(resultat.destinataire) or Enum.empty?(keptmails) do resultat else
+    if is_nil(resultat.destinataire) or Enum.empty?(keptmails) do 
+      resultat 
+    else
       resultat = %{resultat | keptmails: []}
-      Enum.reduce(resultat.keptmails, resultat, fn mail, res ->
-        if mail.receiver == resultat.destinataire.email do
+      Enum.reduce(keptmails, resultat, fn mail, res ->
+        if mail.receiver.email == resultat.destinataire.email do
           %{res | keptmails: res.keptmails ++ [mail]}
         else
           %{res | exclusions: res.exclusions ++ [[reason: "BAD RECEIVER (required #{resultat.destinataire.email})", mail: mail]]}
@@ -108,8 +132,8 @@ defmodule TestMailMethods do
         case string_contains(mail.subject, params.subject, params) do
         {:ok, _} ->
           %{res | keptmails: res.keptmails ++ [mail]}
-        {:error, res} ->
-          %{res | exclusions: res.exclusions ++ [[reason: "BAD SUBJECT: #{inspect res.errors}", mail: mail]]}
+        {:error, retour} ->
+          %{res | exclusions: res.exclusions ++ [[reason: "BAD SUBJECT: #{inspect retour.errors}", mail: mail]]}
         end
       end)
     end
@@ -123,8 +147,8 @@ defmodule TestMailMethods do
         case string_contains(mail.html_body, params.content, params) do
         {:ok, _} ->
           %{res | keptmails: res.keptmails ++ [mail]}
-        {:error, res} ->
-          %{res | exclusions: res.exclusions ++ [[reason: "BAD BODY: #{inspect res.errors}", mail: mail]]}
+        {:error, retour} ->
+          %{res | exclusions: res.exclusions ++ [[reason: "BAD BODY: #{inspect retour.errors}", mail: mail]]}
         end
       end)
     end

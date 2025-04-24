@@ -45,6 +45,7 @@ defmodule LdQ.Comptes.User do
     user
     |> cast(attrs, [:name, :sexe, :email, :password])
     |> validate_required([:sexe, :name])
+    |> unique_constraint([:name, :email])
     |> validate_email(opts)
     |> validate_password(opts)
   end

@@ -4,12 +4,16 @@ defmodule LdQ.ComptesFixtures do
   entities via the `LdQ.Comptes` context.
   """
 
-  def unique_user_email, do: "user#{System.unique_integer()}@example.com"
+  def uniq_int() do
+    System.unique_integer([:positive, :monotonic])
+  end
+
+  def unique_user_email, do: "user#{uniq_int()}@example.com"
   def valid_user_password, do: "hello world!"
 
   def valid_user_attributes(attrs \\ %{}) do
     Enum.into(attrs, %{
-      name: Map.get(attrs, :name, "Strangerine"),
+      name: Map.get(attrs, :name, "Stranger-#{uniq_int()}"),
       email: unique_user_email(),
       sexe: "F", 
       password: Map.get(attrs, :password, valid_user_password())
