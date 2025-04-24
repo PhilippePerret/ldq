@@ -67,10 +67,17 @@ defmodule FeaturePublicMethods do
     :count    {Integer} Nombre de mails à trouver 
     :subject  {String|Array of Strings|Regexp} Le sujet à trouver ou des segments
     :content  {String|Array of Strings|Regepx} Le contenu ou des segments
+
+  @return {destinataire, [mails]}
   """
   def recoit_un_mail(who, params), do: user_recoit_un_mail(who, params)
   def recois_un_mail(who, params), do: user_recoit_un_mail(who, params)
   def recoivent_un_mail(who, params), do: recoit_un_mail(who, params)
   def recoit_un_mail(:admin, params), do: admin_recoit_un_mail(params)
   def detruire_les_mails, do: exec_delete_all_mails()
+
+
+  def rejoint_le_lien_du_mail({destinataire, mails}, link_title) do
+    raise "Je dois apprendre à tester les mails #{inspect mails} envoyés à #{inspect destinataire} pour cliquer sur le titre “ #{link_title}”"
+  end
 end

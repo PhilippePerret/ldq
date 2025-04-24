@@ -40,11 +40,19 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     |> la_page_contient("p", "Votre candidature a été enregistrée.")
 
     je |> recois_un_mail(after: point_test, subject: "Enregistrement de votre candidature", content: [~r/Ch(er|ère) #{user.name}/, "Nous vous confirmons que votre candidature", "L’Administration du Label"], strict: false)
-    :admin |> recoit_un_mail(after: point_test, subject: "Soumission d'une candidature", content: [~r/Ch(er|ère) administrat(eur|rice),/, "Name", "#{user.name}", ~s(<a href="mailto:#{user.email}">#{user.email}</a>), "acceptée, refusée ou soumise à un test"], strict: false)
     
-    # TODO Une procédure a dû être enregistrée
+    # Une procédure a dû être enregistrée
+
+    # L'administrateur clique sur son lien dans le mail et
+    # rejoint la page de la procédure (on simule son identification
+    # puisqu'il n'y a pas de sessions ici).
+    :admin 
+    |> recoit_un_mail(after: point_test, subject: "Soumission d'une candidature", content: [~r/Ch(er|ère) administrat(eur|rice),/, "Name", "#{user.name}", ~s(<a href="mailto:#{user.email}">#{user.email}</a>), "acceptée, refusée ou soumise à un test"], strict: false)
+    |> rejoint_le_lien_du_mail("Voir la procédure") # TODO DOIT RETOURNER UNE SESSION
+    |> la_page_contient("h2", "Procédure")
+
+    # L'administrateur peut rejoindre le lien du mail
     
-    # TODO Des mails ont dû être envoyés
   end
 
   test "Un utilisateur ayant déjà soumis sa candidature ne peut plus le faire" do

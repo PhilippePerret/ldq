@@ -17,9 +17,9 @@ defmodule TestMailMethods do
   @param {Map} destinataire -- map contenant au moins {:email, :name}
   @param {String} subject Le sujet du message
   @param {List>String} contenu Liste des portions de textes à trouver. Ça peut être du simple texte ou une expression régulière.
+
+  @return {destinataire, [mails trouvés]}
   """
-  # Version en essayant de garder le maximume d'information sur les 
-  # raisons de l'échec
   def user_recoit_un_mail(destinataire, params) when (is_map(destinataire) or is_struct(destinataire, User)) and is_map(params) do 
     params = defaultize_mail_params(params)
     folder = dossier_mails()
@@ -65,6 +65,8 @@ defmodule TestMailMethods do
       err_mess = "On devait trouver #{params.count} mail#{s}, on en a trouver #{nombre_mails_found} avec les paramètres #{inspect params}."
       assert nombre_mails_found == params.count, err_mess
     end
+
+    {destinataire, mails_found}
 
   end
 
