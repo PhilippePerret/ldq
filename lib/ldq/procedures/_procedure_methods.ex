@@ -81,13 +81,22 @@ defmodule LdQ.ProcedureMethods do
 
     data_mail = compose_mail(sender, receiver, params)
 
+    # Il faut modifier les propriétés de data_mail.philhtml pour que
+    # l'évaluation soit demandée
+    philhtml = data_mail.philhtml
+    philhtml = %{philhtml | options: Keyword.put(philhtml.options, :evaluation, true)}
+    data_mail = %{data_mail | philhtml: philhtml}
+
     data_mail.receivers |> Enum.reduce(%{errors: [], sent: []}, fn receiver, coll ->
 
       # Sujet propre
       subject = PhilHtml.Evaluator.customize!(data_mail.subject, data_mail.philhtml)
       # Contenu propre
-      html_body = PhilHtml.Evaluator.customize!(data_mail.html_body, data_mail.philhtml)
+      html_body = PhilHtml.Evaluator.customize!(data_mail.heex_body, data_mail.philhtml)
       
+      IO.inspect(subject, label: "\n+++ SUJET PROPRE")
+      IO.inspect(html_body, label: "\n+++ CONTENU PROPRE")
+
       receiver = case is_binary(receiver) do
         true  -> %{name: "", email: receiver}
         false -> receiver
@@ -113,7 +122,7 @@ defmodule LdQ.ProcedureMethods do
         end
       end
     end)
-    |> IO.inspect(label: "Résultat de l'envoi")
+    # |> IO.inspect(label: "Résultat de l'envoi")
   end
 
 
@@ -125,7 +134,7 @@ defmodule LdQ.ProcedureMethods do
     # On formate le mail
     phil_data = PhilHtml.to_data(mail_path, 
       [no_header: true, evaluation: false, variables: variables, helpers: [LdQ.Helpers.Feminines]])
-    # |> IO.inspect(label: "Phil data du mail à envoyer")
+    |> IO.inspect(label: "Phil data du mail à envoyer")
 
     subject = @prefix_mail_subject <> phil_data.options[:variables][:subject]
 
@@ -157,10 +166,11 @@ defmodule LdQ.ProcedureMethods do
 
     %{
       email:      email,
+      procedure:  params.procedure,
       mail_id:    params.mail_id,
       receivers:  receivers,
       subject:    subject,
-      html_body:  phil_data.heex,
+      heex_body:  phil_data.heex,
       philhtml:   phil_data
     }
   end

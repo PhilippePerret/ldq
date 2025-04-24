@@ -40,7 +40,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     |> la_page_contient("p", "Votre candidature a été enregistrée.")
 
     je |> recois_un_mail(after: point_test, subject: "Enregistrement de votre candidature", content: [~r/Ch(er|ère) #{user.name}/, "Nous vous confirmons que votre candidature", "L’Administration du Label"], strict: false)
-    :admin |> recoit_un_mail(after: point_test, subject: "Soumission d'une candidature", content: ["Cher administrateur", "Name : #{user.name}", ~s(Mail : <a href="mailto:#{user.email}">#{user.email}</a>), "acceptée, refusée ou soumise à un test"], strict: false)
+    :admin |> recoit_un_mail(after: point_test, subject: "Soumission d'une candidature", content: ["Cher administrateur", "Name : #{user.name}", ~s(<a href="mailto:#{user.email}">#{user.email}</a>), "acceptée, refusée ou soumise à un test"], strict: false)
     
     # TODO Une procédure a dû être enregistrée
     

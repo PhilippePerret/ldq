@@ -18,7 +18,119 @@ defmodule TestMailMethods do
   @param {String} subject Le sujet du message
   @param {List>String} contenu Liste des portions de textes à trouver. Ça peut être du simple texte ou une expression régulière.
   """
-  def user_recoit_un_mail(destinataire, params) when (is_map(destinataire) or is_struct(destinataire, User)) and is_map(params) do
+  # Version en essayant de garder le maximume d'information sur les 
+  # raisons de l'échec
+  def user_recoit_un_mail(destinataire, params) when (is_map(destinataire) or is_struct(destinataire, User)) and is_map(params) do 
+    params = defaultize_mail_params(params)
+    folder = dossier_mails()
+
+    resultat = %{
+      params:       params,
+      destinataire: destinataire, 
+      allmails: [],
+      keptmails: [], # les mails conservés
+      exclusions: [], # les mails exclus
+    }
+
+    resultat = 
+    # On prend tous les fichiers mails
+    File.ls!(folder)
+    # On les load pour retrouver les maps
+    |> Enum.reduce(resultat, fn fname, res ->
+      mail = :erlang.binary_to_term(File.read!(Path.join([folder,fname])))
+      %{res | allmails: res.allmails ++ [mail]}
+    end)
+    # On ne garde que les mails après le points-test fourni (if any)
+    |> keep_only_mails_after_point_test()
+    |> keep_only_mails_received_by_dest()
+    |> keep_only_mails_from_sender()
+    |> keep_only_mails_by_identifiant()
+    |> keep_only_mails_with_expected_subject()
+  end
+
+  defp keep_only_mails_after_point_test(resultat) do
+    if is_nil(resultat.params.after) do resultat else
+      Enum.reduce(resultat.allmails, resultat, fn mail, res ->
+        if NaiveDateTime.after?(mail.sent_at, resultat.params.after) do
+          %{res | keptmails: res.keptmails ++ [mail]}
+        else
+          %{res | exclusions: res.exclusions ++ [[reason: "AFTER TEST POINT #{resultat.params.after}", mail: mail]]}
+        end
+      end)
+    end
+  end
+  defp keep_only_mails_received_by_dest(resultat) do
+    keptmails = resultat.keptmails
+    if is_nil(resultat.destinataire) or Enum.empty?(keptmails) do resultat else
+      resultat = %{resultat | keptmails: []}
+      Enum.reduce(resultat.keptmails, resultat, fn mail, res ->
+        if mail.receiver == resultat.destinataire.email do
+          %{res | keptmails: res.keptmails ++ [mail]}
+        else
+          %{res | exclusions: res.exclusions ++ [[reason: "BAD RECEIVER (required #{resultat.destinataire.email})", mail: mail]]}
+        end
+      end)
+    end
+  end
+  defp keep_only_mails_from_sender(resultat) do
+    keptmails = resultat.keptmails
+    if is_nil(resultat.params.sender) or Enum.empty?(keptmails) do resultat else
+      resultat = %{resultat | keptmails: []}
+      Enum.reduce(keptmails, resultat, fn mail, res ->
+        {sender_name, sender_email} = mail.email.from
+        if sender_email == resultat.params.sender do
+          %{res | keptmails: res.keptmails ++ [mail]}
+        else
+          %{res | exclusions: res.exclusions ++ [[reason: "BAD SENDER (wanted #{resultat.params.sender})", mail: mail]]}
+        end
+      end)
+    end
+  end
+  defp keep_only_mails_by_identifiant(resultat) do
+    keptmails = resultat.keptmails
+    if is_nil(resultat.params.mail_id) or Enum.empty?(keptmails) do resultat else
+      resultat = %{resultat | keptmails: []}
+      Enum.reduce(keptmails, resultat, fn mail, res ->
+        if mail.mail_id == resultat.params.mail_id do
+          %{res | keptmails: res.keptmails ++ [mail]}
+        else
+          %{res | exclusions: res.exclusions ++ [[reason: "BAD SENDER (wanted #{resultat.params.sender})", mail: mail]]}
+        end
+      end)
+    end
+  end
+  defp keep_only_mails_with_expected_subject(resultat) do
+    keptmails = resultat.keptmails
+    if is_nil(resultat.params.subject) or Enum.empty?(keptmails) do resultat else
+      resultat = %{resultat | keptmails: []}
+      params = resultat.params
+      Enum.reduce(keptmails, resultat, fn mail, res ->
+        case string_contains(mail.subject, params.subject, params) do
+        {:ok, _} ->
+          %{res | keptmails: res.keptmails ++ [mail]}
+        {:error, res} ->
+          %{res | exclusions: res.exclusions ++ [[reason: "BAD SUBJECT: #{inspect res.errors}", mail: mail]]}
+        end
+      end)
+    end
+  end
+  defp keep_only_mails_with_expected_body(resultat) do
+    keptmails = resultat.keptmails
+    if is_nil(resultat.params.content) or Enum.empty?(keptmails) do resultat else
+      resultat = %{resultat | keptmails: []}
+      params = resultat.params
+      Enum.reduce(keptmails, resultat, fn mail, res ->
+        case string_contains(mail.html_body, params.content, params) do
+        {:ok, _} ->
+          %{res | keptmails: res.keptmails ++ [mail]}
+        {:error, res} ->
+          %{res | exclusions: res.exclusions ++ [[reason: "BAD BODY: #{inspect res.errors}", mail: mail]]}
+        end
+      end)
+    end
+  end
+
+  def user_recoit_un_mail0(destinataire, params) when (is_map(destinataire) or is_struct(destinataire, User)) and is_map(params) do
     params = defaultize_mail_params(params)
     folder = dossier_mails()
 

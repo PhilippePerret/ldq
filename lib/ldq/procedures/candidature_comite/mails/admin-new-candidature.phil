@@ -1,14 +1,12 @@
 ---
 subject = Soumission d'une candidature pour le comité de lecture
 ---
-<:: fem(Chere, :usexe) ::> administrat<:: fem("rice", :usexe) ::>,
+<:: fem(Chere, :usexe) ::> administrat<:: fem(rice, :usexe) ::>,
 
 Je vous informe de la soumission de la candidature d'un nouvel utilisateur pour incorporer le comité de lecture.
 
-code:
-Name : <: user_name :>
-Mail : [<: user_mail :>](mailto:<: user_mail :>)
-:code
+div.info: Name : <: user_name :>
+div.info: Mail : [<: user_mail :>](mailto:<: user_mail :>)
 
 Cette candidature doit être acceptée, refusée ou soumise à un test. Vous pouvez en décider en rejoignant la procédure attachée.
 
