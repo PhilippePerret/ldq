@@ -5,11 +5,7 @@ defmodule LdQWeb.UserSettingsLive do
 
   def render(assigns) do
     ~H"""
-    <.header class="text-center">
-      Account Settings
-      <:subtitle>Manage your account email address and password settings</:subtitle>
-    </.header>
-
+    <h2>Vos identifiants</h2>
     <div class="space-y-12 divide-y">
       <div>
         <.simple_form
@@ -19,18 +15,18 @@ defmodule LdQWeb.UserSettingsLive do
           phx-change="validate_email"
         >
           <input type="hidden" name="email_form[:name]" value={@email_form[:name]} />
-          <.input field={@email_form[:email]} type="email" label="Email" required />
+          <.input field={@email_form[:email]} type="email" label="Votre adresse mail" required />
           <.input
             field={@email_form[:current_password]}
             name="current_password"
             id="current_password_for_email"
             type="password"
-            label="Current password"
+            label="Votre mot de passe actuel"
             value={@email_form_current_password}
             required
           />
           <:actions>
-            <.button phx-disable-with="Changing...">Change Settings</.button>
+            <.button phx-disable-with="Changement en cours…">Change Settings</.button>
           </:actions>
         </.simple_form>
       </div>
@@ -54,19 +50,19 @@ defmodule LdQWeb.UserSettingsLive do
           <.input
             field={@password_form[:password_confirmation]}
             type="password"
-            label="Confirm new password"
+            label="Confirmation du nouveau mot de passe"
           />
           <.input
             field={@password_form[:current_password]}
             name="current_password"
             type="password"
-            label="Current password"
+            label="Mot de passe actuel"
             id="current_password_for_password"
             value={@current_password}
             required
           />
           <:actions>
-            <.button phx-disable-with="Changing...">Change Password</.button>
+            <.button phx-disable-with="Changement en cours…">Modifier le mot de passe</.button>
           </:actions>
         </.simple_form>
       </div>

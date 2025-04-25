@@ -1,6 +1,8 @@
 defmodule LdQWeb.UserSessionController do
   use LdQWeb, :controller
 
+  import LdQ.Helpers.Feminines
+
   alias LdQ.Comptes
   alias LdQWeb.UserAuth
 
@@ -35,8 +37,9 @@ defmodule LdQWeb.UserSessionController do
   end
 
   def delete(conn, _params) do
+    user = conn.assigns.current_user
     conn
-    |> put_flash(:info, dgettext("msg", "Logged out successfully."))
+    |> put_flash(:info, "Vous êtes bien déconnecté#{fem(:e, user)}.")
     |> UserAuth.log_out_user()
   end
 end

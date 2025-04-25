@@ -40,8 +40,14 @@ defmodule LdQWeb.Router do
   
   scope "/proc", LdQWeb do
     pipe_through [:browser, :require_authenticated_user, :required_admin]
-
+    
     get "/:proc_id", AdminController, :procedure
+  end
+  
+  scope "/inscrit", LdQWeb do
+    pipe_through [:browser, :require_authenticated_user]
+
+    get "/:page", InscritController, :display_page
   end
 
   # Nouvel affichage des pages (depuis la base de donnée)
