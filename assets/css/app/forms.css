@@ -1,0 +1,5 @@
+input,
+select, select option,
+textarea {
+  font-size:inherit!important;
+}

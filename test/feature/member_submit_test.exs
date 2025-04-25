@@ -54,7 +54,8 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     je |> recois_un_mail(after: point_test, subject: "Enregistrement de votre candidature", content: [~r/Ch(er|ère) #{user.name}/, "Nous vous confirmons que votre candidature", "L’Administration du Label"], strict: false)
     
     # Une procédure a dû être enregistrée
-    # TODO
+    # Mais il est inutile de tester son enregistrement puisque
+    # c'est fait indirectement par la suite.
 
     # L'administrateur clique sur son lien dans le mail et
     # rejoint la page de la procédure (on simule son identification
@@ -66,6 +67,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     |> recoit_un_mail(after: point_test, subject: "Soumission d'une candidature", content: [~r/Ch(er|ère) administrat(eur|rice),/, "Name", "#{user.name}", ~s(<a href="mailto:#{user.email}">#{user.email}</a>), "acceptée, refusée ou soumise à un test"], strict: false)
     |> rejoint_le_lien_du_mail("Voir la procédure")
     |> la_page_contient("h2", "Procédure")
+    |> pause(10)
 
     # L'administrateur peut rejoindre le lien du mail
     
