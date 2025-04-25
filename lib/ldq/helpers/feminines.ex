@@ -7,6 +7,7 @@ defmodule LdQ.Helpers.Feminines do
 
   @fem_ids [
     :e, 
+    :belle,
     :Chere, :chere,
     :rice
   ]
@@ -29,13 +30,16 @@ defmodule LdQ.Helpers.Feminines do
   def fem("e", "F") , do: "e" # venu[e]/venu
   def fem("e", _)   , do: ""
 
-  def fem("rice", "F"), do: "rice" # administrat[eur]/aministrat[rice]
-  def fem("rice", _), do: "eur"
+  def fem("belle", "F") , do: "belle" # [belle]/[beau]
+  def fem("belle", _)   , do: "beau"
 
   def fem("Chere", "F"), do: "Chère"
   def fem("Chere", _), do: "Cher"
 
   def fem("chere", "F"), do: "Chère"
   def fem("chere", _), do: "Cher"
+
+  def fem("rice", "F"), do: "rice" # administrat[eur]/aministrat[rice]
+  def fem("rice", _), do: "eur"
 
 end
