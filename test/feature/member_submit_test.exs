@@ -1,4 +1,18 @@
 defmodule LdQWeb.MemberSubmitFeatureTest do
+  @moduledoc """
+  Module testant l'inscription (candidature) au comité
+  de lecture.
+
+  TODO
+    - isoler (fonction) la procédure pour candidater pour
+      le comité et l'utiliser pour les possibilités
+      de suivi :
+        - candidature refusée
+        - candidature directement acceptée
+        - candidature soumise à test réussi (-> acceptation)
+        - candidature soumise à test échoué (-> refus)
+
+  """
   use LdQWeb.FeatureCase, async: false
 
   import TestHelpers
@@ -69,7 +83,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     |> la_page_contient("h2", "Procédure")
     |> pause(10)
 
-    # L'administrateur peut rejoindre le lien du mail
+    # TODO (VOIR HAUT DE PAGE)
     
   end
 
