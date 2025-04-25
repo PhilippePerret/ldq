@@ -2,8 +2,52 @@ h2: Bienvenue
 
 Vous venez de vous inscrire, bienvenue à vous.
 
-Quelques petites questions d'abord nous permettraient de mieux faire connaissance.
+Quelques petites questions d'abord nous permettraient de mieux faire connaissance avec vous. Pour ce faire, merci de bien vouloir remplir ce petit questionnaire.
+
+> N'hésitez pas à consulter <: pagelink(notre politique en matière de gestion des données,politique-gestion-data) :>.
+
+<.form_user_infos user_infos={%{}} />
+
+raw:
+<div class="if_writer hidden">
+:raw
+
+h3: Puisque vous êtes aut<: f_rice :> seulement…
+div: Vous pouvez :
 
 list:
-* êtes-vous lect<: f_rice :>, aut<: f_rice :> ou les deux ?
+* proposer un ou plusieurs livres pour le label,
+* rejoindre le comité de lecteur en tant que lect<: f_rice :>.
 :list
+
+raw:
+</div>
+:raw
+
+
+raw:
+<div class="if_reader hidden">
+:raw
+
+h3: Puisque vous êtes simple lect<: f_rice :>…
+div: Vous pouvez : rejoindre le comité de lecure en tant que lect<: f_rice :>.
+
+raw:
+</div>
+:raw
+
+raw:
+<div class="if_both hidden">
+:raw
+
+h3: Puisque vous êtes ici en tant qu'aut<: f_rice :> et lect<: f_rice :>…
+div: Vous pouvez :
+
+list:
+* proposer un ou plusieurs livres pour le label,
+* rejoindre le comité de lecteur en tant que lect<: f_rice :>.
+:list
+
+raw:
+</div>
+:raw
