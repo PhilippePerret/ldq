@@ -28,7 +28,7 @@ defmodule LdQWeb.FormController do
   end
 
   def create(conn, %{"form" => form} = params) do
-    IO.inspect(params, label: "\nParams dans create")
+    # IO.inspect(params, label: "\nParams dans create")
     {redirection, message} = on_create(form, params)
 
     conn = if is_nil(message) do conn else

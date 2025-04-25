@@ -11,7 +11,7 @@ defmodule LdQ.Constantes do
       :mail_admin ->
         "admin@lecture-de-qualite.fr"
       :mail_admins -> 
-        "admins@lecture-de-qualite.fr"
+        "admin@lecture-de-qualite.fr"
     end
   end
 end

@@ -155,7 +155,7 @@ defmodule LdQ.ProcedureMethods do
     end
 
     receivers = case receiver do
-      :admins   -> [%{name: "Administrateurs", email: "admins@lecture-de-qualite.fr", sexe: "H"}]
+      :admins   -> [%{name: "Administrateurs", email: "admin@lecture-de-qualite.fr", sexe: "H"}]
       :readers   -> [%{name: "Lecteurs", email: "readers@lecture-de-qualite.fr", sexe: "H"}]
       :members   -> [%{name: "Membres du comité", email: "members@lecture-de-qualite.fr", sexe: "H"}]
       _ -> [receiver]

@@ -29,13 +29,19 @@ defmodule LdQWeb.Router do
   
   scope "/", LdQWeb do
     pipe_through [:browser, :require_authenticated_user, :required_admin]
-
+    
     get "/admin-section", AdminController, :home
     post "/page_locales/new", PageLocaleController, :new
     get "/page_locales/:id/update-content", PageLocaleController, :update_content
     
     resources "/pages", PageController
     resources "/page_locales", PageLocaleController
+  end
+  
+  scope "/proc", LdQWeb do
+    pipe_through [:browser, :require_authenticated_user, :required_admin]
+
+    get "/:proc_id", AdminController, :procedure
   end
 
   # Nouvel affichage des pages (depuis la base de donnée)

@@ -21,7 +21,7 @@ defmodule LdQWeb.UserSettingsLiveTest do
 
       assert {:redirect, %{to: path, flash: flash}} = redirect
       assert path == ~p"/users/log_in"
-      assert %{"error" => "You must log in to access this page."} = flash
+      assert %{"error" => "Vous devez vous identifier."} = flash
     end
   end
 
@@ -204,7 +204,7 @@ defmodule LdQWeb.UserSettingsLiveTest do
       assert {:redirect, %{to: path, flash: flash}} = redirect
       assert path == ~p"/users/log_in"
       assert %{"error" => message} = flash
-      assert message == "You must log in to access this page."
+      assert message == "Vous devez vous identifier."
     end
   end
 end

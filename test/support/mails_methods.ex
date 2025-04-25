@@ -6,6 +6,7 @@ defmodule TestMailMethods do
 
   import TestHelpers # w() etc.
   import TestStringMethods # string_contains etc.
+  import FeaturePublicMethods # Méthodes je_rejoins, etc.
 
   @doc """
   Méthode qui teste que le +destinataire+ a bien reçu le message de 
@@ -43,7 +44,7 @@ defmodule TestMailMethods do
     # On ne garde que les mails après le points-test fourni (if any)
     |> keep_only_mails_after_point_test()
     |> keep_only_mails_received_by_dest()
-    |> IO.inspect(label: "\nRÉSULTAT après by-dest")
+    # |> IO.inspect(label: "\nRÉSULTAT après by-dest")
     |> keep_only_mails_from_sender()
     |> keep_only_mails_by_identifiant()
     |> keep_only_mails_with_expected_subject()
@@ -69,6 +70,51 @@ defmodule TestMailMethods do
     {destinataire, mails_found}
 
   end
+
+
+  @doc """
+  Prend le premier mail de la liste +mails+ reçue par le 
+  +destinataires+, relève l'href du lien de titre +link_title+ et le
+  visite.
+
+  Pour l'utiliser dans une chaine de pipe, on utilise la méthode 
+  publique :
+    admin
+    |> rejoint_le_lien_du_mail("titre du lien")
+
+  @param {User|Map} destinataire. Le destinataire. Il faut au moins que la map contienne :email et :password pour que l'utilisateur puisse se connecter au besoin.
+  @param {String} link_title Le titre du lien
+  @param {Array>Map} mails Liste de tous les mails reçus.
+
+  @return session La session initiée
+  """
+  def get_lien_in_mail_and_visit(destinataire, link_title, mails) do
+    mail = Enum.at(mails, 0)
+    body = mail.html_body
+    href =
+    Regex.scan(~r/<a .*href="(.+)".*>#{link_title}<\/a>/U, body)
+    |> Enum.at(0)
+    |> Enum.at(1)
+    |> IO.inspect(label: "\nLien à atteindre")
+
+    # L'administrateur ouvre une session
+    destinataire.session
+    |> je_rejoins_la_page(href)
+    |> pause(2)
+    |> la_page_contient("h2", "Identification")
+    |> je_remplis_le_champ("Mail") |> avec(destinataire.email)
+    |> je_remplis_le_champ("Mot de passe") |> avec(destinataire.password)
+    |> pause(1)
+    |> je_clique_le_bouton("Se connecter")
+    |> pause(10)
+
+    destinataire.session
+  end
+
+
+
+
+  # ---- Sous-méthodes privées ----
 
   defp keep_only_mails_after_point_test(resultat) do
     if is_nil(resultat.params.after) do 

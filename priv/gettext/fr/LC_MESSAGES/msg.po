@@ -38,5 +38,5 @@ msgstr "Bienvenue à nouveau !"
 
 #: lib/ldq_web/user_auth.ex:164
 #, elixir-autogen, elixir-format
-msgid "You must log in to access this page."
+msgid "Vous devez vous identifier."
 msgstr "Vous devez vous identifier, pour accéder à cette page."

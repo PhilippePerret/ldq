@@ -43,7 +43,7 @@ defmodule LdQ.Comptes.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:name, :sexe, :email, :password])
+    |> cast(attrs, [:name, :sexe, :email, :password, :privileges, :confirmed_at])
     |> validate_required([:sexe, :name])
     |> unique_constraint([:name, :email])
     |> validate_email(opts)

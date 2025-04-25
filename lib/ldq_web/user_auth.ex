@@ -161,7 +161,7 @@ defmodule LdQWeb.UserAuth do
     else
       socket =
         socket
-        |> Phoenix.LiveView.put_flash(:error, dgettext("msg", "You must log in to access this page."))
+        |> Phoenix.LiveView.put_flash(:error, dgettext("msg", "Vous devez vous identifier."))
         |> Phoenix.LiveView.redirect(to: ~p"/users/log_in")
 
       {:halt, socket}
@@ -210,7 +210,7 @@ defmodule LdQWeb.UserAuth do
       conn
     else
       conn
-      |> put_flash(:error, "You must log in to access this page.")
+      |> put_flash(:error, "Vous devez vous identifier.")
       |> maybe_store_return_to()
       |> redirect(to: ~p"/users/log_in")
       |> halt()

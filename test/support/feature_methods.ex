@@ -59,7 +59,7 @@ defmodule FeaturePublicMethods do
   # transitif
 
   @doc """
-  @params {Map} who Définition du destinataire
+  @params {Map|User} who Définition du destinataire
   @params {Map} Table des paramètres. On peut définir :
     :after    {NaiveDateTime} Le mail doit avoir été envoyé après
     :mail_id  {String} Identifiant du mail
@@ -68,7 +68,7 @@ defmodule FeaturePublicMethods do
     :subject  {String|Array of Strings|Regexp} Le sujet à trouver ou des segments
     :content  {String|Array of Strings|Regepx} Le contenu ou des segments
 
-  @return {destinataire, [mails]}
+  @return {%{destinataire}|%User{destinataire}, [mails]}
   """
   def recoit_un_mail(who, params), do: user_recoit_un_mail(who, params)
   def recois_un_mail(who, params), do: user_recoit_un_mail(who, params)
@@ -78,6 +78,6 @@ defmodule FeaturePublicMethods do
 
 
   def rejoint_le_lien_du_mail({destinataire, mails}, link_title) do
-    raise "Je dois apprendre à tester les mails #{inspect mails} envoyés à #{inspect destinataire} pour cliquer sur le titre “ #{link_title}”"
+    get_lien_in_mail_and_visit(destinataire, link_title, mails)
   end
 end

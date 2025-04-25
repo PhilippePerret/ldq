@@ -3,17 +3,8 @@ defmodule LdQWeb.UserLoginLive do
 
   def render(assigns) do
     ~H"""
+    <h2>Identification</h2>
     <div class="mx-auto max-w-sm">
-      <.header class="text-center">
-        Log in to account
-        <:subtitle>
-          Don't have an account?
-          <.link navigate={~p"/users/register"} class="font-semibold text-brand hover:underline">
-            Sign up
-          </.link>
-          for an account now.
-        </:subtitle>
-      </.header>
 
       <.simple_form for={@form} id="login_form" action={~p"/users/log_in"} phx-update="ignore">
         <.input field={@form[:email]} type="email" label="Mail" required />
@@ -30,6 +21,12 @@ defmodule LdQWeb.UserLoginLive do
           </.button>
         </:actions>
       </.simple_form>
+    </div>
+    <div>
+      Pas encore de compte ? Vous pouvez 
+      <.link navigate={~p"/users/register"} class="font-semibold text-brand hover:underline">
+        le créer maintenant
+      </.link>
     </div>
     """
   end

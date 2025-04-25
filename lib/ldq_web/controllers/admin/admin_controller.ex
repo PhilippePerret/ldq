@@ -1,6 +1,8 @@
 defmodule LdQWeb.AdminController do
   use LdQWeb, :controller
 
+  import LdQ.ProcedureMethods, only: [get_procedure: 1]
+
   @doc """
   Page d'accueil de l'administration du site
   """
@@ -8,6 +10,15 @@ defmodule LdQWeb.AdminController do
     check_phil_page("home")
     render(conn, :home)
   end
+
+  @doc """
+  Fonction principale qui affiche une procédure et permet de la gérer
+
+  """
+  def procedure(conn, %{"proc_id" => proc_id} = _params) do
+    render(conn, :procedure, procedure: get_procedure(proc_id))
+  end
+
 
   def check_phil_page(base) do
     root = Path.join([__DIR__,"admin_html","#{base}"])
