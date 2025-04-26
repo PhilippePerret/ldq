@@ -1,6 +1,8 @@
 defmodule LdQWeb.InscritController do
   use LdQWeb, :controller
 
+  alias LdQ.Comptes
+  
   import Phil.File, only: [file_mtime: 1]
 
   @doc """
@@ -12,5 +14,10 @@ defmodule LdQWeb.InscritController do
     render(conn, "#{page}-#{user.sexe}.html", user: user)
   end
 
+  # Pour afficher un autre profil que le sien
+  def show(conn, %{"user_id" => user_id} = _params) do
+    user = Comptes.get_user!(user_id)
+    render(conn, "show.html", user: user)
+  end
 
 end

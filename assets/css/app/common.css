@@ -9,3 +9,13 @@
 .right {
   text-align:right!important;
 }
+
+.links-in-line {
+  margin-top:12px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+.links-in-line a {
+  margin-left: 4px;
+  margin-right: 4px;
+}

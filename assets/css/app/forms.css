@@ -3,3 +3,13 @@ select, select option,
 textarea {
   font-size:inherit!important;
 }
+
+a.btn {
+  border:1px solid grey;
+  border-radius: 5%;
+  padding: 2px 12px 3px;
+  font-family: Avenir;
+  white-space: nowrap;
+  background-color: #EEEEEE;
+  color:rgb(41, 156, 41);
+}

@@ -6,7 +6,73 @@ defmodule LdQ.ProcedureMethods do
   import Ecto.Query, warn: false
   alias LdQ.{Repo, Comptes, Notification, Constantes, Procedure}
 
+
   @prefix_mail_subject "[📚 LdQ] "
+
+
+  def __run__(module, procedure) do
+    run_current_procedure(procedure, module, module.steps())
+  end
+
+  @doc """
+  Pour retourne la procédure courante (Map)
+  """
+  def current_procedure(procedure, steps) do
+    Enum.find(steps, fn step ->
+      step.fun == procedure.next_step |> String.to_atom()
+    end)
+  end
+
+  def run_current_procedure(procedure, module, steps) do
+    step = current_procedure(procedure, steps)
+    apply(module, step.fun, [procedure])
+  end
+
+  @doc """
+  Retourne l'user visé par la procédure. On peut le trouver de trois
+  manière différente :
+    1. Il est dans une propriété user_id de la procédure (forcément
+       ajoutée en cours de processus)
+    2. Il est le propriétaire de la procédure
+    3. Il est défini dans les data de la procédure.
+  @return %Comptes.User{}
+  """
+  def get_user(procedure) do
+    user_id = 
+      cond do
+      Map.has_key?(procedure, :user_id) -> procedure.user_id
+      procedure.owner_type == "user"    -> procedure.owner_id
+      Map.has_key?(procedure.data, :user_id) -> procedure.data.user_id
+      true -> nil
+      end
+
+    if is_nil(user_id) do
+      nil
+    else
+      IO.inspect(user_id, label: "user_id")
+      Comptes.get_user!(user_id)
+    end
+  end
+
+  @doc """
+  @return {HTMLString} Lien conduisant au profil de l'user +user+
+  """
+  def user_link(user, options \\ []) do
+    attrs = 
+    ["a"]
+    |> append_if(~s(href="/inscrit/show/#{user.id}"), true)
+    |> append_if(~s(target="_blank"), options[:target] == :blank)
+
+    "<#{Enum.join(attrs, " ")}>#{options[:title] || user.name}</a>"
+  end
+
+  def append_if(liste, element, condition) do
+    if condition do
+      liste ++ [element]
+    else
+      liste
+    end
+  end
 
   @doc """
   Crée la procédure avec les attributs voulus

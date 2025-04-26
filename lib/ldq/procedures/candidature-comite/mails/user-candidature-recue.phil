@@ -1,0 +1,13 @@
+---
+subject = Enregistrement de votre candidature pour le comité de lecture
+---
+<: fem(Chere, :usexe) :> <: user_name :>,
+
+Nous vous confirmons que votre candidature pour le comité de lecture du label <: ldq_label :> a bien été reçue. Vous recevrez très prochainement l'avis de l'administration du label.
+
+En vous remerciant de l'intérêt que vous portez au label,
+
+Bien à vous,
+
+L’Administration du Label « Lecture de Qualité »
+<: ldq_logo :>

@@ -1,0 +1,16 @@
+<h2>Profil de <%= @user.name %></h2>
+
+<div class="inscrit">
+  <div>
+    <label>Name</label>
+    <span class="value"><%= @user.name %></span>
+  </div>
+  <div>
+    <%= if @current_user.privileges == 64 do %>
+    <label>Adresse mail</label><span class="value"><%= @user.email %></span>
+    <% end %>
+  </div>
+  <div>
+    {Ajouter ici les autres informations}
+  </div>
+</div>

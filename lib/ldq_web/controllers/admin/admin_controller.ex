@@ -15,8 +15,16 @@ defmodule LdQWeb.AdminController do
   Fonction principale qui affiche une procédure et permet de la gérer
 
   """
-  def procedure(conn, %{"proc_id" => proc_id} = _params) do
-    render(conn, :procedure, procedure: get_procedure(proc_id))
+  def procedure(conn, %{"proc_id" => proc_id} = params) do
+    procedure = 
+    get_procedure(proc_id)
+    |> Map.put(:params, params)
+    
+    procedure = 
+      if is_nil(params["nstep"]) do procedure else
+        Map.put(procedure, :next_step, params["nstep"])
+      end
+    render(conn, :procedure, procedure: procedure)
   end
 
 

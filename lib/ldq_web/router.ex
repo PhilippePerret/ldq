@@ -47,6 +47,7 @@ defmodule LdQWeb.Router do
   scope "/inscrit", LdQWeb do
     pipe_through [:browser, :require_authenticated_user]
 
+    get "/show/:user_id", InscritController, :show 
     get "/:page", InscritController, :display_page
   end
 
