@@ -23,26 +23,14 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
   alias Wallaby.Browser,  as: WB
   alias Wallaby.Query,    as: WQ
 
-  feature "un utilisateur accède au formulaire de candidature", %{session: session} do
-
-    admin_attrs = %{
-      email: "admin@lecture-de-qualite.fr",
-      password: "motdepasseadministrateur", 
-      privileges: 64
-    }
-    admin = LdQ.ComptesFixtures.user_fixture(admin_attrs)
-    |> Map.put(:password, admin_attrs.password)
-    |> IO.inspect(label: "\nAdmin")
-
+  def visiteur_candidate_pour_le_comite(session, params \\ %{}) do
     attrs = %{password: "Un mot de passe pour cette session"}
     user  = je = LdQ.ComptesFixtures.user_fixture(attrs)
-
-    detruire_les_mails()
-
     w("#{user.name} vient s'identifier", :blue)
     session
     |> je_rejoins_la_page("/users/log_in")
     |> pause(1)
+    |> la_page_contient("input", %{type: "email", id: "user_email", name: "user[email]"})
     |> je_remplis_le_champ("Mail") |> avec(user.email)
     |> je_remplis_le_champ("Mot de passe") |> avec(attrs.password)
     |> pause(1)
@@ -66,7 +54,33 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     |> la_page_contient("p", "Votre candidature a été enregistrée.")
 
     je |> recois_un_mail(after: point_test, subject: "Enregistrement de votre candidature", content: [~r/Ch(er|ère) #{user.name}/, "Nous vous confirmons que votre candidature", "L’Administration du Label"], strict: false)
+
+    %{
+      user: je,
+      point_test: point_test
+    }
+  end
+
+  def make_admin(params \\ %{}) do
+    admin_attrs = %{
+      email: "admin@lecture-de-qualite.fr",
+      password: "motdepasseadministrateur", 
+      privileges: 64
+    }
+    LdQ.ComptesFixtures.user_fixture(admin_attrs)
+    |> Map.put(:password, admin_attrs.password)
+    # |> IO.inspect(label: "\nAdmin")
+  end
+
+  feature "Acceptation directe de la candidature au comité de lecture", %{session: session} do
     
+    detruire_les_mails()
+    admin = make_admin()
+
+    params = visiteur_candidate_pour_le_comite(session)
+    user = params.user
+    point_test = params.point_test
+
     # Une procédure a dû être enregistrée
     # Mais il est inutile de tester son enregistrement puisque
     # c'est fait indirectement par la suite.
@@ -81,12 +95,29 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     |> recoit_un_mail(after: point_test, subject: "Soumission d'une candidature", content: [~r/Ch(er|ère) administrat(eur|rice),/, "Name", "#{user.name}", ~s(<a href="mailto:#{user.email}">#{user.email}</a>), "acceptée, refusée ou soumise à un test"], strict: false)
     |> rejoint_le_lien_du_mail("Voir la procédure")
     |> la_page_contient("h2", "Procédure")
+    |> la_page_contient("button", "Accepter")
+    |> la_page_contient("button", "Refuser")
+    |> la_page_contient("textarea", %{id: "motif_refus"})
+    |> la_page_contient("button", "Soumettre au test")
     |> pause(10)
 
     # TODO (VOIR HAUT DE PAGE)
     
   end
 
+  feature "Refus direct de la candidature au comité de lecture", %{session: session} do
+    # TODO
+  end
+  
+  feature "Candidature au comité acceptée après test", %{session: session} do
+    # TODO
+  end
+
+  feature "Candidature au comité refusée après test", %{session: session} do
+    # TODO
+  end
+
+  # --- Autres tests particularités ---
   test "Un utilisateur ayant déjà soumis sa candidature ne peut plus le faire" do
     # TODO
   end
