@@ -14,6 +14,10 @@ defmodule Html.Form do
       %{type: :submit/:button, name: }
     ]
   })
+
+  Pour vérifier le captcha :
+
+    Html.Form.captcha_valid?(form_data)
   """
   defstruct [
     sujet: nil, # Map du sujet dans lequel il faut prendre les données
@@ -60,23 +64,23 @@ defmodule Html.Form do
     build_field(:input, %{dfield | type: :hidden})
   end
   def build_field(:input, %{type: :hidden} = dfield) do
-    ~s(<input type="hidden" name="#{dfield[:name]}" value="" />)
+    ~s(<input type="hidden" name="#{field_name(dfield)}" value="" />)
   end
   def build_field(:input, %{type: :email} = dfield) do
-    ~s(<input type="email" name="#{dfield[:name]}" value="" #{required(dfield)}/>)
+    ~s(<input type="email" name="#{field_name(dfield)}" value="" #{required(dfield)}/>)
   end
   def build_field(:input, %{type: :password} = dfield) do
-    ~s(<input type="password" name="#{dfield[:name]}" value="" #{required(dfield)}/>)
+    ~s(<input type="password" name="#{field_name(dfield)}" value="" #{required(dfield)}/>)
   end
   def build_field(:input, %{type: :naive_datetime} = dfield) do
-    ~s(<input type="naive_datetime" name="#{dfield[:name]}" value="" #{required(dfield)}/>)
+    ~s(<input type="naive_datetime" name="#{field_name(dfield)}" value="" #{required(dfield)}/>)
   end
   def build_field(:input, %{type: :text} = dfield) do
-    ~s(<input type="text" name="#{dfield[:name]}" value="" #{required(dfield)}/>)
+    ~s(<input type="text" name="#{field_name(dfield)}" value="" #{required(dfield)}/>)
   end
   def build_field(:textarea, dfield) do
     """
-    <textarea name="" id="" #{required(dfield)}></textarea>
+    <textarea name="#{field_name(dfield)}" id="" #{required(dfield)}></textarea>
     """
   end
   def build_field(:select, dfield) do
@@ -95,7 +99,7 @@ defmodule Html.Form do
       |> Enum.join("\n")
 
     """
-    <select id="#{dfield.id} name="#{dfield.name}">
+    <select id="#{dfield.id} name="#{field_name(dfield)}">
     #{options}
     </select>
     """
@@ -127,7 +131,10 @@ defmodule Html.Form do
     %{question: "Dans quelle catégorie peut-on ranger le mot “chaise” ?", options: ["meuble", "animal", "idée", "voyage"], answer: "meuble"},
     %{question: "Un livre est constitué de…", options: ["pages", "eau", "rubans", "voitures"], answer: "pages"},
     %{question: "Comment s'appelle le label ?", options: ["Renaudeau", "Valeurs sûres", "Lecture de Qualité"], answer: "Lecture de Qualité"},
-    %{question: "Autour de quoi tourne la Terre", options: ["Le soleil", "Le pot de fleur", "Un point"], answer: "Le soleil"}
+    %{question: "Autour de quoi tourne la Terre", options: ["Le soleil", "Le pot de fleur", "Un point"], answer: "Le soleil"},
+    %{question: "Quelle est la capitale de la France", options: ["Paris", "Marseille", "Londres", "Genève"], answer: "Paris"},
+    %{question: "Comment est qualifié une femmme de grande taille", options: ["Géante", "Naine", "Reine", "Rassis"], answer: "Géante"},
+    %{question: "En français, par quel signe se termine une question ?", options: ["?", "!", "¡", "¿"], answer: "?"}
   ] |> Enum.with_index() |> Enum.map(fn {captcha, index} -> Map.put(captcha, :index, index) end)
   defp random_captcha do
     Enum.random(@table_captcha)
@@ -135,11 +142,9 @@ defmodule Html.Form do
 
   @doc """
   Pour vérifier la valeur du captcha
-
-    index   = params["captcha_index"]
-    answer  = params["captcha"]
+    Html.Form.captcha_valid?(data_formulaire)
+    ou
     Html.Form.captcha_valid?(index, answer)
-
   """
   def captcha_valid?(index, answer) when is_integer(index) do
     Enum.at(@table_captcha, index).answer == answer
@@ -147,12 +152,28 @@ defmodule Html.Form do
   def captcha_valid?(index, answer) when is_binary(index) do
     captcha_valid?(String.to_integer(index), answer)
   end
+  def captcha_valid?(form_data) do
+    index   = form_data["captcha_index"]
+    answer  = form_data["captcha"]
+    captcha_valid?(index, answer)
+  end
 
 
   def build_button(%{type: :submit} = dbutton) do
     ~s(<button type="submit" class="btn">#{dbutton.name}</button>)
   end
 
+
+  # --- Méthodes privées ---
+
+  # Retourne le nom pour le champ
+  defp field_name(dfield) do
+    if String.match?(dfield.name, ~r/\[/) do
+      dfield.name
+    else
+      "f[#{dfield.name}]"
+    end
+  end
 
   defp explication(%{explication: nil} = _dfield) do
     ""

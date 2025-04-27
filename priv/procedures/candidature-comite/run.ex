@@ -83,43 +83,53 @@ defmodule LdQ.Procedure.CandidatureComite do
   end
 
   def submit_candidature(procedure) do
-    user = get_owner(procedure)
-    params = procedure.params
-    data = %{procedure.data | genres: String.split(params["genres"], ",") |> Enum.map(fn g -> String.trim(g) end)}
+    form_values = procedure.params["f"]
+    if Html.Form.captcha_valid?(form_values) do
+      user = get_owner(procedure)
+      params = procedure.params
 
-    new_attrs = %{
-      data: data,
-      next_step: "accepte_refuse_or_test"
-    }
-    procedure = update_procedure(procedure, new_attrs)
-
-    mail_data = %{
-      mail_id:    nil,
-      procedure:  procedure,
-      user:       user,
-      folder:     __DIR__
-    }
-
-    send_mail(:admin, user.email, %{mail_data | mail_id: "user-candidature-recue"})
-    send_mail(user.email, :admins, %{mail_data | mail_id: "admin-new-candidature"})
-    notify(%{
-      notif_dim:      "accepte_refuse_or_test",
-      procedure_id:   procedure.id,
-      group_target:   "admins",
-      title:          "Accepter, refuser, ou demander de passer le test pour une candidature au comité de lecture",
-      body:             """
-      <select name="notif[action]">
-        <option value="accept">Accepter la candidature</option>
-        <option value="refuse">Refuser la candidature</option>
-        <option value="tester">Demander à passer le test</option>
-      </select>
-      <label>Motif du refus</label>
-      <textearea name="notif[raison]"></textarea>
-      <div class="buttons"><button>Soumettre</button></div>
-      """,
-      data:             data,
-      action_required:  true
-    })
+      data = procedure.data
+      data = Map.merge(data, %{
+        motivation: form_values["motivation"],
+        genres:     form_values["genres"] |> String.split() |> Enum.map(&String.trim/1) |> Enum.filter(fn g -> g != "" end)
+        submit_candidature_at: NaiveDateTime.utc_now() 
+      })
+  
+      new_proc_attrs = %{
+        data: data,
+        next_step: "accepte_refuse_or_test"
+      }
+      procedure = update_procedure(procedure, new_attrs)
+  
+      mail_data = %{
+        mail_id:    nil,
+        procedure:  procedure,
+        user:       user,
+        folder:     __DIR__
+      }
+  
+      send_mail(:admin, user.email, %{mail_data | mail_id: "user-candidature-recue"})
+      send_mail(user.email, :admins, %{mail_data | mail_id: "admin-new-candidature"})
+      # notify(%{
+      #   notif_dim:      "accepte_refuse_or_test",
+      #   procedure_id:   procedure.id,
+      #   group_target:   "admins",
+      #   title:          "Accepter, refuser, ou demander de passer le test pour une candidature au comité de lecture",
+      #   body:             """
+      #   <select name="notif[action]">
+      #     <option value="accept">Accepter la candidature</option>
+      #     <option value="refuse">Refuser la candidature</option>
+      #     <option value="tester">Demander à passer le test</option>
+      #   </select>
+      #   <label>Motif du refus</label>
+      #   <textearea name="notif[raison]"></textarea>
+      #   <div class="buttons"><button>Soumettre</button></div>
+      #   """,
+      #   data:             data,
+      #   action_required:  true
+      # })
+  
+    else "<p>Seul un humain ou une humaine peut entamer cette procédure, désolé.</p>" end
   end
 
   def accepte_refuse_or_test(procedure) do
@@ -146,6 +156,9 @@ defmodule LdQ.Procedure.CandidatureComite do
     Je dois procéder au refus de la candidature
     """
   end
+
+
+
   def proceed_refus_candidature(procedure) do
     params = %{} # Pour le moment
     raison = if params["notif"]["raison"] == "" do "Aucune" else
