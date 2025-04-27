@@ -1,4 +1,4 @@
-defmodule LdQ.Procedure.CandidatureComiteRun do
+defmodule LdQ.Procedure.CandidatureComite do
   @moduledoc """
   Module qui gère la candidature d'un postulant au comité de lecture,
   depuis la soumission de sa candidature jusqu'à son acceptation ou 
@@ -8,8 +8,11 @@ defmodule LdQ.Procedure.CandidatureComiteRun do
   use Phoenix.Component
   alias LdQ.Comptes
 
+  def proc_name, do: "Candidature au comité de lecture"
+
   @steps [
-    %{name: "Soumission de la candidature", fun: :start, admin_required: false, owner_required:false},
+    %{name: "Formulaire de candidature", fun: :fill_candidature, admin_required: false, owner_required: false},
+    %{name: "Soumission de la candidature", fun: :submit_candidature, admin_required: false, owner_required: true},
     %{name: "Accepter, refuser ou soumettre à un test", fun: :accepte_refuse_or_test, admin_required: true, owner_required: false},
     %{name: "Refus de la candidature", fun: :refuser_candidature, admin_required: true, owner_required: false},
     %{name: "Accepter la candidature", fun: :accepter_candidature, admin_required: true, owner_required: false},
@@ -18,37 +21,51 @@ defmodule LdQ.Procedure.CandidatureComiteRun do
   ] |> Enum.with_index() |> Enum.map(fn {s, index} -> Map.put(s, :index, index) end)
   def steps, do: @steps
 
-  def start(params) do
-    # On doit créer une procédure pour cette candidature, procédure 
-    # qui va accompagner toute la 
-    IO.inspect(params, label: "Paramètres à l'entrée de #{__MODULE__}.start")
-
-    candidat = params["candidat"]
-    user = Comptes.get_user!(candidat["user_id"])
-
-    data = %{
-      user_id:      candidat["user_id"], 
-      user_mail:    user.email,
-      genres:       String.split(candidat["genres"], ",") |> Enum.map(fn g -> String.trim(g) end),
-      procedure_id: nil, 
-      folder:       __DIR__
-    }
-    
-    proc = create_procedure(%{
+  @doc """
+  Fonction qui détermine (en fonction de la procédure) les données à
+  enregistrer dans la table
+  """
+  def procedure_attributes(params) do
+    user = params.user
+    %{
       proc_dim:     "candidature-comite",
       owner_type:   "user",
       owner_id:     user.id,
-      data:         data,
-      steps_done:   ["start"],
-      current_step: "start",
-      next_step:    "accepte_refuse_or_test"
-    })
+      steps_done:   ["create"],
+      current_step: "create",
+      next_step:    "fill_candidature",
+      data: %{
+        user_id:    user.id,
+        user_mail:  user.email,
+        folder:     __DIR__
+      }
+    }
+  end
 
-    data = %{data | procedure_id: proc.id}
+  @doc """
+
+  @return {HTMLString} Le formulaire pour poser sa candidature.
+  """
+  def fill_candidature(procedure) do
+    """
+    {AFFICHAGE DU FORMULAIRE DE CANDIDATURE}
+    """
+  end
+
+  def submit_candidature(procedure) do
+    user = get_owner(procedure)
+    params = procedure.params
+    data = %{procedure.data | genres: String.split(params["genres"], ",") |> Enum.map(fn g -> String.trim(g) end)}
+
+    new_attrs = %{
+      data: data,
+      next_step: "accepte_refuse_or_test"
+    }
+    procedure = update_procedure(procedure, new_attrs)
 
     mail_data = %{
       mail_id:    nil,
-      procedure:  proc,
+      procedure:  procedure,
       user:       user,
       folder:     __DIR__
     }
@@ -57,7 +74,7 @@ defmodule LdQ.Procedure.CandidatureComiteRun do
     send_mail(user.email, :admins, %{mail_data | mail_id: "admin-new-candidature"})
     notify(%{
       notif_dim:      "accepte_refuse_or_test",
-      procedure_id:   proc.id,
+      procedure_id:   procedure.id,
       group_target:   "admins",
       title:          "Accepter, refuser, ou demander de passer le test pour une candidature au comité de lecture",
       body:             """
@@ -76,7 +93,7 @@ defmodule LdQ.Procedure.CandidatureComiteRun do
   end
 
   def accepte_refuse_or_test(procedure) do
-    user = get_user(procedure)
+    user = get_owner(procedure)
     """
     <div class="procedure">
     <p>#{user_link(user, [target: :blank])} vient de poser sa candidature pour le comité de lecture.</p>

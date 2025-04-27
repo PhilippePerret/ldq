@@ -16,7 +16,8 @@ defmodule LdQ.ProcedureMethods do
   end
 
   @doc """
-  Pour 
+  Pour vérifier si l'utilisateur courant est abilité à jouer la
+  procédure voulu (donc son next_step)
 
   @return True si l'utilisateur courant est autorisé, False dans le
   cas contraire

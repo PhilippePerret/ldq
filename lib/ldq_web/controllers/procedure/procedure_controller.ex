@@ -8,8 +8,12 @@ defmodule LdQWeb.ProcedureController do
 
   C'est la fonction qui est appelée par le lien /proc/new/<proc dim>
   """
-  def create(conn, %{"proc_dim" => proc_dim} = _params) do
-    raise "Je dois apprendre à créer la procédure"
+  def create(conn, %{"proc_dim" => proc_dim} = params) do
+    params = params |> Map.merge(%{user: conn.assigns.current_user})
+    module = LdQ.Procedure.get_proc_module(proc_dim)
+    proc_attrs = module.procedure_attributes(params)
+    procedure = create_procedure(proc_attrs)
+    run_avec_autorisation(conn, procedure, params)
   end
 
   @doc """
@@ -33,6 +37,14 @@ defmodule LdQWeb.ProcedureController do
     
     # Barrière utilisateur. En fonction de l'étape, il faut un
     # administrateur ou le propriétaire de la procédure.
+    run_avec_autorisation(conn, procedure, params)
+  end
+
+  @doc """
+  L'utilisateur courant doit être autorisé à jouer l'étape courante
+  de la procédure +procedure+
+  """
+  def run_avec_autorisation(conn, procedure, params) do
     case current_user_can_run_step?(conn.assigns.current_user, procedure) do
     true ->
       render(conn, :procedure, procedure: procedure)

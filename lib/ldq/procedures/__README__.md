@@ -74,6 +74,8 @@ La fonction à appeler est toujours une fonction qui reçoit la structure de la 
     use Phoenix.Component # [option] pour les composant HEX (if any)
     alias LdQ.Comptes # [option] Pour les méthodes user
 
+    def proc_name, do: "Nom de la procédure"
+
     @steps [
       # Ici vont être définies les étapes de la procédure
       %{name: "Ma première étape", fun: ma_toute_premiere_step, require_admin: false}

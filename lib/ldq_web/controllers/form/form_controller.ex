@@ -38,6 +38,12 @@ defmodule LdQWeb.FormController do
     |> redirect(to: redirection)
   end
 
+  def on_create("candidature-comite", params) do
+    Procedure.CandidatureComite.start(params)
+    
+    {~p"/pg/on-submit-candidature-comitee", nil}
+  end
+
   def get_data_by_form("candidature-comite", params) do
     candidat = Map.get(params, "candidat", %{})
     Candidat.changeset(%Candidat{}, %{

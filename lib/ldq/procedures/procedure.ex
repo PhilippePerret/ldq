@@ -41,8 +41,15 @@ defmodule LdQ.Procedure do
     module.steps
   end
 
+  @doc """
+  Retourne le module de la procédure (celui qui contient toutes les
+  méthodes et constantes)
+  """
   def get_proc_module(procedure) when is_struct(procedure, __MODULE__) do
     proc_dim = procedure.proc_dim
+    get_proc_module(proc_dim)
+  end
+  def get_proc_module(proc_dim) when is_binary(proc_dim) do
     proc_path = procedure_run_path(proc_dim)
     [{module, _}] = Code.compile_file(proc_path)
     module
