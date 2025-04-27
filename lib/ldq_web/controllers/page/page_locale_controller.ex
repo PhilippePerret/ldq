@@ -59,7 +59,9 @@ defmodule LdQWeb.PageLocaleController do
 
 
   def index(conn, _params) do
-    page_locales = Site.list_page_locales()
+    page_locales = 
+    Site.list_page_locales()
+    |> Enum.sort_by(fn page -> page.page.slug end)
     render(conn, :index, page_locales: page_locales)
   end
 

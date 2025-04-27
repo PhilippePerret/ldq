@@ -14,10 +14,18 @@ defmodule LdQ.ProcedureMethods do
     run_current_procedure(procedure, module, module.steps())
   end
 
+  # Pour que le formulaire passe
+  def token_field do
+    token = Plug.CSRFProtection.get_csrf_token()
+    ~s(<input type="hidden" name="_csrf_token" value="#{token}">)
+  end
+
+
+
   @doc """
   Pour retourne la procédure courante (Map)
   """
-  def current_procedure(procedure, steps) do
+  defp current_procedure(procedure, steps) do
     Enum.find(steps, fn step ->
       step.fun == procedure.next_step |> String.to_atom()
     end)
