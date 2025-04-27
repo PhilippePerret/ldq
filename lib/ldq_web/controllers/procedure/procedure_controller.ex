@@ -12,8 +12,18 @@ defmodule LdQWeb.ProcedureController do
     params = params |> Map.merge(%{user: conn.assigns.current_user})
     module = LdQ.Procedure.get_proc_module(proc_dim)
     proc_attrs = module.procedure_attributes(params)
-    procedure = create_procedure(proc_attrs)
+    procedure = create_procedure(proc_attrs) |> fill_procedure(params, module)
     run_avec_autorisation(conn, procedure, params)
+  end
+
+  def fill_procedure(procedure, params, module \\ nil) do
+    module = 
+      if is_nil(module) do
+        LdQ.Procedure.get_proc_module(procedure.proc_dim)
+      else module end
+    procedure 
+    |> Map.put(:params, params)
+    |> Map.put(:name,  module.proc_name)
   end
 
   @doc """
@@ -25,16 +35,17 @@ defmodule LdQWeb.ProcedureController do
   @param
   """
   def run(conn, %{"proc_id" => proc_id} = params) do
-    procedure = 
-    get_procedure(proc_id)
-    |> Map.put(:params, params)
+    procedure = get_procedure(proc_id)
+
+    # On ajoute quelques valeurs
+    procedure = procedure |> fill_procedure(params)
     
     # Y a-t-il une étape spécifiée ?
     procedure = 
       if is_nil(params["nstep"]) do procedure else
         Map.put(procedure, :next_step, params["nstep"])
       end
-    
+
     # Barrière utilisateur. En fonction de l'étape, il faut un
     # administrateur ou le propriétaire de la procédure.
     run_avec_autorisation(conn, procedure, params)

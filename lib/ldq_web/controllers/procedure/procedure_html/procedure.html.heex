@@ -1,4 +1,5 @@
-<h2>Procédure <%= @procedure.proc_dim %></h2>
-<div class="tiny"><%= @procedure.id %></div>
+<h2><%= @procedure.name %>
+  <div class="tiny">ID <%= @procedure.id %></div>
+</h2>
 
 <%= raw LdQ.Procedure.run(@procedure) %>
