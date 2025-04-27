@@ -4,7 +4,7 @@ textarea {
   font-size:inherit!important;
 }
 
-a.btn {
+.btn {
   border:1px solid grey;
   border-radius: 5%;
   padding: 2px 12px 3px;
@@ -12,4 +12,33 @@ a.btn {
   white-space: nowrap;
   background-color: #EEEEEE;
   color:rgb(41, 156, 41);
+}
+
+form.philform {
+  display:block;
+  width: 100%;
+}
+form.philform > div:not(.buttons) {
+  border: 1px solid #EEE;
+  padding: 0.5em 0;
+}
+form.philform label {
+  display:block;
+}
+
+form.philform textarea {
+  width: 100%;
+  resize: none;
+  min-height: 100px;
+}
+form.philform input[type="text"] {
+  width: 100%;
+}
+form.philform div.explication {
+  font-size: 13pt;
+  font-style: italic;
+}
+
+form.philform div.buttons {
+  text-align: right;
 }

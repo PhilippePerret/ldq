@@ -17,11 +17,15 @@ defmodule LdQ.Repo.Migrations.CreateProcedures do
       add :steps_done, {:array, :string}
       # Les données quelconques de la procédure
       add :data, :map
+      # Pour connaitre celui qui a soumis la procédure
+      add :submitter_id, references(:users, on_delete: :delete_all, type: :binary_id)
+
 
       timestamps(type: :utc_datetime)
     end
 
     create index(:procedures, [:proc_dim])
+    create index(:procedures, [:submitter_id])
 
   end
 end

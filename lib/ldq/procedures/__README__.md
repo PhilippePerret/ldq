@@ -1,5 +1,13 @@
 # LdQ Procédures
 
+## TODO DANS CE DOCUMENT 
+
+* Ajouter `import LdQ.Site.PageHelpers # formlink, ldb_label etc.`
+* Ajouter `import LdQ.Helpers.Feminines` pour bénéficier des féminines dans les messages en mettant `#{fem("<suffix>", procedure.user)}`,
+* Orienter vers Html.Form pour les formulaires au lieu des composant Hex.
+
+## Introduction
+
 [Suivre les étapes de création d'une nouvelle procédure](#create-proc)
 
 Ce document décrit comment gérer les procédures

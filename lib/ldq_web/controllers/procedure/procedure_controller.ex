@@ -1,6 +1,8 @@
 defmodule LdQWeb.ProcedureController do
   use LdQWeb, :controller
 
+  import Ecto.Query, only: [from: 2]
+  alias LdQ.Repo
   import LdQ.ProcedureMethods
 
   @doc """
@@ -9,13 +11,39 @@ defmodule LdQWeb.ProcedureController do
   C'est la fonction qui est appelée par le lien /proc/new/<proc dim>
   """
   def create(conn, %{"proc_dim" => proc_dim} = params) do
-    params = params |> Map.merge(%{user: conn.assigns.current_user})
+    cur_user = conn.assigns.current_user
+    params = params |> Map.merge(%{user: cur_user})
     module = LdQ.Procedure.get_proc_module(proc_dim)
-    proc_attrs = module.procedure_attributes(params)
-    procedure = create_procedure(proc_attrs) |> fill_procedure(params, module)
+    proc_attrs = 
+      module.procedure_attributes(params)
+      |> Map.put(:submitter_id, cur_user.id)
+    # On doit empêcher de faire deux fois la même procédure à peu
+    # d'intervalle près
+    procedure =
+      case submitted_soon_ago(proc_attrs) do
+      nil -> 
+        create_procedure(proc_attrs)
+      proc -> 
+        proc
+      end
+      
+    procedure = procedure |> fill_procedure(params, module)
     run_avec_autorisation(conn, procedure, params)
   end
 
+  # Retourne la procédure enregistrée si elle date d'il y a moins 
+  # d'une heure.
+  defp submitted_soon_ago(proc_attrs) do
+    ilya_une_heure = NaiveDateTime.add(NaiveDateTime.utc_now(), - 1, :hour)
+    from(p in LdQ.Procedure, where: p.proc_dim == ^proc_attrs.proc_dim and p.submitter_id == ^proc_attrs.submitter_id and p.inserted_at > ^ilya_une_heure)
+    |> Repo.all()
+    |> Enum.at(-1)
+  end
+
+  @doc """
+  On ajoute quelques données à la map procédure, par exemples les
+  paramètres et le nom humain de la procédure.
+  """
   def fill_procedure(procedure, params, module \\ nil) do
     module = 
       if is_nil(module) do
@@ -24,6 +52,7 @@ defmodule LdQWeb.ProcedureController do
     procedure 
     |> Map.put(:params, params)
     |> Map.put(:name,  module.proc_name)
+    |> Map.put(:user,  LdQ.ProcedureMethods.get_owner(procedure))
   end
 
   @doc """

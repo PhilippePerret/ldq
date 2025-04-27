@@ -5,6 +5,8 @@ defmodule LdQ.Procedure.CandidatureComite do
   son refus.
   """
   import LdQ.ProcedureMethods
+  import LdQ.Site.PageHelpers # formlink, ldb_label etc.
+  import LdQ.Helpers.Feminines
   use Phoenix.Component
   alias LdQ.Comptes
 
@@ -42,13 +44,41 @@ defmodule LdQ.Procedure.CandidatureComite do
     }
   end
 
+  def philhtml_options(options \\ []) do
+    options ++ [no_header: true, evaluation: false, no_file: true, helpers: [LdQWeb.ViewHelpers]]
+  end
+
   @doc """
 
   @return {HTMLString} Le formulaire pour poser sa candidature.
   """
   def fill_candidature(procedure) do
+    form = %Html.Form{
+      id: "candidature-comite", 
+      action: "/proc/#{procedure.id}",
+      captcha: true,
+      fields: [
+        %{tag: :hidden, name: "procedure_id", value: procedure.id},
+        %{tag: :input, type: :hidden, name: "nstep", value: "accepte_refuse_or_test"},
+        %{tag: :textarea, name: "motivation", label: "Motivation", required: true, explication: "Merci d'expliquer en quelques mots vos motivations."},
+        %{tag: :input, type: :text, name: "genres", label: "Genres de prédilection", explication: "Si vous avez des genres littéraires de prédilection, merci de les indiquer en les séparant par une virgule."}
+      ],
+      buttons: [
+        %{type: :submit, name: "Soumettre"}
+      ]
+    }
+    
     """
-    {AFFICHAGE DU FORMULAIRE DE CANDIDATURE}
+    <p>Vous voulez donc rejoindre le comité de lecture du label #{ldq_label()} en tant que lect#{fem("rice", procedure.user)} et nous vous en remercions.</p>
+    <p>Voici quelques pages que vous pourriez lire afin de valider votre souhait.</p>
+    <ul>
+      <li>#{pagelink("Choix des membres du comité de lecture","choix-membres","member-submit#attention")}</li>
+      <li>#{pagelink("Engagement des membres du comité de lecture","engagement-membres","member-submit#attention")}</li>
+    </ul>
+    
+    <h3>Formulaire de soumission de la candidature</h3>
+
+    #{Html.Form.formate(form)}
     """
   end
 

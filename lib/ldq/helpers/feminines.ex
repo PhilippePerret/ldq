@@ -26,6 +26,10 @@ defmodule LdQ.Helpers.Feminines do
   def fem(fem_id, sexe) when is_map(sexe) do
     fem(fem_id, sexe.sexe)
   end
+  def fem(suffix, user) when is_struct(user, LdQ.Comptes.User) do
+    fem(suffix, user.sexe)
+  end
+
 
   def fem("e", "F") , do: "e" # venu[e]/venu
   def fem("e", _)   , do: ""

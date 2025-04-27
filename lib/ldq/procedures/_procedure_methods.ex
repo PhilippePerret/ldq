@@ -33,13 +33,6 @@ defmodule LdQ.ProcedureMethods do
     admin_validity && owner_validity
   end
 
-  # Pour que le formulaire passe
-  def token_field do
-    token = Plug.CSRFProtection.get_csrf_token()
-    ~s(<input type="hidden" name="_csrf_token" value="#{token}">)
-  end
-
-
 
   @doc """
   Pour retourne la procédure courante (Map)

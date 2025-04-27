@@ -13,13 +13,15 @@ defmodule LdQ.Procedure do
     field :steps_done, {:array, :string}
     field :data, :map
 
+    belongs_to :submitter, LdQ.Comptes.User
+
     timestamps(type: :utc_datetime)
   end
 
   def changeset(%__MODULE__{} = procedure, attrs) do
     procedure
-    |> cast(attrs, [:proc_dim, :owner_type, :owner_id, :current_step, :next_step, :steps_done, :data])
-    |> validate_required([:proc_dim, :owner_type, :owner_id, :current_step, :data])
+    |> cast(attrs, [:proc_dim, :submitter_id, :owner_type, :owner_id, :current_step, :next_step, :steps_done, :data])
+    |> validate_required([:proc_dim, :submitter_id, :owner_type, :owner_id, :current_step, :data])
   end
 
   @doc """
