@@ -84,7 +84,7 @@ defmodule LdQWeb.ProcedureController do
   L'utilisateur courant doit être autorisé à jouer l'étape courante
   de la procédure +procedure+
   """
-  def run_avec_autorisation(conn, procedure, params) do
+  def run_avec_autorisation(conn, procedure, _params) do
     case current_user_can_run_step?(conn.assigns.current_user, procedure) do
     true ->
       render(conn, :procedure, procedure: procedure)

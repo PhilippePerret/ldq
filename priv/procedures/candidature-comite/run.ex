@@ -8,7 +8,7 @@ defmodule LdQ.Procedure.CandidatureComite do
   import LdQ.Site.PageHelpers # formlink, ldb_label etc.
   import LdQ.Helpers.Feminines
   use Phoenix.Component
-  alias LdQ.Comptes
+  # alias LdQ.Comptes
 
   def proc_name, do: "Candidature au comité de lecture"
 
@@ -87,7 +87,7 @@ defmodule LdQ.Procedure.CandidatureComite do
     form_values = procedure.params["f"]
     if Html.Form.captcha_valid?(form_values) do
       user = get_owner(procedure)
-      params = procedure.params
+      _params = procedure.params
 
       data = procedure.data
       data = Map.merge(data, %{
@@ -111,25 +111,6 @@ defmodule LdQ.Procedure.CandidatureComite do
   
       send_mail(:admin, user.email, %{mail_data | mail_id: "user-candidature-recue"})
       send_mail(user.email, :admins, %{mail_data | mail_id: "admin-new-candidature"})
-      # notify(%{
-      #   notif_dim:      "accepte_refuse_or_test",
-      #   procedure_id:   procedure.id,
-      #   group_target:   "admins",
-      #   title:          "Accepter, refuser, ou demander de passer le test pour une candidature au comité de lecture",
-      #   body:             """
-      #   <select name="notif[action]">
-      #     <option value="accept">Accepter la candidature</option>
-      #     <option value="refuse">Refuser la candidature</option>
-      #     <option value="tester">Demander à passer le test</option>
-      #   </select>
-      #   <label>Motif du refus</label>
-      #   <textearea name="notif[raison]"></textarea>
-      #   <div class="buttons"><button>Soumettre</button></div>
-      #   """,
-      #   data:             data,
-      #   action_required:  true
-      # })
-
       """
       <p>Fin de la procédure</p>
       """
@@ -158,7 +139,7 @@ defmodule LdQ.Procedure.CandidatureComite do
   """
   def refuser_candidature(procedure) do
     """
-    Je dois procéder au refus de la candidature
+    Je dois procéder au refus de la candidature pour la procedure #{inspect procedure}
     """
   end
 
@@ -180,7 +161,7 @@ defmodule LdQ.Procedure.CandidatureComite do
 
   def accepter_candidature(procedure) do
     """
-    <p>Je dois procéder à l'acceptatioin du membre dans le comité de lecture.</p>
+    <p>Je dois procéder à l'acceptatioin du membre dans le comité de lecture pour la #{inspect procedure}.</p>
     """
   end
   def proceed_acceptation_candidature(procedure) do
@@ -194,7 +175,7 @@ defmodule LdQ.Procedure.CandidatureComite do
 
   def soumettre_a_test(procedure) do
     """
-    <p>Je dois demander au candidat de passer le test</p>
+    <p>Je dois demander au candidat de passer le test pour la #{inspect procedure}</p>
     """
   end
   def proceed_soumission_a_test(procedure) do

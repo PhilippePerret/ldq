@@ -34,9 +34,7 @@ defmodule LdQ.ProcedureMethods do
   end
 
 
-  @doc """
-  Pour retourne la procédure courante (Map)
-  """
+  # Pour retourne la procédure courante (Map)
   defp current_procedure(procedure, steps) do
     Enum.find(steps, fn step ->
       step.fun == procedure.next_step |> String.to_atom()
@@ -269,7 +267,7 @@ defmodule LdQ.ProcedureMethods do
   defp defaultize_mail_params(params) do
     file = Map.get(params, :attached_file, nil)
 
-    params = params
+    params
     |> Map.put(:attached_file, file)
     |> add_common_mail_variables()
   end

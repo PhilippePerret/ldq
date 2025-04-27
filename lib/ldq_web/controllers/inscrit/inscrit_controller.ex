@@ -3,7 +3,7 @@ defmodule LdQWeb.InscritController do
 
   alias LdQ.Comptes
   
-  import Phil.File, only: [file_mtime: 1]
+  # import Phil.File, only: [file_mtime: 1]
 
   @doc """
   Fonction principale qui affiche la page volue

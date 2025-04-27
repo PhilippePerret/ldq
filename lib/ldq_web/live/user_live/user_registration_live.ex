@@ -61,7 +61,7 @@ defmodule LdQWeb.UserRegistrationLive do
             &url(~p"/users/confirm/#{&1}")
           )
 
-        changeset = Comptes.change_user_registration(user)
+        _changeset = Comptes.change_user_registration(user)
         # {:noreply, socket |> assign(trigger_submit: true) |> assign_form(changeset)}
         {:noreply, push_navigate(socket, to: ~p"/inscrit/bienvenue")}
         

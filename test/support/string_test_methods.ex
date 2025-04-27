@@ -26,7 +26,7 @@ defmodule TestStringMethods do
         end
     end
   end
-  def string_contains(sujet, rexpect, options) when is_struct(rexpect, Regex) do
+  def string_contains(sujet, rexpect, _options) when is_struct(rexpect, Regex) do
     case Regex.match?(rexpect, sujet) do
       false -> {:error, %{error: "ne contient pas #{inspect rexpect}"}}
       _ -> {:ok, nil}
@@ -38,7 +38,7 @@ defmodule TestStringMethods do
       case string_contains(sujet, expect, options) do
       {:ok, _} -> 
         Map.merge(coll, %{in: coll.in ++ [expect]})
-      {:error, res} -> Map.merge(coll, %{
+      {:error, _res} -> Map.merge(coll, %{
         out: coll.out ++ [expect],
         errors: coll.errors ++ ["ne contient pas #{inspect expect}"]
         })

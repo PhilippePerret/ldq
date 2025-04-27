@@ -6,7 +6,7 @@ defmodule FeaturePublicMethods do
   alias Wallaby.Element,  as: WE
 
   import TestHelpers
-  import TestMailMethods
+  # import TestMailMethods
 
   def je_rejoins_la_page(session, url, added_to_msg \\ nil) do
     msg = "-> Je rejoins la page #{url} #{added_to_msg}"
@@ -29,6 +29,10 @@ defmodule FeaturePublicMethods do
 
   def je_clique_le_bouton(session, button_name) do
     click(session, WQ.button(button_name))
+  end
+
+  def je_clique_le_lien(session, link_title) do
+    click(session, WQ.link(link_title))
   end
 
 
@@ -110,14 +114,14 @@ defmodule FeaturePublicMethods do
 
   @return {%{destinataire}|%User{destinataire}, [mails]}
   """
-  def recoit_un_mail(who, params), do: user_recoit_un_mail(who, params)
-  def recois_un_mail(who, params), do: user_recoit_un_mail(who, params)
-  def recoivent_un_mail(who, params), do: recoit_un_mail(who, params)
-  def recoit_un_mail(:admin, params), do: admin_recoit_un_mail(params)
-  def detruire_les_mails, do: exec_delete_all_mails()
+  def recoit_un_mail(who, params), do: TestMailMethods.user_recoit_un_mail(who, params)
+  def recois_un_mail(who, params), do: TestMailMethods.user_recoit_un_mail(who, params)
+  def recoivent_un_mail(who, params), do: TestMailMethods.recoit_un_mail(who, params)
+  def recoit_un_mail(:admin, params), do: TestMailMethods.admin_recoit_un_mail(params)
+  def detruire_les_mails, do: TestMailMethods.exec_delete_all_mails()
 
 
   def rejoint_le_lien_du_mail({destinataire, mails}, link_title) do
-    get_lien_in_mail_and_visit(destinataire, link_title, mails)
+    TestMailMethods.get_lien_in_mail_and_visit(destinataire, link_title, mails)
   end
 end

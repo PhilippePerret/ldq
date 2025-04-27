@@ -1,5 +1,5 @@
 defmodule LdQ.MyMailer do
-  import Swoosh.Email
+  # import Swoosh.Email
 
   @doc """
 
@@ -31,13 +31,13 @@ defmodule LdQ.MyMailer do
   end
 
   # Ajoute l'entête personnalisé
-  defp headerize(body, params) do
+  defp headerize(body, _params) do
     "<p>[ENTETE LECTURE DE QUALITÉ]</p>" <> 
     body
   end
 
   # Ajoute le pied de page voulu
-  defp footerize(body, params) do
+  defp footerize(body, _params) do
     body <> "<p>[FOOTER LECTURE DE QUALITE]</p>"
   end
 end

@@ -1,7 +1,7 @@
 defmodule LdQWeb.AdminController do
   use LdQWeb, :controller
 
-  import LdQ.ProcedureMethods, only: [get_procedure: 1]
+  # import LdQ.ProcedureMethods, only: [get_procedure: 1]
 
   @doc """
   Page d'accueil de l'administration du site
@@ -16,7 +16,7 @@ defmodule LdQWeb.AdminController do
 
   @OBSOLETE Voir le controler ProcedureController maintenant
   """
-  def procedure(conn, %{"proc_id" => proc_id} = params) do
+  def procedure(_conn, %{"proc_id" => _proc_id} = _params) do
     raise "Il faut utiliser maintenant ProcedureController.run/3"
   end
 

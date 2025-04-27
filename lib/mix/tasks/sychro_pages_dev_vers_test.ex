@@ -1,6 +1,6 @@
 defmodule Mix.Tasks.Sync.Pages do
   use Mix.Task
-  import Ecto.Query
+  # import Ecto.Query
 
   @shortdoc "Synchronise pages et page_locales de ldq_dev vers ldq_test"
 

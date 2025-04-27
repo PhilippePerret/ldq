@@ -60,12 +60,12 @@ defmodule LdQWeb.Router do
     get "/:slug", PageLocaleController, :display
   end
   
-  scope "/form", LdQWeb do
-    pipe_through [:browser, :require_authenticated_user]
+  # scope "/form", LdQWeb do
+  #   pipe_through [:browser, :require_authenticated_user]
     
-    get "/:form", FormController, :edit
-    post "/:form", FormController, :create
-  end
+  #   get "/:form", FormController, :edit
+  #   post "/:form", FormController, :create
+  # end
 
   scope "/livres", LdQWeb do
     pipe_through :browser

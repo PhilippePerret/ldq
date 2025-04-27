@@ -34,7 +34,7 @@ defmodule Html.Form do
   @doc """
   Formate et retourne le code pour le formulaire de données +data+
   """
-  def formate(%__MODULE__{} = data, params \\ %{}) do
+  def formate(%__MODULE__{} = data, _params \\ %{}) do
 
     data = 
     if data.captcha do
@@ -66,19 +66,19 @@ defmodule Html.Form do
     build_field(:input, %{dfield | type: :hidden})
   end
   def build_field(:input, %{type: :hidden} = dfield) do
-    ~s(<input type="hidden" name="#{field_name(dfield)}" value="#{dfield.value}" />)
+    ~s(<input type="hidden" id="#{dfield.id}" name="#{field_name(dfield)}" value="#{dfield.value}" />)
   end
   def build_field(:input, %{type: :email} = dfield) do
-    ~s(<input type="email" name="#{field_name(dfield)}" value="#{dfield.value}" #{required(dfield)}/>)
+    ~s(<input type="email" id="#{dfield.id}" name="#{field_name(dfield)}" value="#{dfield.value}" #{required(dfield)}/>)
   end
   def build_field(:input, %{type: :password} = dfield) do
-    ~s(<input type="password" name="#{field_name(dfield)}" value="#{dfield.value}" #{required(dfield)}/>)
+    ~s(<input type="password" id="#{dfield.id}" name="#{field_name(dfield)}" value="#{dfield.value}" #{required(dfield)}/>)
   end
   def build_field(:input, %{type: :naive_datetime} = dfield) do
-    ~s(<input type="naive_datetime" name="#{field_name(dfield)}" value="#{dfield.value}" #{required(dfield)}/>)
+    ~s(<input type="naive_datetime" id="#{dfield.id}" name="#{field_name(dfield)}" value="#{dfield.value}" #{required(dfield)}/>)
   end
   def build_field(:input, %{type: :text} = dfield) do
-    ~s(<input type="text" name="#{field_name(dfield)}" value="#{dfield.value}" #{required(dfield)}/>)
+    ~s(<input type="text" id="#{dfield.id}" name="#{field_name(dfield)}" value="#{dfield.value}" #{required(dfield)}/>)
   end
   def build_field(:textarea, dfield) do
     """
@@ -109,7 +109,7 @@ defmodule Html.Form do
   end
 
 
-  def build_field(:captcha, dfield) do
+  def build_field(:captcha, _dfield) do
     captcha = random_captcha()
     dfield = %{
       tag:      :select,
@@ -197,7 +197,7 @@ defmodule Html.Form do
 
   def label(dfield) do
     if dfield.label do
-      ~s(<label for="">#{dfield.label}</label>)
+      ~s(<label for="#{dfield.id}">#{dfield.label}</label>)
     else "" end
   end
 
@@ -218,8 +218,13 @@ defmodule Html.Form do
 
 
   defp defaultize_field(dfield) do
+    id_def = if Map.has_key?(dfield, :name) do
+      "f_#{dfield.name |> String.replace("-", "_") |> String.replace(~r/[\[\]]/,"_")|> String.replace(~r/__+/, "_")}"
+    else
+      "field-#{Ecto.UUID.generate()}"
+    end
     [
-      {:id, nil}, {:name, nil},
+      {:id, id_def}, {:name, nil},
       {:explication, nil}, {:label, nil}, {:wrapper, "div"},
       {:type, nil}, {:required, false}, {:options, dfield[:values] || nil},
       {:value, nil}
