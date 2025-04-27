@@ -12,6 +12,7 @@ Convention :
   * une constante `@steps` qui définit les étapes de la procédure
   * une fonction `step/0` qui retourne cette constante
   * un import `import LdQ.ProcedureMethods` (qui permet notamment d'appeler la fonction `__run__/1` qui lance la procédure ainsi que toutes les fonctions utiles aux procédures, les envois de mail, etc.)
+  * une fonction `__create__/2` pour créer la procédure (une nouvelle procédure est appelée par l'url `/proc/new/<proc dim>`). C'est cette fonction qui crée l'instanciation et l'enregistrement de la nouvelle procédure et qui appelle la première étape.
 4. Chaque étape (ie chaque step dans `@steps`) correspond à une fonction du fichier `run.ex`. L'instance de procédure transmise à `__run__/1`définit la dernière étape jouée, donc on peut connaitre la suivante (celle d'après)
 
 Pour entrainer ce mécanisme, on appelle la méthode `LdQ.Procedure.run/1` qui reçoit en argument l'instance (structure) de procédure dont il est question. C'est cette fonction (fixe) qui appelle la bonne méthode `__run__` après avoir chargé le bon fichier `run.ex`.
@@ -20,6 +21,7 @@ Les paramètres de l'URL doivent être ajouté à la structure `Procedure`.
 
 Pour voir concrètement le mécanisme en route :
 
+* Les liens `/proc/new/candidature-comite` de titre "Candidater au comité de lecture" (ou autre titre similaire) conduisent à la fonction `create/3` du module `LdQWeb.ProcedureController` dans `lib/ldq_web/procedure/`
 * Une fois une candidature posée pour le comité de lecture, une procédure de dim `candidature-comite` est enregistré.
 * Les administrateurs reçoivent un mail contenant un lien d'href `/prov/<id de procédure>` pour rejoindre la page de la procédure.
 * Quand il clique sur ce lien, le router dirige l'administrateur vers `AdminController.procedure/2` qui se trouve dans le `lib/ldq_web/controllers/admin_controller.ex`
@@ -41,7 +43,11 @@ Les étapes successives doivent se définir dans la propriété `@steps` qui est
 Chaque map contient :
 
 ~~~elixir
-%{name: "Nom humain de la step", fun: :fonction_a_appeler}
+%{
+  name: "Nom humain de la step", 
+  fun: :fonction_a_appeler, 
+  required_admin: true
+}
 ~~~
 
 La fonction à appeler est toujours une fonction qui reçoit la structure de la procédure.
@@ -70,9 +76,15 @@ La fonction à appeler est toujours une fonction qui reçoit la structure de la 
 
     @steps [
       # Ici vont être définies les étapes de la procédure
-      %{name: "Ma première étape", fun: ma_toute_premiere_step}
-    ]
+      %{name: "Ma première étape", fun: ma_toute_premiere_step, require_admin: false}
+    ] |> Enum.with_index() |> Enum.map(fn {s, index} -> Map.put(s, :index, index) end)
     def steps, do: @steps
+
+    def __create__(proc_dim, params) do
+      # Ici le traitement de la création de la procédure et 
+      # notamment :
+      create_procedure(attrs_proc)
+    end
 
     def ma_toute_premiere_step(procedure) do
       "<p>Je suis dans la première étape</p>"

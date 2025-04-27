@@ -39,7 +39,8 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     point_test = NaiveDateTime.utc_now()
 
     session
-    |> je_rejoins_la_page("/form/member-submit", "pour poser ma candidature")
+    |> je_rejoins_la_page("/", "pour trouver un lien vers la candidature")
+    |> je_cliquer_le_bouton("proposer sa candidature", "pour poser ma candidature")
     |> pause(1)
     |> la_page_contient("h2", ~r/Formulaire de soumission de candidature/)
     |> je_remplis_le_champ("Motivation") 

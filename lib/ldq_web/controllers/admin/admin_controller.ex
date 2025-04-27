@@ -14,17 +14,10 @@ defmodule LdQWeb.AdminController do
   @doc """
   Fonction principale qui affiche une procédure et permet de la gérer
 
+  @OBSOLETE Voir le controler ProcedureController maintenant
   """
   def procedure(conn, %{"proc_id" => proc_id} = params) do
-    procedure = 
-    get_procedure(proc_id)
-    |> Map.put(:params, params)
-    
-    procedure = 
-      if is_nil(params["nstep"]) do procedure else
-        Map.put(procedure, :next_step, params["nstep"])
-      end
-    render(conn, :procedure, procedure: procedure)
+    raise "Il faut utiliser maintenant ProcedureController.run/3"
   end
 
 

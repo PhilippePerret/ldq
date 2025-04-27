@@ -3,10 +3,10 @@ h1: Foire Aux Questions
 h2: Les livres
 
 p#howsubmitbook.question: Comment soumettre son livre au label ?
-p.reponse: Pour soumettre son livre au label, il suffit de remplir le <: formlink(formulaire de soumission de livre,book-submit,faq#howsubmitbook) :> et d'attendre d'être contacté par l'administration du label.
+p.reponse: Pour soumettre son livre au label, il suffit de remplir le <: proclink(formulaire de soumission de livre,proposition-livre) :> et d'attendre d'être contacté par l'administration du label.
 
 p#howchoix.question: Comment sont choisis les livres ?
-p.reponse: Ce sont les autrices et les auteurs des livres, eux-mêmes, qui <: formlink(soumettent leur livre,book-submit,faq#howchoix) :> en général. Mais un livre peut être soumis par n’importe qui, a partir du moment où il a l’accord de son autrice ou de son auteur.
+p.reponse: Ce sont les autrices et les auteurs des livres, eux-mêmes, qui <: proclink(soumettent leur livre,proposition-livre) :> en général. Mais un livre peut être soumis par n’importe qui, a partir du moment où il a l’accord de son autrice ou de son auteur.
 
 p.question: Est-ce qu'on peut proposer un livre sans en être l'autrice ou l'auteur ?
 p.reponse: C'est tout à fait possible, mais en dernier recours, c'est toujours l'auteur ou l'autrice qui devra faire la soumission de son livre.
@@ -14,7 +14,7 @@ p.reponse: C'est tout à fait possible, mais en dernier recours, c'est toujours 
 h2: Le comité de lecture
 
 p#howsubmitmember.question: Comment soumettre sa candidature pour être lectrice ou lecteur ?
-p.reponse: Pour soumettre sa candidature en tant que lectrice ou lecteur du comité de lecture du <: ldq_label :>, il suffit de remplir le <: formlink(formulaire de candidature,member-submit,faq#howsubmitmember) :>.
+p.reponse: Pour soumettre sa candidature en tant que lectrice ou lecteur du comité de lecture du <: ldq_label :>, il suffit de remplir le <: proclink(formulaire de candidature,candidature-comite) :>.
 
 p#fulltime.question: Je n’ai pas beaucoup de temps pour participer. Est-ce un problème ?
 p.reponse: Non, l’important est de le faire avec suffisamment de régularité pour ne pas perdre trop en <: pagelink(crédit,terme-credit,faq#fulltime) :>.

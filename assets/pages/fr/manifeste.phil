@@ -45,14 +45,14 @@ Si vous êtes parvenu jusqu’ici, c’est que cette initiative a peut-être tro
 
 p#si_auteur.question: Vous êtes autrice ou auteur :
 list:
-* Vous pouvez <: formlink(soumettre votre livre,book-submit) :> au comité de lecture pour recevoir ce label qui vous ouvrira grand les horizons des lectrices et des lecteurs.
-* Vous pouvez <: formlink(devenir membre du comité de lecture,member-submit) :> qui compte en ses rangs de nombreuses autrices et auteurs labellisés (ou pas — car on peut être piètre auteur et excellent lecteur).
+* Vous pouvez <: proclink(soumettre votre livre,proposition-livre) :> au comité de lecture pour recevoir ce label qui vous ouvrira grand les horizons des lectrices et des lecteurs.
+* Vous pouvez <: proclink(devenir membre du comité de lecture,candidature-comite) :> qui compte en ses rangs de nombreuses autrices et auteurs labellisés (ou pas — car on peut être piètre auteur et excellent lecteur).
 * Vous pouvez <: lien_faire_connaitre(si_auteur) :> autour de vous !
 :list
 
 p#si_lecteur.question: Vous êtes ici en tant que lectrice ou lecteur :
 list:
-* Vous pouvez <: formlink(rejoindre le comité de lecture,member-submit) :>.
+* Vous pouvez <: proclink(rejoindre le comité de lecture,candidature-comite) :>.
 * Vous pouvez [choisir un livre](/livres/choisir) ayant reçu le label.
 * Vous pouvez <: lien_faire_connaitre(si_lecteur) :> autour de vous !
 :list

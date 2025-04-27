@@ -12,17 +12,7 @@ defmodule LdQ.Site.PageHelpers do
   end
 
   def formlink(title, slug, retour \\ nil) do
-    # Quelques cas de redirection
-    case slug do
-      "book-submit" ->
-        IO.warn(~s/Lien obsolète, il faut utiliser `proclink("#{title}", "#{slug}")' plutôt/)
-        proclink(title, slug, retour)
-      "member-submit" -> 
-        IO.warn(~s/Lien obsolète, il faut utiliser `proclink("#{title}", "#{slug}")' plutôt/)
-        proclink(title, slug, retour)
-      _ ->
-        build_link("form", slug, title, retour)
-    end
+    build_link("form", slug, title, retour)
   end
 
   @doc """

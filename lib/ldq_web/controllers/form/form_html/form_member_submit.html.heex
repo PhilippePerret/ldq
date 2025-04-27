@@ -1,4 +1,4 @@
-<.simple_form :let={f} for={@changeset} action={~p"/form/member-submit"} method="POST">
+<.simple_form :let={f} for={@changeset} action={~p"/proc/{@procedure.id}"} method="POST">
   <.error :if={@changeset.action}>
     <%= gettext("Oops, something went wrong! Please check the errors below.") %>
   </.error>

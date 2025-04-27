@@ -4,16 +4,17 @@ defmodule LdQ.Procedure.CandidatureComiteRun do
   depuis la soumission de sa candidature jusqu'à son acceptation ou 
   son refus.
   """
-  use Phoenix.Component
   import LdQ.ProcedureMethods
+  use Phoenix.Component
   alias LdQ.Comptes
 
   @steps [
-    %{name: "Soumission de la candidature", fun: :start},
-    %{name: "Accepter, refuser ou soumettre à un test", fun: :accepte_refuse_or_test},
-    %{name: "Refus de la candidature", fun: :refuser_candidature},
-    %{name: "Accepter la candidature", fun: :accepter_candidature},
-    %{name: "Soumettre à un test", fun: :soumettre_a_test}
+    %{name: "Soumission de la candidature", fun: :start, admin_required: false, owner_required:false},
+    %{name: "Accepter, refuser ou soumettre à un test", fun: :accepte_refuse_or_test, admin_required: true, owner_required: false},
+    %{name: "Refus de la candidature", fun: :refuser_candidature, admin_required: true, owner_required: false},
+    %{name: "Accepter la candidature", fun: :accepter_candidature, admin_required: true, owner_required: false},
+    %{name: "Soumettre à un test", fun: :soumettre_a_test, admin_required: true, owner_required: false},
+    %{name: "Passage du test", fun: :test, admin_required: false, owner_required: true}
   ] |> Enum.with_index() |> Enum.map(fn {s, index} -> Map.put(s, :index, index) end)
   def steps, do: @steps
 

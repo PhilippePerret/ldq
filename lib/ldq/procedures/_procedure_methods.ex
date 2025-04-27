@@ -5,6 +5,7 @@ defmodule LdQ.ProcedureMethods do
 
   import Ecto.Query, warn: false
   alias LdQ.{Repo, Comptes, Notification, Constantes, Procedure}
+  alias LdQ.Comptes.User
 
 
   @prefix_mail_subject "[📚 LdQ] "
@@ -12,6 +13,23 @@ defmodule LdQ.ProcedureMethods do
 
   def __run__(module, procedure) do
     run_current_procedure(procedure, module, module.steps())
+  end
+
+  @doc """
+  Pour 
+
+  @return True si l'utilisateur courant est autorisé, False dans le
+  cas contraire
+  """
+  def current_user_can_run_step?(curuser, procedure) do
+    steps = LdQ.Procedure.get_steps_of(procedure)
+    step  = current_procedure(procedure, steps)
+    owner = get_owner(procedure)
+
+    admin_validity = !step.admin_required || User.admin?(curuser)
+    owner_validity = !step.owner_required || (curuser.id == owner.id)
+
+    admin_validity && owner_validity
   end
 
   # Pour que le formulaire passe
@@ -45,6 +63,7 @@ defmodule LdQ.ProcedureMethods do
     3. Il est défini dans les data de la procédure.
   @return %Comptes.User{}
   """
+  def get_owner(procedure), do: get_user(procedure)
   def get_user(procedure) do
     user_id = 
       cond do

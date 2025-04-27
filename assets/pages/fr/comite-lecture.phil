@@ -11,4 +11,4 @@ list:
 * <: pagelink(Le processus d'attribution du label,processus-attribution,comite-lecture) :>.
 :list
 
-Vous pouvez même, vous-mêmes, quel que soit votre statut (autrice, auteur, lectrice, lecteur) <: formlink(proposer votre candidature,member-submit) :> pour rejoindre ce comité de lecteur et y officier en tant que lectrice ou lecteur.
+Vous pouvez même, vous-mêmes, quel que soit votre statut (autrice, auteur, lectrice, lecteur) <: proclink(proposer votre candidature,candidature-comite) :> pour rejoindre ce comité de lecteur et y officier en tant que lectrice ou lecteur.

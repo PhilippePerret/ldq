@@ -2,7 +2,7 @@
 # Formulaire de soumission d'un livre
 %>
 
-<.simple_form :let={f} for={@changeset} action={~p"/form/book-submit"} method="POST">
+<.simple_form :let={f} for={@changeset} action={~p"/proc/{@procedure.id}"} method="POST">
   <.error :if={@changeset.action}>
     <%= gettext("Oops, something went wrong! Please check the errors below.") %>
   </.error>

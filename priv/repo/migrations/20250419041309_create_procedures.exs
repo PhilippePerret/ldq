@@ -4,7 +4,6 @@ defmodule LdQ.Repo.Migrations.CreateProcedures do
   def change do
     create table(:procedures, primary_key: false) do
       add :id, :binary_id, primary_key: true
-      # Identifiant humain de la procédure, par exemple "member-submit"
       add :proc_dim, :string
       # Le type du sujet de la procédure, par exemple "book" ou "user"
       add :owner_type, :string

@@ -38,14 +38,7 @@ defmodule LdQWeb.FormController do
     |> redirect(to: redirection)
   end
 
-  def on_create("member-submit", params) do
-    Procedure.CandidatureComite.start(params)
-    
-    {~p"/pg/on-submit-candidature-comitee", nil}
-  end
-
-
-  def get_data_by_form("member-submit", params) do
+  def get_data_by_form("candidature-comite", params) do
     candidat = Map.get(params, "candidat", %{})
     Candidat.changeset(%Candidat{}, %{
       user_id:    candidat["user_id"] || params["user"].id,
@@ -55,7 +48,7 @@ defmodule LdQWeb.FormController do
     })
   end
 
-  def get_data_by_form("book-submit", params) do
+  def get_data_by_form("proposition-livre", params) do
     book = Map.get(params, "book", %{})
     SubmittedBook.changeset(%SubmittedBook{}, %{
       title:              book["title"],
