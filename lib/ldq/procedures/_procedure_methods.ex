@@ -111,7 +111,7 @@ defmodule LdQ.ProcedureMethods do
   def update_procedure(%Procedure{} = proc, attrs) do
     proc
     |> Procedure.changeset(attrs)
-    |> Repo.update()
+    |> Repo.update!()
   end
 
   def delete_procedure(%Procedure{} = procedure) do

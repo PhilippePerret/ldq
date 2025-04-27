@@ -59,7 +59,7 @@ defmodule LdQ.Procedure.CandidatureComite do
       captcha: true,
       fields: [
         %{tag: :hidden, name: "procedure_id", value: procedure.id},
-        %{tag: :input, type: :hidden, name: "nstep", value: "accepte_refuse_or_test"},
+        %{tag: :input, type: :hidden, strict_name: "nstep", value: "submit_candidature"},
         %{tag: :textarea, name: "motivation", label: "Motivation", required: true, explication: "Merci d'expliquer en quelques mots vos motivations."},
         %{tag: :input, type: :text, name: "genres", label: "Genres de prédilection", explication: "Si vous avez des genres littéraires de prédilection, merci de les indiquer en les séparant par une virgule."}
       ],
@@ -83,6 +83,7 @@ defmodule LdQ.Procedure.CandidatureComite do
   end
 
   def submit_candidature(procedure) do
+    IO.inspect(procedure, label: "\nProcédure à l'entrée de submit_candidature")
     form_values = procedure.params["f"]
     if Html.Form.captcha_valid?(form_values) do
       user = get_owner(procedure)
@@ -91,7 +92,7 @@ defmodule LdQ.Procedure.CandidatureComite do
       data = procedure.data
       data = Map.merge(data, %{
         motivation: form_values["motivation"],
-        genres:     form_values["genres"] |> String.split() |> Enum.map(&String.trim/1) |> Enum.filter(fn g -> g != "" end)
+        genres:     form_values["genres"] |> String.split() |> Enum.map(&String.trim/1) |> Enum.filter(fn g -> g != "" end),
         submit_candidature_at: NaiveDateTime.utc_now() 
       })
   
@@ -99,7 +100,7 @@ defmodule LdQ.Procedure.CandidatureComite do
         data: data,
         next_step: "accepte_refuse_or_test"
       }
-      procedure = update_procedure(procedure, new_attrs)
+      procedure = update_procedure(procedure, new_proc_attrs)
   
       mail_data = %{
         mail_id:    nil,
@@ -128,6 +129,10 @@ defmodule LdQ.Procedure.CandidatureComite do
       #   data:             data,
       #   action_required:  true
       # })
+
+      """
+      <p>Fin de la procédure</p>
+      """
   
     else "<p>Seul un humain ou une humaine peut entamer cette procédure, désolé.</p>" end
   end

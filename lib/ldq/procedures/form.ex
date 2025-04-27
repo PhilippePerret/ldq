@@ -8,7 +8,9 @@ defmodule Html.Form do
     action: {String} POST par défaut
     captcha: {Boolean} Si True, on ajoute un champ captcha
     fields: [
-      %{tag: , type: , name: , id: , explication: , required: }
+      %{tag: , type: , name: , id: , value: , explication: , required: }
+      # Pour un name strict (sinon il deviendra "f[name]")
+      %{tag: , strict_name: , id: ...}
     ]
     buttons: [
       %{type: :submit/:button, name: }
@@ -64,23 +66,23 @@ defmodule Html.Form do
     build_field(:input, %{dfield | type: :hidden})
   end
   def build_field(:input, %{type: :hidden} = dfield) do
-    ~s(<input type="hidden" name="#{field_name(dfield)}" value="" />)
+    ~s(<input type="hidden" name="#{field_name(dfield)}" value="#{dfield.value}" />)
   end
   def build_field(:input, %{type: :email} = dfield) do
-    ~s(<input type="email" name="#{field_name(dfield)}" value="" #{required(dfield)}/>)
+    ~s(<input type="email" name="#{field_name(dfield)}" value="#{dfield.value}" #{required(dfield)}/>)
   end
   def build_field(:input, %{type: :password} = dfield) do
-    ~s(<input type="password" name="#{field_name(dfield)}" value="" #{required(dfield)}/>)
+    ~s(<input type="password" name="#{field_name(dfield)}" value="#{dfield.value}" #{required(dfield)}/>)
   end
   def build_field(:input, %{type: :naive_datetime} = dfield) do
-    ~s(<input type="naive_datetime" name="#{field_name(dfield)}" value="" #{required(dfield)}/>)
+    ~s(<input type="naive_datetime" name="#{field_name(dfield)}" value="#{dfield.value}" #{required(dfield)}/>)
   end
   def build_field(:input, %{type: :text} = dfield) do
-    ~s(<input type="text" name="#{field_name(dfield)}" value="" #{required(dfield)}/>)
+    ~s(<input type="text" name="#{field_name(dfield)}" value="#{dfield.value}" #{required(dfield)}/>)
   end
   def build_field(:textarea, dfield) do
     """
-    <textarea name="#{field_name(dfield)}" id="" #{required(dfield)}></textarea>
+    <textarea name="#{field_name(dfield)}" id="#{dfield.id}" #{required(dfield)}>#{dfield.value}</textarea>
     """
   end
   def build_field(:select, dfield) do
@@ -94,12 +96,13 @@ defmodule Html.Form do
         end
       end)
       |> Enum.map(fn {title, value} ->
-        ~s(<option value="#{value}">#{title}</option>)
+        selected = if value == dfield.value, do: ~s( selected="SELECTED"), else: ""
+        ~s(<option value="#{value}"#{selected}>#{title}</option>)
       end)
       |> Enum.join("\n")
 
     """
-    <select id="#{dfield.id} name="#{field_name(dfield)}">
+    <select id="#{dfield.id}" name="#{field_name(dfield)}">
     #{options}
     </select>
     """
@@ -110,7 +113,8 @@ defmodule Html.Form do
     captcha = random_captcha()
     dfield = %{
       tag:      :select,
-      id:       "captcha", 
+      id:       "captcha",
+      name:     "captcha",
       label:    captcha.question,
       options:  Enum.shuffle(captcha.options)
     }
@@ -119,7 +123,7 @@ defmodule Html.Form do
     """
     <div class="explication">Merci de répondre à cette question pour nous assurer que vous êtes bien un être humain.</div>
     <label>#{dfield.label}</label>
-    <input type="hidden" name="captcha_index" value="#{captcha.index}" />
+    <input type="hidden" name="f[captcha_index]" value="#{captcha.index}" />
     #{select_field}
     """
   end
@@ -168,10 +172,11 @@ defmodule Html.Form do
 
   # Retourne le nom pour le champ
   defp field_name(dfield) do
-    if String.match?(dfield.name, ~r/\[/) do
-      dfield.name
-    else
-      "f[#{dfield.name}]"
+    cond do
+    Map.get(dfield, :strict_name) -> dfield.strict_name
+    is_nil(dfield.name) -> "f[#{dfield.id}]"
+    String.match?(dfield.name, ~r/\[/) -> dfield.name
+    true -> "f[#{dfield.name}]"
     end
   end
 
@@ -216,7 +221,8 @@ defmodule Html.Form do
     [
       {:id, nil}, {:name, nil},
       {:explication, nil}, {:label, nil}, {:wrapper, "div"},
-      {:type, nil}, {:required, false}, {:options, dfield[:values] || nil}
+      {:type, nil}, {:required, false}, {:options, dfield[:values] || nil},
+      {:value, nil}
     ] |> Enum.reduce(dfield, fn {prop, defvalue}, coll ->
       if Map.has_key?(coll, prop) do
         coll
