@@ -170,6 +170,7 @@ defmodule LdQ.Procedure.CandidatureComite do
     <p>Je dois procéder à l'acceptatioin du membre dans le comité de lecture pour la #{inspect procedure}.</p>
     """
   end
+  
   def proceed_acceptation_candidature(procedure) do
     params = %{} # Pour le moment
     user = get_user(procedure)

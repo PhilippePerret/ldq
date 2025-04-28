@@ -97,14 +97,13 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     admin = Map.put(admin, :session, session_admin)
     admin 
     |> recoit_un_mail(after: point_test, subject: "Soumission d'une candidature", content: [~r/Ch(er|ère) administrat(eur|rice),/, "Name", "#{user.name}", ~s(<a href="mailto:#{user.email}">#{user.email}</a>), "acceptée, refusée ou soumise à un test"], strict: false)
-    |> rejoint_le_lien_du_mail("Voir la procédure")
+    |> rejoint_le_lien_du_mail("Voir la procédure") # => session
+    |> pause(1)
     |> la_page_contient("h2", "Candidature au comité de lecture")
-    |> la_page_contient("button", "Accepter")
-    |> la_page_contient("button", "Refuser")
-    |> la_page_contient("textarea", %{id: "motif_refus"})
-    |> la_page_contient("button", "Soumettre au test")
+    |> la_page_contient_le_bouton("Accepter")
+    |> pause(1)
+    |> je_clique_le_lien("Accepter")
     |> pause(10)
-    |> je_clique_le_bouton("Accepter")
 
     # TODO (VOIR HAUT DE PAGE)
     
@@ -112,14 +111,18 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
 
   # feature "Refus direct de la candidature au comité de lecture", %{session: session} do
   #   # TODO
+  # |> la_page_contient_le_bouton("Refuser")
+  # |> la_page_contient("textarea", %{id: "motif_refus"})
   # end
   
   # feature "Candidature au comité acceptée après test", %{session: session} do
   #   # TODO
+  # |> la_page_contient_le_bouton("Soumettre au test")
   # end
 
   # feature "Candidature au comité refusée après test", %{session: session} do
   #   # TODO
+  # |> la_page_contient_le_bouton("Soumettre au test")
   # end
 
   # # --- Autres tests particularités ---

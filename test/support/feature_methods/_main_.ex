@@ -5,9 +5,10 @@ defmodule FeaturePublicMethods do
   alias Wallaby.Query,    as: WQ
   alias Wallaby.Element,  as: WE
 
-  alias Feature.FormTestMethods, as: Form
-  alias Feature.PageTestMethods, as: Page
-  alias Feature.ActionTestMethods, as: Act
+  alias Feature.FormTestMethods,    as: Form
+  alias Feature.PageTestMethods,    as: Page
+  alias Feature.ActionTestMethods,  as: Act
+  alias Feature.MailTestMethods,    as: Mail
 
   import TestHelpers
 
@@ -48,6 +49,7 @@ defmodule FeaturePublicMethods do
   """
   def la_page_contient(session, balise, attrs), do: Page.la_page_contient(session, balise, attrs)
   def la_page_contient(session, string), do: Page.la_page_contient(session, string)
+  def la_page_contient_le_bouton(session, bouton, params \\ %{}), do: Page.la_page_contient(session, "button", bouton, params)
 
   # --- Méthodes publiques de formulaire ---
 
@@ -93,13 +95,17 @@ defmodule FeaturePublicMethods do
 
   @return {%{destinataire}|%User{destinataire}, [mails]}
   """
-  def recoit_un_mail(who, params), do: TestMailMethods.user_recoit_un_mail(who, params)
-  def recois_un_mail(who, params), do: TestMailMethods.user_recoit_un_mail(who, params)
-  def recoivent_un_mail(who, params), do: TestMailMethods.recoit_un_mail(who, params)
-  def detruire_les_mails, do: TestMailMethods.exec_delete_all_mails()
+  def recoit_un_mail(who, params), do: Mail.user_recoit_un_mail(who, params)
+  def recois_un_mail(who, params), do: Mail.user_recoit_un_mail(who, params)
+  def recoivent_un_mail(who, params), do: Mail.recoit_un_mail(who, params)
+  def detruire_les_mails, do: Mail.exec_delete_all_mails()
 
+  @doc """
+  Récupère un lien dans un mail (par son titre) et le visite
 
+  @return {Wallaby.Session} Une session qu'on peut donc piper.
+  """
   def rejoint_le_lien_du_mail({destinataire, mails}, link_title) do
-    TestMailMethods.get_lien_in_mail_and_visit(destinataire, link_title, mails)
+    Mail.get_lien_in_mail_and_visit(destinataire, link_title, mails)
   end
 end

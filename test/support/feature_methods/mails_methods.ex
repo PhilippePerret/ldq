@@ -1,4 +1,4 @@
-defmodule TestMailMethods do
+defmodule Feature.MailTestMethods do
   use LdQWeb.FeatureCase, async: false
 
   alias LdQ.Constantes
@@ -100,13 +100,12 @@ defmodule TestMailMethods do
     # L'administrateur ouvre une session
     destinataire.session
     |> je_rejoins_la_page(href)
-    |> pause(2)
+    |> pause(1)
     |> la_page_contient("h2", "Identification")
     |> je_remplis_le_champ("Mail") |> avec(destinataire.email)
     |> je_remplis_le_champ("Mot de passe") |> avec(destinataire.password)
     |> pause(1)
     |> je_clique_le_bouton("Se connecter")
-    |> pause(10)
 
     destinataire.session
   end
