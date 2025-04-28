@@ -35,7 +35,7 @@ defmodule LdQ.ProcedureMethods do
     path = Path.join([folder, "textes", "#{root_name}.phil"])
     vars = 
       if Map.has_key?(vars, :user) do
-        var 
+        vars
         |> Map.merge(Helpers.Feminines.as_map(vars.user.sexe))
         |> Map.merge(%{
           user_name:  vars.user.name,
