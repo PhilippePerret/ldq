@@ -3,7 +3,7 @@
 ## TODO DANS CE DOCUMENT 
 
 * Ajouter `import LdQ.Site.PageHelpers # formlink, ldb_label etc.`
-* Ajouter `import LdQ.Helpers.Feminines` pour bénéficier des féminines dans les messages en mettant `#{fem("<suffix>", procedure.user)}`,
+* Ajouter `import Helpers.Feminines` pour bénéficier des féminines dans les messages en mettant `#{fem("<suffix>", procedure.user)}`,
 * Orienter vers Html.Form pour les formulaires au lieu des composant Hex.
 
 ## Introduction
@@ -98,6 +98,7 @@ La fonction à appeler est toujours une fonction qui reçoit la structure de la 
 
     def ma_toute_premiere_step(procedure) do
       "<p>Je suis dans la première étape</p>"
+      load_phil_text(__DIR__, "ma_toute_premiere_step", %{var: "valeur"})
     end
 
     # Ici seront définies toutes les autres fonctions des steps
@@ -105,3 +106,22 @@ La fonction à appeler est toujours une fonction qui reçoit la structure de la 
   ~~~
 * Définir les étapes successives de cette procédure. Mener une réflexion profonde pour ne pas avoir à trop les modifier ensuite.
 * Pour chaque `:fun` définie pour chaque étape/step, définir la fonction de même nom et recevant un seul argument, la procédure. Cette fonction doit retourner le texte à écrire dans la page.
+
+
+## Les textes des étapes
+
+Les textes de chaque étape peut être défini dans un fichier dans le dossier `textes` de la procédure. Par convention, on donne au nom du fichier le nom de la fonction de la procédure, mais ça n'est pas une obligation. Ce doit être un fichier au format PhilHtml, donc avec l'extension `.phil`.
+
+Pour obtenir le texte formaté, il suffit d'ajouter en fin de fonction : 
+
+~~~
+load_phil_text(__DIR__, "<nom fichier>", %{var: valeur})
+~~~
+
+Si on met `user: user` dans les variables, on pourra automatiquement bénéficier des valeurs `user_name`, `user_id`, `user_mail`, `user_sexe` qu'on pourra utiliser dans le code par : 
+
+~~~
+Bonjour <:: user_name ::>, comment allez-vous ?
+~~~
+
+On bénéficie aussi de toutes les féminines

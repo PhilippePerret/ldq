@@ -1,4 +1,4 @@
-defmodule LdQ.Helpers.Feminines do
+defmodule Helpers.Feminines do
   @moduledoc """
   Module qui permet de gérer les féminines dans les textes. 
   Elles sont définies par <: fem(:<id>, sexe) :> par exemple :
@@ -12,6 +12,19 @@ defmodule LdQ.Helpers.Feminines do
     :rice
   ]
 
+  @doc """
+  Pour pouvoir facilement utiliser les féminines en variables, on
+  peut ajouter toutes les féminines en Map. Donc :
+    variables = Map.merge(variables, Helpers.Feminines.as_map(sexe))
+  """
+  def as_map(sexe) do
+    @fem_ids
+    |> Enum.reduce(%{}, fn fem_id, map -> 
+      f_id = "f_#{fem_id}" |> String.to_atom
+      Map.put(map, f_id, fem(fem_id, sexe))
+    end)
+  end
+
   def as_keyword(sexe) do
     @fem_ids
     |> Enum.map(fn fem_id -> 
@@ -19,6 +32,7 @@ defmodule LdQ.Helpers.Feminines do
       {f_id, fem(fem_id, sexe)} 
     end)
   end
+
 
   def fem(fem_id, sexe) when is_atom(fem_id) do
     fem(Atom.to_string(fem_id), sexe)

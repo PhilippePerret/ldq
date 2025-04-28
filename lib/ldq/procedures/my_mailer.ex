@@ -11,7 +11,7 @@ defmodule LdQ.MyMailer do
     variables = [user_name: user.name, user_mail: user.email, usexe: user.sexe]
     data = PhilHtml.to_data(
       Path.join(["lib","ldq","procedures",mail_ref]),
-      [variables: variables, no_header: true, evaluation: false, no_file: true, headers: [LdQ.Helpers.Feminines]]
+      [variables: variables, no_header: true, evaluation: false, no_file: true, headers: [Helpers.Feminines]]
     )
 
     metadata = data.metadata

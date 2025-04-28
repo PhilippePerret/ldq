@@ -23,7 +23,7 @@ defmodule LdQ.ProcedureMethods do
   de la procédure.
 
   Note : les helpers sont transmis, à savoir : 
-    LdQ.Helpers.Feminines
+    Helpers.Feminines
     LdQWeb.ViewHelpers
 
   @param {String} folder Le dossier de la procédure (__DIR__)
@@ -35,17 +35,24 @@ defmodule LdQ.ProcedureMethods do
     path = Path.join([folder, "textes", "#{root_name}.phil"])
     vars = 
       if Map.has_key?(vars, :user) do
-        Map.merge(vars, %{
+        var 
+        |> Map.merge(Helpers.Feminines.as_map(vars.user.sexe))
+        |> Map.merge(%{
           user_name:  vars.user.name,
           user_email: vars.user.email, user_mail: vars.user.email,
           user_id:    vars.user.id,
           user_sexe:  vars.user.sexe
         })
-      else vars end
+      else 
+        vars 
+        |> Map.merge(Helpers.Feminines.as_map("H"))
+      end
+    vars = 
     PhilHtml.to_html(
       path,
       [
-        helpers: [LdQ.Helpers.Feminines, LdQWeb.ViewHelpers],
+        no_header: true,
+        helpers: [Helpers.Feminines, LdQWeb.ViewHelpers],
         variables: vars
       ]
       )
@@ -258,7 +265,7 @@ defmodule LdQ.ProcedureMethods do
 
     # On formate le mail
     phil_data = PhilHtml.to_data(mail_path, 
-      [no_header: true, evaluation: false, variables: variables, helpers: [LdQ.Helpers.Feminines]])
+      [no_header: true, evaluation: false, variables: variables, helpers: [Helpers.Feminines]])
     # |> IO.inspect(label: "Phil data du mail à envoyer")
 
     subject = @prefix_mail_subject <> phil_data.options[:variables][:subject]

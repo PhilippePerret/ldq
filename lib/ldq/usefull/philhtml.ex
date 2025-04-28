@@ -2,7 +2,7 @@ defmodule LdQ.PhilHtml do
 
   import Phil.File, only: [file_mtime: 1]
 
-  def check_feminize_file(base, main_folder, gvariables \\ []) do
+  def check_feminize_file(base, main_folder, gvariables \\ %{}) do
     fname = Path.basename(main_folder)
     folder = Path.join([main_folder, "#{fname}_html"])
     root = Path.join([folder,"#{base}"])
@@ -32,9 +32,10 @@ defmodule LdQ.PhilHtml do
       
       dest_f_exists && File.rm(dest_f)
       dest_h_exists && File.rm(dest_h)
-      helpers = [LdQ.Site.PageHelpers, LdQ.Helpers.Feminines]
+      helpers = [LdQ.Site.PageHelpers, Helpers.Feminines]
       # Version féminine du fichier
-      variables = gvariables ++ LdQ.Helpers.Feminines.as_keyword("F")
+      variables = gvariables |> Map.merge(Helpers.Feminines.as_map("F"))
+
       PhilHtml.to_html(phil, [
         dest_name: "#{base}-F.html.heex", 
         no_header: true,
@@ -44,7 +45,7 @@ defmodule LdQ.PhilHtml do
         ])
 
       # Version masculine du fichier
-      variables = gvariables ++ LdQ.Helpers.Feminines.as_keyword("H")
+      variables = gvariables |> Map.merge(Helpers.Feminines.as_map("H"))
       PhilHtml.to_html(phil, [
         dest_name: "#{base}-H.html.heex", 
         no_header: true,

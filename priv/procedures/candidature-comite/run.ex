@@ -6,7 +6,7 @@ defmodule LdQ.Procedure.CandidatureComite do
   """
   import LdQ.ProcedureMethods
   import LdQ.Site.PageHelpers # formlink, ldb_label etc.
-  import LdQ.Helpers.Feminines
+  import Helpers.Feminines
   use Phoenix.Component
   # alias LdQ.Comptes
 

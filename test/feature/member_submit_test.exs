@@ -53,9 +53,9 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     |> je_clique_le_bouton("Soumettre")
     # L'user doit rejoindre la page lui annonçant que sa candidature
     # a bien été prise en compte
-    |> pause(10)
+    |> pause(1)
     |> la_page_contient("h2", "Candidature au comité de lecture")
-    |> la_page_contient("#{je.name}, votre candidature a été enregistrée.")
+    |> la_page_contient("#{je.name}, votre candidature a bien été enregistrée.")
 
     je |> recois_un_mail(after: point_test, subject: "Enregistrement de votre candidature", content: [~r/Ch(er|ère) #{user.name}/, "Nous vous confirmons que votre candidature", "L’Administration du Label"], strict: false)
 
@@ -98,12 +98,13 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     admin 
     |> recoit_un_mail(after: point_test, subject: "Soumission d'une candidature", content: [~r/Ch(er|ère) administrat(eur|rice),/, "Name", "#{user.name}", ~s(<a href="mailto:#{user.email}">#{user.email}</a>), "acceptée, refusée ou soumise à un test"], strict: false)
     |> rejoint_le_lien_du_mail("Voir la procédure")
-    |> la_page_contient("h2", "Procédure")
+    |> la_page_contient("h2", "Candidature au comité de lecture")
     |> la_page_contient("button", "Accepter")
     |> la_page_contient("button", "Refuser")
     |> la_page_contient("textarea", %{id: "motif_refus"})
     |> la_page_contient("button", "Soumettre au test")
-    |> pause(10)
+    |> pause(1)
+    |> je_clique_le_bouton("Accepter")
 
     # TODO (VOIR HAUT DE PAGE)
     

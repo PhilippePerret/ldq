@@ -47,7 +47,7 @@ defmodule FeaturePublicMethods do
   balise.
   """
   def la_page_contient(session, balise, attrs), do: Page.la_page_contient(session, balise, attrs)
-
+  def la_page_contient(session, string), do: Page.la_page_contient(session, string)
 
   # --- Méthodes publiques de formulaire ---
 

@@ -1,7 +1,7 @@
 defmodule LdQWeb.UserSessionController do
   use LdQWeb, :controller
 
-  import LdQ.Helpers.Feminines
+  import Helpers.Feminines
 
   alias LdQ.Comptes
   alias LdQWeb.UserAuth

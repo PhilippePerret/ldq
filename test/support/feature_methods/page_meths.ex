@@ -57,8 +57,10 @@ defmodule Feature.PageTestMethods do
   end
   def la_page_contient(session, searched) do
     searched = if is_binary(searched) do
-      ~r/#{searched}/
+      ~r/#{Regex.escape(searched)}/
     else searched end
+
+    IO.inspect(WB.page_source(session), label: "\n\n+++ PAGE COMPLÈTE", printable_limit: :infinity)
     assert Regex.match?(searched, WB.page_source(session))
     session
   end
