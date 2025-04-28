@@ -23,9 +23,13 @@ defmodule LdQWeb.PageLocaleController do
       back = cond do
         String.starts_with?(back,"form/") -> back
         String.starts_with?(back, "pg/")  -> back
+        String.starts_with?(back, "proc/")-> back
+        String.starts_with?(back, "url:") ->
+          back |> String.split(":") |> Enum.at(1)
         true -> "pg/#{back}"
       end
-      ~s(/#{back}##{params["anchor"]})
+      back = if String.starts_with?(back, "/"), do: back, else: "/#{back}"
+      ~s(#{back}##{params["anchor"]})
     else nil end
 
     # Paramètres à envoyer à la page

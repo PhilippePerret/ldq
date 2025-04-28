@@ -72,8 +72,8 @@ defmodule LdQ.Procedure.CandidatureComite do
     <p>Vous voulez donc rejoindre le comité de lecture du label #{ldq_label()} en tant que lect#{fem("rice", procedure.user)} et nous vous en remercions.</p>
     <p>Voici quelques pages que vous pourriez lire afin de valider votre souhait.</p>
     <ul>
-      <li>#{pagelink("Choix des membres du comité de lecture","choix-membres","member-submit#attention")}</li>
-      <li>#{pagelink("Engagement des membres du comité de lecture","engagement-membres","member-submit#attention")}</li>
+      <li>#{pagelink("Choix des membres du comité de lecture","choix-membres","url:/proc/new/candidature-comite")}</li>
+      <li>#{pagelink("Engagement des membres du comité de lecture","engagement-membres","url:/proc/new/candidature-comite")}</li>
     </ul>
     
     <h3>Formulaire de soumission de la candidature</h3>
@@ -166,11 +166,12 @@ defmodule LdQ.Procedure.CandidatureComite do
   end
 
   def accepter_candidature(procedure) do
+
     """
-    <p>Je dois procéder à l'acceptatioin du membre dans le comité de lecture pour la #{inspect procedure}.</p>
+    <p>Nouveau membre accepté. Vous pouvez voir la <a href="/membre">nouvelle liste des membres</a>.</p>
     """
   end
-  
+
   def proceed_acceptation_candidature(procedure) do
     params = %{} # Pour le moment
     user = get_user(procedure)
