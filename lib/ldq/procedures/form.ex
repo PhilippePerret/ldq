@@ -123,7 +123,7 @@ defmodule Html.Form do
     """
     <div class="explication">Merci de répondre à cette question pour nous assurer que vous êtes bien un être humain.</div>
     <label>#{dfield.label}</label>
-    <input type="hidden" name="f[captcha_index]" value="#{captcha.index}" />
+    <input type="hidden" id="captcha_index" name="f[captcha_index]" value="#{captcha.index}" />
     #{select_field}
     """
   end
@@ -138,7 +138,8 @@ defmodule Html.Form do
     %{question: "Autour de quoi tourne la Terre", options: ["Le soleil", "Le pot de fleur", "Un point"], answer: "Le soleil"},
     %{question: "Quelle est la capitale de la France", options: ["Paris", "Marseille", "Londres", "Genève"], answer: "Paris"},
     %{question: "Comment est qualifié une femmme de grande taille", options: ["Géante", "Naine", "Reine", "Rassis"], answer: "Géante"},
-    %{question: "En français, par quel signe se termine une question ?", options: ["?", "!", "¡", "¿"], answer: "?"}
+    %{question: "En français, par quel signe se termine une question ?", options: ["?", "!", "¡", "¿"], answer: "?"},
+    %{question: "Dans quel sport se sert-on d'une raquette ?", options: ["Tennis", "Football", "Tir à l'arc", "Cyclisme"], answer: "Tennis"}
   ] |> Enum.with_index() |> Enum.map(fn {captcha, index} -> Map.put(captcha, :index, index) end)
   defp random_captcha do
     Enum.random(@table_captcha)
@@ -160,6 +161,13 @@ defmodule Html.Form do
     index   = form_data["captcha_index"]
     answer  = form_data["captcha"]
     captcha_valid?(index, answer)
+  end
+
+  @doc """
+  Retourne la donnée captcha d'index +index+ (pour les tests)
+  """
+  def get_captcha_at(index) do
+    Enum.at(@table_captcha, index)
   end
 
 

@@ -48,7 +48,8 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
       |> avec("Pour participer à l'essor de ce label")
     |> je_remplis_le_champ("Genres de prédilection")
       |> avec("Fantaisie, Polar, Romance")
-    |> pause(1)
+    |> je_mets_le_bon_captcha()
+    |> pause(5)
     |> je_clique_le_bouton("Soumettre")
     |> pause(5)
     |> la_page_contient("h2", "Candidature enregistrée")
@@ -106,24 +107,24 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     
   end
 
-  feature "Refus direct de la candidature au comité de lecture", %{session: session} do
-    # TODO
-  end
+  # feature "Refus direct de la candidature au comité de lecture", %{session: session} do
+  #   # TODO
+  # end
   
-  feature "Candidature au comité acceptée après test", %{session: session} do
-    # TODO
-  end
+  # feature "Candidature au comité acceptée après test", %{session: session} do
+  #   # TODO
+  # end
 
-  feature "Candidature au comité refusée après test", %{session: session} do
-    # TODO
-  end
+  # feature "Candidature au comité refusée après test", %{session: session} do
+  #   # TODO
+  # end
 
-  # --- Autres tests particularités ---
-  test "Un utilisateur ayant déjà soumis sa candidature ne peut plus le faire" do
-    # TODO
-  end
-  test "Un membre du comité ne peut soumettre sa candidature" do
-    # TODO
-  end
+  # # --- Autres tests particularités ---
+  # test "Un utilisateur ayant déjà soumis sa candidature ne peut plus le faire" do
+  #   # TODO
+  # end
+  # test "Un membre du comité ne peut soumettre sa candidature" do
+  #   # TODO
+  # end
 
 end

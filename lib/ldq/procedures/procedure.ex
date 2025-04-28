@@ -40,7 +40,7 @@ defmodule LdQ.Procedure do
   """
   def get_steps_of(procedure) when is_struct(procedure, __MODULE__) do
     module = get_proc_module(procedure)
-    module.steps
+    module.steps()
   end
 
   @doc """
