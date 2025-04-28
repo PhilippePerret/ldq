@@ -2,14 +2,14 @@ defmodule Helpers.Feminines do
   @moduledoc """
   Module qui permet de gérer les féminines dans les textes. 
   Elles sont définies par <: fem(:<id>, sexe) :> par exemple :
-  <: fem(:Chere, sexe) :>
+  Ch<: fem(:ere, sexe) :>
   """
 
   @fem_ids [
-    :e, 
-    :belle,
-    :Chere, :chere,
-    :rice
+    :e,               # sorti[e]  / sorti[]
+    :ere,             # premi[er] / premi[ère]    ch[ère]/ch[er]
+    :eau,             # nouv[eau] /nouv[elle]   b[eau]/b[elle]
+    :rice             # lect[rice]/lect[eur]
   ]
 
   @doc """
@@ -48,11 +48,11 @@ defmodule Helpers.Feminines do
   def fem("e", "F") , do: "e" # venu[e]/venu
   def fem("e", _)   , do: ""
 
-  def fem("belle", "F") , do: "belle" # [belle]/[beau]
-  def fem("belle", _)   , do: "beau"
+  def fem("eau", "F") , do: "elle" # nouv[eau]/nouv[elle]
+  def fem("eau", _)   , do: "eau"
 
-  def fem("Chere", "F"), do: "Chère"
-  def fem("Chere", _), do: "Cher"
+  def fem("ere", "F"),  do: "ère" # Ch[er]/Ch[ère]
+  def fem("ere", _),    do: "er"
 
   def fem("chere", "F"), do: "Chère"
   def fem("chere", _), do: "Cher"

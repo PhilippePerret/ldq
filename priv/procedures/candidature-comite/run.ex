@@ -165,10 +165,34 @@ defmodule LdQ.Procedure.CandidatureComite do
     delete_procedure(procedure)
   end
 
+  @doc """
+  Étape d'acceptation de la candidature du candidate
+
+  NB : Cette fonction est appelée aussi bien lorsque le candidat est
+  accepté aussi que lorsqu'il a passé le test. S'il y a besoin de 
+  faire une distinction, on peut utiliser les procedure.data pour le
+  savoir.
+  """
   def accepter_candidature(procedure) do
+    user = get_owner(procedure)
+    
+    # Le niveau de privilège du candidat change
+    # TODO
+    # Le candidat reçoit un mail lui annonçant la nouvelle et
+    # lui expliquant ce qu'il doit faire maintenant
+    # TODO
+    # les administrateurs reçoivent tous l'information du nouveau
+    # lecteur
+    # TODO
+    # Les membres du comité reçoivent l'information du nouveau 
+    # membre
+    # TODO
+    # L'histoire affiché reçoit l'information (pour affichage sur la
+    # page d'accueil et de suivi du label)
+    # TODO
 
     """
-    <p>Nouveau membre accepté. Vous pouvez voir la <a href="/membre">nouvelle liste des membres</a>.</p>
+    <p>Nouveau membre accepté. Vous pouvez voir la <a href="/membres">nouvelle liste des membres</a>.</p>
     """
   end
 

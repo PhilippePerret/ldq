@@ -265,7 +265,10 @@ defmodule LdQ.ProcedureMethods do
 
     # On formate le mail
     phil_data = PhilHtml.to_data(mail_path, 
-      [no_header: true, evaluation: false, variables: variables, helpers: [Helpers.Feminines]])
+      [no_header: true, 
+      evaluation: false, 
+      variables: variables, 
+      helpers: [LdQ.Mails.Helpers, Helpers.Feminines, LdQWeb.ViewHelpers]])
     # |> IO.inspect(label: "Phil data du mail à envoyer")
 
     subject = @prefix_mail_subject <> phil_data.options[:variables][:subject]
