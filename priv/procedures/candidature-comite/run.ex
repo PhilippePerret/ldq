@@ -82,6 +82,11 @@ defmodule LdQ.Procedure.CandidatureComite do
     """
   end
 
+  @doc """
+  Le candidat rejoint cette étape quand il soumet sa candidature pour
+  le comité de lecture.
+  On l'enregistre et on prévient l'administration.
+  """
   def submit_candidature(procedure) do
     IO.inspect(procedure, label: "\nProcédure à l'entrée de submit_candidature")
     form_values = procedure.params["f"]
@@ -111,11 +116,12 @@ defmodule LdQ.Procedure.CandidatureComite do
   
       send_mail(:admin, user.email, %{mail_data | mail_id: "user-candidature-recue"})
       send_mail(user.email, :admins, %{mail_data | mail_id: "admin-new-candidature"})
-      """
-      <p>Fin de la procédure</p>
-      """
-  
-    else "<p>Seul un humain ou une humaine peut entamer cette procédure, désolé.</p>" end
+
+      load_phil_text(__DIR__, "submit_candidature", %{user: user})
+    else 
+      # Quand le captcha est mauvais
+      "<p>Seul un humain ou une humaine peut entamer cette procédure, désolé.</p>" 
+    end
   end
 
   def accepte_refuse_or_test(procedure) do

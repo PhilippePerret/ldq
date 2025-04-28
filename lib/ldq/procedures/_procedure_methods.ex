@@ -16,6 +16,42 @@ defmodule LdQ.ProcedureMethods do
   end
 
   @doc """
+  Retourne le texte contenu dans le fichier spécifié, après l'avoir
+  interprété en PhilHtml (s'il a besoin d'être actualisé)
+
+  Le fichier doit obligatoirement se trouver dans un dossier "textes"
+  de la procédure.
+
+  Note : les helpers sont transmis, à savoir : 
+    LdQ.Helpers.Feminines
+    LdQWeb.ViewHelpers
+
+  @param {String} folder Le dossier de la procédure (__DIR__)
+  @param {String} root_name Le nom racine du fichier
+  @param {Keyword} vars Liste des variables à utiliser
+                    Si :user est renseigné, la fonction ajoute automatiquement les variables user_name, user_mail et user_id
+  """
+  def load_phil_text(folder, root_name, vars \\ %{}) do
+    path = Path.join([folder, "textes", "#{root_name}.phil"])
+    vars = 
+      if Map.has_key?(vars, :user) do
+        Map.merge(vars, %{
+          user_name:  vars.user.name,
+          user_email: vars.user.email, user_mail: vars.user.email,
+          user_id:    vars.user.id,
+          user_sexe:  vars.user.sexe
+        })
+      else vars end
+    PhilHtml.to_html(
+      path,
+      [
+        helpers: [LdQ.Helpers.Feminines, LdQWeb.ViewHelpers],
+        variables: vars
+      ]
+      )
+  end
+
+  @doc """
   Pour vérifier si l'utilisateur courant est abilité à jouer la
   procédure voulu (donc son next_step)
 
@@ -273,12 +309,12 @@ defmodule LdQ.ProcedureMethods do
   end
 
   defp add_common_mail_variables(params) do
-    variables = Map.get(params, :variables, [])
+    variables = Map.get(params, :variables, %{})
 
-    variables = Keyword.merge(variables, [
+    variables = Map.merge(variables, %{
       ldq_logo: "[LE LOGO DU LABEL]",
       ldq_label: ~s(<span class="label">Label de Qualité</span>)
-    ])
+    })
     # - Utilisateur -
     user = cond do
       Map.get(params, :user) -> params.user
@@ -288,18 +324,18 @@ defmodule LdQ.ProcedureMethods do
     end
 
     variables = if user do
-      Keyword.merge(variables, [
+      Map.merge(variables, %{
         user: user, 
         user_name: user.name, 
         user_mail: user.email,
         usexe: user.sexe # "H" ou "F"
-      ])
+      })
     else variables end
     # - Procédure -
     variables = if Map.get(params, :procedure) do
-      Keyword.merge(variables, [
+      Map.merge(variables, %{
         proc_url: [Constantes.get(:app_url), "proc", params.procedure.id] |> Enum.join("/")
-      ])
+      })
     else variables end
 
     Map.put(params, :variables, variables)

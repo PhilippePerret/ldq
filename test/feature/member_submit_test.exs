@@ -49,11 +49,13 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     |> je_remplis_le_champ("Genres de prédilection")
       |> avec("Fantaisie, Polar, Romance")
     |> je_mets_le_bon_captcha()
-    |> pause(5)
+    |> pause(1)
     |> je_clique_le_bouton("Soumettre")
-    |> pause(5)
-    |> la_page_contient("h2", "Candidature enregistrée")
-    |> la_page_contient("p", "Votre candidature a été enregistrée.")
+    # L'user doit rejoindre la page lui annonçant que sa candidature
+    # a bien été prise en compte
+    |> pause(10)
+    |> la_page_contient("h2", "Candidature au comité de lecture")
+    |> la_page_contient("#{je.name}, votre candidature a été enregistrée.")
 
     je |> recois_un_mail(after: point_test, subject: "Enregistrement de votre candidature", content: [~r/Ch(er|ère) #{user.name}/, "Nous vous confirmons que votre candidature", "L’Administration du Label"], strict: false)
 
