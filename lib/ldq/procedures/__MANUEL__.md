@@ -124,4 +124,8 @@ Si on met `user: user` dans les variables, on pourra automatiquement bénéficie
 Bonjour <:: user_name ::>, comment allez-vous ?
 ~~~
 
-On bénéficie aussi de toutes les féminines
+On bénéficie aussi de toutes les féminines :
+
+~~~
+Je suis sorti<:: f_e ::> comme format<:: f_rice ::>.
+~~~

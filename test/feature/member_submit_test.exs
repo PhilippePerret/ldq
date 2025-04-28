@@ -103,7 +103,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     |> la_page_contient("button", "Refuser")
     |> la_page_contient("textarea", %{id: "motif_refus"})
     |> la_page_contient("button", "Soumettre au test")
-    |> pause(1)
+    |> pause(10)
     |> je_clique_le_bouton("Accepter")
 
     # TODO (VOIR HAUT DE PAGE)
