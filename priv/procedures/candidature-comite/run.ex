@@ -189,7 +189,7 @@ defmodule LdQ.Procedure.CandidatureComite do
     # TODO
     # L'histoire affiché reçoit l'information (pour affichage sur la
     # page d'accueil et de suivi du label)
-    # TODO
+    log_activity(%{owner: user})
 
     """
     <p>Nouveau membre accepté. Vous pouvez voir la <a href="/membres">nouvelle liste des membres</a>.</p>
