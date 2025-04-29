@@ -67,7 +67,9 @@ defmodule LdQWeb.ProcedureController do
     procedure = get_procedure(proc_id)
 
     # On ajoute quelques valeurs
-    procedure = procedure |> fill_procedure(params)
+    procedure = procedure 
+    |> fill_procedure(params)
+    |> Map.put(:current_user, conn.assigns.current_user)
     
     # Y a-t-il une étape spécifiée ?
     procedure = 

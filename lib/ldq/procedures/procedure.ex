@@ -61,11 +61,11 @@ defmodule LdQ.Procedure do
     Path.join([folder_procedure(proc_dim), "_#{proc_dim}.ex"])
   end
 
-  defp folder_procedure(proc_dim) when is_binary(proc_dim) do
+  def folder_procedure(proc_dim) when is_binary(proc_dim) do
     Path.join([folder_procedures(), proc_dim])
   end
 
-  defp folder_procedures do
+  def folder_procedures do
     Path.join(["priv", "procedures"])
   end
 end

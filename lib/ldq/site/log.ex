@@ -8,7 +8,7 @@ defmodule LdQ.Site.Log do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "logs" do
-    field :public, :boolean, default: false
+    field :public, :boolean, default: true
     field :text, :string
     field :owner_type, :string
     field :owner_id, :binary
@@ -37,12 +37,12 @@ defmodule LdQ.Site.Log do
 
   @param {Map} data Données
   """
-  def create_log(attrs) do
+  def create(attrs) do
     %__MODULE__{}
     |> changeset( attrs)
     |> Repo.insert()
   end
-  def add(data), do: create_log(data)
+  def add(data), do: create(data)
 
   @doc """
   Retourne les +nombre+ derniers logs publics

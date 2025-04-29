@@ -7,8 +7,8 @@ defmodule LdQ.Repo.Migrations.CreateLogs do
       add :text, :text
       add :owner_type, :string
       add :owner_id, :binary
-      add :public, :boolean, default: false, null: false
-      add :created_by, references(:users, on_delete: :nothing, type: :binary_id)
+      add :public, :boolean, default: true, null: true
+      add :created_by, references(:users, on_delete: :delete_all, type: :binary_id)
 
       timestamps(type: :utc_datetime)
     end

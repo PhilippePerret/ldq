@@ -59,6 +59,19 @@ defmodule LdQ.ProcedureMethods do
   end
 
   @doc """
+  Pour enregistrer une activité
+  @param {Map} params Les paramètres requis par %LdQ.Site.Log{}. Cf. lib/site/log.ex
+  """
+  def log_activity(params) do
+    case LdQ.Site.Log.create(params) do
+    {:ok, changeset} -> true
+    {:error, changeset} -> 
+      # TODO Prévenir l'administration du site
+      false
+    end
+  end
+
+  @doc """
   Pour vérifier si l'utilisateur courant est abilité à jouer la
   procédure voulu (donc son next_step)
 
@@ -76,6 +89,20 @@ defmodule LdQ.ProcedureMethods do
     admin_validity && owner_validity
   end
 
+  @doc """
+  Données par défaut pour le mail
+
+  """
+  def default_mail_data(%LdQ.Procedure{} = procedure) do
+    %{
+      procedure:  procedure,
+      user:       get_user(procedure),
+      folder:     get_folder(procedure),
+      mail_id:    nil,
+      variables:  %{}
+
+    }
+  end
 
   # Pour retourne la procédure courante (Map)
   defp current_procedure(procedure, steps) do
@@ -114,6 +141,13 @@ defmodule LdQ.ProcedureMethods do
       IO.inspect(user_id, label: "user_id")
       Comptes.get_user!(user_id)
     end
+  end
+
+  @doc """
+  Retourne le dossier de la procédure +procedure+
+  """
+  def get_folder(%LdQ.Procedure{} = procedure) do
+    LdQ.Procedure.folder_procedure(procedure.proc_dim)
   end
 
   @doc """
@@ -205,7 +239,10 @@ defmodule LdQ.ProcedureMethods do
   @param {String|Atom} mail_data.id Identifiant du mail à envoyer
   @param {Map} mail_data.variables Les variables pour détemplatiser le message
   """
-  def send_mail(sender, receiver, params) do
+  def send_mail([to: receiver, from: sender, with: params] = attrs) do
+    send_mail(receiver, sender, params)
+  end
+  def send_mail(receiver, sender, params) do
 
     data_mail = compose_mail(sender, receiver, params)
 
@@ -215,20 +252,31 @@ defmodule LdQ.ProcedureMethods do
     philhtml = %{philhtml | options: Keyword.put(philhtml.options, :evaluation, true)}
     data_mail = %{data_mail | philhtml: philhtml}
 
-    data_mail.receivers |> Enum.reduce(%{errors: [], sent: []}, fn receiver, coll ->
+    data_mail.receivers 
+    |> Enum.reduce(%{errors: [], sent: []}, fn receiver, coll ->
+
+      receiver = case is_binary(receiver) do
+        true  -> %{name: "", email: receiver, sexe: "H"}
+        false -> receiver
+      end
 
       # Sujet propre
       subject = PhilHtml.Evaluator.customize!(data_mail.subject, data_mail.philhtml)
       # Contenu propre
-      html_body = PhilHtml.Evaluator.customize!(data_mail.heex_body, data_mail.philhtml)
+      # --------------
+      # Il faut ajouter les variables féminines pour le receveur 
+      # courant. Le problème actuel est que :receiver, ici, contient
+      # au mieux :name et :mail.
+      opts = data_mail.philhtml.options
+      opts = 
+        opts
+        |> Keyword.put(:variables, Helpers.Feminines.add_to(opts[:variables], receiver.sexe) )
+      philhtml = %{data_mail.philhtml | options: opts}
+      html_body = PhilHtml.Evaluator.customize!(data_mail.heex_body, philhtml)
       
       # IO.inspect(subject, label: "\n+++ SUJET PROPRE")
       # IO.inspect(html_body, label: "\n+++ CONTENU PROPRE")
 
-      receiver = case is_binary(receiver) do
-        true  -> %{name: "", email: receiver}
-        false -> receiver
-      end
 
       email = data_mail.email 
       |> Swoosh.Email.to({receiver.name, receiver.email})
@@ -259,36 +307,47 @@ defmodule LdQ.ProcedureMethods do
 
 
   defp compose_mail(sender, receiver, params) do
-    mail_path = Path.join([params.folder, "mails", "#{params.mail_id}.phil"])
+    mail_path = 
+      [params.folder, "mails", "#{params.mail_id}.phil"] 
+      |> Path.join 
+      |> Path.absname()
+    File.exists?(mail_path) || raise("Le mail #{inspect mail_path} est introuvable…")
     params    = defaultize_mail_params(params)
     variables = params.variables
 
     # On formate le mail
     phil_data = PhilHtml.to_data(mail_path, 
-      [no_header: true, 
-      evaluation: false, 
-      variables: variables, 
-      helpers: [LdQ.Mails.Helpers, Helpers.Feminines, LdQWeb.ViewHelpers]])
-    # |> IO.inspect(label: "Phil data du mail à envoyer")
+      [
+        evaluation: false,
+        variables: variables, 
+        helpers: [LdQ.Mails.Helpers, Helpers.Feminines, LdQWeb.ViewHelpers]
+      ])
+    |> IO.inspect(label: "\n\n+++ PHILDATA DU MAIL À ENVOYER")
 
-    subject = @prefix_mail_subject <> phil_data.options[:variables][:subject]
+    subject = @prefix_mail_subject <> (phil_data.options[:variables].subject || "(Sans objet)")
 
     # Fichier joint (chemin absolu valide ou NIL) 
     attached_file = params.attached_file
 
     sender = case sender do
-      :admin -> %{name: "Administrateur", email: "admin@lecture-de-qualite.fr", sexe: "H"}
+      :admin    -> %{name: "Administrateur", email: "admin@lecture-de-qualite.fr", sexe: "H"}
+      :member   -> %{name: "Membre du comité", email: "membre-comite@lecture-de-qualite.fr", sexe: "H"}
+      :membre   -> %{name: "Membre du comité", email: "membre-comite@lecture-de-qualite.fr", sexe: "H"}
+      :members  -> %{name: "Membre du comité", email: "membre-comite@lecture-de-qualite.fr", sexe: "H"}
+      :membres  -> %{name: "Membre du comité", email: "membre-comite@lecture-de-qualite.fr", sexe: "H"}
       _ -> 
         case is_binary(sender) do
-        true -> %{name: "", email: sender}
+        true -> %{name: "", email: sender, sexe: "H"}
         false -> sender
         end
     end
 
     receivers = case receiver do
       :admins   -> [%{name: "Administrateurs", email: "admin@lecture-de-qualite.fr", sexe: "H"}]
-      :readers   -> [%{name: "Lecteurs", email: "readers@lecture-de-qualite.fr", sexe: "H"}]
-      :members   -> [%{name: "Membres du comité", email: "members@lecture-de-qualite.fr", sexe: "H"}]
+      :admin    -> [%{name: "Administrateur", email: "admin@lecture-de-qualite.fr", sexe: "H"}]
+      :readers  -> [%{name: "Lecteurs", email: "readers@lecture-de-qualite.fr", sexe: "H"}]
+      :members  -> [%{name: "Membres du comité", email: "members@lecture-de-qualite.fr", sexe: "H"}]
+      :membres  -> [%{name: "Membres du comité", email: "members@lecture-de-qualite.fr", sexe: "H"}]
       _ -> [receiver]
     end
 

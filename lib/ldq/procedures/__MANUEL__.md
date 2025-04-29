@@ -98,12 +98,65 @@ Je suis sorti<:: f_e ::> comme format<:: f_rice ::>.
 
 ## Envoi de mail
 
-Utiliser la méthode générique `send_mail/1` qui reçoit les paramètres du message à envoyer.
+Utiliser la méthode générique `send_mail/3` qui reçoit les paramètres du message à envoyer.
+
+Signature :
+
+~~~
+send_mail(to: <destinataire>, from: <expéditeur>, with: <data>)
+
+<destinataire>
+et <expéditeur>
+  un LdQ.Comptes.User
+  ou :admins, :admin, :membre, :reader
+
+<data> Les données du mail
+~~~
+
+Pour obtenir les données par défaut du mail, utiliser `default_mail_data/1`. Cette fonction retourne une `Map` contenant :
+
+~~~
+default_mail_data(procedure) ->
+%{
+  procedure:  procedure,
+  folder:     Le dossier de la procédure,
+  user:       Owner de la procédure ou user cible,
+  mail_id:    nil, # ID du mail à renseigner,
+  variables:  %{}, {Map} Table des variables à renseigner
+}
+~~~
+
+Exemple d'un mail aux membres du comité envoyé par l'administration :
+
+~~~elixir
+def mafonction(procedure) do
+
+  mail_data = default_mail_data(procedure)
+  mail_data = %{mail_data | mail_id: "mail-user-mafonction"}
+  mail_data = %{mail_data | variables: %{variable: "sa valeur dans le mail"}}
+  send_mail(to: procedure.user, from: :admin, with: mail_data)
+end
+~~~
+
+### Rédaction du message du mail
+
+C'est un fichier `.phil` de la forme :
+
+~~~philhtml
+---
+subject = Le sujet du mail
+---
+Ch<:: f_ere ::> ami<:: f_e ::> membre du comité,
+
+Ici le corps du message.
+
+<: signature_administration :>
+~~~
 
 
 ## Enregistrement d'un log (historique)
 
-Utiliser la méthode `LdQ.Log.add(params)` ou `log_activity(params)`.
+Utiliser la méthode `log_activity(params)` (ou la méthode originale `LdQ.Log.add(params)`).
 
 Où `params` contient :
 
@@ -112,6 +165,7 @@ Où `params` contient :
   text:         {String} "Le message exact à enregistrer",
   public:       {Boolean} True si le message doit apparaitre pour le public,
                           dans l'histoire des dernières activités par exemple
+                          Défaut: True donc ne mettre que si faux
   creator:      {LdQ.Comptes.User} Requis. Le créateur du log (l'user courant),
   owner:        {Any} Le propriétaire de log (un user ou un livre, par exemple)
   OU  

@@ -60,6 +60,11 @@ defmodule LdQ.Comptes do
   """
   def get_user!(id), do: Repo.get!(User, id)
 
+  def update_user(user, attrs) do
+    user 
+    |> User.changeset(attrs)
+    |> Ecto.Changeset.apply_action(:update) # ? ça marche ?
+  end
   ## User registration
 
   @doc """

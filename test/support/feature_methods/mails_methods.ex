@@ -180,7 +180,7 @@ defmodule Feature.MailTestMethods do
         {:ok, _} ->
           %{res | keptmails: res.keptmails ++ [mail]}
         {:error, retour} ->
-          %{res | exclusions: res.exclusions ++ [[reason: "BAD SUBJECT: #{inspect retour.errors}", mail: mail]]}
+          %{res | exclusions: res.exclusions ++ [[reason: "BAD SUBJECT: #{inspect retour.error}", mail: mail]]}
         end
       end)
     end

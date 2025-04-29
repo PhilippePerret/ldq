@@ -13,6 +13,16 @@ defmodule Helpers.Feminines do
   ]
 
   @doc """
+  Pour pouvoir ajouter les féminines à une table de variables
+    variables = Helpers.Feminines.add_to(variables)
+  @param {Map} variables La table des variables déjà définies
+  @param {String} sexe "H" ou "F" pour homme ou femme
+  """
+  def add_to(variables, sexe) do
+    Map.merge(variables, as_map(sexe))
+  end
+
+  @doc """
   Pour pouvoir facilement utiliser les féminines en variables, on
   peut ajouter toutes les féminines en Map. Donc :
     variables = Map.merge(variables, Helpers.Feminines.as_map(sexe))

@@ -8,7 +8,8 @@ defmodule LdQ.Procedure.CandidatureComite do
   import LdQ.Site.PageHelpers # formlink, ldb_label etc.
   import Helpers.Feminines
   use Phoenix.Component
-  # alias LdQ.Comptes
+  
+  alias LdQ.Comptes.User
 
   def proc_name, do: "Candidature au comité de lecture"
 
@@ -110,8 +111,8 @@ defmodule LdQ.Procedure.CandidatureComite do
         folder:     __DIR__
       }
   
-      send_mail(:admin, user.email, %{mail_data | mail_id: "user-candidature-recue"})
-      send_mail(user.email, :admins, %{mail_data | mail_id: "admin-new-candidature"})
+      send_mail(to: user, from: :admin, with: %{mail_data | mail_id: "user-candidature-recue"})
+      send_mail(to: :admins, from: user, with: %{mail_data | mail_id: "admin-new-candidature"})
 
       load_phil_text(__DIR__, "submit_candidature", %{user: user})
     else 
@@ -135,6 +136,7 @@ defmodule LdQ.Procedure.CandidatureComite do
     """
   end
 
+
   @doc """
   Ce n'est pas la fonction qui procède au refus, c'est la fonction
   qui va permettre de le faire.
@@ -156,7 +158,7 @@ defmodule LdQ.Procedure.CandidatureComite do
     |> Map.put("raison", raison)
     |> Map.put("mail_id", "user-soumission-refused")
 
-    send_mail(procedure.user.mail, :admins, params)
+    send_mail(procedure.user, :admins, params)
     delete_procedure(procedure)
   end
 
@@ -170,21 +172,42 @@ defmodule LdQ.Procedure.CandidatureComite do
   """
   def accepter_candidature(procedure) do
     user = get_owner(procedure)
+
+    # On marque le candidat comme lecteur (2) et comme membre du comité (8)
+    User.update_privileges(user, [:reader, :member])
     
+    # Données par défaut pour les mails
+    defmaildata = default_mail_data(procedure)
+    # Variables par défaut pour les mails
+    variables = %{
+      membre_name: user.name, 
+      membre_mail: user.email, 
+      une_nouvelle_membre: (user.sexe == "F" && "une nouvelle membre" || "un nouveau membre")
+    }
+
     # Le niveau de privilège du candidat change
     # TODO
     # Le candidat reçoit un mail lui annonçant la nouvelle et
     # lui expliquant ce qu'il doit faire maintenant
     # TODO
     # les administrateurs reçoivent tous l'information du nouveau
-    # lecteur
-    # TODO
+    # lecture
+    mail_data = %{defmaildata | mail_id: "admin-new-membre-comite"}
+    mail_data = %{mail_data | variables: variables}
+    send_mail(to: :admin, from: :admin, with: mail_data)
     # Les membres du comité reçoivent l'information du nouveau 
     # membre
-    # TODO
+    mail_data = %{defmaildata | mail_id: "membre-new-membre-comite"}
+    mail_data = %{mail_data | variables: variables}
+    send_mail(to: :membres, from: :admin, with: mail_data)
+
     # L'histoire affiché reçoit l'information (pour affichage sur la
     # page d'accueil et de suivi du label)
-    log_activity(%{owner: user})
+    log_activity(%{
+      owner: user,
+      text: "<p>#{user.name} vient de rejoindre le comité de lecture du label.</p>",
+      creator: procedure.current_user
+    })
 
     """
     <p>Nouveau membre accepté. Vous pouvez voir la <a href="/membres">nouvelle liste des membres</a>.</p>

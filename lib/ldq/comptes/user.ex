@@ -179,6 +179,15 @@ defmodule LdQ.Comptes.User do
   @bit_admin2 32
   @bit_admin3 64
 
+  @table_bit_privileges %{
+    reader: @bit_reader,
+    writer: @bit_writer,
+    member: @bit_membre,
+    admin1: @bit_admin1,
+    admin2: @bit_admin2,
+    admin3: @bit_admin3
+  }
+
   def reader?(user),  do: has_bit?(user, @bit_reader)
   def writer?(user),  do: has_bit?(user, @bit_writer)
   def membre?(user),  do: has_bit?(user, @bit_membre)
@@ -200,5 +209,15 @@ defmodule LdQ.Comptes.User do
     (user.privileges &&& bit) == bit
   end
 
-
+  @doc """
+  Pour actualiser les privilèges de l'user
+  """
+  def update_privileges(%__MODULE__{} = user, liste) do
+    new_privileges = 
+      liste 
+      |> Enum.reduce(user.privileges, fn priv_id, privs ->
+        privs + @table_bit_privileges[priv_id]
+      end)
+    Comptes.update_user(user, %{privileges: new_privileges})
+  end
 end

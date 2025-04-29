@@ -1,0 +1,12 @@
+---
+subject = Nouveau membre au comité de lecture
+---
+Ch<:: f_ere ::> membre du comité de lecture,
+
+Je vous annonce la venue d'un nouveau membre au sein du comité de lecture.
+
+Il s'agit de <:: membre_name ::> que vous pouvez [accueillir et féliciter](mailto:<:: membre_mail ::>).
+
+Bien à vous,
+
+<: signature_administration :>

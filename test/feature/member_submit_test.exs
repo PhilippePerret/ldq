@@ -4,13 +4,6 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
   de lecture.
 
   TODO
-    - isoler (fonction) la procédure pour candidater pour
-      le comité et l'utiliser pour les possibilités
-      de suivi :
-        - candidature refusée
-        - candidature directement acceptée
-        - candidature soumise à test réussi (-> acceptation)
-        - candidature soumise à test échoué (-> refus)
 
   """
   use LdQWeb.FeatureCase, async: false
@@ -20,11 +13,16 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
 
   # use Wallaby.Feature # notamment pour new_session
 
+  alias LdQ.Comptes.User
+
   alias Wallaby.Browser,  as: WB
   alias Wallaby.Query,    as: WQ
 
   def visiteur_candidate_pour_le_comite(session, params \\ %{}) do
-    attrs = %{password: "Un mot de passe pour cette session"}
+    attrs = %{
+      password: "Un mot de passe pour cette session",
+      sexe: "F"
+    }
     user  = je = LdQ.ComptesFixtures.user_fixture(attrs)
     w("#{user.name} vient s'identifier", :blue)
     session
@@ -95,18 +93,36 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     {:ok, session_admin} = Wallaby.start_session()
 
     admin = Map.put(admin, :session, session_admin)
-    admin 
-    |> recoit_un_mail(after: point_test, subject: "Soumission d'une candidature", content: [~r/Ch(er|ère) administrat(eur|rice),/, "Name", "#{user.name}", ~s(<a href="mailto:#{user.email}">#{user.email}</a>), "acceptée, refusée ou soumise à un test"], strict: false)
-    |> rejoint_le_lien_du_mail("Voir la procédure") # => session
-    |> pause(1)
-    |> la_page_contient("h2", "Candidature au comité de lecture")
-    |> la_page_contient_le_bouton("Accepter")
-    |> pause(1)
-    |> je_clique_le_lien("Accepter")
-    |> pause(10)
+    session_admin = 
+      admin 
+      |> recoit_un_mail(after: point_test, subject: "Soumission d'une candidature", content: [~r/Ch(er|ère) administrat(eur|rice),/, "Name", "#{user.name}", ~s(<a href="mailto:#{user.email}">#{user.email}</a>), "acceptée, refusée ou soumise à un test"], strict: false)
+      |> rejoint_le_lien_du_mail("Voir la procédure") # => session
+      |> pause(1)
+      |> la_page_contient("h2", "Candidature au comité de lecture")
+      |> la_page_contient_le_bouton("Accepter")
+      |> pause(1)
 
-    # TODO (VOIR HAUT DE PAGE)
-    
+    point_test = params.point_test
+
+    session_admin
+    |> je_clique_le_lien("Accepter")
+    |> pause(2)
+
+    # --- Vérification ---
+    # Le candidat change de statut (privilège)
+    user = LdQ.Comptes.get_user!(user.id) # version rafraichie
+    is_reader = user.privileges |> Flag.has?(2)
+    is_member = user.privileges |> Flag.has?(8)
+    assert( is_reader and is_member, "Le candidat devrait être marqué comme lecteur (#{inspect is_reader}) et comme membre du comité (#{inspect is_member})")
+    # Les administrateurs reçoivent un mail d'annonce
+    admin
+    |> recoit_un_mail(after: point_test, subject: "Nouveau membre au comité de lecture", content: ["une nouvelle membre", user.name, user.email], strict: false)
+    # Les membres du comité de lecture reçoivent un mail
+    # TODO
+    # Un log a été enregistré
+    # TODO
+    # La page d'accueil affiche la nouvelle activité
+    # TODO
   end
 
   # feature "Refus direct de la candidature au comité de lecture", %{session: session} do
