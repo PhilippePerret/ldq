@@ -15,15 +15,10 @@ Ce document décrit comment gérer les procédures
 Convention :
 
 1. Une procédure possède un identifiant unique (`proc_dim`) qui correspond exactement au nom du dossier qui la définit.
-2. Ce dossier se trouve dans le dossier `priv/procedures` et contient un fichier qui s'appelle très exactement `run.ex` qui joue la procédure en question.
-3. Ce fichier `run.ex` absolument :
-  * une constante `@steps` qui définit les étapes de la procédure
-  * une fonction `step/0` qui retourne cette constante
-  * un import `import LdQ.ProcedureMethods` (qui permet notamment d'appeler la fonction `__run__/1` qui lance la procédure ainsi que toutes les fonctions utiles aux procédures, les envois de mail, etc.)
-  * une fonction `__create__/2` pour créer la procédure (une nouvelle procédure est appelée par l'url `/proc/new/<proc dim>`). C'est cette fonction qui crée l'instanciation et l'enregistrement de la nouvelle procédure et qui appelle la première étape.
-4. Chaque étape (ie chaque step dans `@steps`) correspond à une fonction du fichier `run.ex`. L'instance de procédure transmise à `__run__/1`définit la dernière étape jouée, donc on peut connaitre la suivante (celle d'après)
+2. Ce dossier se trouve dans le dossier `priv/procedures` et contient un fichier qui s'appelle très exactement `_<proc_dim>.ex` qui joue la procédure en question (ne pas oublier le `_` devant le nom).
+3. Ce fichier `_<proc_dim>.ex` contient absolument tous les éléments qu'on trouve dans la procédure modèle.
 
-Pour entrainer ce mécanisme, on appelle la méthode `LdQ.Procedure.run/1` qui reçoit en argument l'instance (structure) de procédure dont il est question. C'est cette fonction (fixe) qui appelle la bonne méthode `__run__` après avoir chargé le bon fichier `run.ex`.
+Pour entrainer ce mécanisme, on appelle la méthode `LdQ.Procedure.run/1` qui reçoit en argument l'instance (structure) de procédure dont il est question. C'est cette fonction (fixe) qui appelle la bonne méthode `__run__` après avoir chargé le bon fichier `_<proc_dim>.ex`.
 
 Les paramètres de l'URL doivent être ajouté à la structure `Procedure`.
 
@@ -33,8 +28,8 @@ Pour voir concrètement le mécanisme en route :
 * Une fois une candidature posée pour le comité de lecture, une procédure de dim `candidature-comite` est enregistré.
 * Les administrateurs reçoivent un mail contenant un lien d'href `/prov/<id de procédure>` pour rejoindre la page de la procédure.
 * Quand il clique sur ce lien, le router dirige l'administrateur vers `AdminController.procedure/2` qui se trouve dans le `lib/ldq_web/controllers/admin_controller.ex`
-* Cette fonction récupère la procédure en question et met dans sa table les paramètres.
-* Elle regarde aussi s'il y a un paramètre `nstep` dans l'url, qui permet de définir l'étape (dans `@steps`) à jouer. Si c'est le cas, elle remplace le `next_step` naturel de la procédure. Cette propriété permet de rediriger très facilement les procédures.
+* Cette fonction récupère la procédure en question et met dans sa table les paramètres contenu dans l'URL.
+* Elle regarde aussi s'il y a un paramètre `nstep` dans l'url, qui permet de définir l'étape (`nstep` doit être le nom de la fonction dans une étape de `@steps`) à jouer. Si c'est le cas, elle remplace le `next_step` naturel de la procédure. Cette propriété permet de rediriger très facilement les procédures ou de choisir entre plusieurs étapes alternative (acceptation/refus, par exemple).
 * Puis la fonction appelle la vue `procedure.html.heex`.
 * Cette vue appelle enfin `LdQ.Procedure.run(@procedure)` qui se trouve dans `lib/ldq/procedure.ex` (là où est définit le schéma d'une procédure)
 * Cette fonction charge le module de la procédure et invoque sa fonction `LdQ.Procedure.__run__/1` qui va lancer le processus.
@@ -54,7 +49,8 @@ Chaque map contient :
 %{
   name: "Nom humain de la step", 
   fun: :fonction_a_appeler, 
-  required_admin: true
+  required_admin: true,       # True si un administrateur est requis
+  required_owner: true        # True si le propriétaire est requis
 }
 ~~~
 
@@ -67,45 +63,14 @@ La fonction à appeler est toujours une fonction qui reçoit la structure de la 
 ## Procédure de création d'une procédure
 
 * Trouver un nom humain unique — appelé *dim* — pour la procédure (pour qu'il soit unique, il suffit de voir les noms donnés dans le dossier `priv/procedure` — les dossiers portent les noms/dims de leur procédure). Pour l'exemple, on fera la procédure **procedure-exemple**
-* Créer le dossier de cette procédure, portant son dim, dans le dossier principal `priv/procedures` (exemple : dossier `priv/procedures/procedure-exemple/`).
-* À l'intérieur de ce dossier, créer :
-  * un fichier `run.ex`,
-  * un dossier `mails` (pour mettre les mails)
-* Dans le fichier `run.ex`, on doit mettre au minimum :
-
-  ~~~elixir
-  defmodule LdQ.Procedure.ProcedureExemple do
-    # pour le nom ProcedureExemple, caméliser simplement le dim de
-    # la procédure
-    moduledoc "Description de la procédure…"
-    import LdQ.ProcedureMethods # Impératif
-    use Phoenix.Component # [option] pour les composant HEX (if any)
-    alias LdQ.Comptes # [option] Pour les méthodes user
-
-    def proc_name, do: "Nom de la procédure"
-
-    @steps [
-      # Ici vont être définies les étapes de la procédure
-      %{name: "Ma première étape", fun: ma_toute_premiere_step, require_admin: false}
-    ] |> Enum.with_index() |> Enum.map(fn {s, index} -> Map.put(s, :index, index) end)
-    def steps, do: @steps
-
-    def __create__(proc_dim, params) do
-      # Ici le traitement de la création de la procédure et 
-      # notamment :
-      create_procedure(attrs_proc)
-    end
-
-    def ma_toute_premiere_step(procedure) do
-      "<p>Je suis dans la première étape</p>"
-      load_phil_text(__DIR__, "ma_toute_premiere_step", %{var: "valeur"})
-    end
-
-    # Ici seront définies toutes les autres fonctions des steps
-  end
-  ~~~
+* Dupliquer le dossier `priv/procedures/xmodele_procedure` et :
+  * changer son nom de dossier,
+  * changer le nom du fichier principal `_xmodele_procedure.ex`,
+  * renseigner tout ce qui doit l'être dans ce fichier
 * Définir les étapes successives de cette procédure. Mener une réflexion profonde pour ne pas avoir à trop les modifier ensuite.
-* Pour chaque `:fun` définie pour chaque étape/step, définir la fonction de même nom et recevant un seul argument, la procédure. Cette fonction doit retourner le texte à écrire dans la page.
+* Pour chaque `:fun` définie pour chaque étape/step, définir la fonction de même nom, qui, par convention et obligation :
+  * reçoit en seul paramètre la structure procedure,
+  * retourne le texte à écrire dans la page.
 
 
 ## Les textes des étapes
@@ -128,4 +93,31 @@ On bénéficie aussi de toutes les féminines :
 
 ~~~
 Je suis sorti<:: f_e ::> comme format<:: f_rice ::>.
+~~~
+
+
+## Envoi de mail
+
+Utiliser la méthode générique `send_mail/1` qui reçoit les paramètres du message à envoyer.
+
+
+## Enregistrement d'un log (historique)
+
+Utiliser la méthode `LdQ.Log.add(params)` ou `log_activity(params)`.
+
+Où `params` contient :
+
+~~~
+%{
+  text:         {String} "Le message exact à enregistrer",
+  public:       {Boolean} True si le message doit apparaitre pour le public,
+                          dans l'histoire des dernières activités par exemple
+  creator:      {LdQ.Comptes.User} Requis. Le créateur du log (l'user courant),
+  owner:        {Any} Le propriétaire de log (un user ou un livre, par exemple)
+  OU  
+    owner_type: {String}
+    owner_id    {Binary}
+  # Optionnellement
+  inserted_at:  {NaiveDateTime} Pour mettre une autre date que maintenant
+}
 ~~~

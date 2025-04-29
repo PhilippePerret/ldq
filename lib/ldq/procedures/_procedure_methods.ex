@@ -362,4 +362,8 @@ defmodule LdQ.ProcedureMethods do
     :ok
   end
 
+  def philhtml_options(options \\ []) do
+    options ++ [no_header: true, evaluation: false, no_file: true, helpers: [LdQWeb.ViewHelpers]]
+  end
+
 end

@@ -58,7 +58,7 @@ defmodule LdQ.Procedure do
   end
 
   defp procedure_run_path(proc_dim) do
-    Path.join([folder_procedure(proc_dim), "run.ex"])
+    Path.join([folder_procedure(proc_dim), "_#{proc_dim}.ex"])
   end
 
   defp folder_procedure(proc_dim) when is_binary(proc_dim) do

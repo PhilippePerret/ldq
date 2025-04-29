@@ -44,10 +44,6 @@ defmodule LdQ.Procedure.CandidatureComite do
     }
   end
 
-  def philhtml_options(options \\ []) do
-    options ++ [no_header: true, evaluation: false, no_file: true, helpers: [LdQWeb.ViewHelpers]]
-  end
-
   @doc """
 
   @return {HTMLString} Le formulaire pour poser sa candidature.
@@ -148,7 +144,6 @@ defmodule LdQ.Procedure.CandidatureComite do
     Je dois procéder au refus de la candidature pour la procedure #{inspect procedure}
     """
   end
-
 
 
   def proceed_refus_candidature(procedure) do
