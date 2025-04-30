@@ -89,6 +89,7 @@ defmodule LdQ.ComptesFixtures do
   def make_member(params \\ %{}) do
     new_attrs = %{
       name:       Map.get(params, :name, "Brigitte #{uniq_int()} Membre"),
+      email:      "membre-comite@lecture-de-qualite.fr",
       password:   Map.get(params, :password, valid_user_password()),
       sexe:       Map.get(params, :sexe, "F"),
       privileges: [:member]

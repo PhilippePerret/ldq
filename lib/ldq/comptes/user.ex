@@ -3,6 +3,8 @@ defmodule LdQ.Comptes.User do
   import Ecto.Changeset
   import Bitwise
 
+  alias LdQ.Comptes
+
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "users" do
@@ -48,6 +50,18 @@ defmodule LdQ.Comptes.User do
     |> unique_constraint([:name, :email])
     |> validate_email(opts)
     |> validate_password(opts)
+  end
+
+  @doc """
+  MON changeset. Rester prudent car je ne sais pas pourquoi il 
+  n'existe pas d'origine, alors qu'il est créé pour tous les 
+  schémas. Pour le moment, je m'en sers seulement pour définir
+  les privilèges.
+  """
+  def changeset(user, attrs) do
+    user
+    |> cast(attrs, [:name, :sexe, :email, :privileges])
+    |> validate_email([])
   end
 
   defp validate_email(changeset, opts) do
@@ -229,6 +243,10 @@ defmodule LdQ.Comptes.User do
           bxor(privs, @table_bit_privileges[priv_id])
         end
       end)
-    Comptes.update_user(user, %{privileges: new_privileges})
+    case Comptes.update_user(user, %{privileges: new_privileges}) do
+    {:ok, _} -> true
+    {:error, err} ->
+      raise "Erreur rencontrée en updatant les privilèges : #{inspect err}"
+    end
   end
 end

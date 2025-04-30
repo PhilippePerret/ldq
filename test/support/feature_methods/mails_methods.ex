@@ -59,18 +59,34 @@ defmodule Feature.MailTestMethods do
       IO.inspect(resultat.exclusions, label: "\n##### RAISON DES EXCLUSIONS ###")
     end
 
+    formated_error = formate_exclusions(resultat.exclusions)
     if is_nil(params.count) do
-      assert Enum.any?(mails_found), "Aucun mail trouvé répondant aux paramètres : #{inspect params})"
+      msg_err = [IO.ANSI.red(), "Aucun mail trouvé répondant aux paramètres : \nDestinataire : #{inspect destinataire}\nParamètres attendus : #{inspect params}\n#{formated_error}", IO.ANSI.reset()]
+      assert Enum.any?(mails_found), msg_err
     else
       s = if params.count > 1, do: "s", else: ""
-      err_mess = "On devait trouver #{params.count} mail#{s}, on en a trouver #{nombre_mails_found} avec les paramètres #{inspect params}."
-      assert nombre_mails_found == params.count, err_mess
+      msg_err = [IO.ANSI.red(), "On devait trouver #{params.count} mail#{s}, on en a trouver #{nombre_mails_found} pour \nDestinataire : #{inspect destinataire}\nParamètres attendus : #{inspect params}\n#{formated_error}.", IO.ANSI.reset()]
+      assert nombre_mails_found == params.count, msg_err
     end
 
     {destinataire, mails_found}
 
   end
 
+  defp formate_exclusions(exclusions) do
+    exclusions
+    |> Enum.map(fn exclu ->
+      """
+      -------------------------------
+      Raison : #{exclu[:reason]}
+      destinataire : #{inspect exclu[:mail].receiver}
+      Objet : #{exclu[:subject]}
+      Body: #{exclu[:html_body]}
+      -------------------------------
+      """
+    end)
+    |> Enum.join("\n")
+  end
 
   @doc """
   Prend le premier mail de la liste +mails+ reçue par le 
@@ -198,71 +214,6 @@ defmodule Feature.MailTestMethods do
           %{res | exclusions: res.exclusions ++ [[reason: "BAD BODY: #{inspect retour.errors}", mail: mail]]}
         end
       end)
-    end
-  end
-
-  def user_recoit_un_mail0(destinataire, params) when (is_map(destinataire) or is_struct(destinataire, User)) and is_map(params) do
-    params = defaultize_mail_params(params)
-    folder = dossier_mails()
-
-
-    mail_found = 
-    File.ls!(folder)
-    |> Enum.map(fn fname ->
-      :erlang.binary_to_term(File.read!(Path.join([folder,fname])))
-    end)
-    |> IO.inspect(label: "TOUS LES MAILS")
-    # On ne garde que les mails après le dernier point de test
-    |> Enum.filter(fn mail ->
-      is_nil(params.after) || NaiveDateTime.after?(mail.sent_at, params.after)
-    end)
-    # On ne garde que les mails reçus par le destinataire
-    |> Enum.filter(fn mail -> 
-      is_nil(destinataire) or (mail.receiver == destinataire.email)
-    end)
-    # On ne garde que les mails de l'expéditeur
-    |> Enum.filter(fn mail ->
-      {sender_name, sender_email} = mail.email.from
-      is_nil(params.sender) or (params.sender == sender_email)
-    end)
-    # On ne garde que les mails du bon identifiant
-    |> Enum.filter(fn mail ->
-      is_nil(params.mail_id) or (params.mail_id == mail.mail_id)
-    end)
-    # On ne garde que les mails possédant le bon sujet
-    |> Enum.filter(fn mail ->
-      if is_nil(params.subject) do
-        true
-      else
-        case string_contains(mail.subject, params.subject, params) do
-        {:ok, _} = res -> true
-        {:error, _} = res ->
-          IO.puts Enum.join(res.errors, "\n# ")
-          false
-        end
-      end
-    end)
-    # On ne garde que les mails possédant le bon contenu
-    |> Enum.filter(fn mail ->
-      if is_nil(params.content) do
-        true
-      else
-        case string_contains(mail.html_body, params.content, params) do
-        {:ok, _} = res -> true
-        {:error, err} = res ->
-          IO.puts w("# " <> Enum.join(err.errors, "\n# "), :red)
-          false
-        end
-      end
-    end)
-
-    if is_nil(params.count) do
-      assert Enum.any?(mail_found), "Aucun mail trouvé répondant aux paramètres : #{inspect params})"
-    else
-      s = if params.count > 1, do: "s", else: ""
-      nombre_found = Enum.count(mail_found)
-      err_mess = "On devait trouver #{params.count} mail#{s}, on en a trouver #{nombre_found} avec les paramètres #{inspect params}."
-      assert nombre_found == params.count, err_mess
     end
   end
 

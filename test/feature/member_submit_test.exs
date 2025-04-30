@@ -97,6 +97,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     # --- Vérification ---
     # Le candidat change de statut (privilège)
     user = LdQ.Comptes.get_user!(user.id) # version rafraichie
+    |> IO.inspect(label: "\nUser rafraichi")
     is_reader = user.privileges |> Flag.has?(2)
     is_member = user.privileges |> Flag.has?(8)
     assert( is_reader and is_member, "Le candidat devrait être marqué comme lecteur (#{inspect is_reader}) et comme membre du comité (#{inspect is_member})")

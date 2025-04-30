@@ -133,7 +133,6 @@ defmodule LdQ.ProcedureMethods do
     if is_nil(user_id) do
       nil
     else
-      IO.inspect(user_id, label: "user_id")
       Comptes.get_user!(user_id)
     end
   end
@@ -341,8 +340,8 @@ defmodule LdQ.ProcedureMethods do
       :admins   -> [%{name: "Administrateurs", email: "admin@lecture-de-qualite.fr", sexe: "H"}]
       :admin    -> [%{name: "Administrateur", email: "admin@lecture-de-qualite.fr", sexe: "H"}]
       :readers  -> [%{name: "Lecteurs", email: "readers@lecture-de-qualite.fr", sexe: "H"}]
-      :members  -> [%{name: "Membres du comité", email: "members@lecture-de-qualite.fr", sexe: "H"}]
-      :membres  -> [%{name: "Membres du comité", email: "members@lecture-de-qualite.fr", sexe: "H"}]
+      :members  -> [%{name: "Membres du comité", email: "membre-comite@lecture-de-qualite.fr", sexe: "H"}]
+      :membres  -> [%{name: "Membres du comité", email: "membre-comite@lecture-de-qualite.fr", sexe: "H"}]
       _ -> [receiver]
     end
 

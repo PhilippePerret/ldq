@@ -185,17 +185,15 @@ defmodule LdQ.Procedure.CandidatureComite do
       une_nouvelle_membre: (user.sexe == "F" && "une nouvelle membre" || "un nouveau membre")
     }
 
-    # Le niveau de privilège du candidat change
-    # TODO
-    # Le candidat reçoit un mail lui annonçant la nouvelle et
+    # Le CANDIDAT reçoit un mail lui annonçant la nouvelle et
     # lui expliquant ce qu'il doit faire maintenant
     # TODO
-    # les administrateurs reçoivent tous l'information du nouveau
+    # les ADMINISTRATEURS reçoivent tous l'information du nouveau
     # lecture
     mail_data = %{defmaildata | mail_id: "admin-new-membre-comite"}
     mail_data = %{mail_data | variables: variables}
     send_mail(to: :admin, from: :admin, with: mail_data)
-    # Les membres du comité reçoivent l'information du nouveau 
+    # Les MEMBRES DU COMITÉ reçoivent l'information du nouveau 
     # membre
     mail_data = %{defmaildata | mail_id: "membre-new-membre-comite"}
     mail_data = %{mail_data | variables: variables}

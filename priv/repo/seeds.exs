@@ -236,7 +236,7 @@ end)
 # step = Repo.insert!(%Proc.AbsStep{
 #   abs_proc_id: absproc.id,
 #   name: "Mail de notification aux administrateurs",
-#   short_name: "mail-admins-on-test-admit-member-comite",
+#   short_name: "mail-admins-on-test-admit-membre-comite",
 #   short_description: "Mail envoyé aux administrateur lorsqu'un candidat passe le test d'admission au comité de lecture.",
 #   data: %{mail: :default, destinataire: :admins},
 #   fonction: "send_mail"
@@ -277,7 +277,7 @@ end)
 # step = Repo.insert!(%Proc.AbsStep{
 #   abs_proc_id: absproc.id,
 #   name: "Signature de la charte de lecture au sein du comité",
-#   short_name: "sign-charte-member-comite",
+#   short_name: "sign-charte-membre-comite",
 #   short_description: "Une fois accepté au sein du comité de lecture du comité, le candidat doit signer la charte.",
 #   data: nil,
 #   fonction: "on_signature_charte_member_comite"

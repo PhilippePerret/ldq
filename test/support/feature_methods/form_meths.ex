@@ -33,7 +33,7 @@ defmodule Feature.FormTestMethods do
     index_field = WQ.css("#captcha_index", visible: false)
     question_index = WB.find(session, index_field) |> WE.value() |> String.to_integer()
     data_question = Html.Form.get_captcha_at(question_index)
-    IO.inspect(data_question, label: "\nData question (captcha)")
+    # IO.inspect(data_question, label: "\nData question (captcha)")
     option_name = data_question.answer 
     choisir_menu(session, option_name, "captcha")
   end

@@ -12,7 +12,7 @@ defmodule Feature.LogTestMethods do
   # On relève les logs dont on a besoin
   defp get_logs_whose_match(params) do
     if Keyword.has_key?(params, :after) do
-      from(log in LdQ.Site.Log, where: log.inserted_at < ^params.after)
+      from(log in LdQ.Site.Log, where: log.inserted_at < ^params[:after])
       |> Repo.all()
     else
       Repos.all(LdQ.Site.Log)
