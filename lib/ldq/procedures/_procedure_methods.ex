@@ -322,7 +322,7 @@ defmodule LdQ.ProcedureMethods do
         variables: variables, 
         helpers: [LdQ.Mails.Helpers, Helpers.Feminines, LdQWeb.ViewHelpers]
       ])
-    |> IO.inspect(label: "\n\n+++ PHILDATA DU MAIL À ENVOYER")
+    # |> IO.inspect(label: "\n\n+++ PHILDATA DU MAIL À ENVOYER")
 
     subject = @prefix_mail_subject <> (phil_data.options[:variables].subject || "(Sans objet)")
 

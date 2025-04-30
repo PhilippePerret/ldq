@@ -4,15 +4,19 @@ defmodule Feature.PageTestMethods do
   alias Wallaby.Query,    as: WQ
   alias Wallaby.Element,  as: WE
 
+  import Feature.SessionMethods
+
   @doc """
   Voir le détail dans feature_methods.ex
   """
 
   # Quand on cherche un bouton (ça peut être button ou a.btn)
   def la_page_contient(session, "button", searched, attrs) when is_binary(searched) do
+    session = session_from(session)
     la_page_contient(session, "button", ~r/#{Regex.escape(searched)}/, attrs)
   end
   def la_page_contient(session, "button", searched, attrs) when is_struct(searched, Regex) do
+    session = session_from(session)
     ok = Enum.any?(WB.all(session, css("button")), fn el -> 
       ok_text = WE.text(el) =~ searched 
       ok_attrs = attrs 
@@ -33,6 +37,7 @@ defmodule Feature.PageTestMethods do
   end
   # Quand on cherche une balise et un texte contenu
   def la_page_contient(session, balise, searched) when is_binary(searched) do
+    session = session_from(session)
     assert Enum.any?(WB.all(session, css(balise)), fn el -> 
       WE.text(el) =~ searched 
     end)

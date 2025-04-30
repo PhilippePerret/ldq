@@ -57,10 +57,9 @@ defmodule LdQWeb.PageLocaleController do
   @doc """
   Fonction atteinte par le route "/"
   """
-  def home(conn, params) do
+  def manifeste(conn, params) do
     display(conn, Map.put(params, "slug", "manifeste"))
   end
-
 
   def index(conn, _params) do
     page_locales = 

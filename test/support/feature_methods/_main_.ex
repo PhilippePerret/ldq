@@ -9,8 +9,46 @@ defmodule FeaturePublicMethods do
   alias Feature.PageTestMethods,    as: Page
   alias Feature.ActionTestMethods,  as: Act
   alias Feature.MailTestMethods,    as: Mail
+  alias Feature.LogTestMethods,     as: Log
 
   import TestHelpers
+
+  @doc """
+  Pour rejoindre une page sur le site.
+
+  ## Usage
+
+    user
+    |> rejoint_la_page(url)
+
+  Pour que ça fonctionne, il faut que +suj+ possède sa session. Ça 
+  peut se faire de cette manière avec la session courante :
+
+    test "mon test", {session: session} do
+      user = make_simple_user(%{name: "André"})
+      user = Map.put(user, :session, session)
+      user |> rejoint_la_page(url)
+    end
+
+  ou avec une nouvelle session
+
+    test "mon test" do
+      user = make_admin()
+      {:ok, sess} = Wallaby.start_session!()
+      user = Map.put(user, :session, sess)
+      user |> rejoint_la_page(url)
+    end
+  """
+  def rejoint_la_page(suj, url, msg \\ nil), do: Act.visiter_la_page(suj, url, msg)
+
+  @doc """
+  Récupère un lien dans un mail (par son titre) et le visite
+
+  @return {Wallaby.Session} Une session qu'on peut donc piper.
+  """
+  def rejoint_le_lien_du_mail({destinataire, mails}, link_title) do
+    Mail.get_lien_in_mail_and_visit(destinataire, link_title, mails)
+  end
 
   @doc """
 
@@ -18,7 +56,7 @@ defmodule FeaturePublicMethods do
   @param {String}   url L'url à rejoindre
   @param {String}   msg À ajouter au message "Je rejoins la page {url}"
   """
-  def je_rejoins_la_page(ses, url, msg \\ nil), do: Act.je_rejoins_la_page(ses, url, msg)
+  def je_rejoins_la_page(ses, url, msg \\ nil), do: Act.visiter_la_page(ses, url, msg)
 
   @doc """
   Pour cliquer sur un bouton dans la page
@@ -28,7 +66,8 @@ defmodule FeaturePublicMethods do
 
   @return {Wallaby.Session}
   """
-  def je_clique_le_bouton(ses, but), do: Act.je_clique_le_bouton(ses, but)
+  def je_clique_le_bouton(ses, but), do: Act.cliquer_le_bouton(ses, but)
+  def clique_le_bouton(suj, but), do: Act.cliquer_le_bouton(suj, but)
 
   @doc """
   Pour cliquer un lien <a ...>tit</a>
@@ -38,7 +77,8 @@ defmodule FeaturePublicMethods do
 
   @return {Wallaby.Session}
   """
-  def je_clique_le_lien(ses, tit), do: Act.je_clique_le_lien(ses, tit)
+  def je_clique_le_lien(ses, tit), do: Act.cliquer_le_lien(ses, tit)
+  def clique_le_lien(suj, tit), do: Act.cliquer_le_lien(suj, tit)
 
 
   # ---- Méthodes de test --------
@@ -48,12 +88,17 @@ defmodule FeaturePublicMethods do
   balise.
   """
   def la_page_contient(session, balise, attrs), do: Page.la_page_contient(session, balise, attrs)
+  def et_voit(suj, balise, attrs), do: la_page_contient(suj, balise, attrs)
   def la_page_contient(session, string), do: Page.la_page_contient(session, string)
+  def et_voit(suj, string), do: la_page_contient(suj, string)
   def la_page_contient_le_bouton(session, bouton, params \\ %{}), do: Page.la_page_contient(session, "button", bouton, params)
-
+  def et_voit_le_bouton(suj, bouton, params \\ %{}), do: la_page_contient_le_bouton(suj, bouton, params)
+  
+  
   # --- Méthodes publiques de formulaire ---
 
-  def je_remplis_le_champ(session, champ), do: Form.je_remplis_le_champ(session, champ)
+  def je_remplis_le_champ(session, champ), do: Form.remplir_le_champ(session, champ)
+  def remplit_le_champ(suj, champ), do: Form.remplir_le_champ(suj, champ)
   def avec(fonction, value), do: Form.avec(fonction, value)
 
   @doc """
@@ -65,7 +110,9 @@ defmodule FeaturePublicMethods do
 
   @return {Wallaby.Session} La session courante
   """
-  def choisir_le_menu(ses, opt_val, sel_id \\ nil), do: Form.choisir_le_menu(ses, opt_val, sel_id)
+  def choisit_le_menu(suj, opt_val, sel_id \\ nil), do: Form.choisir_menu(suj, opt_val, sel_id)
+
+  def coche_la_case(suj, case_name), do: Form.cocher_la_case(suj, case_name)
 
   @doc """
   Pour régler le bon captcha dans le formulaire
@@ -75,8 +122,7 @@ defmodule FeaturePublicMethods do
   
   @return {Wallaby.Session}
   """
-  def je_mets_le_bon_captcha(ses, pms \\ %{}), do: Form.je_mets_le_bon_captcha(ses, pms)
-
+  def choisit_le_bon_captcha(suj, params \\ %{}), do: Form.mettre_bon_captcha(suj, params)
 
   # --- Méthodes publiques de mails ---
 
@@ -100,12 +146,16 @@ defmodule FeaturePublicMethods do
   def recoivent_un_mail(who, params), do: Mail.recoit_un_mail(who, params)
   def detruire_les_mails, do: Mail.exec_delete_all_mails()
 
+ 
   @doc """
-  Récupère un lien dans un mail (par son titre) et le visite
-
-  @return {Wallaby.Session} Une session qu'on peut donc piper.
+  @return True si le log défini par les paramètres +params+ est 
+  trouvé, False dans le cas contraire.
+  
+  @param {Keyword} params Table des paramètres dont :
+    after:      {NaiveDateTime} Le log doit avoir été émis après cette date naïve
+    content:    {String|Regex}  Le log doit contenir ce texte
+    owner:      {User} Le propriétaire du log
   """
-  def rejoint_le_lien_du_mail({destinataire, mails}, link_title) do
-    Mail.get_lien_in_mail_and_visit(destinataire, link_title, mails)
-  end
+  def has_activity?(params), do: Log.has_activity?(params)
+
 end

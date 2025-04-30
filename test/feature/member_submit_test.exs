@@ -19,65 +19,57 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
   alias Wallaby.Query,    as: WQ
 
   def visiteur_candidate_pour_le_comite(session, params \\ %{}) do
-    attrs = %{
-      password: "Un mot de passe pour cette session",
-      sexe: "F"
-    }
-    user  = je = LdQ.ComptesFixtures.user_fixture(attrs)
+    attrs = %{ sexe: "F" }
+    user  = je = make_simple_user(attrs)
+    user = Map.put(user, :session, session)
+    je = user
     w("#{user.name} vient s'identifier", :blue)
-    session
-    |> je_rejoins_la_page("/users/log_in")
+
+    user
+    |> IO.inspect(label: "User courant")
+    |> rejoint_la_page("/users/log_in")
     |> pause(1)
-    |> la_page_contient("input", %{type: "email", id: "user_email", name: "user[email]"})
-    |> je_remplis_le_champ("Mail") |> avec(user.email)
-    |> je_remplis_le_champ("Mot de passe") |> avec(attrs.password)
+    |> et_voit("input", %{type: "email", id: "user_email", name: "user[email]"})
+    |> remplit_le_champ("Mail") |> avec(user.email)
+    |> remplit_le_champ("Mot de passe") |> avec(user.password)
     |> pause(1)
-    |> je_clique_le_bouton("Se connecter")
+    |> clique_le_bouton("Se connecter")
 
     point_test = NaiveDateTime.utc_now()
 
-    session
-    |> je_rejoins_la_page("/", "pour trouver un lien vers la candidature")
-    |> je_clique_le_lien("devenir membre du comité de lecture")
+    user
+    |> rejoint_la_page("/", "pour trouver un lien vers la candidature")
+    |> clique_le_lien("devenir membre du comité de lecture")
     |> pause(1)
-    |> la_page_contient("h2", "Candidature au comité de lecture")
-    |> la_page_contient("h3", "Formulaire de soumission de la candidature")
-    |> je_remplis_le_champ("Motivation") 
+    |> et_voit("h2", "Candidature au comité de lecture")
+    |> et_voit("h3", "Formulaire de soumission de la candidature")
+    |> remplit_le_champ("Motivation") 
       |> avec("Pour participer à l'essor de ce label")
-    |> je_remplis_le_champ("Genres de prédilection")
+    |> remplit_le_champ("Genres de prédilection")
       |> avec("Fantaisie, Polar, Romance")
-    |> je_mets_le_bon_captcha()
+    |> choisit_le_bon_captcha()
     |> pause(1)
-    |> je_clique_le_bouton("Soumettre")
+    |> clique_le_bouton("Soumettre")
     # L'user doit rejoindre la page lui annonçant que sa candidature
     # a bien été prise en compte
     |> pause(1)
-    |> la_page_contient("h2", "Candidature au comité de lecture")
-    |> la_page_contient("#{je.name}, votre candidature a bien été enregistrée.")
+    |> et_voit("h2", "Candidature au comité de lecture")
+    |> et_voit("#{je.name}, votre candidature a bien été enregistrée.")
 
-    je |> recois_un_mail(after: point_test, subject: "Enregistrement de votre candidature", content: [~r/Ch(er|ère) #{user.name}/, "Nous vous confirmons que votre candidature", "L’Administration du Label"], strict: false)
+    user |> recois_un_mail(after: point_test, subject: "Enregistrement de votre candidature", content: [~r/Ch(er|ère) #{user.name}/, "Nous vous confirmons que votre candidature", "L’Administration du Label"], strict: false)
 
     %{
-      user: je,
+      user: user,
       point_test: point_test
     }
   end
 
-  def make_admin(params \\ %{}) do
-    admin_attrs = %{
-      email: "admin@lecture-de-qualite.fr",
-      password: "motdepasseadministrateur", 
-      privileges: 64
-    }
-    LdQ.ComptesFixtures.user_fixture(admin_attrs)
-    |> Map.put(:password, admin_attrs.password)
-    # |> IO.inspect(label: "\nAdmin")
-  end
 
   feature "Acceptation directe de la candidature au comité de lecture", %{session: session} do
     
     detruire_les_mails()
-    admin = make_admin()
+    admin   = make_admin()
+    member  = make_member()
 
     params = visiteur_candidate_pour_le_comite(session)
     user = params.user
@@ -118,11 +110,19 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     admin
     |> recoit_un_mail(after: point_test, subject: "Nouveau membre au comité de lecture", content: ["une nouvelle membre", user.name, user.email], strict: false)
     # Les membres du comité de lecture reçoivent un mail
-    # TODO
+    member
+    |> recoit_un_mail(after: point_test, subject: "Nouveau membre au comité de lecture", content: [user.name, user.email], strict: false)
     # Un log a été enregistré
-    # TODO
+    assert has_activity?(after: point_test, owner: user, content: "#{user.name} vient de rejoindre le comité de lecture du label.")
     # La page d'accueil affiche la nouvelle activité
-    # TODO
+    autreuser = make_simple_user()
+    {:ok, sessionother} = Wallaby.start_session()
+    autreuser = Map.put(autreuser, :session, sessionother)
+    autreuser
+    |> rejoint_la_page("/home")
+    |> pause(1)
+    |> la_page_contient("#{user.name} vient de rejoindre le comité de lecture du label.")
+
   end
 
   # feature "Refus direct de la candidature au comité de lecture", %{session: session} do

@@ -5,7 +5,10 @@ defmodule Feature.FormTestMethods do
   alias Wallaby.Query,    as: WQ
   alias Wallaby.Element,  as: WE
 
-  def je_remplis_le_champ(session, champ) do
+  import Feature.SessionMethods
+
+  def remplir_le_champ(session, champ) do
+    session = session_from(session)
     fn valeur ->
       fill_in(session, WQ.text_field(champ), with: valeur)
     end    
@@ -14,7 +17,8 @@ defmodule Feature.FormTestMethods do
     fonction.(value)
   end
 
-  def je_coche_la_case(session, case_name) do
+  def cocher_la_case(session, case_name) do
+    session = session_from(session)
     click(session, WQ.checkbox(case_name))
   end
 
@@ -23,18 +27,20 @@ defmodule Feature.FormTestMethods do
   S'il y a plusieurs formulaires, il faut indiquer dans +params+
   celui qu'il faut utiliser (par exemple avec son +id+ par :form_id)
   """
-  def je_mets_le_bon_captcha(session, params \\ %{}) do
+  def mettre_bon_captcha(session, params \\ %{}) do
+    session = session_from(session)
     # Récupérer l'index
     index_field = WQ.css("#captcha_index", visible: false)
     question_index = WB.find(session, index_field) |> WE.value() |> String.to_integer()
     data_question = Html.Form.get_captcha_at(question_index)
     IO.inspect(data_question, label: "\nData question (captcha)")
     option_name = data_question.answer 
-    choisir_le_menu(session, option_name, "captcha")
+    choisir_menuù(session, option_name, "captcha")
   end
 
 
-  def choisir_le_menu(session, option_value, select_id \\ nil) do
+  def choisir_menu(session, option_value, select_id \\ nil) do
+    session = session_from(session)
     selector = 
       if is_nil(select_id) do
         ~s(option[value="#{option_value}"])

@@ -22,8 +22,10 @@ defmodule LdQWeb.Router do
 
     get "/testmail", ChantierController, :test_mail
     
+    # Le manifeste
+    get "/", PageLocaleController, :manifeste
     # L'accueil
-    get "/", PageLocaleController, :home
+    get "/home", SpecPageController, :home
   end
 
   

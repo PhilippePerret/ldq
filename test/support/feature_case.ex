@@ -10,6 +10,8 @@ defmodule LdQWeb.FeatureCase do
       import Wallaby.Query
       import LdQWeb.Gettext
 
+      import LdQ.ComptesFixtures
+
       @endpoint LdQWeb.Endpoint
     end
   end
