@@ -10,6 +10,8 @@ certificat.pem
 # If you run "mix test --cover", coverage assets end up here.
 /cover/
 
+/test/xtmp/mails_sent
+
 # The directory Mix downloads your dependencies sources to.
 /deps/
 
