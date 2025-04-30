@@ -47,15 +47,10 @@ defmodule LdQ.ProcedureMethods do
         vars 
         |> Map.merge(Helpers.Feminines.as_map("H"))
       end
-    vars = 
-    PhilHtml.to_html(
-      path,
-      [
-        no_header: true,
-        helpers: [Helpers.Feminines, LdQWeb.ViewHelpers],
-        variables: vars
-      ]
-      )
+    options = philhtml_options(variables: vars)
+    # |> IO.inspect(label: "\nOPTIONS in load_phil_text")
+    PhilHtml.to_html(path, options)
+    # |> IO.inspect(label: "\n\nRETOUR DE PHILHTML dans load_phil_text")
   end
 
   @doc """
@@ -422,7 +417,12 @@ defmodule LdQ.ProcedureMethods do
   end
 
   def philhtml_options(options \\ []) do
-    options ++ [no_header: true, evaluation: false, no_file: true, helpers: [LdQWeb.ViewHelpers]]
+    options ++ [
+      no_header: true, 
+      evaluation: true, 
+      no_file: true, 
+      helpers: [LdQWeb.ViewHelpers]
+    ]
   end
 
 end

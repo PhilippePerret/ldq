@@ -85,7 +85,7 @@ defmodule LdQ.Procedure.CandidatureComite do
   On l'enregistre et on prévient l'administration.
   """
   def submit_candidature(procedure) do
-    IO.inspect(procedure, label: "\nProcédure à l'entrée de submit_candidature")
+    # IO.inspect(procedure, label: "\nProcédure à l'entrée de submit_candidature")
     form_values = procedure.params["f"]
     if Html.Form.captcha_valid?(form_values) do
       user = get_owner(procedure)

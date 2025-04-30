@@ -13,6 +13,24 @@ defmodule FeaturePublicMethods do
 
   import TestHelpers
 
+  def make_admin_with_session(attrs \\ %{}) do
+    Map.put(make_admin(), :session, start_session())
+  end
+  def make_member_with_session(attrs \\ %{}) do
+    Map.put(make_member(), :session, start_session())
+  end
+  def make_writer_with_session(attrs \\ %{}) do
+    Map.put(make_writer(), :session, start_session())
+  end
+  def make_user_with_session(attrs \\ %{}) do
+    Map.put(make_simple_user(), :session, start_session())
+  end
+
+  def start_session do
+    {:ok, sess} = Wallaby.start_session()
+    sess
+  end
+
   @doc """
   Pour rejoindre une page sur le site.
 
@@ -51,14 +69,6 @@ defmodule FeaturePublicMethods do
   end
 
   @doc """
-
-  @param {Session}  ses La session
-  @param {String}   url L'url à rejoindre
-  @param {String}   msg À ajouter au message "Je rejoins la page {url}"
-  """
-  def je_rejoins_la_page(ses, url, msg \\ nil), do: Act.visiter_la_page(ses, url, msg)
-
-  @doc """
   Pour cliquer sur un bouton dans la page
 
   @param {Wallaby.Session} ses La session courante
@@ -66,7 +76,6 @@ defmodule FeaturePublicMethods do
 
   @return {Wallaby.Session}
   """
-  def je_clique_le_bouton(ses, but), do: Act.cliquer_le_bouton(ses, but)
   def clique_le_bouton(suj, but), do: Act.cliquer_le_bouton(suj, but)
 
   @doc """
@@ -77,7 +86,6 @@ defmodule FeaturePublicMethods do
 
   @return {Wallaby.Session}
   """
-  def je_clique_le_lien(ses, tit), do: Act.cliquer_le_lien(ses, tit)
   def clique_le_lien(suj, tit), do: Act.cliquer_le_lien(suj, tit)
 
 
@@ -97,7 +105,6 @@ defmodule FeaturePublicMethods do
   
   # --- Méthodes publiques de formulaire ---
 
-  def je_remplis_le_champ(session, champ), do: Form.remplir_le_champ(session, champ)
   def remplit_le_champ(suj, champ), do: Form.remplir_le_champ(suj, champ)
   def avec(fonction, value), do: Form.avec(fonction, value)
 

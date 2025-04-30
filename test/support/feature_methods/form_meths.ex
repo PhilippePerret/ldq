@@ -35,7 +35,7 @@ defmodule Feature.FormTestMethods do
     data_question = Html.Form.get_captcha_at(question_index)
     IO.inspect(data_question, label: "\nData question (captcha)")
     option_name = data_question.answer 
-    choisir_menuù(session, option_name, "captcha")
+    choisir_menu(session, option_name, "captcha")
   end
 
 

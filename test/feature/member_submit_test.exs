@@ -20,7 +20,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
 
   def visiteur_candidate_pour_le_comite(session, params \\ %{}) do
     attrs = %{ sexe: "F" }
-    user  = je = make_simple_user(attrs)
+    user  = make_simple_user(attrs)
     user = Map.put(user, :session, session)
     je = user
     w("#{user.name} vient s'identifier", :blue)
@@ -56,24 +56,18 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     |> et_voit("h2", "Candidature au comité de lecture")
     |> et_voit("#{je.name}, votre candidature a bien été enregistrée.")
 
-    user |> recois_un_mail(after: point_test, subject: "Enregistrement de votre candidature", content: [~r/Ch(er|ère) #{user.name}/, "Nous vous confirmons que votre candidature", "L’Administration du Label"], strict: false)
+    user 
+    |> recoit_un_mail(after: point_test, subject: "Enregistrement de votre candidature", content: [~r/Ch(er|ère) #{user.name}/, "Nous vous confirmons que votre candidature", "L’Administration du Label"], strict: false)
 
-    %{
-      user: user,
-      point_test: point_test
-    }
+    {user, point_test}
   end
 
 
   feature "Acceptation directe de la candidature au comité de lecture", %{session: session} do
     
     detruire_les_mails()
-    admin   = make_admin()
-    member  = make_member()
 
-    params = visiteur_candidate_pour_le_comite(session)
-    user = params.user
-    point_test = params.point_test
+    {user, point_test} = visiteur_candidate_pour_le_comite(session)
 
     # Une procédure a dû être enregistrée
     # Mais il est inutile de tester son enregistrement puisque
@@ -82,22 +76,22 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     # L'administrateur clique sur son lien dans le mail et
     # rejoint la page de la procédure (on simule son identification
     # puisqu'il n'y a pas de sessions ici).
-    {:ok, session_admin} = Wallaby.start_session()
 
-    admin = Map.put(admin, :session, session_admin)
-    session_admin = 
-      admin 
-      |> recoit_un_mail(after: point_test, subject: "Soumission d'une candidature", content: [~r/Ch(er|ère) administrat(eur|rice),/, "Name", "#{user.name}", ~s(<a href="mailto:#{user.email}">#{user.email}</a>), "acceptée, refusée ou soumise à un test"], strict: false)
-      |> rejoint_le_lien_du_mail("Voir la procédure") # => session
-      |> pause(1)
-      |> la_page_contient("h2", "Candidature au comité de lecture")
-      |> la_page_contient_le_bouton("Accepter")
-      |> pause(1)
+    admin   = make_admin_with_session()
+    member  = make_member()
 
-    point_test = params.point_test
+    admin 
+    |> recoit_un_mail(after: point_test, subject: "Soumission d'une candidature", content: [~r/Ch(er|ère) administrat(eur|rice),/, "Name", "#{user.name}", ~s(<a href="mailto:#{user.email}">#{user.email}</a>), "acceptée, refusée ou soumise à un test"], strict: false)
+    |> rejoint_le_lien_du_mail("Voir la procédure") # => session
+    |> pause(1)
+    |> la_page_contient("h2", "Candidature au comité de lecture")
+    |> la_page_contient_le_bouton("Accepter")
+    |> pause(1)
 
-    session_admin
-    |> je_clique_le_lien("Accepter")
+    point_test = NaiveDateTime.utc_now()
+
+    admin
+    |> clique_le_lien("Accepter")
     |> pause(2)
 
     # --- Vérification ---

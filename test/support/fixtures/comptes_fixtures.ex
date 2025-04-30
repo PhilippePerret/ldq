@@ -16,12 +16,22 @@ defmodule LdQ.ComptesFixtures do
 
   def valid_user_attributes(nil), do: valid_user_attributes(%{})
   def valid_user_attributes(attrs \\ %{}) do
-    Map.merge(attrs, %{
-      name: Map.get(attrs, :name, "Stranger-#{uniq_int()}"),
-      email: unique_user_email(),
-      sexe: "F", 
-      password: Map.get(attrs, :password, valid_user_password())
-    })
+    [
+      :name, :email, :sexe, :password
+    ] |> Enum.reduce(attrs, fn prop, attrs ->
+      if is_nil(Map.get(attrs, prop, nil)) do
+        val =
+        case prop do
+          :name     -> "Stranger-#{uniq_int()}"
+          :email    -> unique_user_email()
+          :sexe     -> "F"
+          :password -> valid_user_password()
+        end
+        Map.put(attrs, prop, val)
+      else
+        attrs
+      end
+    end)
   end
 
   def user_fixture(attrs \\ %{}) do
@@ -40,10 +50,12 @@ defmodule LdQ.ComptesFixtures do
       if Map.has_key?(attrs, :privileges) and is_list(attrs.privileges) do
         bit_liste   = Comptes.User.table_bit_privileges
         priv_int = 
-          Enum.reduce(attrs.privileges, 0, fn priv, val ->
-            bor(val, bit_liste[priv])
-          end)
+        Enum.reduce(attrs.privileges, 0, fn priv, val ->
+          bor(val, bit_liste[priv])
+        end)
         %{attrs | privileges: priv_int}
+      else
+        attrs        
       end
     attrs
   end

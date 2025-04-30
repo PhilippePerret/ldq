@@ -98,16 +98,16 @@ defmodule Feature.MailTestMethods do
     |> IO.inspect(label: "\nLien à atteindre")
 
     # L'administrateur ouvre une session
-    destinataire.session
-    |> je_rejoins_la_page(href)
+    destinataire
+    |> rejoint_la_page(href)
     |> pause(1)
-    |> la_page_contient("h2", "Identification")
-    |> je_remplis_le_champ("Mail") |> avec(destinataire.email)
-    |> je_remplis_le_champ("Mot de passe") |> avec(destinataire.password)
+    |> et_voit("h2", "Identification")
+    |> remplit_le_champ("Mail") |> avec(destinataire.email)
+    |> remplit_le_champ("Mot de passe") |> avec(destinataire.password)
     |> pause(1)
-    |> je_clique_le_bouton("Se connecter")
+    |> clique_le_bouton("Se connecter")
 
-    destinataire.session
+    destinataire
   end
 
 
