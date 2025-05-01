@@ -9,7 +9,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
   use LdQWeb.FeatureCase, async: false
 
   import TestHelpers
-  import FeaturePublicMethods # Méthodes je_rejoins, etc.
+  import FeaturePublicMethods # Méthodes rejoint_la_page, etc.
 
   # use Wallaby.Feature # notamment pour new_session
 
@@ -97,7 +97,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     # --- Vérification ---
     # Le candidat change de statut (privilège)
     user = LdQ.Comptes.get_user!(user.id) # version rafraichie
-    |> IO.inspect(label: "\nUser rafraichi")
+    # |> IO.inspect(label: "\nUser rafraichi")
     is_reader = user.privileges |> Flag.has?(2)
     is_member = user.privileges |> Flag.has?(8)
     assert( is_reader and is_member, "Le candidat devrait être marqué comme lecteur (#{inspect is_reader}) et comme membre du comité (#{inspect is_member})")
@@ -108,15 +108,16 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     member
     |> recoit_un_mail(after: point_test, subject: "Nouveau membre au comité de lecture", content: [user.name, user.email], strict: false)
     # Un log a été enregistré
-    assert has_activity?(after: point_test, owner: user, content: "#{user.name} vient de rejoindre le comité de lecture du label.")
+    res = check_activities(after: point_test, owner: user, content: "#{user.name} vient de rejoindre le comité de lecture du label."), "On devrait trouver une activité contenant l'annonce du nouveau membre.")
+    assert(is_nil(res), res)
     # La page d'accueil affiche la nouvelle activité
     autreuser = make_simple_user()
     {:ok, sessionother} = Wallaby.start_session()
     autreuser = Map.put(autreuser, :session, sessionother)
     autreuser
     |> rejoint_la_page("/home")
-    |> pause(1)
-    |> la_page_contient("#{user.name} vient de rejoindre le comité de lecture du label.")
+    |> pause(5)
+    |> et_voit("#{user.name} vient de rejoindre le comité de lecture du label.")
 
   end
 

@@ -1,9 +1,9 @@
 
 defmodule FeaturePublicMethods do
   use LdQWeb.FeatureCase, async: false
-  alias Wallaby.Browser,  as: WB
-  alias Wallaby.Query,    as: WQ
-  alias Wallaby.Element,  as: WE
+  # alias Wallaby.Browser,  as: WB
+  # alias Wallaby.Query,    as: WQ
+  # alias Wallaby.Element,  as: WE
 
   alias Feature.FormTestMethods,    as: Form
   alias Feature.PageTestMethods,    as: Page
@@ -11,19 +11,19 @@ defmodule FeaturePublicMethods do
   alias Feature.MailTestMethods,    as: Mail
   alias Feature.LogTestMethods,     as: Log
 
-  import TestHelpers
+  # import TestHelpers
 
   def make_admin_with_session(attrs \\ %{}) do
-    Map.put(make_admin(), :session, start_session())
+    Map.put(make_admin(attrs), :session, start_session())
   end
   def make_member_with_session(attrs \\ %{}) do
-    Map.put(make_member(), :session, start_session())
+    Map.put(make_member(attrs), :session, start_session())
   end
   def make_writer_with_session(attrs \\ %{}) do
-    Map.put(make_writer(), :session, start_session())
+    Map.put(make_writer(attrs), :session, start_session())
   end
   def make_user_with_session(attrs \\ %{}) do
-    Map.put(make_simple_user(), :session, start_session())
+    Map.put(make_simple_user(attrs), :session, start_session())
   end
 
   def start_session do
@@ -150,7 +150,7 @@ defmodule FeaturePublicMethods do
   """
   def recoit_un_mail(who, params), do: Mail.user_recoit_un_mail(who, params)
   def recois_un_mail(who, params), do: Mail.user_recoit_un_mail(who, params)
-  def recoivent_un_mail(who, params), do: Mail.recoit_un_mail(who, params)
+  def recoivent_un_mail(who, params), do: Mail.user_recoit_un_mail(who, params)
   def detruire_les_mails, do: Mail.exec_delete_all_mails()
 
  
@@ -163,6 +163,6 @@ defmodule FeaturePublicMethods do
     content:    {String|Regex}  Le log doit contenir ce texte
     owner:      {User} Le propriétaire du log
   """
-  def has_activity?(params), do: Log.has_activity?(params)
+  def check_activities(params), do: Log.check_activities(params)
 
 end
