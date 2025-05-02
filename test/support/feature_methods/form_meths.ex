@@ -28,14 +28,15 @@ defmodule Feature.FormTestMethods do
   celui qu'il faut utiliser (par exemple avec son +id+ par :form_id)
   """
   def mettre_bon_captcha(session, params \\ %{}) do
+    prefix = Map.get(params, :prefix, "f")
     session = session_from(session)
     # Récupérer l'index
-    index_field = WQ.css("#captcha_index", visible: false)
+    index_field = WQ.css("##{prefix}_captcha_index", visible: false)
     question_index = WB.find(session, index_field) |> WE.value() |> String.to_integer()
     data_question = Html.Form.get_captcha_at(question_index)
     # IO.inspect(data_question, label: "\nData question (captcha)")
     option_name = data_question.answer 
-    choisir_menu(session, option_name, "captcha")
+    choisir_menu(session, option_name, "#{prefix}_captcha")
   end
 
 

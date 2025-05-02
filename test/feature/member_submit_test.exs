@@ -47,7 +47,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
       |> avec("Pour participer à l'essor de ce label")
     |> remplit_le_champ("Genres de prédilection")
       |> avec("Fantaisie, Polar, Romance")
-    |> choisit_le_bon_captcha()
+    |> choisit_le_bon_captcha(%{prefix: "f"})
     |> pause(1)
     |> clique_le_bouton("Soumettre")
     # L'user doit rejoindre la page lui annonçant que sa candidature

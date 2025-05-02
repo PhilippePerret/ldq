@@ -51,7 +51,7 @@ defmodule LdQWeb.ProcedureController do
       else module end
     procedure 
     |> Map.put(:params, params)
-    |> Map.put(:name,  module.proc_name)
+    |> Map.put(:name,  module.proc_name())
     |> Map.put(:user,  LdQ.ProcedureMethods.get_owner(procedure))
   end
 
