@@ -81,21 +81,21 @@ end
   defp get_logs_with_owner(res, params) do
     if Keyword.has_key?(params, :owner) do
       condition = fn log -> log.owner_id == params[:owner].id end
-      get_logs_with_cond(res, condition, "pas le bon propriétaire (actual: \#{log.owner_id}, expected: #{params[:owner].id})")
+      get_logs_with_cond(res, condition, "pas le bon propriétaire\n  actual: \#{log.owner_id}\n  expected: #{params[:owner].id})")
     else res end
   end
 
   defp get_logs_with_creator(res, params) do
     if Keyword.has_key?(params, :creator) do
       condition = fn log -> log.created_by == params[:creator].id end
-      get_logs_with_cond(res, condition, "pas le bon créateur (actual: \#{log.created_by}, expected: #{params[:creator].id})")
+      get_logs_with_cond(res, condition, "pas le bon créateur\n  actual: \#{log.created_by}\n  expected: #{params[:creator].id})")
     else res end
   end
 
   defp get_logs_with_content(res, params) do
     if Keyword.has_key?(params, :content) do
       condition = fn log -> log.text =~ params[:content] end
-      get_logs_with_cond(res, condition, "ne contient pas #{inspect params[:content]} (contient: \#{log.text})")
+      get_logs_with_cond(res, condition, "ne contient pas “#{params[:content]}” (contient: \#{log.text})")
     else res end
   end
 

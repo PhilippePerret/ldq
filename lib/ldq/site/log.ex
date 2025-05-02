@@ -23,6 +23,7 @@ defmodule LdQ.Site.Log do
     attrs = attrs
     |> treate_owner()
     |> treate_creator()
+    # |> IO.inspect(label: "Changeset avant enregistrement")
 
     log
     |> cast(attrs, [:text, :owner_type, :owner_id, :public, :created_by, :inserted_at])
