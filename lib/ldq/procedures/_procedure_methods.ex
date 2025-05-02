@@ -177,6 +177,7 @@ defmodule LdQ.ProcedureMethods do
   Pour les tests, pour obtenir une procédure à partir de ses
   @param {Keyword} params Les paramètres de recherche
       param[:owner] {Any} Le propriétaire de la procédure. On se servira seulement du owner.id
+      param[:submitter] {User} La personne qui a soumis la procédure (qui l'a créée)
       param[:dim]   {String} Le proc_dim de la procédure
       param[:after] {NaiveDateTime} La procédure doit avoir été créée après cette date
   @return %{List of Map} Liste des procédures répondant aux paramètres +params+
@@ -184,7 +185,7 @@ defmodule LdQ.ProcedureMethods do
   def get_procedure(params) when is_list(params) do
     # - Défaultize params -
     params = 
-      if Keyword.has_key?(:dim) do
+      if Keyword.has_key?(params, :dim) do
         Keyword.put(params, :proc_dim, params[:dim])
       else params end
     # - Build request -
@@ -194,15 +195,20 @@ defmodule LdQ.ProcedureMethods do
         where(query, [p], p.owner_id == ^params[:owner].id)
       else query end
     query =
-      if Keyword.has_key?(param, :proc_dim) do
-        where(query, [p], p.proc_id == ^params[:proc_dim])
+      if Keyword.has_key?(params, :submitter) do
+        where(query, [p], p.submitter_id == ^params[:submitter].id)
+      else query end
+    query =
+      if Keyword.has_key?(params, :proc_dim) do
+        where(query, [p], p.proc_dim == ^params[:proc_dim])
       else query end
     query = 
-      if Keyword.has_key?(param, :after) do
-        where(query, [p], NaiveDateTime.after?(p.inserted_at, ^params[:after]))
+      if Keyword.has_key?(params, :after) do
+        where(query, [p], p.inserted_at > ^params[:after])
       else query end
-    Repo.get_all(query)
-    |> Repo.preload(:creator)
+    # - Relève de toutes les procédures -
+    Repo.all(query)
+    |> Repo.preload(:submitter)
   end
   def get_procedure(proc_id) do
     Repo.get!(Procedure, proc_id)

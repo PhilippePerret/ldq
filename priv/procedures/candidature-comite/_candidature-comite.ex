@@ -179,8 +179,17 @@ defmodule LdQ.Procedure.CandidatureComite do
       mail_id:    "user-candidature-refused",
       variables: %{motif: form_params["motif_refus"]}
     })
-
     send_mail(user, :admin, data_mail)
+
+    # L'historique reçoit l'information (pour affichage sur la
+    # page d'accueil et de suivi du label)
+    log_activity(%{
+      owner: user,
+      public: false,
+      text: "<p>Refus de la candidature de #{user.name} au motif de : #{form_params["motif_refus"]}</p>",
+      creator: procedure.current_user
+    })
+
     log_activity(%{
       owner: user,
       public: false,

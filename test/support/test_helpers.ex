@@ -73,11 +73,7 @@ defmodule TestHelpers do
   end
 
   @doc """
-  @param {Keyword} params Les paramètres de recherche
-      param[:owner] {Any} Le propriétaire de la procédure. On se servira seulement du owner.id
-      param[:dim]   {String} Le proc_dim de la procédure
-      param[:after] {NaiveDateTime} La procédure doit avoir été créée après cette date
-  @return %{Map} La procédure répond aux paramètres +params+
+  Voir LdQ.Procedure.get_procedure/1
   """
   def get_procedure(params) do
     Proc.get_procedure(params)

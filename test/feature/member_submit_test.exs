@@ -38,6 +38,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     point_test = NaiveDateTime.utc_now()
 
     user
+    |> pause(1)
     |> rejoint_la_page("/", "pour trouver un lien vers la candidature")
     |> clique_le_lien("devenir membre du comité de lecture")
     |> pause(1)
@@ -128,9 +129,10 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
 
     {user, point_test} = visiteur_candidate_pour_le_comite(session)
 
-    procedure = get_procedure(owner: user, dim: "candidature-comite", after: point_test)
-    |> IO.inspect(label: "La procédure")
-    raise "Pour voir"
+    # procedure = 
+    #   get_procedure(owner: user, submitter: user, dim: "candidature-comite")
+    #   |> Enum.at(0)
+    #   |> IO.inspect(label: "La procédure")
 
     admin   = make_admin_with_session()
 
@@ -157,11 +159,14 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     |> et_voit("p", "Le refus de la candidature de #{user.name} a été prise en compte.")
 
     # Mail envoyé à l'utilisateur lui annonçant la mauvaise nouvelle
-    # TODO
+    user
+    |> recoit_un_mail(after: point_test, subject: "Votre candidature a été refusée")
     # Une activité (non publique) a été enregistrée
-    # TODO
+    res = check_activities(count: 1, after: point_test, owner: user, public: false, content: "Refus de la candidature de #{user.name} au motif de : #{motif_refus}")
+    assert(is_nil(res), res || "pas d'erreur")
     # La procédure a été détruite
-    assert(is_nil(get_procedure(owner: user, dim: "candidature-comite")), "La procédure devrait avoir été détruite.")
+    procedures = get_procedure(owner: user, submitter: user, dim: "candidature-comite")
+    assert(Enum.empty?(procedures), "La procédure devrait avoir été détruite.")
 
   end
   
