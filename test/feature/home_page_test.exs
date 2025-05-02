@@ -24,6 +24,7 @@ defmodule LdQWeb.HomePageTest do
       user
       |> rejoint_la_page("/home")
       |> pause(2)
+      |> et_voit("h2", "Accueil du label")
       |> et_voit(the_ten_last_logs)
     end
 
