@@ -139,27 +139,57 @@ defmodule LdQ.Procedure.CandidatureComite do
 
   @doc """
   Ce n'est pas la fonction qui procède au refus, c'est la fonction
-  qui va permettre de le faire.
+  qui va permettre de le faire. Elle affiche le formulaire pour 
+  donner le motif du refus.
   """
   def refuser_candidature(procedure) do
+    form = %Html.Form{
+      id: "refus-form",
+      action: "/proc/#{procedure.id}",
+      captcha: false,
+      fields: [
+        %{tag: :hidden, name: "procedure_id", value: procedure.id},
+        %{tag: :hidden, strict_name: "nstep", value: "proceed_refus_candidature"},
+        %{tag: :textarea, name: "motif_refus", strict_id: "motif_refus", required: true, explication: "Merci de motiver le refus (ce texte est à l'intention du candidat)"}
+      ],
+      buttons: [
+        %{type: :submit, name: "Soumettre"}
+      ]
+    }
     """
-    Je dois procéder au refus de la candidature pour la procedure #{inspect procedure}
+    <h3>Refus de candidature au comité de lecture</h3
+    <p>Pour procéder au refus de la candidature, merci de remplir le formulaire ci-dessous.</p>
+    #{Html.Form.formate(form)}
     """
   end
 
-
+  @doc """
+  Méthode qui procède vraiment au refus de la candidature de l'user
+  candidat pour un motif donné en paramètre.
+  """
   def proceed_refus_candidature(procedure) do
-    params = %{} # Pour le moment
-    raison = if params["notif"]["raison"] == "" do "Aucune" else
-      String.trim(params["notif"]["raison"])
-    end
-    params = params
-    |> Map.put("procedure", procedure)
-    |> Map.put("raison", raison)
-    |> Map.put("mail_id", "user-soumission-refused")
+    params  = procedure.params
+    user    = procedure.user
+    form_params = params["f"]
+    
+    defmaildata = default_mail_data(procedure)
+    data_mail = Map.merge(defmaildata, %{
+      mail_id:    "user-candidature-refused",
+      motif:      form_params["motif_refus"]
+    })
 
-    send_mail(procedure.user, :admins, params)
+    send_mail(user, :admin, data_mail)
+    log_activity(%{
+      owner: user,
+      public: false,
+      text: "<p>La candidature de #{user.name} (#{user.email}) vient d'être refusée par #{procedure.current_user.name}.</p>",
+      creator: procedure.current_user
+    })
     delete_procedure(procedure)
+
+    """
+    <p>Le refus de la candidature de #{user.name} a été prise en compte.</p>
+    """
   end
 
   @doc """
@@ -199,7 +229,7 @@ defmodule LdQ.Procedure.CandidatureComite do
     mail_data = %{mail_data | variables: variables}
     send_mail(to: :membres, from: :admin, with: mail_data)
 
-    # L'histoire affiché reçoit l'information (pour affichage sur la
+    # L'historique reçoit l'information (pour affichage sur la
     # page d'accueil et de suivi du label)
     log_activity(%{
       owner: user,

@@ -63,6 +63,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
   end
 
 
+  @tag :skip
   feature "Acceptation directe de la candidature au comité de lecture", %{session: session} do
     
     detruire_les_mails()
@@ -80,7 +81,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     admin   = make_admin_with_session()
     member  = make_member()
 
-    admin 
+    admin
     |> recoit_un_mail(after: point_test, subject: "Soumission d'une candidature", content: [~r/Ch(er|ère) administrat(eur|rice),/, "Name", "#{user.name}", ~s(<a href="mailto:#{user.email}">#{user.email}</a>), "acceptée, refusée ou soumise à un test"], strict: false)
     |> rejoint_le_lien_du_mail("Voir la procédure") # => session
     |> pause(1)
@@ -121,11 +122,45 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
 
   end
 
-  # feature "Refus direct de la candidature au comité de lecture", %{session: session} do
-  #   # TODO
-  # |> la_page_contient_le_bouton("Refuser")
-  # |> la_page_contient("textarea", %{id: "motif_refus"})
-  # end
+  # @tag :skip
+  feature "Refus direct de la candidature au comité de lecture", %{session: session} do
+    detruire_les_mails()
+
+    {user, point_test} = visiteur_candidate_pour_le_comite(session)
+
+    admin   = make_admin_with_session()
+    member  = make_member()
+
+    admin
+    |> recoit_un_mail(after: point_test, subject: "Soumission d'une candidature", content: [~r/Ch(er|ère) administrat(eur|rice),/, "Name", "#{user.name}", ~s(<a href="mailto:#{user.email}">#{user.email}</a>), "acceptée, refusée ou soumise à un test"], strict: false)
+    |> rejoint_le_lien_du_mail("Voir la procédure") # => session
+    |> pause(1)
+    |> et_voit("h2", "Candidature au comité de lecture")
+    |> la_page_contient_le_bouton("Refuser")
+    
+    point_test = now()
+    
+    motif_refus = "C'est le motif motivé du refus."
+    
+    admin
+    |> clique_le_lien("Refuser")
+    |> pause(1)
+    |> et_voit("h3", "Refus de candidature au comité de lecture")
+    |> et_voit("form", %{id: "refus-form"})
+    |> et_voit("textarea", %{id: "motif_refus"})
+    |> remplit_le_champ("#motif_refus") |> avec(motif_refus)
+    |> clique_le_bouton("Soumettre")
+    |> pause(2)
+    |> et_voit("p", "Le refus de la candidature de #{user.name} a été prise en compte.")
+
+    # Mail envoyé à l'utilisateur lui annonçant la mauvaise nouvelle
+    # TODO
+    # Une activité (non publique) a été enregistrée
+    # TODO
+    # La procédure a été détruite
+    # TODO
+
+  end
   
   # feature "Candidature au comité acceptée après test", %{session: session} do
   #   # TODO

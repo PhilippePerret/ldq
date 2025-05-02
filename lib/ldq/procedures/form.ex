@@ -4,6 +4,7 @@ defmodule Html.Form do
 
   Html.Form.formate(%Html.Form{
     id:     {String}
+    prefix: {String} # "f" par défaut
     method: {String}
     action: {String} POST par défaut
     captcha: {Boolean} Si True, on ajoute un champ captcha
@@ -11,6 +12,8 @@ defmodule Html.Form do
       %{tag: , type: , name: , id: , value: , explication: , required: }
       # Pour un name strict (sinon il deviendra "f[name]")
       %{tag: , strict_name: , id: ...}
+      # Pour un identifiant strict (sinon il deviendra "<prefix>[id]")
+      %{tag: , strict_id: }
     ]
     buttons: [
       %{type: :submit/:button, name: }
@@ -24,6 +27,7 @@ defmodule Html.Form do
   defstruct [
     sujet: nil, # Map du sujet dans lequel il faut prendre les données
     id: nil,
+    prefix: "f",
     method: nil,
     action: "POST",
     fields: [],
@@ -45,7 +49,7 @@ defmodule Html.Form do
     lines = lines ++ [token_field()]
     lines = lines ++ (data.fields
     |> Enum.map(fn dfield ->
-      dfield = defaultize_field(dfield)
+      dfield = defaultize_field(Map.put(dfield, :prefix, data.prefix))
       (label(dfield) <> explication(dfield) <> build_field(dfield.tag, dfield))
       |> wrap(dfield)
     end))
@@ -66,23 +70,23 @@ defmodule Html.Form do
     build_field(:input, %{dfield | type: :hidden})
   end
   def build_field(:input, %{type: :hidden} = dfield) do
-    ~s(<input type="hidden" id="#{dfield.id}" name="#{field_name(dfield)}" value="#{dfield.value}" />)
+    ~s(<input type="hidden" id="#{field_id(dfield)}" name="#{field_name(dfield)}" value="#{dfield.value}" />)
   end
   def build_field(:input, %{type: :email} = dfield) do
-    ~s(<input type="email" id="#{dfield.id}" name="#{field_name(dfield)}" value="#{dfield.value}" #{required(dfield)}/>)
+    ~s(<input type="email" id="#{field_id(dfield)}" name="#{field_name(dfield)}" value="#{dfield.value}" #{required(dfield)}/>)
   end
   def build_field(:input, %{type: :password} = dfield) do
-    ~s(<input type="password" id="#{dfield.id}" name="#{field_name(dfield)}" value="#{dfield.value}" #{required(dfield)}/>)
+    ~s(<input type="password" id="#{field_id(dfield)}" name="#{field_name(dfield)}" value="#{dfield.value}" #{required(dfield)}/>)
   end
   def build_field(:input, %{type: :naive_datetime} = dfield) do
-    ~s(<input type="naive_datetime" id="#{dfield.id}" name="#{field_name(dfield)}" value="#{dfield.value}" #{required(dfield)}/>)
+    ~s(<input type="naive_datetime" id="#{field_id(dfield)}" name="#{field_name(dfield)}" value="#{dfield.value}" #{required(dfield)}/>)
   end
   def build_field(:input, %{type: :text} = dfield) do
-    ~s(<input type="text" id="#{dfield.id}" name="#{field_name(dfield)}" value="#{dfield.value}" #{required(dfield)}/>)
+    ~s(<input type="text" id="#{field_id(dfield)}" name="#{field_name(dfield)}" value="#{dfield.value}" #{required(dfield)}/>)
   end
   def build_field(:textarea, dfield) do
     """
-    <textarea name="#{field_name(dfield)}" id="#{dfield.id}" #{required(dfield)}>#{dfield.value}</textarea>
+    <textarea name="#{field_name(dfield)}" id="#{field_id(dfield)}" #{required(dfield)}>#{dfield.value}</textarea>
     """
   end
   def build_field(:select, dfield) do
@@ -102,28 +106,29 @@ defmodule Html.Form do
       |> Enum.join("\n")
 
     """
-    <select id="#{dfield.id}" name="#{field_name(dfield)}">
+    <select id="#{field_id(dfield)}" name="#{field_name(dfield)}">
     #{options}
     </select>
     """
   end
 
 
-  def build_field(:captcha, _dfield) do
+  def build_field(:captcha, dfield) do
     captcha = random_captcha()
     dfield = %{
       tag:      :select,
       id:       "captcha",
       name:     "captcha",
       label:    captcha.question,
-      options:  Enum.shuffle(captcha.options)
+      options:  Enum.shuffle(captcha.options),
+      prefix:   dfield.prefix
     }
     dfield = defaultize_field(dfield)
     select_field = build_field(:select, dfield)
     """
     <div class="explication">Merci de répondre à cette question pour nous assurer que vous êtes bien un être humain.</div>
     <label>#{dfield.label}</label>
-    <input type="hidden" id="captcha_index" name="f[captcha_index]" value="#{captcha.index}" />
+    <input type="hidden" id="captcha_index" name="#{dfield.prefix}[captcha_index]" value="#{captcha.index}" />
     #{select_field}
     """
   end
@@ -139,7 +144,8 @@ defmodule Html.Form do
     %{question: "Quelle est la capitale de la France", options: ["Paris", "Marseille", "Londres", "Genève"], answer: "Paris"},
     %{question: "Comment est qualifié une femmme de grande taille", options: ["Géante", "Naine", "Reine", "Rassis"], answer: "Géante"},
     %{question: "En français, par quel signe se termine une question ?", options: ["?", "!", "¡", "¿"], answer: "?"},
-    %{question: "Dans quel sport se sert-on d'une raquette ?", options: ["Tennis", "Football", "Tir à l'arc", "Cyclisme"], answer: "Tennis"}
+    %{question: "Dans quel sport se sert-on d'une raquette ?", options: ["Tennis", "Football", "Tir à l'arc", "Cyclisme"], answer: "Tennis"},
+    %{question: "Le handball est un sport…", options: ["d'équipe", "individuel", "reposant", "à raquette"], answer: "d'équipe"}
   ] |> Enum.with_index() |> Enum.map(fn {captcha, index} -> Map.put(captcha, :index, index) end)
   defp random_captcha do
     Enum.random(@table_captcha)
@@ -180,11 +186,23 @@ defmodule Html.Form do
 
   # Retourne le nom pour le champ
   defp field_name(dfield) do
+    prefix = dfield[:prefix]
     cond do
     Map.get(dfield, :strict_name) -> dfield.strict_name
-    is_nil(dfield.name) -> "f[#{dfield.id}]"
+    is_nil(dfield.name) -> "#{prefix}[#{dfield.id}]"
     String.match?(dfield.name, ~r/\[/) -> dfield.name
-    true -> "f[#{dfield.name}]"
+    true -> "#{prefix}[#{dfield.name}]"
+    end
+  end
+
+  # Retourne l'ID pour le champ
+  defp field_id(dfield) do
+    prefix = dfield[:prefix]
+    cond do
+    Map.get(dfield, :strict_id) -> dfield.strict_id
+    is_nil(dfield.id) -> "#{prefix}[#{dfield.name}]"
+    String.match?(dfield.id, ~r/\[/) -> String.replace(dfield.id, "][", "_") |> String.replace(~r/[\[\]]/, "")
+    true -> "#{prefix}[#{dfield.id}]"
     end
   end
 
@@ -227,7 +245,7 @@ defmodule Html.Form do
 
   defp defaultize_field(dfield) do
     id_def = if Map.has_key?(dfield, :name) do
-      "f_#{dfield.name |> String.replace("-", "_") |> String.replace(~r/[\[\]]/,"_")|> String.replace(~r/__+/, "_")}"
+      "#{dfield.prefix}_#{dfield.name |> String.replace("-", "_") |> String.replace(~r/[\[\]]/,"_")|> String.replace(~r/__+/, "_")}"
     else
       "field-#{Ecto.UUID.generate()}"
     end
