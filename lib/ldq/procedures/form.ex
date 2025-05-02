@@ -53,12 +53,15 @@ defmodule Html.Form do
 
     lines = [~s(<form id="#{data.id}" class="philform" method="#{data.method}" action="#{data.action}">)]
     lines = lines ++ [token_field()]
-    lines = lines ++ (data.fields
-    |> Enum.map(fn dfield ->
-      dfield = defaultize_field(Map.merge(dfield, %{prefix: data.prefix, original_name: dfield[:name]||dfield[:strict_name]}))
-      (label(dfield) <> explication(dfield) <> build_field(dfield.tag, dfield))
-      |> wrap(dfield)
-    end))
+    lines = lines ++ (
+      data.fields
+      |> Enum.map(fn dfield -> 
+        defaultize_field(Map.merge(dfield, %{prefix: data.prefix, original_name: dfield[:name]||dfield[:strict_name]}))
+      end)
+      |> Enum.map(fn dfield ->
+        (label(dfield) <> explication(dfield) <> build_field(dfield.tag, dfield))
+        |> wrap(dfield)
+      end))
     lines = lines ++ [~s(<div class="buttons">)]
     lines = lines ++ (data.buttons
     |> Enum.map(fn dbutton ->
@@ -121,15 +124,15 @@ defmodule Html.Form do
 
   def build_field(:captcha, dfield) do
     captcha = random_captcha()
-    dfield = %{
-      tag:      :select,
+    dfield = defaultize_field(%{
+      tag:          :select,
       id:       "#{dfield.prefix}_captcha",
       name:     "#{dfield.prefix}[captcha]",
+      defaultized: true, # pour ne pas modifier :id et :name
       label:    captcha.question,
       options:  Enum.shuffle(captcha.options),
       prefix:   dfield.prefix
-    }
-    dfield = defaultize_field(dfield)
+    })
     select_field = build_field(:select, dfield)
     """
     <div class="explication">Merci de répondre à cette question pour nous assurer que vous êtes bien un être humain.</div>
@@ -262,11 +265,14 @@ defmodule Html.Form do
   end
 
   defp defaultize_field(dfield) do
-    default_id    = calc_field_id(dfield)
-    default_name  = calc_field_name(Map.put(dfield, :default_id, default_id))
+    dfield = 
+      if is_nil(Map.get(dfield, :defaultized, nil)) do
+        Map.put(dfield, :id, calc_field_id(dfield))
+        |> Map.put(:name, calc_field_name(dfield))
+        |> Map.put(:defaultized, true)
+      else dfield end
 
     [
-      {:id, default_id}, {:name, default_name},
       {:explication, nil}, {:label, nil}, {:wrapper, "div"},
       {:type, nil}, {:required, false}, {:options, dfield[:values] || nil},
       {:value, nil}

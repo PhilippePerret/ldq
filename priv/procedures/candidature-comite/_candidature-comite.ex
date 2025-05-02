@@ -17,8 +17,10 @@ defmodule LdQ.Procedure.CandidatureComite do
     %{name: "Formulaire de candidature", fun: :fill_candidature, admin_required: false, owner_required: false},
     %{name: "Soumission de la candidature", fun: :submit_candidature, admin_required: false, owner_required: true},
     %{name: "Accepter, refuser ou soumettre à un test", fun: :accepte_refuse_or_test, admin_required: true, owner_required: false},
-    %{name: "Refus de la candidature", fun: :refuser_candidature, admin_required: true, owner_required: false},
     %{name: "Accepter la candidature", fun: :accepter_candidature, admin_required: true, owner_required: false},
+    %{name: "Procéder à l'acceptation", fun: :proceed_acceptation_candidature, admin_required: true, owner_required: false},
+    %{name: "Refus de la candidature", fun: :refuser_candidature, admin_required: true, owner_required: false},
+    %{name: "Procéder au refus", fun: :proceed_refus_candidature, admin_required: true, owner_required: false},
     %{name: "Soumettre à un test", fun: :soumettre_a_test, admin_required: true, owner_required: false},
     %{name: "Passage du test", fun: :test, admin_required: false, owner_required: true}
   ] |> Enum.with_index() |> Enum.map(fn {s, index} -> Map.put(s, :index, index) end)
@@ -150,7 +152,7 @@ defmodule LdQ.Procedure.CandidatureComite do
       fields: [
         %{tag: :hidden, name: "procedure_id", value: procedure.id},
         %{tag: :hidden, strict_name: "nstep", value: "proceed_refus_candidature"},
-        %{tag: :textarea, name: "motif_refus", strict_id: "motif_refus", required: true, explication: "Merci de motiver le refus (ce texte est à l'intention du candidat)"}
+        %{tag: :textarea, label: "Motif du refus", name: "motif_refus", strict_id: "motif_refus", required: true, explication: "Merci de motiver le refus (ce texte est à l'intention du candidat)"}
       ],
       buttons: [
         %{type: :submit, name: "Soumettre"}
@@ -175,7 +177,7 @@ defmodule LdQ.Procedure.CandidatureComite do
     defmaildata = default_mail_data(procedure)
     data_mail = Map.merge(defmaildata, %{
       mail_id:    "user-candidature-refused",
-      motif:      form_params["motif_refus"]
+      variables: %{motif: form_params["motif_refus"]}
     })
 
     send_mail(user, :admin, data_mail)

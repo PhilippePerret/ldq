@@ -47,8 +47,8 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
       |> avec("Pour participer à l'essor de ce label")
     |> remplit_le_champ("Genres de prédilection")
       |> avec("Fantaisie, Polar, Romance")
-    |> choisit_le_bon_captcha(%{prefix: "f"})
     |> pause(1)
+    |> choisit_le_bon_captcha(%{prefix: "f"})
     |> clique_le_bouton("Soumettre")
     # L'user doit rejoindre la page lui annonçant que sa candidature
     # a bien été prise en compte
@@ -147,8 +147,8 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     |> pause(1)
     |> et_voit("h3", "Refus de candidature au comité de lecture")
     |> et_voit("form", %{id: "refus-form"})
-    |> et_voit("textarea", %{id: "motif_refus"})
-    |> remplit_le_champ("#motif_refus") |> avec(motif_refus)
+    |> et_voit("textarea", %{id: "f_motif_refus"})
+    |> remplit_le_champ("Motif du refus") |> avec(motif_refus)
     |> clique_le_bouton("Soumettre")
     |> pause(2)
     |> et_voit("p", "Le refus de la candidature de #{user.name} a été prise en compte.")
