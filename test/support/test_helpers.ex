@@ -3,6 +3,7 @@ defmodule TestHelpers do
   alias Random.RandMethods, as: Rand
   import LdQ.ComptesFixtures
   alias LdQ.Site.Log
+  alias LdQ.ProcedureMethods, as: Proc
 
   def w(str, color \\ :white) do
     params = case color do
@@ -71,4 +72,14 @@ defmodule TestHelpers do
     end)
   end
 
+  @doc """
+  @param {Keyword} params Les paramètres de recherche
+      param[:owner] {Any} Le propriétaire de la procédure. On se servira seulement du owner.id
+      param[:dim]   {String} Le proc_dim de la procédure
+      param[:after] {NaiveDateTime} La procédure doit avoir été créée après cette date
+  @return %{Map} La procédure répond aux paramètres +params+
+  """
+  def get_procedure(params) do
+    Proc.get_procedure(params)
+  end
 end

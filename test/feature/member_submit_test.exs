@@ -128,8 +128,11 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
 
     {user, point_test} = visiteur_candidate_pour_le_comite(session)
 
+    procedure = get_procedure(owner: user, dim: "candidature-comite", after: point_test)
+    |> IO.inspect(label: "La procédure")
+    raise "Pour voir"
+
     admin   = make_admin_with_session()
-    member  = make_member()
 
     admin
     |> recoit_un_mail(after: point_test, subject: "Soumission d'une candidature", content: [~r/Ch(er|ère) administrat(eur|rice),/, "Name", "#{user.name}", ~s(<a href="mailto:#{user.email}">#{user.email}</a>), "acceptée, refusée ou soumise à un test"], strict: false)
@@ -158,7 +161,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     # Une activité (non publique) a été enregistrée
     # TODO
     # La procédure a été détruite
-    # TODO
+    assert(is_nil(get_procedure(owner: user, dim: "candidature-comite")), "La procédure devrait avoir été détruite.")
 
   end
   
