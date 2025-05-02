@@ -91,7 +91,7 @@ defmodule Feature.PageTestMethods do
     else searched end
 
     # IO.inspect(WB.page_source(session), label: "\n\n+++ PAGE COMPLÈTE", printable_limit: :infinity)
-    err_msg = [IO.ANSI.red(), "On devrait trouver #{inspect searched} dans la page. La page contient : #{inspect WB.all(session, css("body")) |> Enum.at(0) |> WE.text()}", IO.ANSI.reset()]
+    err_msg = IO.ANSI.red() <> "On devrait trouver #{inspect searched} dans la page. La page contient : #{inspect WB.all(session, css("body")) |> Enum.at(0) |> WE.text()}" <> IO.ANSI.reset()
     assert(Regex.match?(searched, WB.page_source(session)), err_msg)
     session
   end

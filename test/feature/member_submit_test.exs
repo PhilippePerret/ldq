@@ -84,15 +84,15 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     |> recoit_un_mail(after: point_test, subject: "Soumission d'une candidature", content: [~r/Ch(er|ère) administrat(eur|rice),/, "Name", "#{user.name}", ~s(<a href="mailto:#{user.email}">#{user.email}</a>), "acceptée, refusée ou soumise à un test"], strict: false)
     |> rejoint_le_lien_du_mail("Voir la procédure") # => session
     |> pause(1)
-    |> la_page_contient("h2", "Candidature au comité de lecture")
+    |> et_voit("h2", "Candidature au comité de lecture")
     |> la_page_contient_le_bouton("Accepter")
     |> pause(1)
 
     point_test = NaiveDateTime.utc_now()
 
     admin
-    |> clique_le_lien("Accepter")
     |> pause(2)
+    |> clique_le_lien("Accepter")
 
     # --- Vérification ---
     # Le candidat change de statut (privilège)
@@ -108,8 +108,8 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     member
     |> recoit_un_mail(after: point_test, subject: "Nouveau membre au comité de lecture", content: [user.name, user.email], strict: false)
     # Un log a été enregistré
-    res = check_activities(after: point_test, owner: user, content: "#{user.name} vient de rejoindre le comité de lecture du label."), "On devrait trouver une activité contenant l'annonce du nouveau membre.")
-    assert(is_nil(res), res)
+    res = check_activities(after: point_test, owner: user, content: "#{user.name} vient de rejoindre le comité de lecture du label.")
+    assert(is_nil(res), res || "pas d'erreur")
     # La page d'accueil affiche la nouvelle activité
     autreuser = make_simple_user()
     {:ok, sessionother} = Wallaby.start_session()

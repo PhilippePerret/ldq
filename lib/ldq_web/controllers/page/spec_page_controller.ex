@@ -9,7 +9,7 @@ defmodule LdQWeb.SpecPageController do
   """
   def home(conn, _params) do
     attrs = %{}
-    |> Map.put(:logs, Site.Log.get_lasts_public())
+    |> Map.put(:logs, LdQ.Site.Log.get_lasts_public())
     render(conn, :home, attrs)
   end
 

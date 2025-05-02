@@ -7,55 +7,14 @@ defmodule LdQWeb.CheckActivityTest do
   # use LdQWeb.FeatureCase, async: false
   use LdQ.DataCase, async: false
 
-  # import TestHelpers
+  import TestHelpers
   import FeaturePublicMethods # Méthodes rejoint_la_page, etc.
   # alias LdQ.Comptes.User
   import LdQ.ComptesFixtures
 
-  alias LdQ.Site.Log
-
-  alias Random.RandMethods, as: Rand
-
   # Les méthodes testées
   # import Feature.LogTestMethods, except: [check_activities: 1]
 
-
-  def now do
-    NaiveDateTime.utc_now()
-  end
-  def ilya(nombre, unit) do
-    NaiveDateTime.add(now(), - nombre, unit)
-  end
-
-  def create_log(nombre) when is_integer(nombre), do: create_log(count: nombre)
-  def create_log(attrs \\ []) do
-    nombre = Keyword.get(attrs, :count, 1)
-    (1..nombre)
-    |> Enum.each(fn x -> 
-      text        = Keyword.get(attrs, :text, Rand.random_text(30))
-      public      = Keyword.get(attrs, :public, true)
-      inserted_at = Keyword.get(attrs, :inserted_at, now())
-      data_log = %{public: public, text: text, owner_type: nil, owner_id: nil, inserted_at: inserted_at}
-      data_log =
-        if Keyword.has_key?(attrs, :owner) do
-          Map.merge(data_log, %{owner_type: "user", owner_id: attrs[:owner].id})
-          # Attention, ci-dessus, si ce n'est pas un User le propriétaire,
-          # ça foire
-        else
-          otype = Keyword.get(attrs, :owner_type, "user")
-          oid   = Keyword.get(attrs, :owner_id, make_simple_user().id)
-          Map.merge(data_log, %{owner_type: otype, owner_id: oid})
-        end
-      data_log =
-        if Keyword.has_key?(attrs, :created_by) do
-          Map.put(data_log, :created_by, attrs[:created_by])
-        else 
-          creator = Keyword.get(attrs, :creator, make_simple_user())
-          Map.put(data_log, :creator, creator)
-        end
-      Log.create(data_log)
-    end)
-  end
 
   def affiche_all_activities do
     IO.inspect(LdQ.Repo.all(LdQ.Site.Log), label: "\nToutes les activités")

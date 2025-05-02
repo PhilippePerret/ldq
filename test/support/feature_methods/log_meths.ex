@@ -65,7 +65,13 @@ end
   defp get_logs_after(res, params) do
     if Keyword.has_key?(params, :after) do
       condition = fn log -> NaiveDateTime.after?(log.inserted_at, params[:after]) end
-      get_logs_with_cond(res, condition, "émis avant la date recherchée (expected: #{params[:after]}, actual: \#{log.inserted_at})")
+      get_logs_with_cond(res, condition, 
+      """
+      émis avant la date recherchée
+      expected: après #{params[:after]}
+      date émission : \#{log.inserted_at})
+      """
+      )
     else res end
   end
 
