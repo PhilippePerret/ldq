@@ -5,11 +5,14 @@ defmodule FeaturePublicMethods do
   # alias Wallaby.Query,    as: WQ
   # alias Wallaby.Element,  as: WE
 
+  import TestHelpers
+
   alias Feature.FormTestMethods,    as: Form
   alias Feature.PageTestMethods,    as: Page
   alias Feature.ActionTestMethods,  as: Act
   alias Feature.MailTestMethods,    as: Mail
   alias Feature.LogTestMethods,     as: Log
+  alias Feature.SessionMethods,     as: Sess
 
   # import TestHelpers
 
@@ -26,9 +29,37 @@ defmodule FeaturePublicMethods do
     Map.put(make_simple_user(attrs), :session, start_session())
   end
 
-  def start_session do
-    {:ok, sess} = Wallaby.start_session()
-    sess
+
+  def start_session(params \\ []), do: Sess.start_session(params)
+  
+  def end_session(sujet), do: Sess.end_session(sujet)
+
+  @doc """
+  Lorsque l'on a plusieurs sessions active, on peut vouloir ramener
+  une page devant l'autre
+  """
+  def focus(sujet), do: Page.focus(sujet)
+
+
+  @doc """
+  Fonction permet à l'utilisateur de se connecter.
+  Soit il se trouve déjà sur la page d'identification (parce qu'il a été
+  redirigé) soit il rejoint l'identification)
+  """
+  def se_connecte(visiteur) when is_map(visiteur) or is_struct(visiteur, User) do
+    if not Page.on_login_page?(visiteur) do
+      visiteur
+      |> rejoint_la_page("/users/log_in")
+      |> pause(1)
+    end
+    visiteur
+      |> et_voit("input", %{type: "email", id: "user_email", name: "user[email]"})
+      |> remplit_le_champ("Mail") |> avec(visiteur.email)
+      |> remplit_le_champ("Mot de passe") |> avec(visiteur.password)
+      |> pause(1)
+      |> clique_le_bouton("Se connecter")
+      |> Map.put(:identified, true)
+      # |> IO.inspect(label: "VISITEUR APRÈS CONNEXION")
   end
 
   @doc """
@@ -62,10 +93,20 @@ defmodule FeaturePublicMethods do
   @doc """
   Récupère un lien dans un mail (par son titre) et le visite
 
-  @return {Wallaby.Session} Une session qu'on peut donc piper.
+  @param {User augmenté} destinataire Le destinataire du mail
+    Il doit impérativement avoir une propriété :mails ajouté (par une 
+    autre fonction) qui contient ses mails actuels.
+  @param {String} link_title Le titre du lien sur lequel on doit cliquer tel qu'il apparait dans le texte du mail
+  @return {User augmenté} Une session qu'on peut donc piper.
   """
-  def rejoint_le_lien_du_mail({destinataire, mails}, link_title) do
-    Mail.get_lien_in_mail_and_visit(destinataire, link_title, mails)
+  def rejoint_le_lien_du_mail(destinataire, link_title) do
+    destinataire = 
+      if Map.has_key?(destinataire, :mails) do
+        destinataire
+      else
+        Map.put(destinataire, :mails, Mail.get_mails_to!(destinataire))
+      end
+    Mail.get_lien_in_mail_and_visit(destinataire, link_title, destinataire.mails)
   end
 
   @doc """

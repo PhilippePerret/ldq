@@ -12,6 +12,7 @@ defmodule LdQ.ProcedureMethods do
 
 
   def __run__(module, procedure) do
+    # IO.inspect(procedure, label: "\nJOUER LA PROCÉDURE")
     run_current_procedure(procedure, module, module.steps())
   end
 
@@ -67,6 +68,31 @@ defmodule LdQ.ProcedureMethods do
   end
 
   @doc """
+  Pour obtenir un lien vers la procédure pour le mail, donc vers une
+  adresse absolue.
+
+  @param {Procedure} procedure  La procédure pour laquelle il faut retourner une url
+  @param {Keyword} params Les paramètres à prendre en compte
+    params[:query_string] Query string à ajouter ("sans ?")
+    params[:title] Le titre du lien
+    params[:style] Le style éventuel
+  """
+  def proc_url(procedure, params \\ []) do
+    href  = [Constantes.get(:app_url), "proc", procedure.id] |> Enum.join("/")
+    title = Keyword.get(params, :title, href)
+    # - Ajout du query string au besoin (pour nstep par exemple)
+    href =
+      if params[:query_string] do
+        "#{href}?#{params[:query_string]}"
+      else href end
+    style =
+      if params[:style] do 
+        ~s( style="#{params[:style]}")
+      else "" end
+    ~s(<a href="#{href}"#{style}>#{title}</a>)
+  end
+
+  @doc """
   Pour vérifier si l'utilisateur courant est abilité à jouer la
   procédure voulu (donc son next_step)
 
@@ -108,6 +134,7 @@ defmodule LdQ.ProcedureMethods do
 
   def run_current_procedure(procedure, module, steps) do
     step = current_procedure(procedure, steps)
+    # IO.puts "Jouer la fonction #{inspect step} du module #{inspect module}"
     apply(module, step.fun, [procedure])
   end
 
@@ -257,6 +284,7 @@ defmodule LdQ.ProcedureMethods do
     })
     # Pour le moment, pour ne pas alourdir, on retire l'objet PhilHtml
     data_mail = Map.delete(data_mail, :philhtml)
+    IO.inspect(data_mail, label: "\nDonnées du mail simulé")
     data_string = :erlang.term_to_binary(data_mail)
     File.write!(path, data_string)
   end

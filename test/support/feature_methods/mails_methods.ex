@@ -8,6 +8,8 @@ defmodule Feature.MailTestMethods do
   import TestStringMethods # string_contains etc.
   import FeaturePublicMethods # Méthodes je_rejoins, etc.
 
+  import Feature.PageTestMethods, only: [on_login_page?: 1]
+
   @doc """
   Méthode qui teste que le +destinataire+ a bien reçu le message de 
   sujet +subject+ possédant le contenu +contenu+
@@ -22,18 +24,88 @@ defmodule Feature.MailTestMethods do
   @return {destinataire, [mails trouvés]}
   """
   def user_recoit_un_mail(destinataire, params) when (is_map(destinataire) or is_struct(destinataire, User)) and is_map(params) do 
+
+    resultat = get_mails_to(destinataire, params)
+    params = resultat.params # actualisé
+
+    mails_found = resultat.keptmails
+    nombre_mails_found = Enum.count(mails_found)
+    aucun_mail_trouved = nombre_mails_found == 0
+
+    if aucun_mail_trouved && params.count != 0 do
+      w("\n\n##### PROBLÈME DE MAILS AVEC PARAMS #{inspect params}", :red)
+      IO.inspect(resultat.exclusions, label: "\n##### RAISON DES EXCLUSIONS ###")
+    end
+
+    formated_error = formate_exclusions(resultat.exclusions)
+    if is_nil(params.count) do
+      msg_err = IO.ANSI.red() <> "Aucun mail trouvé répondant aux paramètres : \nDestinataire : #{inspect destinataire}\nParamètres attendus : #{inspect params}\n#{formated_error}" <> IO.ANSI.reset()
+      assert Enum.any?(mails_found), msg_err
+    else
+      s = if params.count > 1, do: "s", else: ""
+      msg_err = IO.ANSI.red() <> "On devait trouver #{params.count} mail#{s}, on en a trouver #{nombre_mails_found} pour \nDestinataire : #{inspect destinataire}\nParamètres attendus : #{inspect params}\n#{formated_error}." <> IO.ANSI.reset()
+      assert nombre_mails_found == params.count, msg_err
+    end
+
+    # On retourne un User augmenté, avec ses mails
+    Map.put(destinataire, :mails, mails_found)
+
+  end
+
+  @doc """
+  Récupère tous les mails au +destinataire+ qui répondent aux
+  paramètres +params+ et retourne une table de résultat détaillée.
+
+  Note : Pour n'obtenir que les mails, ajouter un "!"
+
+  @param {User augmenté} destinataire L'instance User du destinataire
+  @param {Map} params Table des filtres (avec :after, :content, etc. -- cf. la méthode get_mails_against_params/1 pour voir le détail)
+
+  @return {Map} Une table avec les résultats complets (cf. get_mails_against_params/1 pour le détail)
+  """
+  def get_mails_to(destinataire, params \\ %{}) do
+    params = Map.put(params, :destinataire, destinataire)
+    get_mails_against_params(params)
+  end
+
+  @doc """
+  Méthode d'API qui ne retourne que la liste des mails du desinataire
+  et seulement les mails correspondant aux paramètre +params+ (qui se
+  limitent souvent à %{after: <date>})
+  """
+  def get_mails_to!(destinataire, params \\ %{}) do
+    get_mails_to(destinataire, params).keptmails
+  end
+
+  @doc """
+  Filtre complet et détaillé des mails envoyés répondant à +params+
+
+  @param {Map} params Paramètres complet du filtre
+    params.destinataire   Les mails doivent être reçus par lui
+    params.after          Les mails doivent avoir été envoyés après cette date (et strictement après cette date)
+    params.sender         Les mails doivent avoir été envoyés par ce sender
+    params.mail_id        {String} Le mail doit avoir cet identifiant.
+    params.subject        {String|Regex|List of this} Le sujet du mail doit contenir ce ou ces éléments.
+    params.contents       {String|Regex|List of this} Le corps du message doit contenir ce ou ces éléments.
+
+  @return {Map} res une table complète des éléments
+    res.allmails  {List} Liste de tous les mails, non filtrés
+    res.keptmails:  {List} Liste des mails qui ont passé le test avec succès
+    res.exclusions: {List} Liste des mails exclus avec le détail des raisons de leur exclusion.
+                    On peut envoyer cette valeur à formate_exclusions/1 pour obtenir un string des raisons près à être écrit.
+  """
+  def get_mails_against_params(params) do
     params = defaultize_mail_params(params)
-    folder = dossier_mails()
 
     resultat = %{
       params:       params,
-      destinataire: destinataire, 
+      destinataire: params.destinataire, 
       allmails: [],
       keptmails: [], # les mails conservés
-      exclusions: [], # les mails exclus
+      exclusions: [] # les mails exclus
     }
 
-    resultat = 
+    folder = dossier_mails()
     # On prend tous les fichiers mails
     File.ls!(folder)
     # On les load pour retrouver les maps
@@ -49,28 +121,6 @@ defmodule Feature.MailTestMethods do
     |> keep_only_mails_by_identifiant()
     |> keep_only_mails_with_expected_subject()
     |> keep_only_mails_with_expected_body()
-
-    mails_found = resultat.keptmails
-    nombre_mails_found = Enum.count(mails_found)
-    aucun_mail_trouved = nombre_mails_found == 0
-
-    if aucun_mail_trouved && params.count != 0 do
-      w("\n\n##### PROBLÈME DE MAILS AVEC PARAMS #{inspect params}", :red)
-      IO.inspect(resultat.exclusions, label: "\n##### RAISON DES EXCLUSIONS ###")
-    end
-
-    formated_error = formate_exclusions(resultat.exclusions)
-    if is_nil(params.count) do
-      msg_err = [IO.ANSI.red(), "Aucun mail trouvé répondant aux paramètres : \nDestinataire : #{inspect destinataire}\nParamètres attendus : #{inspect params}\n#{formated_error}", IO.ANSI.reset()]
-      assert Enum.any?(mails_found), msg_err
-    else
-      s = if params.count > 1, do: "s", else: ""
-      msg_err = [IO.ANSI.red(), "On devait trouver #{params.count} mail#{s}, on en a trouver #{nombre_mails_found} pour \nDestinataire : #{inspect destinataire}\nParamètres attendus : #{inspect params}\n#{formated_error}.", IO.ANSI.reset()]
-      assert nombre_mails_found == params.count, msg_err
-    end
-
-    {destinataire, mails_found}
-
   end
 
   defp formate_exclusions(exclusions) do
@@ -102,7 +152,7 @@ defmodule Feature.MailTestMethods do
   @param {String} link_title Le titre du lien
   @param {Array>Map} mails Liste de tous les mails reçus.
 
-  @return session La session initiée
+  @return destinataire (qui définit :session, La session initiée)
   """
   def get_lien_in_mail_and_visit(destinataire, link_title, mails) do
     mail = Enum.at(mails, 0)
@@ -113,21 +163,19 @@ defmodule Feature.MailTestMethods do
     |> Enum.at(1)
     |> IO.inspect(label: "\nLien à atteindre")
 
-    # L'administrateur ouvre une session
-    destinataire
-    |> rejoint_la_page(href)
-    |> pause(1)
-    |> et_voit("h2", "Identification")
-    |> remplit_le_champ("Mail") |> avec(destinataire.email)
-    |> remplit_le_champ("Mot de passe") |> avec(destinataire.password)
-    |> pause(1)
-    |> clique_le_bouton("Se connecter")
+    # Le destinataire rejoint la page
+    destinataire =
+      destinataire
+      |> rejoint_la_page(href)
+      |> pause(1)
 
-    destinataire
+    # Peut-être qu'il doit s'identifier
+    if on_login_page?(destinataire) do
+      destinataire |> se_connecte()
+    else 
+      destinataire 
+    end
   end
-
-
-
 
   # ---- Sous-méthodes privées ----
 

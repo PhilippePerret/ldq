@@ -6,17 +6,40 @@ defmodule Feature.PageTestMethods do
 
   import Feature.SessionMethods
 
+
+  @doc """
+  Méthode permettant de savoir si on est sur la page d'identification
+  ou non.
+
+  @return True si on est sur la page d'identification, False dans le
+  cas contraire.
+  """
+  def on_login_page?(visiteur) do
+    session = session_from(visiteur)
+    Enum.any?(WB.all(session, css("h2")), fn el -> 
+      WE.text(el) =~ "Identification"
+    end)
+  end
+
+  @doc """
+  Pour ramener la page de la session devant
+  """
+  def focus(sujet) do
+    session = session_from(sujet)
+    WB.execute_script(session, "window.focus()")
+    sujet
+  end
+
   @doc """
   Voir le détail dans feature_methods.ex
   """
 
   # Quand on cherche un bouton (ça peut être button ou a.btn)
   def la_page_contient(session, "button", searched, attrs) when is_binary(searched) do
-    session = session_from(session)
     la_page_contient(session, "button", ~r/#{Regex.escape(searched)}/, attrs)
   end
-  def la_page_contient(session, "button", searched, attrs) when is_struct(searched, Regex) do
-    session = session_from(session)
+  def la_page_contient(sujet, "button", searched, attrs) when is_struct(searched, Regex) do
+    session = session_from(sujet)
     ok = Enum.any?(WB.all(session, css("button")), fn el -> 
       ok_text = WE.text(el) =~ searched 
       ok_attrs = attrs 
@@ -33,20 +56,21 @@ defmodule Feature.PageTestMethods do
       ok_text = WE.text(el) =~ searched 
     end)
     assert(ok)
-    session
+    sujet
   end
   # Quand on cherche une balise et un texte contenu
-  def la_page_contient(session, balise, searched) when is_binary(searched) do
-    session = session_from(session)
+  def la_page_contient(sujet, balise, searched) when is_binary(searched) do
+    session = session_from(sujet)
     assert Enum.any?(WB.all(session, css(balise)), fn el -> 
       WE.text(el) =~ searched 
     end)
-    session
+    sujet
   end
 
   # Quand on cherche une balise avec des attributs (mais +attrs+ peut
   # aussi contenir :text qui définit le contenu).
-  def la_page_contient(session, balise, attrs) when is_map(attrs) do
+  def la_page_contient(sujet, balise, attrs) when is_map(attrs) do
+    session = session_from(sujet)
     found = Enum.any?(WB.all(session, css(balise)), fn el ->
       resultat  =
         attrs
@@ -77,15 +101,17 @@ defmodule Feature.PageTestMethods do
       resultat.ok
     end)
     assert(found, "Aucune balise #{balise} trouvée possédant les attributs #{inspect attrs}")
-    session
+    sujet
   end
-  def la_page_contient(session, balise, searched) do
+  def la_page_contient(sujet, balise, searched) do
+    session = session_from(sujet)
     assert Enum.any?(WB.all(session, css(balise)), fn el -> 
       Regex.match?(searched, WE.text(el))
     end)
-    session
+    sujet
   end
-  def la_page_contient(session, searched) do
+  def la_page_contient(sujet, searched) do
+    session = session_from(sujet)
     searched = if is_binary(searched) do
       ~r/#{Regex.escape(searched)}/
     else searched end
@@ -93,7 +119,7 @@ defmodule Feature.PageTestMethods do
     # IO.inspect(WB.page_source(session), label: "\n\n+++ PAGE COMPLÈTE", printable_limit: :infinity)
     err_msg = IO.ANSI.red() <> "On devrait trouver #{inspect searched} dans la page. La page contient : #{inspect WB.all(session, css("body")) |> Enum.at(0) |> WE.text()}" <> IO.ANSI.reset()
     assert(Regex.match?(searched, WB.page_source(session)), err_msg)
-    session
+    sujet
   end
 
 end

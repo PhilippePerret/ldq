@@ -7,10 +7,11 @@ defmodule Feature.FormTestMethods do
 
   import Feature.SessionMethods
 
-  def remplir_le_champ(session, champ) do
-    session = session_from(session)
+  def remplir_le_champ(sujet, champ) do
+    session = session_from(sujet)
     fn valeur ->
       fill_in(session, WQ.text_field(champ), with: valeur)
+      sujet
     end    
   end
   def avec(fonction, value) do

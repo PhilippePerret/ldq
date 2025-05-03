@@ -25,15 +25,10 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     je = user
     w("#{user.name} vient s'identifier", :blue)
 
-    user
-    |> IO.inspect(label: "User courant")
-    |> rejoint_la_page("/users/log_in")
-    |> pause(1)
-    |> et_voit("input", %{type: "email", id: "user_email", name: "user[email]"})
-    |> remplit_le_champ("Mail") |> avec(user.email)
-    |> remplit_le_champ("Mot de passe") |> avec(user.password)
-    |> pause(1)
-    |> clique_le_bouton("Se connecter")
+    user = 
+      user
+      # |> IO.inspect(label: "User courant")
+      |> se_connecte()
 
     point_test = NaiveDateTime.utc_now()
 
@@ -123,7 +118,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
 
   end
 
-  # @tag :skip
+  @tag :skip
   feature "Refus direct de la candidature au comité de lecture", %{session: session} do
     detruire_les_mails()
 
@@ -170,10 +165,37 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
 
   end
   
-  # feature "Candidature au comité acceptée après test", %{session: session} do
-  #   # TODO
-  # |> la_page_contient_le_bouton("Soumettre au test")
-  # end
+  # @tag :skip
+  feature "Candidature au comité acceptée après test", %{session: session} do
+    detruire_les_mails()
+
+    {user, point_test} = visiteur_candidate_pour_le_comite(session)
+
+    admin   = make_admin_with_session()
+
+
+    admin
+    |> recoit_un_mail(after: point_test, subject: "Soumission d'une candidature", content: [~r/Ch(er|ère) administrat(eur|rice),/, "Name", "#{user.name}", ~s(<a href="mailto:#{user.email}">#{user.email}</a>), "acceptée, refusée ou soumise à un test"], strict: false)
+    |> rejoint_le_lien_du_mail("Voir la procédure")
+
+    point_test = now()
+
+    admin
+    |> pause(1)
+    |> et_voit("h2", "Candidature au comité de lecture")
+    |> la_page_contient_le_bouton("Soumettre à test")
+    |> clique_le_lien("Soumettre à test")
+    |> pause(1)
+    |> end_session()
+    
+    user
+    |> focus()
+    |> recoit_un_mail(after: point_test, subject: "Candidature comité de lecture - Demande de test")
+    |> rejoint_le_lien_du_mail("Passer le test")
+    |> pause(1)
+    |> et_voit("Test d'admission")
+    |> pause(10)
+  end
 
   # feature "Candidature au comité refusée après test", %{session: session} do
   #   # TODO

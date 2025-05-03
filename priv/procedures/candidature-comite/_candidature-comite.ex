@@ -22,7 +22,7 @@ defmodule LdQ.Procedure.CandidatureComite do
     %{name: "Refus de la candidature", fun: :refuser_candidature, admin_required: true, owner_required: false},
     %{name: "Procéder au refus", fun: :proceed_refus_candidature, admin_required: true, owner_required: false},
     %{name: "Soumettre à un test", fun: :soumettre_a_test, admin_required: true, owner_required: false},
-    %{name: "Passage du test", fun: :test, admin_required: false, owner_required: true}
+    %{name: "Test d'admission", fun: :test_admission_comite, admin_required: false, owner_required: true}
   ] |> Enum.with_index() |> Enum.map(fn {s, index} -> Map.put(s, :index, index) end)
   def steps, do: @steps
 
@@ -259,21 +259,31 @@ defmodule LdQ.Procedure.CandidatureComite do
     params = params
     |> Map.put("procedure", procedure)
     |> Map.put("mail_id", "user-soumission-success")
-    send_mail(user.mail, :admins, params)
+    send_mail(to: user.mail, from: :admins, with: params)
   end
 
   def soumettre_a_test(procedure) do
+    # Envoi du mail au candidat
+    defmaildata = default_mail_data(procedure)
+    data_mail = Map.merge(defmaildata, %{
+      mail_id: "candidat-test-required",
+      variables: %{test_url: proc_url(procedure, title: "Passer le test")}
+    })
+    send_mail(to: procedure.user, from: :admin, with: data_mail)
+    # Marquage de procédure suivante
+    procedure = update_procedure(procedure, %{next_step: "test_admission_comite"})
     """
-    <p>Je dois demander au candidat de passer le test pour la #{inspect procedure}</p>
+    <p>Une demande a été adressée au candidat pour passer le test d'admission. La balle est dans son camp.</p>
     """
   end
-  def proceed_soumission_a_test(procedure) do
-    params = %{} # Pour le moment
+
+  def test_admission_comite(procedure) do
+    params = procedure.params
     
-    params = params
-    |> Map.put("procedure", procedure)
-    |> Map.put("mail_id", "user-soumission-test")
-    send_mail(procedure.user.mail, :admins, params)
+    """
+    <h3>Test d'admission au comité de lecture</h3>
+    <p>Merci de remplir ce test et de le soumettre.</p>
+    """
   end
 
 end

@@ -19,14 +19,13 @@ defmodule TestHelpers do
   Pour pauser dans un pipe
   Note : hors d'un pipe, mettre nil en premier argument
   """
-  def pause(traversor, quantite, unit \\ :seconde) do
+  def pause(sujet, quantite, unit \\ :seconde) do
     ms = case unit do
       :minute   -> quantite * 60
       :seconde  -> quantite
     end
     Process.sleep(ms * 1000)
-
-    traversor
+    sujet
   end
 
   def now do

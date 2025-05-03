@@ -9,21 +9,24 @@ defmodule Feature.ActionTestMethods do
   import Feature.SessionMethods
 
 
-  def visiter_la_page(session, url, added_to_msg \\ nil) do
-    session = session_from(session)
+  def visiter_la_page(sujet, url, added_to_msg \\ nil) do
+    session = session_from(sujet)
     msg = "-> On rejoint la page #{url} #{added_to_msg}"
     w msg, :blue
     WB.visit(session, url)
+    sujet
   end
 
-  def cliquer_le_bouton(session, button_name) do
-    session = session_from(session)
+  def cliquer_le_bouton(sujet, button_name) do
+    session = session_from(sujet)
     click(session, WQ.button(button_name))
+    sujet
   end
 
-  def cliquer_le_lien(session, link_title) do
-    session = session_from(session)
+  def cliquer_le_lien(sujet, link_title) do
+    session = session_from(sujet)
     click(session, WQ.link(link_title))
+    sujet
   end
 
 end
