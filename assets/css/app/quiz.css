@@ -1,0 +1,26 @@
+section.quiz {
+
+}
+section.quiz label {
+  display: inline;
+}
+section.quiz label.question {
+  display: block;
+  color: #080892;
+  font-size: 1.2em;
+}
+
+section.quiz div.reponses, 
+section.quiz div.reponses > * {
+  vertical-align: baseline;
+}
+section.quiz div.reponses input[type="radio"] {
+  margin-right: 0.2em;
+}
+section.quiz div.reponses input[type="radio"] + label {
+  margin-right: 1em;
+}
+
+section.quiz div.reponses.unchoix span.reponse {
+  display: block;
+}

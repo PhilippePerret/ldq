@@ -64,6 +64,7 @@ defmodule LdQWeb.ProcedureController do
   @param
   """
   def run(conn, %{"proc_id" => proc_id} = params) do
+    # IO.puts "-> run procédure #{proc_id}"
     procedure = get_procedure(proc_id)
 
     # On ajoute quelques valeurs
@@ -91,7 +92,7 @@ defmodule LdQWeb.ProcedureController do
     true ->
       render(conn, :procedure, procedure: procedure)
     false ->
-      render(conn, :require_admin, procedure, procedure)
+      render(conn, :require_admin, procedure: procedure)
     end
   end
 

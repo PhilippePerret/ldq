@@ -277,13 +277,151 @@ defmodule LdQ.Procedure.CandidatureComite do
     """
   end
 
+  @questions_test_admission [
+    %{type: :yes_no,  id:  1, question: "Dans un bon style, les adjectifs sont-ils les bienvenus ?", right: "yes"},
+    %{type: :yes_no,  id:  2, question: "Un auteur est-il meilleur qu'une autrice ?", right: "false"},
+    %{type: :yes_no,  id:  3, question: "Un roman long est-il meilleur qu'un roman court ?", right: "false"},
+    %{type: :unchoix, id:  4, question: "Parmi ces phrases, laquelle vous semble-t-elle la meilleure ?", answers: ["phrase1", "phrase2","phrase3"], right: 1},
+    %{type: :unchoix, id:  5, question: "Pour vous, quelle est la meilleure phrase ?", answers: ["phrase1", "phrase2","phrase3"], right: 0},
+    %{type: :unchoix, id:  6, 
+      question: "Quelle est la meilleure phrase ?", answers: [
+        "phrase1", "phrase2","phrase3"], right: 2},
+    %{type: :unchoix, id:  7, 
+      question: "Quelle est pour vous la collocations la plus naturelle ?", answers: [
+      "Ébranler les certitudes", "Bousculer les certitudes", "Remettre en cause les certitudes"], right: 0},
+    %{type: :unchoix, id:  8, 
+      question: "Quelle est pour vous la collocations la plus naturelle ?", answers: [
+      "idiome 1", "idiome2", "idiome3"], right: 0},
+    %{type: :unchoix, id:  9, question: "Quel est l'idiome le plus courant ?", answers: ["idiome 1", "idiome2", "idiome3"], right: 1},
+    %{type: :yes_no,  id: 10, question: "L'orthographe n'est pas très importante pour estimer un livre", right: "false"},
+    %{type: :yes_no,  id: 11, question: "La clarté passe avant le style", right: "true"},
+    %{type: :yes_no,  id: 12, question: "Le style passe avant la structure", right: "false"},
+    %{type: :unchoix, id: 13, question: "Quelle phrase ne comporte aucune faute d'ortographe ?", right: 0, answers: [
+      "Elle vint devant lui. Il l'a serrée dans ses bras.",
+      "Elle vint devant lui. Il la serrait dans ses bras.",
+      "Elle vin devant lui. Il la pressait contre lui."
+    ]},
+    %{type: :unchoix, id: 14, question: "Quelle phrase est bonne ?", right: 0, answers: [
+      "Regarde ! comme il est venu etc.",
+      "Regarde! Il est venu etc…", 
+      "Regarde ! Il est venu etc…", 
+      "Regarde ! Comme il est grand ! Etc…"
+    ]},
+    %{type: :unchoix, id: 15, question: "Quelle phrase est juste ?", right: 0, answers: [
+      "– Ne ris pas ! lui demanda-t-elle.",
+      "–Ne ris pas ! lui demanda-t'elle",
+      " Ne ris pas ! Lui demanda-t'elle",
+      "– Ne ris pas ! Lui demanda-t-elle.",
+      " Ne ris pas! lui demanda-t-elle"
+    ]}
+  ]
+
+  @doc """
+  Grosse fonction étape qui permet au candidat de passer le test
+  d'admission au comité.
+  La page présente le test est permet de le remplir et de le soumet-
+  tre comme un formulaire "normal"
+  """
   def test_admission_comite(procedure) do
     params = procedure.params
+
+    # On inscrit le temps de départ, sauf s'il a déjà été déterminé
+    # par une autre venue
+    procedure = 
+      if Map.get(procedure.data, :test_start_time) do
+        procedure # on ne change pas le temps de départ déjà enregistré
+      else
+        data = procedure.data
+        data = Map.put(data, :test_start_time, NaiveDateTime.utc_now())
+        update_procedure(procedure, %{data: data})
+      end
+
+
+    # On récupère les champs de questions au hasard
+    random_questions = get_random_questions_for_tests(10)
+    form = %Html.Form{
+      id: "test-candidature",
+      method: "POST",
+      action: "/proc/#{procedure.id}",
+      captcha: false,
+      fields: [
+        %{tag: :raw, content: random_questions},
+        %{tag: :hidden, strict_name: "nstep", value: "eval_test_admission"}
+      ],
+      buttons: [
+        %{type: :submit, name: "Soumettre le test"}
+      ]
+    }
     
     """
     <h3>Test d'admission au comité de lecture</h3>
     <p>Merci de remplir ce test et de le soumettre.</p>
+    <p class="warning">Attention : le principe d'incitation à l'honnêteté est appliqué dans ce <nowrap>test :</nowrap> une mauvaise réponse retire un point tandis que la réponse « je ne sais pas » n'en ôte pas.</p>
+    <section class="quiz">
+      #{Html.Form.formate(form)}
+    </section>
     """
   end
+
+    @doc """
+  Évaluation du test d'admission
+  """
+  def eval_test_admission(procedure) do
+    "<p class=error>Je dois apprendre à évaluer le test d'admission</p>"
+  end
+
+
+  # @return les questions pour le test
+  # NB: Ce sont des champs pour Html.Form
+  defp get_random_questions_for_tests(nombre) do
+    get_random_question_for_test(@questions_test_admission, "", 0, nombre)
+  end
+  def get_random_question_for_test(rest, questions, nombre, expected) when nombre < expected do
+    max_id = Enum.count(rest) - 1
+    index = Enum.random(0..max_id)
+    {dquestion, rest} = List.pop_at(rest, index)
+    questions = questions <> formate_question(dquestion)
+    get_random_question_for_test(rest, questions, nombre + 1, expected)
+  end
+  def get_random_question_for_test(rest, questions, n, e), do: questions
+
+  def formate_question(data_question) do
+    qid = "Q#{data_question.id}-"
+    question = ~s(<label id="#{qid}label" class="question">#{data_question.question}</label>)
+
+    # Les boutons radio en fonction du type
+    boutons_radio =
+      case data_question.type do
+      :yes_no ->
+        [~w(yes Oui), ~w(no Non)]
+      :unchoix ->
+        data_question.answers
+        |> Enum.shuffle()
+        |> Enum.with_index()
+        |> Enum.map(fn {answer, index} -> 
+          ["rep-#{index}", answer]
+        end)
+      end
+    
+    # On ajoute le bouton "Je ne sais pas"
+    boutons_radio = boutons_radio ++ [["cpas", "Je ne sais pas"]]
+
+    # Les boutons radio formatés
+    boutons_radio =
+      boutons_radio
+      |> Enum.map(fn [sufid, label] ->
+        """
+        <span class="reponse">
+        <input type="radio" id="#{qid}#{sufid}" name="#{qid}#{sufid}" />
+        <label for="#{qid}#{sufid}">#{label}</label>
+        </span>
+        """
+      end)
+      |> Enum.join("")
+      |> wrap_in(~s(div class="reponses #{data_question.type}"), "div")
+
+    ~s(<div id="#{qid}question" class="Q-container">) <> question <> boutons_radio <> "</div>"
+  end
+
 
 end

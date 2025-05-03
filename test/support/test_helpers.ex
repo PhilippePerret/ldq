@@ -2,6 +2,7 @@ defmodule TestHelpers do
 
   alias Random.RandMethods, as: Rand
   import LdQ.ComptesFixtures
+  alias LdQ.ProcedureFixture, as: FProc # create_procedure([...])
   alias LdQ.Site.Log
   alias LdQ.ProcedureMethods, as: Proc
 
@@ -77,4 +78,12 @@ defmodule TestHelpers do
   def get_procedure(params) do
     Proc.get_procedure(params)
   end
+
+  @doc """
+  Voir LdQ.ProcedureFixture
+  """
+  def create_procedure(params) do
+    FProc.create_procedure(params)
+  end
+  
 end

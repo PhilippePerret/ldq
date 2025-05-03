@@ -59,6 +59,23 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
   end
 
 
+  # @tag :skip
+  test "Test direct" do
+    # Ce test permet de rejoindre immédiatement le formulaire de test
+    # (il peut servir de modèle pour voir comment on instancie une 
+    #  procédure et on rejoint une étape particulière)
+    user = make_user_with_session()
+    procedure = create_procedure(owner: user, dim: "candidature-comite", step: "test_admission_comite")
+    # procedure.user
+    user
+    |> se_connecte()
+    |> pause(1)
+    |> rejoint_la_page("proc/#{procedure.id}")
+    |> et_voit("h3", "Test d'admission au comité de lecture")
+    |> et_voit("form", %{id: "test-candidature"})
+    |> pause(10_000)
+  end
+
   @tag :skip
   feature "Acceptation directe de la candidature au comité de lecture" do
     
@@ -165,7 +182,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
 
   end
   
-  # @tag :skip
+  @tag :skip
   test "Candidature au comité acceptée après test" do
     detruire_les_mails()
 
@@ -194,7 +211,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     |> rejoint_le_lien_du_mail("Passer le test")
     |> pause(1)
     |> et_voit("Test d'admission")
-    |> pause(10)
+    |> pause(1000)
   end
 
   # feature "Candidature au comité refusée après test", %{session: session} do
@@ -202,10 +219,17 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
   # |> la_page_contient_le_bouton("Soumettre au test")
   # end
 
-  # # --- Autres tests particularités ---
+  # --- Autres tests particularités ---
+
+  @tag :skip
+  test "Un candidat ayant amorcé le test ne peut pas le recommencer à zéro" do
+
+  end
+  
   # test "Un utilisateur ayant déjà soumis sa candidature ne peut plus le faire" do
   #   # TODO
   # end
+
   # test "Un membre du comité ne peut soumettre sa candidature" do
   #   # TODO
   # end

@@ -12,7 +12,7 @@ defmodule LdQ.ProcedureMethods do
 
 
   def __run__(module, procedure) do
-    # IO.inspect(procedure, label: "\nJOUER LA PROCÉDURE")
+    IO.inspect(procedure, label: "\nJOUER LA PROCÉDURE")
     run_current_procedure(procedure, module, module.steps())
   end
 
@@ -90,6 +90,16 @@ defmodule LdQ.ProcedureMethods do
         ~s( style="#{params[:style]}")
       else "" end
     ~s(<a href="#{href}"#{style}>#{title}</a>)
+  end
+
+  @doc """
+  Cf. la méthode dans Html.Form
+  """
+  def wrap_in(code, tag) do
+    ~s(<#{tag}>#{code}</#{tag}>)
+  end
+  def wrap_in(code, tagIn, tagOut) do
+    ~s(<#{tagIn}>#{code}</#{tagOut}>)
   end
 
   @doc """
@@ -245,6 +255,10 @@ defmodule LdQ.ProcedureMethods do
     proc
     |> Procedure.changeset(attrs)
     |> Repo.update!()
+  end
+  # Pour éviter une erreur classique
+  def update_procedure(%Procedure{}) do
+    raise "Pour actualiser la procédure, il faut envoyer la procédure courante en premier argument et les modifications dans une Map en second argument."
   end
 
   def delete_procedure(%Procedure{} = procedure) do

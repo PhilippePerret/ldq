@@ -5,8 +5,8 @@ defmodule Html.Form do
   Html.Form.formate(%Html.Form{
     id:     {String}
     prefix: {String} # "f" par défaut
-    method: {String}
-    action: {String} POST par défaut
+    method: {String} POST par défaut
+    action: {String}
     captcha: {Boolean} Si True, on ajoute un champ captcha
     fields: [
       %{tag: , type: , name: , id: , value: , explication: , required: }
@@ -14,6 +14,8 @@ defmodule Html.Form do
       %{tag: , strict_name: , id: ...}
       # Pour un identifiant strict (sinon il deviendra "<prefix>[id]")
       %{tag: , strict_id: }
+      # Pour un code brut
+      %{type: :raw, content: "<le contenu HTML>"}
     ]
     buttons: [
       %{type: :submit/:button, name: }
@@ -28,8 +30,8 @@ defmodule Html.Form do
     sujet: nil, # Map du sujet dans lequel il faut prendre les données
     id: nil,
     prefix: "f",
-    method: nil,
-    action: "POST",
+    method: "POST",
+    action: nil,
     fields: [],
     buttons: [],
     captcha: false
@@ -75,6 +77,9 @@ defmodule Html.Form do
     |> Enum.join("\n")
   end
 
+  def build_field(:raw, dfield) do
+    dfield.content
+  end
   def build_field(:hidden, dfield) do
     build_field(:input, %{dfield | type: :hidden})
   end
@@ -272,7 +277,18 @@ defmodule Html.Form do
         |> Map.put(:defaultized, true)
       else dfield end
 
+    # Quand type: :raw a été employé au lieu de tag: :raw
+    # Ou quand type: :hidden a été employé au lieu de tag: :hidden
+    dfield = 
+      cond do
+      is_nil(Map.get(dfield, :type, nil)) -> dfield
+      dfield.type == :raw -> Map.put(dfield, :tag, :raw)
+      dfield.type == :hidden and is_nil(Map.get(dfield, :tag)) -> Map.put(dfield, :tag, :hidden)
+      true -> dfield
+      end
+
     [
+      {:tag, nil},
       {:explication, nil}, {:label, nil}, {:wrapper, "div"},
       {:type, nil}, {:required, false}, {:options, dfield[:values] || nil},
       {:value, nil}
