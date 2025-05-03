@@ -17,20 +17,22 @@ defmodule FeaturePublicMethods do
   # import TestHelpers
 
   def make_admin_with_session(attrs \\ %{}) do
-    Map.put(make_admin(attrs), :session, start_session())
+    start_session(make_admin(attrs), [])
   end
   def make_member_with_session(attrs \\ %{}) do
-    Map.put(make_member(attrs), :session, start_session())
+    start_session(make_member(attrs), [])
   end
   def make_writer_with_session(attrs \\ %{}) do
-    Map.put(make_writer(attrs), :session, start_session())
+    start_session(make_writer(attrs), [])
   end
   def make_user_with_session(attrs \\ %{}) do
-    Map.put(make_simple_user(attrs), :session, start_session())
+    start_session(make_simple_user(attrs), [])
   end
 
 
-  def start_session(params \\ []), do: Sess.start_session(params)
+  def start_session(sujet, params), do: Sess.start_session(sujet, params)
+  def start_session(params), do: Sess.start_session(params)
+  def start_session(), do: Sess.start_session([])
   
   def end_session(sujet), do: Sess.end_session(sujet)
 
@@ -38,7 +40,7 @@ defmodule FeaturePublicMethods do
   Pour déplacer la fenêtre
 
   @param {User augmenté} sujet
-  @param {Keyword|Map} position [:left, :top] ou %{:left, :top}
+  @param {Keyword} position [:left, :top]
   """
   def move_window(sujet, position), do: Sess.move_window(sujet, position)
 

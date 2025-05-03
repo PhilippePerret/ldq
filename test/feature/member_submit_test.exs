@@ -18,10 +18,9 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
   alias Wallaby.Browser,  as: WB
   alias Wallaby.Query,    as: WQ
 
-  def visiteur_candidate_pour_le_comite(session, params \\ %{}) do
+  def visiteur_candidate_pour_le_comite(params \\ %{}) do
     attrs = %{ sexe: "F" }
-    user  = make_simple_user(attrs)
-    user = Map.put(user, :session, session)
+    user  = make_user_with_session(attrs)
     je = user
     w("#{user.name} vient s'identifier", :blue)
 
@@ -35,7 +34,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     user
     |> pause(1)
     |> rejoint_la_page("/", "pour trouver un lien vers la candidature")
-    |> move_window(left: 1000)
+    |> move_window(left: 700)
     |> clique_le_lien("devenir membre du comité de lecture")
     |> pause(1)
     |> et_voit("h2", "Candidature au comité de lecture")
@@ -61,11 +60,11 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
 
 
   @tag :skip
-  feature "Acceptation directe de la candidature au comité de lecture", %{session: session} do
+  feature "Acceptation directe de la candidature au comité de lecture" do
     
     detruire_les_mails()
 
-    {user, point_test} = visiteur_candidate_pour_le_comite(session)
+    {user, point_test} = visiteur_candidate_pour_le_comite()
 
     # Une procédure a dû être enregistrée
     # Mais il est inutile de tester son enregistrement puisque
@@ -120,10 +119,10 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
   end
 
   @tag :skip
-  feature "Refus direct de la candidature au comité de lecture", %{session: session} do
+  feature "Refus direct de la candidature au comité de lecture" do
     detruire_les_mails()
 
-    {user, point_test} = visiteur_candidate_pour_le_comite(session)
+    {user, point_test} = visiteur_candidate_pour_le_comite()
 
     # procedure = 
     #   get_procedure(owner: user, submitter: user, dim: "candidature-comite")
@@ -167,10 +166,10 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
   end
   
   # @tag :skip
-  feature "Candidature au comité acceptée après test", %{session: session} do
+  test "Candidature au comité acceptée après test" do
     detruire_les_mails()
 
-    {user, point_test} = visiteur_candidate_pour_le_comite(session)
+    {user, point_test} = visiteur_candidate_pour_le_comite()
 
     admin   = make_admin_with_session()
 
@@ -187,7 +186,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     |> la_page_contient_le_bouton("Soumettre à test")
     |> clique_le_lien("Soumettre à test")
     |> pause(1)
-    |> end_session()
+    # |> end_session()
     
     user
     |> focus()

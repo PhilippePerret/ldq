@@ -22,11 +22,11 @@ defmodule Feature.PageTestMethods do
   end
 
   @doc """
-  Pour ramener la page de la session devant
+  Pour ramener la page de la session devant.
   """
   def focus(sujet) do
     session = session_from(sujet)
-    WB.execute_script(session, "window.focus()")
+    WB.focus_window(session, sujet.window_handle)
     sujet
   end
 

@@ -8,15 +8,21 @@ defmodule Feature.SessionMethods do
   @param {Keyword} params 
     params[:window_size] = [width: <width>, height: <height>]
   """
-  def start_session(params \\ []) do
+  def start_session(sujet, params) do
+    session = start_session(params)
+    Map.merge(sujet, %{
+      session: session,
+      window_handle: Wallaby.Browser.window_handle(session)
+    })
+  end
+  def start_session(params) do
     {:ok, sess} = Wallaby.start_session()
     sess
   end
 
   def move_window(sujet, position) do
     session = session_from(sujet)
-    Wallaby.move_window(session, position[:left], Enum.get(position, :top, 0))
-    sujet
+    Wallaby.Browser.move_window(session, position[:left], Keyword.get(position, :top, 0))
   end
 
   def end_session(sujet) do
