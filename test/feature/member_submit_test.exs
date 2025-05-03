@@ -35,6 +35,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     user
     |> pause(1)
     |> rejoint_la_page("/", "pour trouver un lien vers la candidature")
+    |> move_window(left: 1000)
     |> clique_le_lien("devenir membre du comité de lecture")
     |> pause(1)
     |> et_voit("h2", "Candidature au comité de lecture")

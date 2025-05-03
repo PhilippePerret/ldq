@@ -13,9 +13,16 @@ defmodule Feature.SessionMethods do
     sess
   end
 
+  def move_window(sujet, position) do
+    session = session_from(sujet)
+    Wallaby.move_window(session, position[:left], Enum.get(position, :top, 0))
+    sujet
+  end
+
   def end_session(sujet) do
     session = session_from(sujet)
     Wallaby.end_session(session) 
+    sujet
   end
 
   # Comme on peut envoyer indifféremment aux fonctions l'user ou

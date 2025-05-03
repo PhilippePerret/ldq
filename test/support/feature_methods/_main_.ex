@@ -35,6 +35,14 @@ defmodule FeaturePublicMethods do
   def end_session(sujet), do: Sess.end_session(sujet)
 
   @doc """
+  Pour déplacer la fenêtre
+
+  @param {User augmenté} sujet
+  @param {Keyword|Map} position [:left, :top] ou %{:left, :top}
+  """
+  def move_window(sujet, position), do: Sess.move_window(sujet, position)
+
+  @doc """
   Lorsque l'on a plusieurs sessions active, on peut vouloir ramener
   une page devant l'autre
   """
