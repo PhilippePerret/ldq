@@ -290,7 +290,7 @@ defmodule LdQ.ProcedureMethods do
     })
     # Pour le moment, pour ne pas alourdir, on retire l'objet PhilHtml
     data_mail = Map.delete(data_mail, :philhtml)
-    IO.inspect(data_mail, label: "\nDonnées du mail simulé")
+    # IO.inspect(data_mail, label: "\nDonnées du mail simulé")
     data_string = :erlang.term_to_binary(data_mail)
     File.write!(path, data_string)
   end

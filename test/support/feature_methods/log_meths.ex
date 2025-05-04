@@ -10,6 +10,7 @@ defmodule Feature.LogTestMethods do
     params = Keyword.put(params, :user, suj)
     params = Keyword.put(params, :owner, suj)
     check_activities(params)
+    suj
   end
 
   @doc """

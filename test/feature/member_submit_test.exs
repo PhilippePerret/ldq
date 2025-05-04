@@ -182,7 +182,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     user
     |> pause(1)
     |> clique_le_bouton("Soumettre le test")
-    |> pause(1)
+    |> pause(5)
     |> et_voit("Votre total est de -15 / 15")
     |> et_voit("vous n'avez pas le niveau requis")
 
@@ -200,7 +200,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     user
     |> pause(1)
     |> clique_le_bouton("Soumettre le test")
-    |> pause(1)
+    |> pause(5)
     |> et_voit("Votre total est de 9 / 15")
     |> et_voit("vous n'avez pas le niveau requis")
 
@@ -219,7 +219,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     user
     |> pause(1)
     |> clique_le_bouton("Soumettre le test")
-    |> pause(1)
+    |> pause(5)
     |> et_voit("Votre total est de 0 / 15")
     |> et_voit("vous n'avez pas le niveau requis")
 
@@ -434,26 +434,26 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
 
   # Test commun de la réussite du test
   defp check_test_success(user) do
-    last_point_test = user.last_point_test
-    procedure = user.procedure
-    # Il faut recharger l'user
-    user = get_user(user.id)
+    IO.inspect(user, label: "User dans check_test_success")
+    # Il faut rafraichir l'user
+    user = refresh_user(user)
+    IO.inspect(user, label: "User rafraichi")
+
     user
-    |> recoit_un_mail(after: last_point_test, mail_id: "user-admission-comite")
-    |> has_no_procedure(procedure)
+    |> recoit_un_mail(after: user.last_point_test, mail_id: "user-admission-comite")
+    |> has_no_procedure(user.procedure)
     |> has_privileges(8)
-    |> has_activity(after: last_point_test, content: "#{user.name} vient de rejoindre le comité")
+    |> has_activity(after: user.last_point_test, content: "#{user.name} vient de rejoindre le comité")
     |> et_voit("Bravo")
   end
 
   defp check_test_failure(user) do
-    last_point_test = user.last_point_test
-    procedure = user.procedure
     # Il faut recharger l'user
-    user = get_user(user.id)
+    user = refresh_user(user)
+
     user
     |> has_not_privileges(8)
-    |> has_no_procedure(procedure)
-    |> et_voit("désolé")
+    |> has_no_procedure(user.procedure)
+    |> et_voit("Désolé")
   end
 end

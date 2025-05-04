@@ -497,6 +497,7 @@ defmodule LdQ.Procedure.CandidatureComite do
     <p class="bigger bold center #{main_class}">Votre total est de #{report.note} / #{report.total}.</p>
     <p class="bigger #{main_class}">#{msg_resultat}</p>
     #{report.rapport}
+    <p>Merci d'avoir participer à ce test.</p>
     """
   end
 

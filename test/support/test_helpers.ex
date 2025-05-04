@@ -83,7 +83,49 @@ defmodule TestHelpers do
     Proc.get_procedure(params)
   end
 
-  def get_user(user_id) do
+  @doc """
+  Rafraichit l'user en prenant ses données dans la table, en conser-
+  vant sa session et sa procédure si elles existent. Ainsi que :
+  :last_point_test (son dernier point de check)
+  """
+  def refresh_user(user) when is_map(user) do
+    get_user(
+      id:         user.id, 
+      session:          Map.get(user, :session, nil), 
+      procedure:        Map.get(user, :procedure, nil),
+      last_point_test:  Map.get(user, :last_point_test, nil),
+    )
+  end
+
+  @doc """
+  Retourne un User rafraichi, relevé dans la table.
+
+  Mais la grand différence entre get_user(keyword) et get_user(binary)
+  c'est que la première retourne une Map (contrairement à la seconde
+  qui retourne un structure %User{}) à laquelle sera ajouté :session
+  et :procedure.
+  On peut utiliser, aussi, plus facilement, la méthode refresh_user/1
+  
+  @param {Keyword} params
+    params[:id]   Identifiant de l'user
+    params[:session]  Sa session courante
+    params[:procedure]  Sa procédure courante (if any)
+    params[:last_point_test] {NaiveDateTime} Son dernier point de check
+  """
+  def get_user(params) when is_list(params) do
+    user = get_user(params[:id])
+    user =
+      if params[:session] || params[:procedure] || params[:last_point_test] do
+        user = Map.from_struct(user)
+        user = Map.delete(user, :__meta__)
+        user = Map.put(user, :session, params[:session])
+        user = Map.put(user, :last_point_test, params[:last_point_test])
+        Map.put(user, :procedure, params[:procedure])
+      else 
+        user 
+      end
+  end
+  def get_user(user_id) when is_binary(user_id) do
     Comptes.get_user!(user_id)
   end
 
