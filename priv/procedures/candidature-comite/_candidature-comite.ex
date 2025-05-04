@@ -224,7 +224,8 @@ defmodule LdQ.Procedure.CandidatureComite do
 
     # Le CANDIDAT reçoit un mail lui annonçant la nouvelle et
     # lui expliquant ce qu'il doit faire maintenant
-    # TODO
+    mail_data = %{defmaildata | mail_id: "user-admission-comite"}
+    
     # les ADMINISTRATEURS reçoivent tous l'information du nouveau
     # lecture
     mail_data = %{defmaildata | mail_id: "admin-new-membre-comite"}
@@ -250,11 +251,11 @@ defmodule LdQ.Procedure.CandidatureComite do
   end
 
   def proceed_acceptation_candidature(procedure) do
-    params = %{} # Pour le moment
+    params = procedure.params
     user = get_user(procedure)
     params = params
-    |> Map.put("procedure", procedure)
-    |> Map.put("mail_id", "user-soumission-success")
+      |> Map.put("procedure", procedure)
+      |> Map.put("mail_id", "user-soumission-success")
     send_mail(to: user.mail, from: :admins, with: params)
   end
 
@@ -492,7 +493,12 @@ defmodule LdQ.Procedure.CandidatureComite do
     """
   end
 
+
+
+
   # =========== FIN DES ÉTAPES ================== #
+
+
 
   # @return les questions pour le test
   # NB: Ce sont des champs pour Html.Form

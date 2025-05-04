@@ -385,7 +385,7 @@ defmodule LdQ.ProcedureMethods do
       [
         evaluation: false,
         variables: variables, 
-        helpers: [LdQ.Mails.Helpers, Helpers.Feminines, LdQWeb.ViewHelpers]
+        helpers: all_helpers()
       ])
     # |> IO.inspect(label: "\n\n+++ PHILDATA DU MAIL À ENVOYER")
 
@@ -491,7 +491,16 @@ defmodule LdQ.ProcedureMethods do
       no_header: true, 
       evaluation: true, 
       no_file: true, 
-      helpers: [LdQWeb.ViewHelpers]
+      helpers: all_helpers()
+    ]
+  end
+
+  def all_helpers do
+    [
+      LdQWeb.ViewHelpers, 
+      LdQ.LinkHelpers,
+      LdQ.Mails.Helpers,
+      Helpers.Feminines,
     ]
   end
 

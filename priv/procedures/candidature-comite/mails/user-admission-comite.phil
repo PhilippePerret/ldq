@@ -1,0 +1,17 @@
+---
+subject = Admission dans le comité de lecture
+---
+Bonjour <:: user_name ::>,
+
+J'ai le plaisir de vous annoncer que vous venez d'être admis comme membre du comité de lecture du label “Lecture de Qualité”.
+
+Félicitation à vous !
+
+**Et que faire maintenant ?** C'est très simple, il suffit de rejoindre la <: page_debut_comite_lecture(page de démarrage de l'activité de lecture, true) :>.
+
+Encore bravo à vous et heureux de vous compter parmi nous.
+
+Bien cordialement,
+
+<: signature_administration :>
+
