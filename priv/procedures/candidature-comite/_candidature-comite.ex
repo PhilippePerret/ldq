@@ -22,7 +22,8 @@ defmodule LdQ.Procedure.CandidatureComite do
     %{name: "Refus de la candidature", fun: :refuser_candidature, admin_required: true, owner_required: false},
     %{name: "Procéder au refus", fun: :proceed_refus_candidature, admin_required: true, owner_required: false},
     %{name: "Soumettre à un test", fun: :soumettre_a_test, admin_required: true, owner_required: false},
-    %{name: "Test d'admission", fun: :test_admission_comite, admin_required: false, owner_required: true}
+    %{name: "Test d'admission", fun: :test_admission_comite, admin_required: false, owner_required: true},
+    %{name: "Évaluvation du test", fun: :eval_test_admission, admin_required: false, owner_required: true}
   ] |> Enum.with_index() |> Enum.map(fn {s, index} -> Map.put(s, :index, index) end)
   def steps, do: @steps
 
@@ -271,49 +272,71 @@ defmodule LdQ.Procedure.CandidatureComite do
     })
     send_mail(to: procedure.user, from: :admin, with: data_mail)
     # Marquage de procédure suivante
-    procedure = update_procedure(procedure, %{next_step: "test_admission_comite"})
+    update_procedure(procedure, %{next_step: "test_admission_comite"})
     """
     <p>Une demande a été adressée au candidat pour passer le test d'admission. La balle est dans son camp.</p>
     """
   end
 
+  @ans_yesno ["Oui", "Non"]
+
   @questions_test_admission [
-    %{type: :yes_no,  id:  1, question: "Dans un bon style, les adjectifs sont-ils les bienvenus ?", right: "yes"},
-    %{type: :yes_no,  id:  2, question: "Un auteur est-il meilleur qu'une autrice ?", right: "false"},
-    %{type: :yes_no,  id:  3, question: "Un roman long est-il meilleur qu'un roman court ?", right: "false"},
-    %{type: :unchoix, id:  4, question: "Parmi ces phrases, laquelle vous semble-t-elle la meilleure ?", answers: ["phrase1", "phrase2","phrase3"], right: 1},
-    %{type: :unchoix, id:  5, question: "Pour vous, quelle est la meilleure phrase ?", answers: ["phrase1", "phrase2","phrase3"], right: 0},
-    %{type: :unchoix, id:  6, 
-      question: "Quelle est la meilleure phrase ?", answers: [
-        "phrase1", "phrase2","phrase3"], right: 2},
-    %{type: :unchoix, id:  7, 
+    %{id:  1, question: "Dans un bon style, les adjectifs sont-ils les bienvenus ?", answers: @ans_yesno, right: 1},
+    %{id:  2, question: "Un auteur est-il meilleur qu'une autrice ?", answers: @ans_yesno, right: 1},
+    %{id:  3, question: "Un roman long n'est pas meilleur qu'un roman court ?", answers: @ans_yesno, right: 0},
+    %{id:  4, question: "Parmi ces phrases, laquelle vous semble-t-elle la meilleure ?", answers: [
+      "Il approcha de la porte, sortit son épée et frappa six coups.", 
+      "Il approcha de la grande et belle porte, sortit son épée lustrée et frappa six grands coups.", 
+      "Il approcha de la grande et belle porte, sortit sa grande épée lustrée et frappa six grands coups."], right: 0
+    },
+    %{id:  5, question: "Pour vous, quelle est la meilleure phrase ?", right: 0, answers: [
+      "Délicatement, il lui fit une caresse en pensée. Si elle avait été sincère, elle l'aurait touchée.", 
+      "Délicatement, il lui fit, en pensée, une caresse qui, si elle avait été sincère, l'aurait touchée.",
+      "Il lui fit, délicatement, en pensée, une caresse qui l'aurait touchée si elle avait été sincère."
+    ]},
+    %{id:  6, 
+      question: "Quelle est la meilleure phrase ?", right: 0, answers: [
+        "phrase1", 
+        "phrase2",
+        "phrase3"
+    ]},
+    %{id:  7, 
       question: "Quelle est pour vous la collocations la plus naturelle ?", answers: [
       "Ébranler les certitudes", "Bousculer les certitudes", "Remettre en cause les certitudes"], right: 0},
-    %{type: :unchoix, id:  8, 
+    %{id:  8, 
       question: "Quelle est pour vous la collocations la plus naturelle ?", answers: [
+      "Briser ses chaines", "Rompre ses chaines", "Couper ses chaines"], right: 0},
+    %{id:  9, question: "Quel est l'idiome le plus courant ?", answers: [
       "idiome 1", "idiome2", "idiome3"], right: 0},
-    %{type: :unchoix, id:  9, question: "Quel est l'idiome le plus courant ?", answers: ["idiome 1", "idiome2", "idiome3"], right: 1},
-    %{type: :yes_no,  id: 10, question: "L'orthographe n'est pas très importante pour estimer un livre", right: "false"},
-    %{type: :yes_no,  id: 11, question: "La clarté passe avant le style", right: "true"},
-    %{type: :yes_no,  id: 12, question: "Le style passe avant la structure", right: "false"},
-    %{type: :unchoix, id: 13, question: "Quelle phrase ne comporte aucune faute d'ortographe ?", right: 0, answers: [
-      "Elle vint devant lui. Il l'a serrée dans ses bras.",
-      "Elle vint devant lui. Il la serrait dans ses bras.",
-      "Elle vin devant lui. Il la pressait contre lui."
+    %{id: 10, question: "L'orthographe n'est pas très importante pour estimer un livre", answers: @ans_yesno, right: 1},
+    %{id: 11, question: "La clarté passe avant le style", answers: @ans_yesno, right: 0},
+    %{id: 12, question: "Le style passe avant la structure", answers: @ans_yesno, right: 1},
+    %{id: 13, question: "Quelle phrase ne comporte aucune faute d'ortographe ?", right: 0, answers: [
+      "Quand elle est venue devant lui, il l'a serrée dans ses bras.",
+      "Quand elle est venue devant lui, il la serrait dans ses bras.",
+      "Quand elle est venue devant lui, il la pressait contre lui."
     ]},
-    %{type: :unchoix, id: 14, question: "Quelle phrase est bonne ?", right: 0, answers: [
-      "Regarde ! comme il est venu etc.",
-      "Regarde! Il est venu etc…", 
-      "Regarde ! Il est venu etc…", 
+    %{id: 14, question: "Quelle phrase est bonne ?", right: 0, answers: [
+      "Regarde ! comme il est beau, etc.",
+      "Regarde! Il est venu avec lui, etc…", 
+      "Regarde ! Il est venu, etc…", 
       "Regarde ! Comme il est grand ! Etc…"
     ]},
-    %{type: :unchoix, id: 15, question: "Quelle phrase est juste ?", right: 0, answers: [
+    %{id: 15, question: "Quelle phrase est valide ?", right: 0, answers: [
       "– Ne ris pas ! lui demanda-t-elle.",
-      "–Ne ris pas ! lui demanda-t'elle",
+      "–Ne ris pas ! lui demanda-t-elle",
       " Ne ris pas ! Lui demanda-t'elle",
       "– Ne ris pas ! Lui demanda-t-elle.",
       " Ne ris pas! lui demanda-t-elle"
-    ]}
+    ]},
+    %{id: 16, question: "Quelle est la phrase correcte ?", right: 0, answers: [
+      "Comme il approchait de la ville, il aperçut le feu.",
+      "Comme il approcha de la ville, il aperçut le feu.",
+      "Comme il approchait de la ville, il eut aperçu le feu."
+    ]},
+    %{id: 17, question: "La répétition de mots améliore le style.", right: 1, answers: @ans_yesno},
+    %{id: 18, question: "L'usage des comparaisons en “comme…” (“comme une fusée orpheline”) améliore grandement le style.", right: 1, answers: @ans_yesno},
+    %{id: 19, question: "L'usage des pronoms apporte de la confusion.", right: 0, answers: @ans_yesno},
   ]
 
   @doc """
@@ -338,20 +361,28 @@ defmodule LdQ.Procedure.CandidatureComite do
 
 
     # On récupère les champs de questions au hasard
-    random_questions = get_random_questions_for_tests(10)
+    data_questions = get_random_questions_for_tests(10)
+    questions_formated = formate_questions(data_questions)
+
     form = %Html.Form{
       id: "test-candidature",
       method: "POST",
       action: "/proc/#{procedure.id}",
       captcha: false,
       fields: [
-        %{tag: :raw, content: random_questions},
+        %{tag: :raw, content: questions_formated},
         %{tag: :hidden, strict_name: "nstep", value: "eval_test_admission"}
       ],
       buttons: [
         %{type: :submit, name: "Soumettre le test"}
       ]
     }
+
+    # En mode test, on enregistre les données questions choisies
+    if Mix.env() == :test do
+      path = Path.join(["test","xtmp","test-comite-#{procedure.user.id}"])
+      File.write!(path, :erlang.term_to_binary(data_questions))
+    end
     
     """
     <h3>Test d'admission au comité de lecture</h3>
@@ -367,60 +398,150 @@ defmodule LdQ.Procedure.CandidatureComite do
   Évaluation du test d'admission
   """
   def eval_test_admission(procedure) do
-    "<p class=error>Je dois apprendre à évaluer le test d'admission</p>"
+    params = procedure.params
+    IO.inspect(params, label: "\nParam de eval_test_admission")
+
+    questions_ids = params["questions_ids"] |> Enum.map(fn id -> String.to_integer(id) end)
+    
+    table_questions = 
+      @questions_test_admission
+      |> Enum.reduce(%{}, fn dquest, table -> 
+        Map.put(table, dquest.id, dquest)
+      end)
+
+    questions = 
+      questions_ids
+      |> Enum.map(fn id -> 
+        table_questions[id]
+      end)
+      # |> IO.inspect(label: "Questions proposées")
+
+    # Tenir compte du temps 
+    # data.test_start_time
+    # TODO
+
+    report =
+      questions
+      |> Enum.with_index()
+      |> Enum.reduce(%{note: 0, total: 0, rapport: ""}, fn {dquest, index}, report ->
+        qid = "Q#{dquest.id}"
+        if params[qid] do
+          rep = params[qid]
+          # IO.inspect(rep, label: "\nRéponse de #{qid}")
+          choix = String.split(rep, "-") |> Enum.at(1) |> String.to_integer()
+          {new_note, phrase_rapport} =
+            if choix == dquest.right do
+              # Bonne réponse
+              {report.note + 1, "Question ##{index + 1} : OK (#{dquest.question})"}
+            else
+              # Mauvaise réponse
+              good_answer = Enum.at(dquest.answers, dquest.right)
+              if choix == 100 do
+                # a répondu "ne sait pas"
+                {report.note, "Question ##{index + 1} : La bonne réponse était “#{good_answer}”."}
+              else
+                bad_answer = Enum.at(dquest.answers, choix)
+                {report.note - 1, "Question ##{index + 1} : Non, la bonne réponse n'était pas “#{bad_answer}” mais “#{good_answer}”."}
+              end
+            end
+          Map.merge(report, %{
+            note: new_note,
+            rapport: report.rapport <> wrap_in(phrase_rapport, "div"),
+            total: report.total + 1
+          })
+        else
+          # Question sans réponse
+          good_answer = Enum.at(dquest.answers, dquest.right)
+          Map.merge(report, %{
+            total: report.total + 1,
+            rapport: report.rapport <> wrap_in("Non répondue : #{dquest.question} Réponses : #{good_answer}", "div")
+          })
+        end
+      end)
+    # Donner le résultat direct, notamment avec les bonnes réponses.
+    # TODO
+
+    # Avertir l'administration avec les résultats
+    # TODO
+
+    """
+    <h3>Résultat du test d'admission</h3>
+    <p class="bigger bold center">Votre total est de #{report.note} / #{report.total}.</p>
+    #{report.rapport}
+    <p class=error>Je dois apprendre à évaluer le test d'admission</p>
+    """
   end
 
+  # =========== FIN DES ÉTAPES ================== #
 
   # @return les questions pour le test
   # NB: Ce sont des champs pour Html.Form
   defp get_random_questions_for_tests(nombre) do
-    get_random_question_for_test(@questions_test_admission, "", 0, nombre)
+    get_random_question_for_test(@questions_test_admission, [], 0, nombre)
   end
   def get_random_question_for_test(rest, questions, nombre, expected) when nombre < expected do
     max_id = Enum.count(rest) - 1
     index = Enum.random(0..max_id)
     {dquestion, rest} = List.pop_at(rest, index)
-    questions = questions <> formate_question(dquestion)
+    questions = questions ++ [dquestion]
     get_random_question_for_test(rest, questions, nombre + 1, expected)
   end
   def get_random_question_for_test(rest, questions, n, e), do: questions
 
-  def formate_question(data_question) do
-    qid = "Q#{data_question.id}-"
-    question = ~s(<label id="#{qid}label" class="question">#{data_question.question}</label>)
+  # Formater les questions relevées au hasard
+  defp formate_questions(data_questions) do
+    data_questions
+    |> Enum.map(fn data_question -> 
+      formate_question(data_question)
+    end)
+    |> Enum.join("")
+  end
+  defp formate_question(data_question) do
+    qid = "Q#{data_question.id}"
+    question = ~s(<label id="#{qid}-label" class="question">#{data_question.question}</label>)
 
     # Les boutons radio en fonction du type
     boutons_radio =
-      case data_question.type do
-      :yes_no ->
-        [~w(yes Oui), ~w(no Non)]
-      :unchoix ->
-        data_question.answers
-        |> Enum.shuffle()
-        |> Enum.with_index()
-        |> Enum.map(fn {answer, index} -> 
-          ["rep-#{index}", answer]
-        end)
-      end
+      data_question.answers
+      |> Enum.with_index()
+      |> Enum.shuffle()
+      |> Enum.map(fn {answer, index} -> 
+        ["rep-#{index}", answer]
+      end)
     
     # On ajoute le bouton "Je ne sais pas"
-    boutons_radio = boutons_radio ++ [["cpas", "Je ne sais pas"]]
+    boutons_radio = boutons_radio ++ [["rep-100", "Je ne sais pas"]]
 
+    style_reponses = 
+      boutons_radio |> Enum.reduce("inline", fn [sufid, label], value ->
+        if String.length(label) > 14 do
+          "block"
+        else
+          value
+        end
+      end)
     # Les boutons radio formatés
     boutons_radio =
       boutons_radio
       |> Enum.map(fn [sufid, label] ->
         """
-        <span class="reponse">
-        <input type="radio" id="#{qid}#{sufid}" name="#{qid}#{sufid}" />
-        <label for="#{qid}#{sufid}">#{label}</label>
+        <span class="reponse #{style_reponses}">
+        <input type="radio" id="#{qid}_#{sufid}" name="#{qid}" value="#{sufid}" />
+        <label for="#{qid}_#{sufid}">#{label}</label>
         </span>
         """
       end)
       |> Enum.join("")
-      |> wrap_in(~s(div class="reponses #{data_question.type}"), "div")
+      |> wrap_in(~s(div class="reponses"), "div")
 
-    ~s(<div id="#{qid}question" class="Q-container">) <> question <> boutons_radio <> "</div>"
+    hidden_id = ~s(<input type="hidden" name="questions_ids[]" value="#{data_question.id}" />)
+    [
+      ~s(<div id="#{qid}question" class="Q-container">),
+      hidden_id, 
+      question,
+      boutons_radio,
+      "</div>"
+    ] |> Enum.join("")
   end
 
 

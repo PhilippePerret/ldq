@@ -73,7 +73,43 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     |> rejoint_la_page("proc/#{procedure.id}")
     |> et_voit("h3", "Test d'admission au comité de lecture")
     |> et_voit("form", %{id: "test-candidature"})
-    |> pause(10_000)
+    |> pause(1)
+
+    # On relève les données des questions pour ce test
+    path = Path.join(["test","xtmp","test-comite-#{user.id}"])
+    data_questions = :erlang.binary_to_term(File.read!(path))
+    IO.inspect(data_questions, label: "Données des questions")
+    File.rm(path)
+
+    data_quiz =
+      data_questions
+      |> Enum.reduce(%{total: 0, reponses: []}, fn dquest, coll ->
+        qid = "Q#{dquest.id}"
+        choices = (0..(Enum.count(dquest.answers) - 1)) |> Range.to_list() 
+        choices = choices ++ [100]
+        choix = Enum.random(choices)
+        total = 
+          cond do
+            choix == 100 -> coll.total
+            choix == dquest.right -> coll.total + 1
+            choix != dquest.right -> coll.total - 1
+          end
+        # L'utilisateur choisit
+        user
+        |> coche_le_choix("#{qid}_rep-#{choix}")
+        |> pause(0.5)
+        # Collecteur
+        Map.merge(coll, %{
+          total: total,
+          reponses: coll.reponses ++ [ [dquest.id, choix] ]
+        })
+      end)
+
+    # Après avoir rempli le questionnaire, l'user peut le soumettre
+    user
+    |> clique_le_bouton("Soumettre le test")
+    |> pause(500)
+    |> et_voit("Votre total est de #{data_quiz.total} / #{Enum.count(data_quiz.reponses)}")
   end
 
   @tag :skip

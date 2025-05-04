@@ -1,14 +1,14 @@
 .center {
   text-align: center;
 }
+.right {
+  text-align:right!important;
+}
 
 .text-sm {
   font-size:inherit!important;
 }
 
-.right {
-  text-align:right!important;
-}
 
 .links-in-line {
   margin-top:12px;
@@ -20,4 +20,11 @@
   margin-right: 4px;
 }
 
+.bold {font-weight: bold!important}
+
+.bigger {font-size: 1.2em!important}
 .tiny {font-size: 13pt!important}
+
+.block {display: block!important}
+.inline {display: inline!important}
+.inline-block {display:inline-block!important}

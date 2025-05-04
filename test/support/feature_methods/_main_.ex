@@ -119,26 +119,6 @@ defmodule FeaturePublicMethods do
     Mail.get_lien_in_mail_and_visit(destinataire, link_title, destinataire.mails)
   end
 
-  @doc """
-  Pour cliquer sur un bouton dans la page
-
-  @param {Wallaby.Session} ses La session courante
-  @param {String} btn Nom du bouton, on son "#id"
-
-  @return {Wallaby.Session}
-  """
-  def clique_le_bouton(suj, but), do: Act.cliquer_le_bouton(suj, but)
-
-  @doc """
-  Pour cliquer un lien <a ...>tit</a>
-
-  @param {Wallaby.Session} ses La session courante
-  @param {String} tit Le titre du lien ou son "#id"
-
-  @return {Wallaby.Session}
-  """
-  def clique_le_lien(suj, tit), do: Act.cliquer_le_lien(suj, tit)
-
 
   # ---- Méthodes de test --------
 
@@ -159,6 +139,28 @@ defmodule FeaturePublicMethods do
   def remplit_le_champ(suj, champ), do: Form.remplir_le_champ(suj, champ)
   def avec(fonction, value), do: Form.avec(fonction, value)
 
+
+  @doc """
+  Pour cliquer sur un bouton dans la page.
+  Il s'agit soit d'un <button> soit d'un <a.btn>
+
+  @param {Wallaby.Session} ses La session courante
+  @param {String} btn Nom du bouton, on son "#id"
+
+  @return {Wallaby.Session}
+  """
+  def clique_le_bouton(suj, but), do: Act.cliquer_le_bouton(suj, but)
+
+  @doc """
+  Pour cliquer un lien <a ...>tit</a>
+
+  @param {Wallaby.Session} ses La session courante
+  @param {String} tit Le titre du lien ou son "#id"
+
+  @return {Wallaby.Session}
+  """
+  def clique_le_lien(suj, tit), do: Act.cliquer_le_lien(suj, tit)
+
   @doc """
   Pour choisir un item (option) dans un menu (select)
 
@@ -172,6 +174,13 @@ defmodule FeaturePublicMethods do
 
   def coche_la_case(suj, case_name), do: Form.cocher_la_case(suj, case_name)
 
+  @doc """
+  Coche un bouton radio
+  Pour le moment, il faut obligatoirement que le bouton radio ait un 
+  identifiant unique précis (composé le plus souvent avec sa valeur)
+  """
+  def coche_le_choix(suj, radio_id), do: Form.coche_le_button_radio(suj, radio_id)
+  
   @doc """
   Pour régler le bon captcha dans le formulaire
 

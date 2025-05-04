@@ -12,7 +12,7 @@ defmodule LdQ.ProcedureMethods do
 
 
   def __run__(module, procedure) do
-    IO.inspect(procedure, label: "\nJOUER LA PROCÉDURE")
+    # IO.inspect(procedure, label: "\nJOUER LA PROCÉDURE")
     run_current_procedure(procedure, module, module.steps())
   end
 

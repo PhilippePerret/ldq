@@ -18,9 +18,16 @@ defmodule Feature.FormTestMethods do
     fonction.(value)
   end
 
-  def cocher_la_case(session, case_name) do
-    session = session_from(session)
+  def cocher_la_case(sujet, case_name) do
+    session = session_from(sujet)
     click(session, WQ.checkbox(case_name))
+    sujet
+  end
+
+  def coche_le_button_radio(sujet, radio_id) do
+    session = session_from(sujet)
+    click(session, WQ.radio_button(radio_id))
+    sujet
   end
 
   @doc """

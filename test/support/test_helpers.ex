@@ -21,11 +21,14 @@ defmodule TestHelpers do
   Note : hors d'un pipe, mettre nil en premier argument
   """
   def pause(sujet, quantite, unit \\ :seconde) do
-    ms = case unit do
-      :minute   -> quantite * 60
-      :seconde  -> quantite
-    end
-    Process.sleep(ms * 1000)
+    ms = 
+      case unit do
+        :minute   -> quantite * 60
+        :seconde  -> quantite
+      end * 1000
+    ms = if is_float(ms), do: trunc(ms), else: ms
+    # On peut s'arrêter
+    Process.sleep(ms)
     sujet
   end
 
