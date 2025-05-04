@@ -7,6 +7,7 @@ defmodule LdQ.ProcedureMethods do
   alias LdQ.{Repo, Comptes, Notification, Constantes, Procedure}
   alias LdQ.Comptes.User
 
+  import Html.Helpers
 
   @prefix_mail_subject "[📚 LdQ] "
 
@@ -90,16 +91,6 @@ defmodule LdQ.ProcedureMethods do
         ~s( style="#{params[:style]}")
       else "" end
     ~s(<a href="#{href}"#{style}>#{title}</a>)
-  end
-
-  @doc """
-  Cf. la méthode dans Html.Form
-  """
-  def wrap_in(code, tag) do
-    ~s(<#{tag}>#{code}</#{tag}>)
-  end
-  def wrap_in(code, tagIn, tagOut) do
-    ~s(<#{tagIn}>#{code}</#{tagOut}>)
   end
 
   @doc """

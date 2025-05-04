@@ -9,6 +9,17 @@
   font-size:inherit!important;
 }
 
+.error,
+.warning,
+.failure
+{color: red}
+
+.success,
+.ok
+{color: green}
+
+.notice 
+{color: blue}
 
 .links-in-line {
   margin-top:12px;

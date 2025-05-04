@@ -2,11 +2,7 @@ defmodule LdQ.Procedure.XModeleProcedure do # <========= RENSEIGNER
   @moduledoc """
   <Description de la procédure>
   """
-
-  import LdQ.ProcedureMethods
-  import LdQ.Site.PageHelpers # formlink, ldb_label etc.
-  import Helpers.Feminines
-  use Phoenix.Component
+  use LdQWeb.Procedure
 
   def proc_name, do: "<NOM DE LA PROCÉDURE>"
   def proc_dim,   do: "xmodule_procedure" # <========= RENSEIGNER

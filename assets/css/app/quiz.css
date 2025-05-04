@@ -24,3 +24,12 @@ section.quiz div.reponses input[type="radio"] + label {
 section.quiz div.reponses.unchoix span.reponse {
   display: block;
 }
+
+/* Pour les corrections (bonnes réponses) */
+div.qreponse_correction {
+  border:1px solid #cccccc;
+  padding: 0.5em;
+}
+div.qreponse_correction div.question {
+  font-weight: bold;
+}

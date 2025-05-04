@@ -4,12 +4,7 @@ defmodule LdQ.Procedure.CandidatureComite do
   depuis la soumission de sa candidature jusqu'à son acceptation ou 
   son refus.
   """
-  import LdQ.ProcedureMethods
-  import LdQ.Site.PageHelpers # formlink, ldb_label etc.
-  import Helpers.Feminines
-  use Phoenix.Component
-  
-  alias LdQ.Comptes.User
+  use LdQWeb.Procedure
 
   def proc_name, do: "Candidature au comité de lecture"
 
@@ -308,9 +303,9 @@ defmodule LdQ.Procedure.CandidatureComite do
       "Briser ses chaines", "Rompre ses chaines", "Couper ses chaines"], right: 0},
     %{id:  9, question: "Quel est l'idiome le plus courant ?", answers: [
       "idiome 1", "idiome2", "idiome3"], right: 0},
-    %{id: 10, question: "L'orthographe n'est pas très importante pour estimer un livre", answers: @ans_yesno, right: 1},
-    %{id: 11, question: "La clarté passe avant le style", answers: @ans_yesno, right: 0},
-    %{id: 12, question: "Le style passe avant la structure", answers: @ans_yesno, right: 1},
+    %{id: 10, question: "L'orthographe n'est pas très importante pour estimer un livre. C'est vrai ?", answers: @ans_yesno, right: 1},
+    %{id: 11, question: "La clarté passe-t-elle avant le style ?", answers: @ans_yesno, right: 0},
+    %{id: 12, question: "Le style passe-t-il avant la structure ?", answers: @ans_yesno, right: 1},
     %{id: 13, question: "Quelle phrase ne comporte aucune faute d'ortographe ?", right: 0, answers: [
       "Quand elle est venue devant lui, il l'a serrée dans ses bras.",
       "Quand elle est venue devant lui, il la serrait dans ses bras.",
@@ -324,10 +319,10 @@ defmodule LdQ.Procedure.CandidatureComite do
     ]},
     %{id: 15, question: "Quelle phrase est valide ?", right: 0, answers: [
       "– Ne ris pas ! lui demanda-t-elle.",
-      "–Ne ris pas ! lui demanda-t-elle",
-      " Ne ris pas ! Lui demanda-t'elle",
+      "–Ne ris pas ! lui demanda-t-elle.",
+      "- Ne ris pas ! Lui demanda-t'elle.",
       "– Ne ris pas ! Lui demanda-t-elle.",
-      " Ne ris pas! lui demanda-t-elle"
+      " Ne ris pas! lui demanda-t-elle."
     ]},
     %{id: 16, question: "Quelle est la phrase correcte ?", right: 0, answers: [
       "Comme il approchait de la ville, il aperçut le feu.",
@@ -336,7 +331,7 @@ defmodule LdQ.Procedure.CandidatureComite do
     ]},
     %{id: 17, question: "La répétition de mots améliore le style.", right: 1, answers: @ans_yesno},
     %{id: 18, question: "L'usage des comparaisons en “comme…” (“comme une fusée orpheline”) améliore grandement le style.", right: 1, answers: @ans_yesno},
-    %{id: 19, question: "L'usage des pronoms apporte de la confusion.", right: 0, answers: @ans_yesno},
+    %{id: 19, question: "L'usage des pronoms personnels apporte de la confusion.", right: 0, answers: @ans_yesno},
   ]
 
   @doc """
@@ -361,7 +356,7 @@ defmodule LdQ.Procedure.CandidatureComite do
 
 
     # On récupère les champs de questions au hasard
-    data_questions = get_random_questions_for_tests(10)
+    data_questions = get_random_questions_for_tests(15)
     questions_formated = formate_questions(data_questions)
 
     form = %Html.Form{
@@ -424,7 +419,11 @@ defmodule LdQ.Procedure.CandidatureComite do
       questions
       |> Enum.with_index()
       |> Enum.reduce(%{note: 0, total: 0, rapport: ""}, fn {dquest, index}, report ->
+        # Fabrication du rapport pour la question
         qid = "Q#{dquest.id}"
+        mark_quest = wrap_in("Question ##{index + 1} : #{dquest.question}", "div.question")
+        good_answer = Enum.at(dquest.answers, dquest.right)
+
         if params[qid] do
           rep = params[qid]
           # IO.inspect(rep, label: "\nRéponse de #{qid}")
@@ -432,21 +431,20 @@ defmodule LdQ.Procedure.CandidatureComite do
           {new_note, phrase_rapport} =
             if choix == dquest.right do
               # Bonne réponse
-              {report.note + 1, "Question ##{index + 1} : OK (#{dquest.question})"}
+              {report.note + 1, ~s[<span class="success bold">+1 pt</span>  — OK (#{good_answer})]}
             else
               # Mauvaise réponse
-              good_answer = Enum.at(dquest.answers, dquest.right)
               if choix == 100 do
                 # a répondu "ne sait pas"
-                {report.note, "Question ##{index + 1} : La bonne réponse était “#{good_answer}”."}
+                {report.note, ~s[<span class="notice bold">+ 0 pts</span> — Bonne réponse : #{good_answer}.]}
               else
                 bad_answer = Enum.at(dquest.answers, choix)
-                {report.note - 1, "Question ##{index + 1} : Non, la bonne réponse n'était pas “#{bad_answer}” mais “#{good_answer}”."}
+                {report.note - 1, ~s[<span class="error bold">-1 pt</span> — La bonne réponse n'était pas “#{bad_answer}” mais “#{good_answer}”.]}
               end
             end
           Map.merge(report, %{
             note: new_note,
-            rapport: report.rapport <> wrap_in(phrase_rapport, "div"),
+            rapport: report.rapport <> ~s(<div class="qreponse_correction">) <> mark_quest <> wrap_in(phrase_rapport, "div") <> "</div>",
             total: report.total + 1
           })
         else
@@ -454,7 +452,7 @@ defmodule LdQ.Procedure.CandidatureComite do
           good_answer = Enum.at(dquest.answers, dquest.right)
           Map.merge(report, %{
             total: report.total + 1,
-            rapport: report.rapport <> wrap_in("Non répondue : #{dquest.question} Réponses : #{good_answer}", "div")
+            rapport: report.rapport <> wrap_in("Non répondue : #{dquest.question} Réponses : #{good_answer}", "div.qreponse_correction")
           })
         end
       end)
@@ -464,11 +462,19 @@ defmodule LdQ.Procedure.CandidatureComite do
     # Avertir l'administration avec les résultats
     # TODO
 
+    is_success = report.note / report.total >= 0.7
+    main_class = if is_success, do: "success", else: "failure"
+    msg_resultat = if is_success do
+      "Bravo ! Vous avez passé ce test avec succès, votre candidature va pouvoir être validée !"
+    else
+      "Désolé, vous n'avez pas le niveau requis pour rejoindre le comité de lecture du label. Nous en sommes désolés pour vous."
+    end
+
     """
     <h3>Résultat du test d'admission</h3>
-    <p class="bigger bold center">Votre total est de #{report.note} / #{report.total}.</p>
+    <p class="bigger bold center #{main_class}">Votre total est de #{report.note} / #{report.total}.</p>
+    <p class="bigger #{main_class}">#{msg_resultat}</p>
     #{report.rapport}
-    <p class=error>Je dois apprendre à évaluer le test d'admission</p>
     """
   end
 

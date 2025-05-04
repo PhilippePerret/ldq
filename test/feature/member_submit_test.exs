@@ -58,13 +58,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     {user, point_test}
   end
 
-
-  # @tag :skip
-  test "Test direct" do
-    # Ce test permet de rejoindre immédiatement le formulaire de test
-    # (il peut servir de modèle pour voir comment on instancie une 
-    #  procédure et on rejoint une étape particulière)
-    user = make_user_with_session()
+  def user_rejoint_le_test(user) do
     procedure = create_procedure(owner: user, dim: "candidature-comite", step: "test_admission_comite")
     # procedure.user
     user
@@ -78,8 +72,20 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     # On relève les données des questions pour ce test
     path = Path.join(["test","xtmp","test-comite-#{user.id}"])
     data_questions = :erlang.binary_to_term(File.read!(path))
-    IO.inspect(data_questions, label: "Données des questions")
+    # IO.inspect(data_questions, label: "Données des questions")
+    # On détruit toujours le fichier
     File.rm(path)
+
+    {procedure, data_questions}
+  end
+
+  @tag :skip
+  test "Test du test qu'on atteint directement" do
+    # Ce test permet de rejoindre immédiatement le formulaire de test
+    # (il peut servir de modèle pour voir comment on instancie une 
+    #  procédure et on rejoint une étape particulière)
+    user = make_user_with_session()
+    {procedure, data_questions} = user_rejoint_le_test(user)
 
     data_quiz =
       data_questions
@@ -97,7 +103,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
         # L'utilisateur choisit
         user
         |> coche_le_choix("#{qid}_rep-#{choix}")
-        |> pause(0.5)
+        |> pause(0.3)
         # Collecteur
         Map.merge(coll, %{
           total: total,
@@ -108,9 +114,76 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     # Après avoir rempli le questionnaire, l'user peut le soumettre
     user
     |> clique_le_bouton("Soumettre le test")
-    |> pause(500)
+    |> pause(2)
     |> et_voit("Votre total est de #{data_quiz.total} / #{Enum.count(data_quiz.reponses)}")
   end
+
+  # @tag :skip
+  test "Un candidat qui met toutes les bonnes réponses est reçu" do
+    user = make_user_with_session()
+    {procedure, data_questions} = user_rejoint_le_test(user)
+    data_questions
+    |> Enum.each(fn dquest ->
+      id_choix = "Q#{dquest.id}_rep-#{dquest.right}"
+      user
+      |> coche_le_choix(id_choix)
+      |> pause(0.3)
+    end)
+    # Après avoir rempli le questionnaire, l'user peut le soumettre
+    user
+    |> clique_le_bouton("Soumettre le test")
+    |> pause(30)
+    |> et_voit("Votre total est de 15 / 15")
+    |> et_voit("Vous avez passé ce test avec succès")
+
+  end
+
+  # @tag :skip
+  test "Un candidat qui met toutes les mauvaises réponses est exclu" do
+    user = make_user_with_session()
+    {procedure, data_questions} = user_rejoint_le_test(user)
+
+    # L'user choisit toutes les mauvaises réponses
+    data_questions
+    |> Enum.each(fn dquest ->
+      bad_choix = if dquest.right == 0, do: 1, else: 0
+      id_choix = "Q#{dquest.id}_rep-#{bad_choix}"
+      user
+      |> coche_le_choix(id_choix)
+      |> pause(0.3)
+    end)
+
+    # Après avoir rempli le questionnaire, l'user peut le soumettre
+    user
+    |> clique_le_bouton("Soumettre le test")
+    |> pause(30)
+    |> et_voit("Votre total est de -15 / 15")
+    |> et_voit("vous n'avez pas le niveau requis")
+  end
+
+  # @tag :skip
+  test "Un candidat qui ne sait rien est exclu" do
+    user = make_user_with_session()
+    {procedure, data_questions} = user_rejoint_le_test(user)
+    # L'user choisit toutes les mauvaises réponses
+    data_questions
+    |> Enum.each(fn dquest ->
+      id_choix = "Q#{dquest.id}_rep-100"
+      user
+      |> coche_le_choix(id_choix)
+      |> pause(0.3)
+    end)
+
+    # Après avoir rempli le questionnaire, l'user peut le soumettre
+    user
+    |> clique_le_bouton("Soumettre le test")
+    |> pause(30)
+    |> et_voit("Votre total est de 0 / 15")
+    |> et_voit("vous n'avez pas le niveau requis")
+
+  end
+
+
 
   @tag :skip
   feature "Acceptation directe de la candidature au comité de lecture" do
