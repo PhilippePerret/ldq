@@ -7,12 +7,14 @@ defmodule FeaturePublicMethods do
 
   import TestHelpers
 
+  alias Feature.UserTestMethods,    as: U
   alias Feature.FormTestMethods,    as: Form
   alias Feature.PageTestMethods,    as: Page
   alias Feature.ActionTestMethods,  as: Act
   alias Feature.MailTestMethods,    as: Mail
   alias Feature.LogTestMethods,     as: Log
   alias Feature.SessionMethods,     as: Sess
+  alias Feature.ProcedureTestMeths, as: Proc
 
   # import TestHelpers
 
@@ -120,7 +122,7 @@ defmodule FeaturePublicMethods do
   end
 
 
-  # ---- Méthodes de test --------
+  # ---- Méthodes de vérification --------
 
   @doc """
   Recherche d'un contenu dans la page, toujours à l'intérieur d'une
@@ -141,6 +143,18 @@ defmodule FeaturePublicMethods do
   def et_ne_voit_pas(suj, tag, content), do: Page.la_page_ne_contient_pas(suj, tag, content)
   def et_ne_voit_pas(suj, str_or_reg), do: Page.la_page_ne_contient_pas(suj, str_or_reg)
   
+  @doc """
+  Pour vérifier que l'user +suj+ n'a plus la procédure d'identifiant
+  +pi+, qu'elle est détruite, en fait.
+  """
+  def has_no_procedure(suj, pid), do: Proc.has_no_procedure(suj, pid)
+
+  @doc """
+  Pour vérifier que l'user a le niveau de privilège spécifié
+  """
+  def has_privileges(suj, priv), do: U.has_privileges(suj, priv)
+  def has_not_privileges(suj, priv), do: U.has_not_privileges(suj, priv)
+
   # --- Méthodes publiques de formulaire ---
 
   def remplit_le_champ(suj, champ), do: Form.remplir_le_champ(suj, champ)
@@ -231,5 +245,12 @@ defmodule FeaturePublicMethods do
     owner:      {User} Le propriétaire du log
   """
   def check_activities(params), do: Log.check_activities(params)
+
+  @doc """
+  Pour tester le log (activité) dans le pipe des vérifications
+
+  @param {Keyword} params Liste des paramètres
+  """
+  def has_activity(suj, params), do: Log.has_activity(suj, params)
 
 end

@@ -225,7 +225,8 @@ defmodule LdQ.Procedure.CandidatureComite do
     # Le CANDIDAT reçoit un mail lui annonçant la nouvelle et
     # lui expliquant ce qu'il doit faire maintenant
     mail_data = %{defmaildata | mail_id: "user-admission-comite"}
-    
+    send_mail(to: user, from: :admin, with: mail_data)
+
     # les ADMINISTRATEURS reçoivent tous l'information du nouveau
     # lecture
     mail_data = %{defmaildata | mail_id: "admin-new-membre-comite"}
@@ -392,6 +393,9 @@ defmodule LdQ.Procedure.CandidatureComite do
 
     @doc """
   Évaluation du test d'admission
+  Dans cette étape de la procédure, on finalise de toute façon : soit
+  l'user a réussi son test et il est pris, soit il a échoué et il ne
+  peut pas le repasser.
   """
   def eval_test_admission(procedure) do
     params = procedure.params
@@ -466,19 +470,22 @@ defmodule LdQ.Procedure.CandidatureComite do
     # Enregistrer le passage du test dans la fiche de l'user
     # TODO (il faut créer la table de ces fiches)
 
-    # Mail pour le candidat
     # TODO (même nom de mail avec juste 'success' ou 'failure')
     mail_suffix = is_success && "success" || "failure"
 
     if is_success do
+      # Acceptation du candidat (comme l'acceptation directe)
+      accepter_candidature(procedure)
       # Calculer le crédit du nouveau candidat en fonction de son score
       # TODO
     else
+      # En cas d'échec, on n'envoie pas de mail, on indique simplement
+      # que le candidat a déjà candidaté
     end
 
     main_class = if is_success, do: "success", else: "failure"
     msg_resultat = if is_success do
-      "Bravo ! Vous avez passé ce test avec succès, votre candidature va pouvoir être validée !"
+      "Bravo ! Vous avez passé ce test avec succès, votre candidature est validée !"
     else
       "Désolé, vous n'avez pas le niveau requis pour rejoindre le comité de lecture du label. Nous en sommes désolés pour vous."
     end

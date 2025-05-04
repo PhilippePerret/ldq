@@ -1,5 +1,6 @@
 defmodule LdQ.LinkHelpers do
 
+  alias LdQ.Constantes
   import LdQ.Site.PageHelpers
 
   def full_url(rel_url) do

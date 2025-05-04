@@ -60,7 +60,8 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
 
   def user_rejoint_le_test(user) do
     procedure = create_procedure(owner: user, dim: "candidature-comite", step: "test_admission_comite")
-    # procedure.user
+    user = Map.put(user, :procedure, procedure)
+
     user
     |> se_connecte()
     |> pause(1)
@@ -76,98 +77,13 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     # On détruit toujours le fichier
     File.rm(path)
 
-    {procedure, data_questions}
-  end
-
-  @tag :skip
-  test "Test du test qu'on atteint directement" do
-    # Ce test permet de rejoindre immédiatement le formulaire de test
-    # (il peut servir de modèle pour voir comment on instancie une 
-    #  procédure et on rejoint une étape particulière)
-    user = make_user_with_session()
-    {procedure, data_questions} = user_rejoint_le_test(user)
-
-    data_quiz =
-      data_questions
-      |> Enum.reduce(%{total: 0, reponses: []}, fn dquest, coll ->
-        qid = "Q#{dquest.id}"
-        choices = (0..(Enum.count(dquest.answers) - 1)) |> Range.to_list() 
-        choices = choices ++ [100]
-        choix = Enum.random(choices)
-        total = 
-          cond do
-            choix == 100 -> coll.total
-            choix == dquest.right -> coll.total + 1
-            choix != dquest.right -> coll.total - 1
-          end
-        # L'utilisateur choisit
-        user
-        |> coche_le_choix("#{qid}_rep-#{choix}")
-        |> pause(0.3)
-        # Collecteur
-        Map.merge(coll, %{
-          total: total,
-          reponses: coll.reponses ++ [ [dquest.id, choix] ]
-        })
-      end)
-
-    # Après avoir rempli le questionnaire, l'user peut le soumettre
-    user
-    |> clique_le_bouton("Soumettre le test")
-    |> pause(2)
-    |> et_voit("Votre total est de #{data_quiz.total} / #{Enum.count(data_quiz.reponses)}")
-  end
-
-  # @tag :skip
-  test "Un candidat qui met toutes les bonnes réponses est reçu" do
-    user = make_user_with_session()
-    {procedure, data_questions} = user_rejoint_le_test(user)
-    data_questions
-    |> Enum.each(fn dquest ->
-      id_choix = "Q#{dquest.id}_rep-#{dquest.right}"
-      user
-      |> coche_le_choix(id_choix)
-      |> pause(0.3)
-    end)
-    # Après avoir rempli le questionnaire, l'user peut le soumettre
-    user
-    |> clique_le_bouton("Soumettre le test")
-    |> pause(1)
-    |> et_voit("Votre total est de 15 / 15")
-    |> et_voit("Vous avez passé ce test avec succès")
-
-  end
-
-  # @tag :skip
-  test "Un candidat qui met assez de bonnes réponses est reçu" do
-    user = make_user_with_session()
-    {procedure, data_questions} = user_rejoint_le_test(user)
-    data_questions
-    |> Enum.shuffle()
-    |> Enum.reduce(0, fn dquest, count ->
-      {id_choix, count} =
-        if count < 10 do
-          {"Q#{dquest.id}_rep-#{dquest.right}", count + 1}
-        else
-          {"Q#{dquest.id}_rep-100", count}
-        end
-      user
-      |> coche_le_choix(id_choix)
-      |> pause(0.3)
-      count
-    end)
-    # Après avoir rempli le questionnaire, l'user peut le soumettre
-    user
-    |> clique_le_bouton("Soumettre le test")
-    |> pause(1)
-    |> et_voit("Votre total est de 10 / 15")
-    |> et_voit("Vous avez passé ce test avec succès")
+    {user, data_questions}
   end
 
 
   # @return procedure La procédure
   defp candidat_choisit_reponses(user, nombre_bonnes, nombre_mauvaises) do
-    {procedure, data_questions} = user_rejoint_le_test(user)
+    {user, data_questions} = user_rejoint_le_test(user)
 
     # L'user choisit toutes les mauvaises réponses
     data_questions
@@ -191,63 +107,130 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
       %{bons: bons, bads: bads}
     end)
 
-    procedure
+    user
   end
+
+  # @tag :skip
+  test "Un candidat qui met toutes les bonnes réponses est reçu" do
+    user = make_user_with_session()
+    {user, data_questions} = user_rejoint_le_test(user)
+    data_questions
+    |> Enum.each(fn dquest ->
+      id_choix = "Q#{dquest.id}_rep-#{dquest.right}"
+      user
+      |> coche_le_choix(id_choix)
+      |> pause(0.3)
+    end)
+
+    user = Map.put(user, :last_point_test, now())
+    # Après avoir rempli le questionnaire, l'user peut le soumettre
+    user
+    |> pause(1)
+    |> clique_le_bouton("Soumettre le test")
+    |> pause(1)
+    |> et_voit("Votre total est de 15 / 15")
+    |> et_voit("Vous avez passé ce test avec succès")
+
+    check_test_success(user)
+  end
+
+  # @tag :skip
+  test "Un candidat qui met assez de bonnes réponses est reçu" do
+    user = make_user_with_session()
+    user = candidat_choisit_reponses(user, 11, 0)
+
+    user = Map.put(user, :last_point_test, now())
+
+    # Après avoir rempli le questionnaire, l'user peut le soumettre
+    user
+    |> pause(1)
+    |> clique_le_bouton("Soumettre le test")
+    |> pause(1)
+    |> et_voit("Votre total est de 11 / 15")
+    |> et_voit("Vous avez passé ce test avec succès")
+
+    check_test_success(user)
+  end
+
 
   # @tag :skip
   test "Un candidat qui met assez de bonnes réponses mais trop de mauvaises échoue" do
     user = make_user_with_session()
-    candidat_choisit_reponses(user, 11, 5)
+    user = candidat_choisit_reponses(user, 11, 5)
+
+    user = Map.put(user, :last_point_test, now())
+
     # Après avoir rempli le questionnaire, l'user peut le soumettre
     user
+    |> pause(1)
     |> clique_le_bouton("Soumettre le test")
     |> pause(1)
     |> et_voit("Votre total est de 7 / 15")
     |> et_voit("vous n'avez pas le niveau requis")
+
+    check_test_failure(user)
   end
 
   # @tag :skip
   test "Un candidat qui met toutes les mauvaises réponses échoue" do
     user = make_user_with_session()
-    candidat_choisit_reponses(user, 0, 15)
+    user = candidat_choisit_reponses(user, 0, 15)
+
+    user = Map.put(user, :last_point_test, now())
+
     # Après avoir rempli le questionnaire, l'user peut le soumettre
     user
+    |> pause(1)
     |> clique_le_bouton("Soumettre le test")
     |> pause(1)
     |> et_voit("Votre total est de -15 / 15")
     |> et_voit("vous n'avez pas le niveau requis")
+
+    check_test_failure(user)
   end
   
   # @tag :skip
   test "Un candidat qui n'a pas assez de bonnes réponses échoue" do
     user = make_user_with_session()
-    candidat_choisit_reponses(user, 9, 0)
+    user = candidat_choisit_reponses(user, 9, 0)
+
+    user = Map.put(user, :last_point_test, now())
+
     # Après avoir rempli le questionnaire, l'user peut le soumettre
     user
+    |> pause(1)
     |> clique_le_bouton("Soumettre le test")
     |> pause(1)
     |> et_voit("Votre total est de 9 / 15")
     |> et_voit("vous n'avez pas le niveau requis")
+
+    check_test_failure(user)
   end
 
   # @tag :skip
   test "Un candidat qui ne sait rien échoue" do
     user = make_user_with_session()
     # L'user choisit toutes les mauvaises réponses
-    candidat_choisit_reponses(user, 0, nil)
+    user = candidat_choisit_reponses(user, 0, nil)
+
+    user = Map.put(user, :last_point_test, now())
+
     # Après avoir rempli le questionnaire, l'user peut le soumettre
     user
+    |> pause(1)
     |> clique_le_bouton("Soumettre le test")
     |> pause(1)
     |> et_voit("Votre total est de 0 / 15")
     |> et_voit("vous n'avez pas le niveau requis")
+
+    check_test_failure(user)
   end
 
   # @tag :skip
   test "Un candidat qui a réussi le test ne peut pas le repasser" do
     user = make_user_with_session()
     # L'user choisit toutes les mauvaises réponses
-    procedure = candidat_choisit_reponses(user, 10, 0)
+    user = candidat_choisit_reponses(user, 10, 0)
     # Après avoir rempli le questionnaire, l'user peut le soumettre
     user
     |> clique_le_bouton("Soumettre le test")
@@ -256,7 +239,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     |> pause(1)
 
     user
-    |> rejoint_la_page("/proc/#{procedure.id}")
+    |> rejoint_la_page("/proc/#{user.procedure.id}")
     |> pause(2)
     |> et_ne_voit_pas("h3", "Test d'admission au comité de lecture")
     |> et_ne_voit_pas("form#test-candidature", ~r/./)
@@ -268,7 +251,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
   test "Un candidat qui a échoué ne peut pas repasser le test" do
     user = make_user_with_session()
     # L'user choisit toutes les mauvaises réponses
-    procedure = candidat_choisit_reponses(user, 9, 6)
+    user = candidat_choisit_reponses(user, 9, 6)
     # Après avoir rempli le questionnaire, l'user peut le soumettre
     user
     |> clique_le_bouton("Soumettre le test")
@@ -277,7 +260,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     |> et_voit("vous n'avez pas le niveau requis")
 
     user
-    |> rejoint_la_page("/proc/#{procedure.id}")
+    |> rejoint_la_page("/proc/#{user.procedure.id}")
     |> pause(1)
     |> et_ne_voit_pas("h3", "Test d'admission au comité de lecture")
     |> et_ne_voit_pas("form", %{id: "test-candidature"})
@@ -449,4 +432,28 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
   #   # TODO
   # end
 
+  # Test commun de la réussite du test
+  defp check_test_success(user) do
+    last_point_test = user.last_point_test
+    procedure = user.procedure
+    # Il faut recharger l'user
+    user = get_user(user.id)
+    user
+    |> recoit_un_mail(after: last_point_test, mail_id: "user-admission-comite")
+    |> has_no_procedure(procedure)
+    |> has_privileges(8)
+    |> has_activity(after: last_point_test, content: "#{user.name} vient de rejoindre le comité")
+    |> et_voit("Bravo")
+  end
+
+  defp check_test_failure(user) do
+    last_point_test = user.last_point_test
+    procedure = user.procedure
+    # Il faut recharger l'user
+    user = get_user(user.id)
+    user
+    |> has_not_privileges(8)
+    |> has_no_procedure(procedure)
+    |> et_voit("désolé")
+  end
 end

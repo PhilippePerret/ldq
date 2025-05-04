@@ -4,6 +4,15 @@ defmodule Feature.LogTestMethods do
   import Ecto.Query
 
   @doc """
+  @param {Keyword} params
+  """
+  def has_activity(suj, params) do
+    params = Keyword.put(params, :user, suj)
+    params = Keyword.put(params, :owner, suj)
+    check_activities(params)
+  end
+
+  @doc """
   Voir le détail dans feature_methods/_main_.ex
 
   @usage
@@ -86,8 +95,9 @@ end
 
   defp get_logs_with_owner(res, params) do
     if Keyword.has_key?(params, :owner) do
-      condition = fn log -> log.owner_id == params[:owner].id end
-      get_logs_with_cond(res, condition, "pas le bon propriétaire\n  actual: \#{log.owner_id}\n  expected: #{params[:owner].id})")
+      actual_owner = params[:owner]
+      condition = fn log -> log.owner_id == actual_owner.id end
+      get_logs_with_cond(res, condition, "pas le bon propriétaire\n  actual: \#{log.owner_id}\n  expected: #{actual_owner.id})")
     else res end
   end
 

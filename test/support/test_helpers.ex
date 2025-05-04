@@ -1,5 +1,6 @@
 defmodule TestHelpers do
 
+  alias LdQ.Comptes
   alias Random.RandMethods, as: Rand
   import LdQ.ComptesFixtures
   alias LdQ.ProcedureFixture, as: FProc # create_procedure([...])
@@ -80,6 +81,10 @@ defmodule TestHelpers do
   """
   def get_procedure(params) do
     Proc.get_procedure(params)
+  end
+
+  def get_user(user_id) do
+    Comptes.get_user!(user_id)
   end
 
   @doc """
