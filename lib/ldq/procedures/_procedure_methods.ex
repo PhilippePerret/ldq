@@ -238,8 +238,9 @@ defmodule LdQ.ProcedureMethods do
     Repo.all(query)
     |> Repo.preload(:submitter)
   end
+  # @return Nil si la procédure n'existe pas
   def get_procedure(proc_id) do
-    Repo.get!(Procedure, proc_id)
+    Repo.get(Procedure, proc_id)
   end
 
   def update_procedure(%Procedure{} = proc, attrs) do

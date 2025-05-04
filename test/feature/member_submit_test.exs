@@ -132,55 +132,161 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     # Après avoir rempli le questionnaire, l'user peut le soumettre
     user
     |> clique_le_bouton("Soumettre le test")
-    |> pause(30)
+    |> pause(1)
     |> et_voit("Votre total est de 15 / 15")
     |> et_voit("Vous avez passé ce test avec succès")
 
   end
 
   # @tag :skip
-  test "Un candidat qui met toutes les mauvaises réponses est exclu" do
+  test "Un candidat qui met assez de bonnes réponses est reçu" do
     user = make_user_with_session()
+    {procedure, data_questions} = user_rejoint_le_test(user)
+    data_questions
+    |> Enum.shuffle()
+    |> Enum.reduce(0, fn dquest, count ->
+      {id_choix, count} =
+        if count < 10 do
+          {"Q#{dquest.id}_rep-#{dquest.right}", count + 1}
+        else
+          {"Q#{dquest.id}_rep-100", count}
+        end
+      user
+      |> coche_le_choix(id_choix)
+      |> pause(0.3)
+      count
+    end)
+    # Après avoir rempli le questionnaire, l'user peut le soumettre
+    user
+    |> clique_le_bouton("Soumettre le test")
+    |> pause(1)
+    |> et_voit("Votre total est de 10 / 15")
+    |> et_voit("Vous avez passé ce test avec succès")
+  end
+
+
+  # @return procedure La procédure
+  defp candidat_choisit_reponses(user, nombre_bonnes, nombre_mauvaises) do
     {procedure, data_questions} = user_rejoint_le_test(user)
 
     # L'user choisit toutes les mauvaises réponses
     data_questions
-    |> Enum.each(fn dquest ->
-      bad_choix = if dquest.right == 0, do: 1, else: 0
-      id_choix = "Q#{dquest.id}_rep-#{bad_choix}"
+    |> Enum.shuffle()
+    |> Enum.reduce(%{bons: 0, bads: 0}, fn dquest, reps ->
+      {id_choix, bons, bads} =
+        cond do
+        reps.bons < nombre_bonnes ->
+          {"Q#{dquest.id}_rep-#{dquest.right}", reps.bons + 1, reps.bads}
+        is_nil(nombre_mauvaises) ->
+          {"Q#{dquest.id}_rep-100", reps.bons + 1, reps.bads}
+        reps.bads < nombre_mauvaises ->
+          choix = if dquest.right == 0, do: 1, else: 0
+          {"Q#{dquest.id}_rep-#{choix}", reps.bons, reps.bads + 1}
+        true -> 
+          {"Q#{dquest.id}_rep-100", reps.bons, reps.bads}
+        end
       user
       |> coche_le_choix(id_choix)
       |> pause(0.3)
+      %{bons: bons, bads: bads}
     end)
 
+    procedure
+  end
+
+  # @tag :skip
+  test "Un candidat qui met assez de bonnes réponses mais trop de mauvaises échoue" do
+    user = make_user_with_session()
+    candidat_choisit_reponses(user, 11, 5)
     # Après avoir rempli le questionnaire, l'user peut le soumettre
     user
     |> clique_le_bouton("Soumettre le test")
-    |> pause(30)
-    |> et_voit("Votre total est de -15 / 15")
+    |> pause(1)
+    |> et_voit("Votre total est de 7 / 15")
     |> et_voit("vous n'avez pas le niveau requis")
   end
 
   # @tag :skip
-  test "Un candidat qui ne sait rien est exclu" do
+  test "Un candidat qui met toutes les mauvaises réponses échoue" do
     user = make_user_with_session()
-    {procedure, data_questions} = user_rejoint_le_test(user)
-    # L'user choisit toutes les mauvaises réponses
-    data_questions
-    |> Enum.each(fn dquest ->
-      id_choix = "Q#{dquest.id}_rep-100"
-      user
-      |> coche_le_choix(id_choix)
-      |> pause(0.3)
-    end)
-
+    candidat_choisit_reponses(user, 0, 15)
     # Après avoir rempli le questionnaire, l'user peut le soumettre
     user
     |> clique_le_bouton("Soumettre le test")
-    |> pause(30)
+    |> pause(1)
+    |> et_voit("Votre total est de -15 / 15")
+    |> et_voit("vous n'avez pas le niveau requis")
+  end
+  
+  # @tag :skip
+  test "Un candidat qui n'a pas assez de bonnes réponses échoue" do
+    user = make_user_with_session()
+    candidat_choisit_reponses(user, 9, 0)
+    # Après avoir rempli le questionnaire, l'user peut le soumettre
+    user
+    |> clique_le_bouton("Soumettre le test")
+    |> pause(1)
+    |> et_voit("Votre total est de 9 / 15")
+    |> et_voit("vous n'avez pas le niveau requis")
+  end
+
+  # @tag :skip
+  test "Un candidat qui ne sait rien échoue" do
+    user = make_user_with_session()
+    # L'user choisit toutes les mauvaises réponses
+    candidat_choisit_reponses(user, 0, nil)
+    # Après avoir rempli le questionnaire, l'user peut le soumettre
+    user
+    |> clique_le_bouton("Soumettre le test")
+    |> pause(1)
     |> et_voit("Votre total est de 0 / 15")
     |> et_voit("vous n'avez pas le niveau requis")
+  end
 
+  # @tag :skip
+  test "Un candidat qui a réussi le test ne peut pas le repasser" do
+    user = make_user_with_session()
+    # L'user choisit toutes les mauvaises réponses
+    procedure = candidat_choisit_reponses(user, 10, 0)
+    # Après avoir rempli le questionnaire, l'user peut le soumettre
+    user
+    |> clique_le_bouton("Soumettre le test")
+    |> pause(1)
+    |> et_voit("Votre total est de 10 / 15")
+    |> pause(1)
+
+    user
+    |> rejoint_la_page("/proc/#{procedure.id}")
+    |> pause(2)
+    |> et_ne_voit_pas("h3", "Test d'admission au comité de lecture")
+    |> et_ne_voit_pas("form#test-candidature", ~r/./)
+    |> et_voit("Désolé mais cette procédure n'existe pas ou plus.")
+  
+  end
+
+  # @tag :skip
+  test "Un candidat qui a échoué ne peut pas repasser le test" do
+    user = make_user_with_session()
+    # L'user choisit toutes les mauvaises réponses
+    procedure = candidat_choisit_reponses(user, 9, 6)
+    # Après avoir rempli le questionnaire, l'user peut le soumettre
+    user
+    |> clique_le_bouton("Soumettre le test")
+    |> pause(1)
+    |> et_voit("Votre total est de 3 / 15")
+    |> et_voit("vous n'avez pas le niveau requis")
+
+    user
+    |> rejoint_la_page("/proc/#{procedure.id}")
+    |> pause(1)
+    |> et_ne_voit_pas("h3", "Test d'admission au comité de lecture")
+    |> et_ne_voit_pas("form", %{id: "test-candidature"})
+    |> et_voit("Cette procédure n'existe pas ou plus.")
+  end
+
+  @tag :skip
+  test "Un candidat qui réussit reçoit un montant de crédit proportionnel à son score" do
+    # TODO Quand on connaitra mieux le fonctionnement du crédit
   end
 
 

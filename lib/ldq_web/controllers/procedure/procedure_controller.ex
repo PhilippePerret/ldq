@@ -67,20 +67,28 @@ defmodule LdQWeb.ProcedureController do
     # IO.puts "-> run procédure #{proc_id}"
     procedure = get_procedure(proc_id)
 
-    # On ajoute quelques valeurs
-    procedure = procedure 
-    |> fill_procedure(params)
-    |> Map.put(:current_user, conn.assigns.current_user)
-    
-    # Y a-t-il une étape spécifiée ?
-    procedure = 
-      if is_nil(params["nstep"]) do procedure else
-        Map.put(procedure, :next_step, params["nstep"])
-      end
+    # Procédure inexistante
+    if is_nil(procedure) do
+      conn
+      |> render(:unknown_procedure, proc_id: proc_id)
+    else
+      # Quand la procédure a été trouvée
+      
+      # On ajoute quelques valeurs
+      procedure = procedure 
+      |> fill_procedure(params)
+      |> Map.put(:current_user, conn.assigns.current_user)
+      
+      # Y a-t-il une étape spécifiée ?
+      procedure = 
+        if is_nil(params["nstep"]) do procedure else
+          Map.put(procedure, :next_step, params["nstep"])
+        end
 
-    # Barrière utilisateur. En fonction de l'étape, il faut un
-    # administrateur ou le propriétaire de la procédure.
-    run_avec_autorisation(conn, procedure, params)
+      # Barrière utilisateur. En fonction de l'étape, il faut un
+      # administrateur ou le propriétaire de la procédure.
+      run_avec_autorisation(conn, procedure, params)
+    end
   end
 
   @doc """

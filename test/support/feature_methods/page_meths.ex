@@ -33,7 +33,6 @@ defmodule Feature.PageTestMethods do
   @doc """
   Voir le détail dans feature_methods.ex
   """
-
   # Quand on cherche un bouton (ça peut être button ou a.btn)
   def la_page_contient(session, "button", searched, attrs) when is_binary(searched) do
     la_page_contient(session, "button", ~r/#{Regex.escape(searched)}/, attrs)
@@ -121,5 +120,30 @@ defmodule Feature.PageTestMethods do
     assert(Regex.match?(searched, WB.page_source(session)), err_msg)
     sujet
   end
+
+
+  def la_page_ne_contient_pas(sujet, balise, searched) when is_struct(searched, Regex) do
+    session = session_from(sujet)
+    founds = 
+      WB.all(session, css(balise))
+      |> Enum.filter(fn el -> 
+        Regex.match?(searched, WE.text(el))
+      end)
+    assert(Enum.empty?(founds), "Aucune balise #{balise} contenant #{inspect searched} n'aurait dû être trouvée.")
+    sujet
+  end
+  def la_page_ne_contient_pas(sujet, balise, string) when is_binary(string) do
+    la_page_ne_contient_pas(sujet, balise, ~r/#{Regex.escape(string)}/)
+  end
+  def la_page_ne_contient_pas(sujet, searched) when is_struct(searched, Regex) do
+    session = session_from(sujet)
+    err_msg = IO.ANSI.red() <> "On ne devrait pas trouver #{inspect searched} dans la page. La page contient : #{inspect WB.all(session, css("body")) |> Enum.at(0) |> WE.text()}" <> IO.ANSI.reset()
+    assert(not Regex.match?(searched, WB.page_source(session)), err_msg)
+    sujet
+  end
+  def la_page_ne_contient_pas(sujet, string) when is_binary(string) do
+    la_page_ne_contient_pas(sujet, ~r/#{Regex.escape(string)}/)
+  end
+
 
 end

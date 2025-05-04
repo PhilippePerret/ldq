@@ -133,6 +133,13 @@ defmodule FeaturePublicMethods do
   def la_page_contient_le_bouton(session, bouton, params \\ %{}), do: Page.la_page_contient(session, "button", bouton, params)
   def et_voit_le_bouton(suj, bouton, params \\ %{}), do: la_page_contient_le_bouton(suj, bouton, params)
   
+  @doc """
+  Les méthodes négatives
+
+  NB : Pour ajouter des attributs, utiliser plutôt tag.<class>#<id> etc.
+  """
+  def et_ne_voit_pas(suj, tag, content), do: Page.la_page_ne_contient_pas(suj, tag, content)
+  def et_ne_voit_pas(suj, str_or_reg), do: Page.la_page_ne_contient_pas(suj, str_or_reg)
   
   # --- Méthodes publiques de formulaire ---
 

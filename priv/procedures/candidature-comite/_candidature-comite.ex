@@ -278,7 +278,7 @@ defmodule LdQ.Procedure.CandidatureComite do
   @questions_test_admission [
     %{id:  1, question: "Dans un bon style, les adjectifs sont-ils les bienvenus ?", answers: @ans_yesno, right: 1},
     %{id:  2, question: "Un auteur est-il meilleur qu'une autrice ?", answers: @ans_yesno, right: 1},
-    %{id:  3, question: "Un roman long n'est pas meilleur qu'un roman court ?", answers: @ans_yesno, right: 0},
+    %{id:  3, question: "Un roman long est-il meilleur qu'un roman court ?", answers: @ans_yesno, right: 1},
     %{id:  4, question: "Parmi ces phrases, laquelle vous semble-t-elle la meilleure ?", answers: [
       "Il approcha de la porte, sortit son épée et frappa six coups.", 
       "Il approcha de la grande et belle porte, sortit son épée lustrée et frappa six grands coups.", 
@@ -394,7 +394,6 @@ defmodule LdQ.Procedure.CandidatureComite do
   """
   def eval_test_admission(procedure) do
     params = procedure.params
-    IO.inspect(params, label: "\nParam de eval_test_admission")
 
     questions_ids = params["questions_ids"] |> Enum.map(fn id -> String.to_integer(id) end)
     
@@ -456,19 +455,34 @@ defmodule LdQ.Procedure.CandidatureComite do
           })
         end
       end)
-    # Donner le résultat direct, notamment avec les bonnes réponses.
-    # TODO
+
+
+    is_success = report.note / report.total >= 0.65
 
     # Avertir l'administration avec les résultats
     # TODO
 
-    is_success = report.note / report.total >= 0.7
+    # Enregistrer le passage du test dans la fiche de l'user
+    # TODO (il faut créer la table de ces fiches)
+
+    # Mail pour le candidat
+    # TODO (même nom de mail avec juste 'success' ou 'failure')
+    mail_suffix = is_success && "success" || "failure"
+
+    if is_success do
+      # Calculer le crédit du nouveau candidat en fonction de son score
+      # TODO
+    else
+    end
+
     main_class = if is_success, do: "success", else: "failure"
     msg_resultat = if is_success do
       "Bravo ! Vous avez passé ce test avec succès, votre candidature va pouvoir être validée !"
     else
       "Désolé, vous n'avez pas le niveau requis pour rejoindre le comité de lecture du label. Nous en sommes désolés pour vous."
     end
+
+    delete_procedure(procedure)
 
     """
     <h3>Résultat du test d'admission</h3>
