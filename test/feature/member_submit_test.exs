@@ -434,10 +434,10 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
 
   # Test commun de la réussite du test
   defp check_test_success(user) do
-    IO.inspect(user, label: "User dans check_test_success")
+    # IO.inspect(user, label: "User dans check_test_success")
     # Il faut rafraichir l'user
     user = refresh_user(user)
-    IO.inspect(user, label: "User rafraichi")
+    # IO.inspect(user, label: "User rafraichi")
 
     user
     |> recoit_un_mail(after: user.last_point_test, mail_id: "user-admission-comite")

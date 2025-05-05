@@ -343,8 +343,6 @@ defmodule LdQ.Procedure.CandidatureComite do
   tre comme un formulaire "normal"
   """
   def test_admission_comite(procedure) do
-    params = procedure.params
-
     # On inscrit le temps de départ, sauf s'il a déjà été déterminé
     # par une autre venue
     procedure = 
@@ -471,7 +469,7 @@ defmodule LdQ.Procedure.CandidatureComite do
     # TODO (il faut créer la table de ces fiches)
 
     # TODO (même nom de mail avec juste 'success' ou 'failure')
-    mail_suffix = is_success && "success" || "failure"
+    # mail_suffix = is_success && "success" || "failure"
 
     if is_success do
       # Acceptation du candidat (comme l'acceptation directe)
@@ -520,7 +518,7 @@ defmodule LdQ.Procedure.CandidatureComite do
     questions = questions ++ [dquestion]
     get_random_question_for_test(rest, questions, nombre + 1, expected)
   end
-  def get_random_question_for_test(rest, questions, n, e), do: questions
+  def get_random_question_for_test(_rest, questions, _n, _e), do: questions
 
   # Formater les questions relevées au hasard
   defp formate_questions(data_questions) do
@@ -547,7 +545,7 @@ defmodule LdQ.Procedure.CandidatureComite do
     boutons_radio = boutons_radio ++ [["rep-100", "Je ne sais pas"]]
 
     style_reponses = 
-      boutons_radio |> Enum.reduce("inline", fn [sufid, label], value ->
+      boutons_radio |> Enum.reduce("inline", fn [_sufid, label], value ->
         if String.length(label) > 14 do
           "block"
         else

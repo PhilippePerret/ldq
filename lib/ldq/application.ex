@@ -31,6 +31,7 @@ defmodule LdQ.Application do
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: LdQ.Supervisor]
     Supervisor.start_link(children, opts)
+    LdQ.Procedure.start_agent()
   end
 
   # Tell Phoenix to update the endpoint configuration

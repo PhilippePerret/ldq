@@ -193,7 +193,7 @@ defmodule LdQ.ProcedureMethods do
   end
 
   @doc """
-  Crée la procédure avec les attributs voulus
+  Crée la procédure persistante avec les attributs voulus
   """
   def create_procedure(attrs) do
     %Procedure{}

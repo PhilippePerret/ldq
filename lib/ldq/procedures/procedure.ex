@@ -43,17 +43,42 @@ defmodule LdQ.Procedure do
     module.steps()
   end
 
+  @module_per_dim :module_per_dim
+
+  @doc """
+  Pour démarrer l'agent qui va conserver les modules de chaque 
+  procédure par son diminutif.
+  """
+  def start_agent do
+    Agent.start_link(fn -> %{} end, name: @module_per_dim)
+  end
+  def get_module_from_agent(proc_dim) do
+    Agent.get(@module_per_dim, &Map.get(&1, proc_dim))
+  end
+
   @doc """
   Retourne le module de la procédure (celui qui contient toutes les
   méthodes et constantes)
+  C'est cette méthode qui charge le module si ça n'est pas encore 
+  fait. Si le module est déjà chargé, il le prend dans l'agent
   """
   def get_proc_module(procedure) when is_struct(procedure, __MODULE__) do
     proc_dim = procedure.proc_dim
     get_proc_module(proc_dim)
   end
   def get_proc_module(proc_dim) when is_binary(proc_dim) do
+    case get_module_from_agent(proc_dim) do
+    nil     -> load_and_store_module(proc_dim)
+    module  -> module
+    end
+  end
+
+  # Charge le module et le consigne dans l'agent
+  # @return {Module}
+  defp load_and_store_module(proc_dim) do
     proc_path = procedure_run_path(proc_dim)
     [{module, _}] = Code.compile_file(proc_path)
+    Agent.update(@module_per_dim, &Map.put(&1, proc_dim, module))
     module
   end
 
