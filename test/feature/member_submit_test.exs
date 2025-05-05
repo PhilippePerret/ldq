@@ -11,15 +11,14 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
   import TestHelpers
   import FeaturePublicMethods # Méthodes rejoint_la_page, etc.
 
-  # use Wallaby.Feature # notamment pour new_session
+  # alias LdQ.Comptes.User
+  # alias Wallaby.Browser,  as: WB
+  # alias Wallaby.Query,    as: WQ
 
-  alias LdQ.Comptes.User
-
-  alias Wallaby.Browser,  as: WB
-  alias Wallaby.Query,    as: WQ
-
-  def visiteur_candidate_pour_le_comite(params \\ %{}) do
-    attrs = %{ sexe: "F" }
+  def visiteur_candidate_pour_le_comite(attrs \\ %{}) do
+    attrs = if is_nil(Map.get(attrs, :sexe)) do
+      Map.put(attrs, :sexe, "F")
+    else attrs end
     user  = make_user_with_session(attrs)
     je = user
     w("#{user.name} vient s'identifier", :blue)
@@ -182,7 +181,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     user
     |> pause(1)
     |> clique_le_bouton("Soumettre le test")
-    |> pause(5)
+    |> pause(1)
     |> et_voit("Votre total est de -15 / 15")
     |> et_voit("vous n'avez pas le niveau requis")
 
@@ -200,7 +199,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     user
     |> pause(1)
     |> clique_le_bouton("Soumettre le test")
-    |> pause(5)
+    |> pause(1)
     |> et_voit("Votre total est de 9 / 15")
     |> et_voit("vous n'avez pas le niveau requis")
 
@@ -219,7 +218,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     user
     |> pause(1)
     |> clique_le_bouton("Soumettre le test")
-    |> pause(5)
+    |> pause(1)
     |> et_voit("Votre total est de 0 / 15")
     |> et_voit("vous n'avez pas le niveau requis")
 
@@ -240,7 +239,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
 
     user
     |> rejoint_la_page("/proc/#{user.procedure.id}")
-    |> pause(2)
+    |> pause(1)
     |> et_ne_voit_pas("h3", "Test d'admission au comité de lecture")
     |> et_ne_voit_pas("form#test-candidature", ~r/./)
     |> et_voit("Désolé mais cette procédure n'existe pas ou plus.")
@@ -264,7 +263,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     |> pause(1)
     |> et_ne_voit_pas("h3", "Test d'admission au comité de lecture")
     |> et_ne_voit_pas("form", %{id: "test-candidature"})
-    |> et_voit("Cette procédure n'existe pas ou plus.")
+    |> et_voit("cette procédure n'existe pas ou plus.")
   end
 
   @tag :skip

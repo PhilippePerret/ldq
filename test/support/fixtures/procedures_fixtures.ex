@@ -1,19 +1,21 @@
 defmodule LdQ.ProcedureFixture do
 
   import LdQ.ComptesFixtures, only: [
-    make_simple_user: 0, make_admin: 0, make_member: 0, make_write: 0
+    make_simple_user: 0, make_admin: 0, make_member: 0, make_writer: 0
   ]
 
   def create_procedure(params \\ []) do
     params = get_or_put(params, :owner, make_simple_user())
     params = get_or_put(params, :submitter, make_simple_user())
+    params = get_or_put(params, :submitter, make_member())
+    params = get_or_put(params, :submitter, make_writer())
     params = get_or_put(params, :current_step, params[:current]||params[:step])
     params = get_or_put(params, :next_step, params[:next]||params[:step])
     params = get_or_put(params, :proc_dim, params[:dim]||params[:proc_id]||"unknown-proc")
 
     # TODO
     # Plus tard il sera possible de déterminer des étapes en chargeant
-    # le module d'après son :proc_dim (en appelant module.steps)
+    # le module d'après son :proc_dim (et en appelant module.steps)
 
     attrs = %{
       proc_dim: params[:proc_dim],

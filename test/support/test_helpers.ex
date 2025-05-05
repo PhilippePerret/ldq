@@ -45,11 +45,12 @@ defmodule TestHelpers do
 
   @return {List} La liste des logs créés
   """
+  def create_log(foo \\ [])
   def create_log(nombre) when is_integer(nombre), do: create_log(count: nombre)
-  def create_log(attrs \\ []) do
+  def create_log(attrs) do
     nombre = Keyword.get(attrs, :count, 1)
     (1..nombre)
-    |> Enum.map(fn x -> 
+    |> Enum.map(fn _x -> 
       text        = Keyword.get(attrs, :text, "<p>" <> Rand.random_text(30) <> "</p>")
       public      = Keyword.get(attrs, :public, true)
       inserted_at = Keyword.get(attrs, :inserted_at, Rand.random_time(:before, ilya(1, :day)) )
@@ -93,7 +94,7 @@ defmodule TestHelpers do
       id:         user.id, 
       session:          Map.get(user, :session, nil), 
       procedure:        Map.get(user, :procedure, nil),
-      last_point_test:  Map.get(user, :last_point_test, nil),
+      last_point_test:  Map.get(user, :last_point_test, nil)
     )
   end
 
@@ -114,16 +115,15 @@ defmodule TestHelpers do
   """
   def get_user(params) when is_list(params) do
     user = get_user(params[:id])
-    user =
-      if params[:session] || params[:procedure] || params[:last_point_test] do
-        user = Map.from_struct(user)
-        user = Map.delete(user, :__meta__)
-        user = Map.put(user, :session, params[:session])
-        user = Map.put(user, :last_point_test, params[:last_point_test])
-        Map.put(user, :procedure, params[:procedure])
-      else 
-        user 
-      end
+    if params[:session] || params[:procedure] || params[:last_point_test] do
+      user = Map.from_struct(user)
+      user = Map.delete(user, :__meta__)
+      user = Map.put(user, :session, params[:session])
+      user = Map.put(user, :last_point_test, params[:last_point_test])
+      Map.put(user, :procedure, params[:procedure])
+    else 
+      user 
+    end
   end
   def get_user(user_id) when is_binary(user_id) do
     Comptes.get_user!(user_id)

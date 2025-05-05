@@ -66,11 +66,9 @@ defmodule Feature.PageTestMethods do
     sujet
   end
 
-  # Quand on cherche une balise avec des attributs (mais +attrs+ peut
-  # aussi contenir :text qui définit le contenu).
-  def la_page_contient(sujet, balise, attrs) when is_map(attrs) do
-    session = session_from(sujet)
-    found = Enum.any?(WB.all(session, css(balise)), fn el ->
+
+  defp seek_in_page(session, balise, attrs) do
+    Enum.any?(WB.all(session, css(balise)), fn el ->
       resultat  =
         attrs
         |> Enum.reduce(%{ok: true, oks: [], not_oks: []}, fn {attr, value}, res ->
@@ -99,6 +97,14 @@ defmodule Feature.PageTestMethods do
       end
       resultat.ok
     end)
+
+  end
+
+  # Quand on cherche une balise avec des attributs (mais +attrs+ peut
+  # aussi contenir :text qui définit le contenu).
+  def la_page_contient(sujet, balise, attrs) when is_map(attrs) do
+    session = session_from(sujet)
+    found = seek_in_page(session, balise, attrs)
     assert(found, "Aucune balise #{balise} trouvée possédant les attributs #{inspect attrs}")
     sujet
   end
@@ -121,15 +127,29 @@ defmodule Feature.PageTestMethods do
     sujet
   end
 
-
-  def la_page_ne_contient_pas(sujet, balise, searched) when is_struct(searched, Regex) do
+  @doc """
+  Pour tester que la page ne contienne pas les éléments spécifiés.
+  Ces élément peuvent être spécifiés par :
+    - du simple texte
+    - une expression régulière
+    - une balise (avec id/class) et du texte
+    - une balise (avec id/class et une expresssion régulière
+    - une balise et des attributs spécifiés ainsi que des propriétés
+      supplémentaires comme le nombre d'élément à trouver TODO
+  """
+  def la_page_ne_contient_pas(sujet, tag, attrs) when is_map(attrs) do
+    session = session_from(sujet)
+    refute(seek_in_page(session, tag, attrs), "La page ne devrait pas contenir de balise #{tag} répondant aux attributs #{inspect attrs}.")
+    sujet
+  end
+  def la_page_ne_contient_pas(sujet, tag, searched) when is_struct(searched, Regex) do
     session = session_from(sujet)
     founds = 
-      WB.all(session, css(balise))
+      WB.all(session, css(tag))
       |> Enum.filter(fn el -> 
         Regex.match?(searched, WE.text(el))
       end)
-    assert(Enum.empty?(founds), "Aucune balise #{balise} contenant #{inspect searched} n'aurait dû être trouvée.")
+    assert(Enum.empty?(founds), "Aucune balise #{tag} contenant #{inspect searched} n'aurait dû être trouvée.")
     sujet
   end
   def la_page_ne_contient_pas(sujet, balise, string) when is_binary(string) do
