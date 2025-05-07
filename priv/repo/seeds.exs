@@ -33,26 +33,7 @@ end
 
 # ==== Pages et Pages Locales ====
 
-data_pages = %{
-  "bon-livres-en-ae" => ["Les Bons livres autoédités existent", "Page expliquant pourquoi les bons livres en autoédition existent tout à fait."],
-  "chiffres-publication" => ["Les Chiffres de la publication", "Page expliquant comment ont été recueillis et calculés les chiffres des publications."],
-  "choix-membres" => ["Le Choix des membres du comité de lecture", "Page expliquant comment sont choisis les membres du comité de lecture"],
-  "comite-lecture" => ["Le Comité de lecture", "Page présentant le comité de lecture du label"],
-  "engagement-membres" => ["L'Engagement des membres du comité", "Page décrivant ce que représente le fait de rejoindre le comité de lecture en tant que lectrice ou lecteur."],
-  "faire-connaitre" => ["Faire connaitre le label", "Page expliquant comment faire connaitre le label Lecture de Qualité autour de soi et son importance."],
-  "faq" => ["Foire Aux Questions", "Page répondant aux questions courantes"],
-  "filtrage-des-livres" => ["Filtrage des livres", "Page expliquant comment sont filtrés les livres pour recevoir ou non le label Lecture de Qualité"],
-  "logos-label" => ["Les Logos du label", "Page présentant les différents logos et images du label Lecture de Qualité"],
-  "manifeste" => ["Manifeste de label", "Page expliquant comment est né le label et ce qu'il espère produire."],
-  "membres-comite" => ["Les Membres du comité", "Page présentant les membres du comité de lecture du label, tous lectrices et lecteurs confondus"],
-  "on-submit-candidature-comitee" => ["Candidature enregistrée", "Page confirmant au candidat lecteur ou lectrice que sa demande a été déposée et sera bientôt étudiée."],
-  "processus-attribution" => ["Le Processus d'attribution", "Page décrivant tout le processus d'attribution du label."],
-  "qualite-me-discutee" => ["Discution sur la qualité des grandes maisons d'édition", "Page expliquant pourquoi on peut faire confiance aux grandes maisons d'édition."],
-  "realisabilite" => ["Réalisabilité du label", "Page expliquant ce qui a été mis au point pour rendre le label réalisable, viable et productif."],
-  "regles-objectives" => ["Les Règles objectives", "Page essayant de décrire les règles objectives pouvant déterminer pour une écriture est bonne ou ne l'est pas."],
-  "terme-credit" => ["Le Terme « Crédit »", "Explication du terme « crédit » au sein du label."],
-  "un-bon-livre" => ["Ce qu'est un bon livre", "Page expliquant ce qui fait, au sein du label, un bon livre et ce qui n'est pas un bon livre."]
-}
+
 
 Repo.delete_all(PageLocale)
 Repo.delete_all(Page)
@@ -62,18 +43,25 @@ File.ls!(path_folder)
 |> Enum.filter(fn path -> String.ends_with?(path, ".phil") end)
 |> Enum.each(fn path ->
   slug = Path.rootname(path)
+  fullpath = Path.join([path_folder, path])
   page = Repo.insert!(%Page{
     slug: slug, 
     template: "plain_page", 
     status: 5
   })
 
-  [title, summary] = Map.get(data_pages, slug, [nil, "-- RÉSUMÉ À DÉFINIR ---"])
-
-  if is_nil(title) do
-    IO.puts "Il faut définir les données du livre #{inspect slug}"
-  end
-  title = title || "#{slug} À RENOMMER"
+  # On récupère les données dans l'entête du fichier .phil
+  pdata = PhilHtml.to_data(fullpath, [evaluation: false, to_file: false, no_header: true])
+  
+  [title, summary] =
+    if Map.has_key?(pdata.metadata, :title) do
+      tit = pdata.metadata.title || "#{slug à nommer}"
+      sum = pdata.metadata.summary || "-- RÉSUMÉ À DÉFINIR ---"
+      [tit, sum]
+    else
+      IO.puts [IO.ANSI.red() <> "Il faut définir l'entête du fichier" <> IO.ANSI.reset()]
+      ["#{slug} À RENOMMER", "-- RÉSUMÉ À DÉFINIR ---"]
+    end
 
   html_path = Path.join([path_folder, "xhtml", "#{slug}.html"])
   content = if File.exists?(html_path) do
@@ -92,209 +80,11 @@ File.ls!(path_folder)
   IO.puts "-> #{slug} OK"
 end)
 
-# *======== Définition des procédures ===============*
 
-# Seeds.remove_proc_if_exists("soumission-book")
-# steps = []
-
-# absproc = Repo.insert!(%Proc.AbsProc{
-#   name: "Soumission d'un livre pour obtention du label",
-#   short_name: "soumission-book",
-#   owner_type: "book",
-#   steps: [],
-#   short_description: "Cette procédure permet à un auteur de soumettre son livre pour l'attribution du label « Lecture de Qualité »."
-# })
-
-# step = Repo.insert!(%Proc.AbsStep{
-#   abs_proc_id: absproc.id,
-#   name: "Soumission du formulaire",
-#   short_name: "soumission-main-formulaire",
-#   short_description: "Le candidat soumet le formulaire de soumission de son livre.",
-#   description: nil,
-#   data: nil,
-#   fonction: nil
-# })
-# steps = steps ++ [step.short_name]
-
-# # ... TODO DES ÉTAPES
-
-# step = Repo.insert!(%Proc.AbsStep{
-#   abs_proc_id: absproc.id,
-#   name: "Réception du document PDF ou ePub",
-#   short_name: "receave-book-document",
-#   short_description: "Cette étape permet de valider la réception du document du livre.",
-#   data: nil,
-#   fonction: "marquer_reception_livre"
-#   # note : un mail doit être envoyé pour confirmation
-# })
-# steps = steps ++ [step.short_name]
-  
-
-# # ============ PROCÉDURE DE CANDIDATURE AU COMITÉ DE LECTURE ==============
-
-# # Détruire cette procédure doit détruire toutes les étapes qui lui appartiennent
-# Seeds.remove_proc_if_exists("soumission-lecteur")
-# steps = []
-
-# absproc = Repo.insert!(%Proc.AbsProc{
-#   name: "Soumission de la candidature pour être lecteur du comité",
-#   short_name: "soumission-lecteur",
-#   owner_type: "user",
-#   steps: [],
-#   short_description: "Cette procédure permet à un user inscrit sur le label de proposer sa candidature pour être lecteur ou lectrice.",
-#   description: """
-#   Procédure de soumission d'une candidature au comité de lecture pour être lecteur ou lectrice.
-#   L'user qui fait la demande doit être inscrit et passe par un certain nombre d'étape avant de voir sa candidature être acceptée, ou pas.
-#   """
-# })
-
-# # Seeds.remove_step_if_exists("soumission-main-formulaire")
-# step = Repo.insert!(%Proc.AbsStep{
-#   abs_proc_id: absproc.id,
-#   name: "Soumission du formulaire",
-#   short_name: "soumission-main-formulaire",
-#   short_description: "Le candidat soumet le formulaire de sa demande.",
-#   description: nil,
-#   data: nil,
-#   fonction: nil
-# })
-# steps = steps ++ [step.short_name]
-
-# step = Repo.insert!(%Proc.AbsStep{
-#   abs_proc_id: absproc.id,
-#   name: "Envoi mail confirmation soumission",
-#   short_name: "mail-conf-submit-candidate",
-#   short_description: "Envoi du mail qui confirme au candidat que sa candidature a bien été soumise.",
-#   data: %{mail: :default, destinataire: :owner},
-#   fonction: "send_mail"
-# })
-# steps = steps ++ [step.short_name]
-
-# step = Repo.insert!(%Proc.AbsStep{
-#   abs_proc_id: absproc.id,
-#   name: "Notification à l'administration",
-#   short_name: "notify-candidature",
-#   short_description: "Notification à l'administration de la nouvelle candidature à gérer",
-#   description: "Elle ne disparaitra que lorsque la candidature sera gérée.",
-#   data: %{notice: :default, destinataire: :administration},
-#   fonction: "notify"
-# })
-# steps = steps ++ [step.short_name]
-
-# step = Repo.insert!(%Proc.AbsStep{
-#   abs_proc_id: absproc.id,
-#   name: "Envoi mail annonce soumission aux administrateurs",
-#   short_name: "mail-notify-submit-admins",
-#   short_description: "Envoi d'un message mail aux administrateur pour les informer de la nouvelle candidature",
-#   data: %{mail: :default, destinataire: :admins},
-#   fonction: "send_mail"
-# })
-# steps = steps ++ [step.short_name]
-
-# step = Repo.insert!(%Proc.AbsStep{
-#   abs_proc_id: absproc.id,
-#   name: "Candidature refusée",
-#   short_name: "candidature-refused",
-#   short_description: "La candidature du membre est refusée pour un motif qui lui sera spécifié.",
-#   data: %{mail: :default, destinataire: :owner, ask_for: :raison},
-#   fonction: "send_mail",
-#   last: true
-# })
-# steps = steps ++ [step.short_name]
-
-# step = Repo.insert!(%Proc.AbsStep{
-#   abs_proc_id: absproc.id,
-#   name: "Candidature directe acceptée",
-#   short_name: "candidature-directe-accepted",
-#   short_description: "La candidature du membre est acceptée directement, sans tests.",
-#   data: %{mail: :default, destinataire: :owner},
-#   fonction: "procedure_acceptation_membre_comite",
-#   last: true
-# })
-# steps = steps ++ [step.short_name]
-
-# step = Repo.insert!(%Proc.AbsStep{
-#   abs_proc_id: absproc.id,
-#   name: "Demande de passer le test d'adminission",
-#   short_name: "test-candidature-membre-required",
-#   short_description: "Procédure de demande faite au candidat pour qu'il passe le test.",
-#   data: %{mail: :default, destinataire: :owner},
-#   fonction: "send_mail"
-# })
-# steps = steps ++ [step.short_name]
-
-# step = Repo.insert!(%Proc.AbsStep{
-#   abs_proc_id: absproc.id,
-#   name: "Test d'adminission au comité de lecture",
-#   short_name: "test-candidature-membre-submited",
-#   short_description: "Quand le membre soumet son test d'adminission au comité de lecture",
-#   data: nil,
-#   fonction: "soumission_test_adminission_membre_comite"
-# })
-# steps = steps ++ [step.short_name]
-
-# step = Repo.insert!(%Proc.AbsStep{
-#   abs_proc_id: absproc.id,
-#   name: "Mail de notification aux administrateurs",
-#   short_name: "mail-admins-on-test-admit-membre-comite",
-#   short_description: "Mail envoyé aux administrateur lorsqu'un candidat passe le test d'admission au comité de lecture.",
-#   data: %{mail: :default, destinataire: :admins},
-#   fonction: "send_mail"
-# })
-# steps = steps ++ [step.short_name]
-
-# step = Repo.insert!(%Proc.AbsStep{
-#   abs_proc_id: absproc.id,
-#   name: "Échec au test d'adminission au comité de lecture",
-#   short_name: "failure-test-admit-membre-comite",
-#   short_description: "En cas d'échec au test d'adminission du comité de lecture",
-#   data: nil,
-#   fonction: "on_failure_test_admission_membre_comite",
-#   last: true
-# })
-# steps = steps ++ [step.short_name]
-
-# step = Repo.insert!(%Proc.AbsStep{
-#   abs_proc_id: absproc.id,
-#   name: "Réussite au test d'adminission au comité de lecture",
-#   short_name: "success-test-admit-membre-comite",
-#   short_description: "En cas de réussite au test d'adminission comme mebre au comité de lecture",
-#   data: nil,
-#   fonction: "on_success_test_admission_membre_comite"
-# })
-# steps = steps ++ [step.short_name]
-  
-# step = Repo.insert!(%Proc.AbsStep{
-#   abs_proc_id: absproc.id,
-#   name: "Acceptation au comité de lecture après test",
-#   short_name: "acceptation-membre-comite-after-test",
-#   short_description: "Lorsque le candidat est accepté comme membre du comité de lecture.",
-#   data: %{mail: :default, destinataire: :owner},
-#   fonction: "procedure_acceptation_membre_comite"
-# })
-# steps = steps ++ [step.short_name]
-
-# step = Repo.insert!(%Proc.AbsStep{
-#   abs_proc_id: absproc.id,
-#   name: "Signature de la charte de lecture au sein du comité",
-#   short_name: "sign-charte-membre-comite",
-#   short_description: "Une fois accepté au sein du comité de lecture du comité, le candidat doit signer la charte.",
-#   data: nil,
-#   fonction: "on_signature_charte_member_comite"
-# })
-# steps = steps ++ [step.short_name]
-
-# step = Repo.insert!(%Proc.AbsStep{
-#   abs_proc_id: absproc.id,
-#   name: "Confirmation de l'admission au sein du comité de lecture",
-#   short_name: "confirm-adminission-comite",
-#   short_description: "Tout est en règle, le candidat est un nouveau membre du comité et peut commencer à lire/évaluer les livres",
-#   data: %{mail: :default, destinataire: :owner},
-#   fonction: "send_mail",
-#   last: true
-# })
-# steps = steps ++ [step.short_name]
-
-
-# query = from(p in Proc.AbsProc, where: p.id == ^absproc.id)
-# |> Repo.update_all(set: [steps: steps])
+# Ajouter quelques éditeurs connus
+Repo.insert!(%LdQ.Libray.Publisher{
+  name: "Icare Éditions",
+  pays: "fr",
+  address: "2 rue Goritz 4000 Mont-de-Marsan",
+  email: "contact@icare-editions.fr"
+})
