@@ -17,7 +17,7 @@ defmodule Html.Helpers do
 
 
   @doc """
-  Cf. la méthode dans Html.Form
+  Cf. la méthode dans Html.Form (dans ldq/procedures/form.ex)
 
   On peut utiliser la version wrap_in/3 pour les cas où la balise
   d'ouverture est vraiment complexe.

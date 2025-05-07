@@ -7,7 +7,8 @@ defmodule LdQ.Library.Book.MiniCard do
   schema "book_minicards" do
     field :title, :string
     field :pitch, :string
-    field :author, :binary_id
+
+    belongs_to :author, LdQ.Library.Author
 
     timestamps(type: :utc_datetime)
   end
@@ -15,7 +16,7 @@ defmodule LdQ.Library.Book.MiniCard do
   @doc false
   def changeset(mini_card, attrs) do
     mini_card
-    |> cast(attrs, [:title, :pitch])
-    |> validate_required([:title, :pitch])
+    |> cast(attrs, [:title, :author_id, :pitch])
+    |> validate_required([:title, :author_id, :pitch])
   end
 end

@@ -1,6 +1,7 @@
 defmodule LdQ.Library.Book.Evaluation do
   use Ecto.Schema
   import Ecto.Changeset
+  alias LdQ.Library.Book
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
@@ -12,8 +13,9 @@ defmodule LdQ.Library.Book.Evaluation do
     field :label_grade, :integer
     field :rating, :integer
     field :readers_rating, :integer
-    field :book_minicard, :binary_id
     field :parrain, :binary_id
+
+    belongs_to :book_minicard, Book.MiniCard
 
     timestamps(type: :utc_datetime)
   end
@@ -21,7 +23,7 @@ defmodule LdQ.Library.Book.Evaluation do
   @doc false
   def changeset(evaluation, attrs) do
     evaluation
-    |> cast(attrs, [:transmitted, :current_phase, :submitted_at, :evaluated_at, :label_grade, :rating, :readers_rating])
-    |> validate_required([:transmitted, :current_phase, :submitted_at, :evaluated_at, :label_grade, :rating, :readers_rating])
+    |> cast(attrs, [:book_minicard_id, :transmitted, :current_phase, :submitted_at, :evaluated_at, :label_grade, :rating, :readers_rating])
+    |> validate_required([:book_minicard_id, :transmitted, :current_phase, :submitted_at, :evaluated_at, :label_grade, :rating, :readers_rating])
   end
 end

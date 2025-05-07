@@ -103,6 +103,10 @@ defmodule Html.Form do
     <textarea name="#{dfield.name}" id="#{dfield.id}" #{required(dfield)}>#{dfield.value}</textarea>
     """
   end
+  def build_field(:input, %{type: :checkbox} = dfield) do
+    ~s(<input type="checkbox" id="#{dfield.id}" name="#{dfield.name}" value="#{dfield.value}"/><label class="inline" for="#{dfield.id}">#{dfield.label}</label>)
+    # 
+  end
   def build_field(:select, dfield) do
     options = 
       dfield.options
@@ -159,6 +163,7 @@ defmodule Html.Form do
     %{question: "Comment est qualifié une femmme de grande taille", options: ["Géante", "Naine", "Reine", "Rassis"], answer: "Géante"},
     %{question: "En français, par quel signe se termine une question ?", options: ["?", "!", "¡", "¿"], answer: "?"},
     %{question: "Dans quel sport se sert-on d'une raquette ?", options: ["Tennis", "Football", "Tir à l'arc", "Cyclisme"], answer: "Tennis"},
+    %{question: "Où peut-on trouver le résumé d'un livre ?", options: ["Sur la 4e de couverture", "Sur la couverture", "Sur la tranche", "Sur le dos"], answer: "Sur la 4e de couverture"},
     %{question: "Le handball est un sport…", options: ["d'équipe", "individuel", "reposant", "à raquette"], answer: "d'équipe"}
   ] |> Enum.with_index() |> Enum.map(fn {captcha, index} -> Map.put(captcha, :index, index) end)
   defp random_captcha do
@@ -213,11 +218,12 @@ defmodule Html.Form do
     end
   end
 
-  def label(dfield) do
-    if dfield.label do
-      ~s(<label for="#{dfield.id}">#{dfield.label}</label>)
-    else "" end
+  def label(%{type: :checkbox}), do: ""
+  def label(%{label: label} = dfield) do
+    ~s(<label for="#{dfield.id}">#{dfield.label}</label>)
   end
+  def label(dfield), do: ""
+
 
   def wrap(code, dfield) do
     if dfield.label do
@@ -284,6 +290,19 @@ defmodule Html.Form do
       is_nil(Map.get(dfield, :type, nil)) -> dfield
       dfield.type == :raw -> Map.put(dfield, :tag, :raw)
       dfield.type == :hidden and is_nil(Map.get(dfield, :tag)) -> Map.put(dfield, :tag, :hidden)
+      true -> dfield
+      end
+
+    # Quand type: :text, type: :checkbox sans :tag
+    dfield = 
+      cond do
+      is_nil(Map.get(dfield, :tag)) ->
+        case Map.get(dfield, :type, nil) do
+        nil -> raise ":tag et :type ne peuvent pas être non définis tous les deux"
+        :text -> Map.put(dfield, :tag, :input)
+        :checkbox -> Map.put(dfield, :tag, :input)
+        _ -> raise ":tag non défini et :type inconnu (#{Map.get(dfield, :type)})"
+        end
       true -> dfield
       end
 

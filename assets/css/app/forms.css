@@ -22,8 +22,13 @@ form.philform > div:not(.buttons) {
   border: 1px solid #EEE;
   padding: 0.5em 0;
 }
-form.philform label {
+form.philform label:not(.inline) {
   display:block;
+}
+
+input[type="checkbox"] + label.inline {
+  margin-left: 0.3em;
+  vertical-align: text-top;
 }
 
 form.philform textarea {

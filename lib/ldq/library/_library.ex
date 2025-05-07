@@ -41,6 +41,13 @@ defmodule LdQ.Library do
   """
   def get_mini_card!(id), do: Repo.get!(MiniCard, id)
 
+  def get_book(id) do
+    Repo.get!(MiniCard, id)
+    |> Repo.preload(:book_specs)
+    |> Repo.preload(:book_evaluation)
+    |> Repo.preload(:author)
+  end
+
   @doc """
   Creates a mini_card.
 
@@ -294,10 +301,6 @@ defmodule LdQ.Library do
   def change_evaluation(%Evaluation{} = evaluation, attrs \\ %{}) do
     Evaluation.changeset(evaluation, attrs)
   end
-end
-
-
-
 
   @doc """
   Returns the list of authors.
