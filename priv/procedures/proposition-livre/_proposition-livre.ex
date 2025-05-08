@@ -47,6 +47,7 @@ defmodule LdQ.Procedure.PropositionLivre do
 
     form_with_isbn = Html.Form.formate(%Html.Form{
       id: "form-submit-with-isbn",
+      prefix: "by_isbn",
       captcha: true,
       fields: [
         %{type: :hidden, strict_name: "nstep", value: "submit_book_with_isbn"},
@@ -60,6 +61,7 @@ defmodule LdQ.Procedure.PropositionLivre do
 
     form_with_form = Html.Form.formate(%Html.Form{
       id: "form-submit-with-form",
+      prefix: "by_form",
       captcha: true,
       fields: [
         %{type: :hidden, strict_name: "nstep", value: "submit_book_with_form"},
@@ -88,10 +90,15 @@ defmodule LdQ.Procedure.PropositionLivre do
   normale qui utilise un formulaire pour le peupler.
   """
   def submit_book_with_isbn(procedure) do
-
-    """
-    <p class=warning>Pour le moment, je m'arrête ici avec #{inspect procedure.params} mais ensuite je devrai appeler la méthode suivante.</p>
-    """
+    data_book = procedure.params["by_isbn"]
+    IO.inspect(procedure.params, label: "Params dans submit_book_with_isbn")
+    isbn = data_book["isbn"]
+    is_auteur = data_book["is_author"]
+    # Trouver sur le net les données du livre
+    # TODO
+    procedure = Map.put(procedure, :book, %{title: "À voir"})
+    # On passe directement à l'étape suivante
+    submit_book_with_form(procedure)
   end
 
   def submit_book_with_form(procedure) do
@@ -103,6 +110,7 @@ defmodule LdQ.Procedure.PropositionLivre do
     else %{} end
 
     """
+    <h2>Caractéristiques du livre</h2>
     <p class=warning>Je dois mettre le formulaire de soumission ici</p>
     """
   end

@@ -25,7 +25,21 @@ defmodule LdQWeb.BookSubmissionTests do
     |> se_connecte()
     |> pause(1)
     |> et_voit("h2", "Soumission d’un livre")
-    |> pause(120)
+    |> pause(1)
+    # Il trouve un formulaire pour choisir entre définir le livre par son ISBN
+    # ou par formulaire
+    |> et_voit(["Soumettre par formulaire", "Soumettre par ISBN"])
+    |> remplit_le_champ("ISBN") |> avec("9798883337573") # Livre gabarits
+    |> choisit_le_bon_captcha(%{form_id: "form-submit-with-isbn", prefix: "by_isbn"})
+    |> pause(1)
+    |> clique_le_bouton("Soumettre par ISBN")
+    |> pause(20)
+    # Ici, le programme recherche le livre par son isbn
+    |> pause(1)
+    |> et_voit("h2", "Caractéristiques du livre")
+    |> pause(5)
+    |> et_voit(["Titre du livre", "Autrice/auteur", "ISBN du livre"])
+    |> pause(20)
 
   end
 

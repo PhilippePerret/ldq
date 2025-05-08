@@ -206,7 +206,11 @@ defmodule FeaturePublicMethods do
   Pour régler le bon captcha dans le formulaire
 
   @param {Wallaby.Session} ses La session courante
-  @param {Map} pms Paramètres supplémentaires, par exemple :form_id s'il y a plusieurs formulaire
+  @param {Map} pms Paramètres supplémentaires, 
+    par exemple 
+      :form_id et :prefix s'il y a plusieurs formulaire (dans la 
+      définition du formulaire ces deux informations doivent être
+      fournies)
   
   @return {Wallaby.Session}
   """

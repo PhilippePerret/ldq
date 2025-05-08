@@ -58,64 +58,44 @@ defmodule Feature.PageTestMethods do
     sujet
   end
   # Quand on cherche une balise et un texte contenu
-  def la_page_contient(sujet, balise, searched) when is_binary(searched) do
+  def la_page_contient(sujet, balise, searched) when is_binary(balise) and is_binary(searched) do
     session = session_from(sujet)
     assert Enum.any?(WB.all(session, css(balise)), fn el -> 
       WE.text(el) =~ searched 
     end)
     sujet
   end
-
-
-  defp seek_in_page(session, balise, attrs) do
-    Enum.any?(WB.all(session, css(balise)), fn el ->
-      resultat  =
-        attrs
-        |> Enum.reduce(%{ok: true, oks: [], not_oks: []}, fn {attr, value}, res ->
-          comp_value = case attr do
-            :text -> WE.text(el)
-            _ -> WE.attr(el, attr)
-          end
-          if comp_value == value do
-            %{res | oks: res.oks ++ [{attr, value}]}
-          else
-            Map.merge(res, %{
-              ok: false, not_oks: res.not_oks ++ [{attr, value}]
-            })
-          end
-        end)
-      if resultat.ok == false do
-        IO.puts [
-          IO.ANSI.red(),
-          """
-          \n# Mauvais élément : #{WE.attr(el, "outerHTML")}
-          ## Contient : #{inspect resultat.oks}
-          ## Ne contient pas : #{inspect resultat.not_oks}
-          """,
-          IO.ANSI.reset()
-        ]
-      end
-      resultat.ok
+  # Quand on recherche une liste de string/balise/regex
+  def la_page_contient(sujet, liste, params) when is_list(liste) do
+    liste |> Enum.each(fn searched -> 
+      # la_page_contient(sujet, searched, params)
+      # Pour l'instant on ne peut que faire ça, sinon c'est une 
+      # balise qui est recherchée TODO Reprendre toutes les 
+      # conditions possible est faire les bons guards
+      la_page_contient(sujet, searched)
     end)
-
+    sujet
+  end
+  def la_page_contient(sujet, liste) when is_list(liste) do
+    la_page_contient(sujet, liste, %{})
   end
 
   # Quand on cherche une balise avec des attributs (mais +attrs+ peut
   # aussi contenir :text qui définit le contenu).
-  def la_page_contient(sujet, balise, attrs) when is_map(attrs) do
+  def la_page_contient(sujet, balise, attrs) when is_binary(balise) and is_map(attrs) do
     session = session_from(sujet)
     found = seek_in_page(session, balise, attrs)
     assert(found, "Aucune balise #{balise} trouvée possédant les attributs #{inspect attrs}")
     sujet
   end
-  def la_page_contient(sujet, balise, searched) do
+  def la_page_contient(sujet, balise, searched) when is_binary(balise) and (is_binary(searched) or is_struct(searched, Regex)) do
     session = session_from(sujet)
     assert Enum.any?(WB.all(session, css(balise)), fn el -> 
       Regex.match?(searched, WE.text(el))
     end)
     sujet
   end
-  def la_page_contient(sujet, searched) do
+  def la_page_contient(sujet, searched) when is_binary(searched) or is_struct(searched, Regex) do
     session = session_from(sujet)
     searched = if is_binary(searched) do
       ~r/#{Regex.escape(searched)}/
@@ -165,5 +145,39 @@ defmodule Feature.PageTestMethods do
     la_page_ne_contient_pas(sujet, ~r/#{Regex.escape(string)}/)
   end
 
+
+
+  defp seek_in_page(session, balise, attrs) do
+    Enum.any?(WB.all(session, css(balise)), fn el ->
+      resultat  =
+        attrs
+        |> Enum.reduce(%{ok: true, oks: [], not_oks: []}, fn {attr, value}, res ->
+          comp_value = case attr do
+            :text -> WE.text(el)
+            _ -> WE.attr(el, attr)
+          end
+          if comp_value == value do
+            %{res | oks: res.oks ++ [{attr, value}]}
+          else
+            Map.merge(res, %{
+              ok: false, not_oks: res.not_oks ++ [{attr, value}]
+            })
+          end
+        end)
+      if resultat.ok == false do
+        IO.puts [
+          IO.ANSI.red(),
+          """
+          \n# Mauvais élément : #{WE.attr(el, "outerHTML")}
+          ## Contient : #{inspect resultat.oks}
+          ## Ne contient pas : #{inspect resultat.not_oks}
+          """,
+          IO.ANSI.reset()
+        ]
+      end
+      resultat.ok
+    end)
+
+  end
 
 end
