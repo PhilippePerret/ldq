@@ -15,6 +15,7 @@ defmodule FeaturePublicMethods do
   alias Feature.LogTestMethods,     as: Log
   alias Feature.SessionMethods,     as: Sess
   alias Feature.ProcedureTestMeths, as: Proc
+  alias Feature.BookTestMeths     , as: Book
 
   # import TestHelpers
 
@@ -256,5 +257,14 @@ defmodule FeaturePublicMethods do
   @param {Keyword} params Liste des paramètres
   """
   def has_activity(suj, params), do: Log.has_activity(suj, params)
+
+
+  @doc """
+  S'assure que le livre défini par les paramètres +params+ (contenant
+  en général :author_email, :after et :title) existe bien.
+
+  @return {Book} Le livre trouvé
+  """
+  def assert_book_exists(params), do: Book.assert_book_exists(params)
 
 end

@@ -18,9 +18,18 @@ defmodule Feature.FormTestMethods do
     fonction.(value)
   end
 
+  @doc """
+  Pour cocher une case (checkbox). On peut fournir soit le label, soit
+  l'idenditifiant ou la classe propre par "#<id>" ou ".<class>" (mais
+  dans ce cas il faut vraiment que le texte commence par # ou .)
+  """
   def cocher_la_case(sujet, case_name) do
     session = session_from(sujet)
-    click(session, WQ.checkbox(case_name))
+    if String.match?(case_name, ~r/^[\#\.]/) do
+      click(session, WQ.css(case_name))
+    else
+      click(session, WQ.checkbox(case_name))
+    end
     sujet
   end
 

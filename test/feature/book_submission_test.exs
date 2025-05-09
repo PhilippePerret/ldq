@@ -10,6 +10,8 @@ defmodule LdQWeb.BookSubmissionTests do
   """
   use LdQWeb.FeatureCase, async: false
 
+  # alias Helpers.Feminines, as: Fem
+
   import TestHelpers
   import FeaturePublicMethods
 
@@ -17,6 +19,17 @@ defmodule LdQWeb.BookSubmissionTests do
   test "Un utilisateur quelconque peut soumettre un nouveau livre" do
 
     user = make_user_with_session(%{name: "Autrice DuLivre"})
+
+    book_data = %{
+      title: "Mon plus beau livre du #{now()}",
+      isbn:  "9782487613027", # Analyse Au clair de Lune
+      author_firstname: "Autrice",
+      author_lastname: "DuLivre",
+      author_email: user.email,
+      year: "2023",
+      pitch: "Analyse autopsique d'un assassinat de Juillet",
+      publisher: ""
+    }
 
     user
     |> rejoint_la_page("/")
@@ -30,24 +43,65 @@ defmodule LdQWeb.BookSubmissionTests do
     # ou par formulaire
     |> et_voit(["Soumettre par formulaire", "Soumettre par ISBN"])
     # |> remplit_le_champ("ISBN") |> avec("9798883337573") # Livre gabarits
-    |> remplit_le_champ("ISBN") |> avec("9782487613027") # Analyse Au clair de Lune
+    |> remplit_le_champ("ISBN") |> avec(book_data.isbn) 
+    |> coche_la_case("#by_isbn_is_author")
     # https://openlibrary.org/isbn/9798883337573.json
     |> choisit_le_bon_captcha(%{form_id: "form-submit-with-isbn", prefix: "by_isbn"})
     |> pause(1)
     |> clique_le_bouton("Soumettre par ISBN")
     |> pause(1)
     # Ici, le programme recherche le livre par son isbn
+
+    point_test = now()
+
+    user
     |> pause(1)
     |> et_voit("h2", "Caractéristiques du livre")
-    |> pause(5)
-    |> et_voit(["Titre du livre", "Autrice/auteur", "ISBN du livre"])
-    |> pause(20)
+    |> pause(1)
+    |> remplit_le_champ("Titre du livre") |> avec(book_data.title)
+    |> remplit_le_champ("Prénom de l'autrice/auteur") |> avec(book_data.author_firstname)
+    |> remplit_le_champ("Nom de l'autrice/auteur") |> avec(book_data.author_lastname)
+    |> remplit_le_champ("Adresse de courriel de l'autrice/auteur") |> avec(book_data.author_email)
+    |> remplit_le_champ("Année de publication") |> avec(book_data.year)
+    |> remplit_le_champ("Pitch (résumé court)") |> avec(book_data.pitch)
+    |> remplit_le_champ("Éditeur (Maison d'éditions)") |> avec(book_data.publisher)
+    |> choisit_le_bon_captcha(%{form_id: "submit-book-form", prefix: "book"})
+    |> clique_le_bouton("Soumettre ce livre")
+    |> pause(2)
+    # On doit se trouver sur la page de registration
+    |> et_voit("h2", "Enregistrement du livre")
+
+    # --- Vérification ---
+
+    # S'assurer que les cartes du livres ont bien été créées
+    new_book = assert_book_exists(after: point_test, author_email: book_data.author_email)
+    # TODO
+
+    user
+    # En tant que soumetteuse du livre
+    |> recoit_un_mail(after: point_test, mail_id: "user-confirmation-submission-book")
+    # en tant qu'autrice du livre
+    |> recoit_un_mail(after: point_test, mail_id: "author-on-submission-book")
+    |> has_activity(after: point_test, content: "soumission d’un nouveau livre")
+
+    admin = make_admin_with_session()
+
+    admin
+    |> recoit_un_mail(after: point_test, mail_id: "admin-annonce-submission-book")
+
 
   end
 
+  @tag :skip
+  test "Un non inscrit ne peut pas soumettre un livre" do
+  end
 
   @tag :skip
-  test "On peut soumettre un livre par son ISBN" do
+  test "On ne peut pas soumettre de force un formulaire incomplet" do
+  end
+
+  @tag :skip
+  test "On peut soumettre un livre directement par formulaire" do
   end
 
   @tag :skip
@@ -56,7 +110,7 @@ defmodule LdQWeb.BookSubmissionTests do
 
   @tag :skip
   test "Soumission par quelqu'un d'autre que l'auteur" do
-
+    # L'auteur reçoit un mail aussi
   end
 
 end

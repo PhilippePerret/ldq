@@ -104,7 +104,8 @@ defmodule Html.Form do
     """
   end
   def build_field(:input, %{type: :checkbox} = dfield) do
-    ~s(<input type="checkbox" id="#{dfield.id}" name="#{dfield.name}" value="#{dfield.value}"/><label class="inline" for="#{dfield.id}">#{dfield.label}</label>)
+    checked = if dfield.checked == true, do: " checked", else: ""
+    ~s(<input type="checkbox" id="#{dfield.id}" name="#{dfield.name}" value="#{dfield.value}"#{checked} /><label class="inline" for="#{dfield.id}">#{dfield.label}</label>)
     # 
   end
   def build_field(:select, dfield) do
@@ -303,6 +304,14 @@ defmodule Html.Form do
         :checkbox -> Map.put(dfield, :tag, :input)
         _ -> raise ":tag non défini et :type inconnu (#{Map.get(dfield, :type)})"
         end
+      true -> dfield
+      end
+
+    # Quand type :checkbox sans :checked
+    dfield = 
+      cond do
+      is_nil(dfield[:type]) -> dfield
+      (dfield.type == :checkbox) and is_nil(dfield[:checked]) -> Map.put(dfield, :checked, false)
       true -> dfield
       end
 

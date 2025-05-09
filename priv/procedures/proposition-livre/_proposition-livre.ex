@@ -11,7 +11,8 @@ defmodule LdQ.Procedure.PropositionLivre do
   @steps [
     %{name: "Proposition du livre", fun: :proposition_livre, admin_required: false, owner_required: false},
     %{name: "Soumission par l'ISBN", fun: :submit_book_with_isbn, admin_required: false, owner_required: true},
-    %{name: "Soumission par formulaire", fun: :submit_book_with_form, admin_required: false, owner_required: true}
+    %{name: "Soumission par formulaire", fun: :submit_book_with_form, admin_required: false, owner_required: true},
+    %{name: "Consigner le livre pour évaluation", fun: :consigner_le_livre, admin_required: false, owner_required: true}
   ]
   def steps, do: @steps
 
@@ -54,7 +55,7 @@ defmodule LdQ.Procedure.PropositionLivre do
       fields: [
         %{type: :hidden, strict_name: "nstep", value: "submit_book_with_isbn"},
         %{type: :text, name: "isbn", label: "ISBN du livre"},
-        %{type: :checkbox, name: "is_author", label: "Je suis l'aut#{fem(:rice, user)} du livre"}
+        %{type: :checkbox, name: "is_author", value: "yes", label: "Je suis l'aut#{fem(:rice, user)} du livre"}
       ],
       buttons: [
         %{type: :submit, name: "Soumettre par ISBN"}
@@ -69,7 +70,7 @@ defmodule LdQ.Procedure.PropositionLivre do
       captcha: true,
       fields: [
         %{type: :hidden, strict_name: "nstep", value: "submit_book_with_form"},
-        %{type: :checkbox, name: "is_author", label: "Je suis l'aut#{fem(:rice, user)} du livre"}
+        %{type: :checkbox, name: "is_author", value: "yes", label: "Je suis l'aut#{fem(:rice, user)} du livre"}
       ],
       buttons: [
         %{type: :submit, name: "Soumettre par formulaire"}
@@ -113,31 +114,15 @@ defmodule LdQ.Procedure.PropositionLivre do
     IO.inspect(procedure.params, label: "Params dans submit_book_with_isbn")
     data_book = procedure.params["by_isbn"]
     isbn = data_book["isbn"]
-    is_auteur = data_book["is_author"]
+    is_auteur = !is_nil(data_book["is_author"]) and data_book["is_author"] == "yes"
 
-    @isbn_providers
-    |> Enum.reduce(%{retours: [], livre_found: nil}, fn {provider_name, provider_url, methode}, collector ->
-      if is_nil(collector.livre_found) do
-        url = String.replace(provider_url, "__ISBN__", isbn)
-        res = System.cmd("curl", [url])
-        res = 
-          if methode == :none do
-            res
-          else
-            apply(__MODULE__, methode, [res])
-          end
-        Map.merge(collector, %{
-          retours: collector.retours ++ [res],
-          livre_found: nil # TODO LE METTRE SI ON A PU LE RÉCUPÉRER
-        })
-      else
-        collector
-      end
-    end)
-    |> IO.inspect(label: "Résultat des pour #{isbn}")
-    # Trouver sur le net les données du livre
-    # TODO
-    procedure = Map.put(procedure, :book, %{title: "À voir"})
+    data_book = %{
+      isbn: isbn, is_author: is_auteur
+    }
+    # TODO Ne fonctionne pas encore
+    # data_book = book_data_from_providers(data_book)
+
+    procedure = Map.put(procedure, :book, data_book)
     # On passe directement à l'étape suivante
     proceed_submit_book_with_form(procedure)
   end
@@ -155,11 +140,93 @@ defmodule LdQ.Procedure.PropositionLivre do
       # Quand l'user a demandé la soumission par ISBN et que les
       # information du livre ont pu être récupérées
       procedure.book
-    else %{} end
+    else %{
+      title: nil, 
+      pitch: nil, 
+      author_firstname: nil,
+      author_lastname: nil,
+      author_email: nil,
+      isbn: nil,
+      publisher: nil,
+      year: nil
+    }
+    end
+
+    book_form = Html.Form.formate(%Html.Form{
+      id: "submit-book-form",
+      prefix: "book",
+      captcha: true,
+      fields: [
+        %{type: :hidden, strict_name: "nstep", value: "consigner_le_livre"},
+        %{type: :text, name: "title", label: "Titre du livre", required: true},
+        %{type: :text, name: "author_firstname", label: "Prénom de l'autrice/auteur", required: true},
+        %{type: :text, name: "author_lastname", label: "Nom de l'autrice/auteur", required: true},
+        %{type: :text, name: "author_email", label: "Adresse de courriel de l'autrice/auteur"},
+        %{type: :checkbox, name: "is_author", value: "yes", label: "Je suis l'aut#{fem(:rice, user)} du livre", checked: book.is_author},
+        %{type: :text, name: "isbn", label: "ISBN du livre", value: book.isbn, required: true},
+        %{type: :text, name: "year", label: "Année de publication", required: true},
+        %{type: :text, name: "pitch", label: "Pitch (résumé court)", required: true},
+        %{type: :text, name: "publisher", label: "Éditeur (Maison d'éditions)", required: false}
+      ],
+      buttons: [
+        %{type: :submit, name: "Soumettre ce livre"}
+      ]
+    })
 
     """
     <h2>Caractéristiques du livre</h2>
-    <p class=warning>Je dois mettre le formulaire de soumission ici</p>
+    #{book_form}
+    """
+  end
+
+  def consigner_le_livre(procedure) do
+    user = procedure.user
+    data_book = procedure.params["book"]
+    is_author = !is_nil(data_book["is_author"]) and data_book["is_author"] == "yes"
+    
+    # Vérification de l'unicité du livre
+    # TODO
+
+    # Enregistrement des premières cartes du livres
+    # TODO
+
+    # Enregistrement des données du livre dans la procédure, 
+    # notamment pour ne permettre qu'à l'auteur de passer par
+    # la prochaine étape (soumission du manuscrit)
+    # TODO
+
+
+    # Mail pour l'user soumettant le livre
+    # TODO
+
+    # Mail pour l'administration du label
+    # TODO
+
+    # Mail à l'auteur du livre (même si c'est le même)
+    # Dans ce mail, on lui demande de confirmer la soumission et
+    # de rejoindre pour ça une page qui va lui permettre
+    # TODO
+
+    # Annonce d'activité
+    # TODO (contenant "soumission d’un nouveau livre")
+
+    ajout_quand_auteur =
+      if is_author do
+        """
+        <p>Puisque vous êtes l'aut#{fem(:rice, user)} de ce livre, vous
+        devriez avoir reçu un mail vous permettant de confirmer sa
+        candidature pour le label et pour transmettre le manuscrit qui
+        permettra au comité de le lire et l'évaluer.</p>
+        <p>Nous vous souhaitons de tout cœur de recevoir le label.</p>
+        """
+      else "" end
+    # Confirmation (ou non) de l'enregistrement
+    """
+    <h2>Enregistrement du livre</h2>
+    <p>Un grand merci à vous pour la soumission de ce livre.</p>
+    <p>Vous devriez avoir reçu un mail de confirmation.</p>
+    #{ajout_quand_auteur}
+    <p class="warning">Je dois apprendre à consigner le livre</p>
     """
   end
 
@@ -168,18 +235,49 @@ defmodule LdQ.Procedure.PropositionLivre do
 
   # ========= MÉTHODES UTILITAIRES =============
 
+  defp book_data_from_providers(data_book) do
+    isbn = data_book.isbn
+    @isbn_providers
+    |> Enum.reduce(%{retours: [], livre_found: nil}, fn {provider_name, provider_url, methode}, collector ->
+      if is_nil(collector.livre_found) do
+        url = String.replace(provider_url, "__ISBN__", isbn)
+        res = System.cmd("curl", [url])
+        IO.inspect(res, label: "\n\nRetour de #{url}")
+        res = 
+          if methode == :none do
+            res
+          else
+            apply(__MODULE__, methode, [res])
+          end
+        Map.merge(collector, %{
+          retours: collector.retours ++ [res],
+          livre_found: nil # TODO LE METTRE SI ON A PU LE RÉCUPÉRER
+        })
+      else
+        collector
+      end
+    end)
+    |> IO.inspect(label: "Résultat des pour #{isbn}")
+
+    # Trouver sur le net les données du livre à partir des retours
+    # TODO
+    data_book
+  end
+
   # Méthode qui reçoit la page du site isbnsearch (site qui n'a pas
   # d'API) et en tire les données du livre
-  def parse_from_isbn_search(code) do
+  def parse_from_isbn_search(_code) do
     IO.puts "Il faut que j'apprendre à extraire les données du livre de la page"
+    # IO.inspect(code, label: "Code d'après ISBN Search")
     "[EXTRAIRE DONNÉES BOOK DE LA PAGE]"
   end
 
   # Méthode qui reçoit la page du site La Chasse aux livres (
   # recherche de livre par ISBN) et la traite pour extraire les
   # données du livre quand il est soumis par ISBN
-  def parse_from_chasse_aux_livres(code) do
+  def parse_from_chasse_aux_livres(_code) do
     IO.puts "Il faut apprendre à extraire les données de la chasse aux livres"
+    # IO.inspect(code, label: "Code d'après Chasse aux livres")
     "[EXTRAIRE LES DONNÉES DE LA CHASSE AUX LIVRES]"
   end
 end
