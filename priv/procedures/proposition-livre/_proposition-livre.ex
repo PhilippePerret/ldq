@@ -6,7 +6,7 @@ defmodule LdQ.Procedure.PropositionLivre do
   """
   use LdQWeb.Procedure
 
-  def proc_name, do: "Soumission d’un livre"
+  def proc_name, do: "Soumission d’un livre au label"
 
   @steps [
     %{name: "Proposition du livre", fun: :proposition_livre, admin_required: false, owner_required: false},
@@ -48,6 +48,8 @@ defmodule LdQ.Procedure.PropositionLivre do
     form_with_isbn = Html.Form.formate(%Html.Form{
       id: "form-submit-with-isbn",
       prefix: "by_isbn",
+      action: "/proc/#{procedure.id}",
+      method: "POST",
       captcha: true,
       fields: [
         %{type: :hidden, strict_name: "nstep", value: "submit_book_with_isbn"},
@@ -62,6 +64,8 @@ defmodule LdQ.Procedure.PropositionLivre do
     form_with_form = Html.Form.formate(%Html.Form{
       id: "form-submit-with-form",
       prefix: "by_form",
+      action: "/proc/#{procedure.id}",
+      method: "POST",
       captcha: true,
       fields: [
         %{type: :hidden, strict_name: "nstep", value: "submit_book_with_form"},
@@ -84,26 +88,70 @@ defmodule LdQ.Procedure.PropositionLivre do
     """
   end
 
+  @isbn_providers [
+    {"ISBN Search", "https://isbnsearch.org/isbn/__ISBN__", :parse_from_isbn_search},
+    {"google books", "https://www.googleapis.com/books/v1/volumes?q=isbn:__ISBN__", :none},
+    {"open library", "https://openlibrary.org/api/books?bibkeys=ISBN:__ISBN__&format=json&jscmd=details", :none},
+    {"word cat", "http://xisbn.worldcat.org/webservices/xid/isbn/__ISBN__?method=getMetadata&fl=*&format=json", :none},
+    {"Chasse aux livres", "https://www.chasse-aux-livres.fr/recherche-par-isbn/search?catalog=fr&query=__ISBN__", :parse_from_chasse_aux_livres}
+    # Le meilleur mais Par abonnement {"ISBN Db", "https://api2.isbndb.com/book/__ISBN__"}
+  ]
+
   @doc """
   Soumission du livre par son ISBN. En fait, la fonction relève les
   informations qu'elle peut trouver sur le net et appelle la fonction
   normale qui utilise un formulaire pour le peupler.
   """
   def submit_book_with_isbn(procedure) do
-    data_book = procedure.params["by_isbn"]
+    case check_captcha(procedure, "by_isbn") do
+    :ok -> proceed_submit_book_with_isbn(procedure)
+    {:error, message} -> message
+    end
+  end
+
+  def proceed_submit_book_with_isbn(procedure) do
     IO.inspect(procedure.params, label: "Params dans submit_book_with_isbn")
+    data_book = procedure.params["by_isbn"]
     isbn = data_book["isbn"]
     is_auteur = data_book["is_author"]
+
+    @isbn_providers
+    |> Enum.reduce(%{retours: [], livre_found: nil}, fn {provider_name, provider_url, methode}, collector ->
+      if is_nil(collector.livre_found) do
+        url = String.replace(provider_url, "__ISBN__", isbn)
+        res = System.cmd("curl", [url])
+        res = 
+          if methode == :none do
+            res
+          else
+            apply(__MODULE__, methode, [res])
+          end
+        Map.merge(collector, %{
+          retours: collector.retours ++ [res],
+          livre_found: nil # TODO LE METTRE SI ON A PU LE RÉCUPÉRER
+        })
+      else
+        collector
+      end
+    end)
+    |> IO.inspect(label: "Résultat des pour #{isbn}")
     # Trouver sur le net les données du livre
     # TODO
     procedure = Map.put(procedure, :book, %{title: "À voir"})
     # On passe directement à l'étape suivante
-    submit_book_with_form(procedure)
+    proceed_submit_book_with_form(procedure)
   end
 
   def submit_book_with_form(procedure) do
+    case check_captcha(procedure, "by_form") do
+    :ok -> proceed_submit_book_with_form(procedure)
+    {:error, message} -> message
+    end
+  end
+
+  def proceed_submit_book_with_form(procedure) do
     user = procedure.user
-    book = if procedure.has_key?(:book) do
+    book = if Map.has_key?(procedure, :book) do
       # Quand l'user a demandé la soumission par ISBN et que les
       # information du livre ont pu être récupérées
       procedure.book
@@ -115,19 +163,23 @@ defmodule LdQ.Procedure.PropositionLivre do
     """
   end
 
-  def consigne(procedure) do
-    book = procedure.params["book"]
-    |> IO.inspect(label: "Paramètres du livre")
+  
 
-    # TODO Avertir l'administration
 
-    # TODO Confirmation à l'auteur que le livre a bien été enregistré
+  # ========= MÉTHODES UTILITAIRES =============
 
-    """
-    <p>Merci pour cette proposition de livre.</p>
-    <p>Voilà ce qui va se passer ensuite :</p>
-    <ul>
-    </ul>
-    """
+  # Méthode qui reçoit la page du site isbnsearch (site qui n'a pas
+  # d'API) et en tire les données du livre
+  def parse_from_isbn_search(code) do
+    IO.puts "Il faut que j'apprendre à extraire les données du livre de la page"
+    "[EXTRAIRE DONNÉES BOOK DE LA PAGE]"
+  end
+
+  # Méthode qui reçoit la page du site La Chasse aux livres (
+  # recherche de livre par ISBN) et la traite pour extraire les
+  # données du livre quand il est soumis par ISBN
+  def parse_from_chasse_aux_livres(code) do
+    IO.puts "Il faut apprendre à extraire les données de la chasse aux livres"
+    "[EXTRAIRE LES DONNÉES DE LA CHASSE AUX LIVRES]"
   end
 end

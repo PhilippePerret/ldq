@@ -29,11 +29,13 @@ defmodule LdQWeb.BookSubmissionTests do
     # Il trouve un formulaire pour choisir entre définir le livre par son ISBN
     # ou par formulaire
     |> et_voit(["Soumettre par formulaire", "Soumettre par ISBN"])
-    |> remplit_le_champ("ISBN") |> avec("9798883337573") # Livre gabarits
+    # |> remplit_le_champ("ISBN") |> avec("9798883337573") # Livre gabarits
+    |> remplit_le_champ("ISBN") |> avec("9782487613027") # Analyse Au clair de Lune
+    # https://openlibrary.org/isbn/9798883337573.json
     |> choisit_le_bon_captcha(%{form_id: "form-submit-with-isbn", prefix: "by_isbn"})
     |> pause(1)
     |> clique_le_bouton("Soumettre par ISBN")
-    |> pause(20)
+    |> pause(1)
     # Ici, le programme recherche le livre par son isbn
     |> pause(1)
     |> et_voit("h2", "Caractéristiques du livre")

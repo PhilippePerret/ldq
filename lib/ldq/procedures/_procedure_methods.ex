@@ -94,6 +94,40 @@ defmodule LdQ.ProcedureMethods do
   end
 
   @doc """
+  Vérifie si le captcha du formulaire est bon.
+  Si le captcha est mauvais, affiche un texte standard auquel on peut
+  ajouter une précision.
+
+  @usage :
+
+    case check_captcha(procedure, "prefix") do
+    :ok -> <la suite à jouer>
+    {:error, message} -> message
+    end
+    /fin de procédure
+
+  @param {Map} procedure La procédure complète
+  @param {String} prefix Le préfix du formulaire (surtout lorsqu'il y en a plusieurs)
+  @param {String} raison L'ajout éventuel au message
+  
+  @return True si le captcha est bon, False dans le cas contraire.
+  """
+  def check_captcha(procedure, prefix \\ "f", raison \\ nil) do
+    if Html.Form.captcha_valid?(procedure.params[prefix]) do
+      :ok
+    else
+      {
+        :error,
+        """
+        <h2>Voie sans issue</h2>
+        <p>Désolé, mais seul un humain peut effectuer cette opération.</p>
+        <p>#{raison}</p>
+        """
+      }
+    end
+  end
+
+  @doc """
   Pour vérifier si l'utilisateur courant est abilité à jouer la
   procédure voulu (donc son next_step)
 

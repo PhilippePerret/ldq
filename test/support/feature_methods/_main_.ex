@@ -62,13 +62,13 @@ defmodule FeaturePublicMethods do
     if not Page.on_login_page?(visiteur) do
       visiteur
       |> rejoint_la_page("/users/log_in")
-      |> pause(1)
+      # |> pause(1)
     end
     visiteur
       |> et_voit("input", %{type: "email", id: "user_email", name: "user[email]"})
       |> remplit_le_champ("Mail") |> avec(visiteur.email)
       |> remplit_le_champ("Mot de passe") |> avec(visiteur.password)
-      |> pause(1)
+      # |> pause(1)
       |> clique_le_bouton("Se connecter")
       |> Map.put(:identified, true)
       # |> IO.inspect(label: "VISITEUR APRÈS CONNEXION")
