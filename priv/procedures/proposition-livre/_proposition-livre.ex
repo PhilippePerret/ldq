@@ -195,6 +195,9 @@ defmodule LdQ.Procedure.PropositionLivre do
     # la prochaine étape (soumission du manuscrit)
     # TODO
 
+    # Enregistrement de l'auteur (s'il n'existe pas)
+    # TODO
+
 
     # Mail pour l'user soumettant le livre
     # TODO

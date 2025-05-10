@@ -267,4 +267,11 @@ defmodule FeaturePublicMethods do
   """
   def assert_book_exists(params), do: Book.assert_book_exists(params)
 
+  @doc """
+  S'assure que l'auteur existe
+
+  @return {Map} La table de toutes les données
+  """
+  def assert_author_exists(params), do: U.assert_author_exists(params)
+
 end
