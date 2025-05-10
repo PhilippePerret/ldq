@@ -6,6 +6,9 @@ defmodule LdQ.Procedure.PropositionLivre do
   """
   use LdQWeb.Procedure
 
+  alias LdQ.Library, as: Lib
+  alias LdQ.Library.Book
+
   def proc_name, do: "Soumission d’un livre au label"
 
   @steps [
@@ -112,17 +115,17 @@ defmodule LdQ.Procedure.PropositionLivre do
 
   def proceed_submit_book_with_isbn(procedure) do
     # IO.inspect(procedure.params, label: "Params dans submit_book_with_isbn")
-    data_book = procedure.params["by_isbn"]
-    isbn = data_book["isbn"]
-    is_auteur = !is_nil(data_book["is_author"]) and data_book["is_author"] == "yes"
+    book_data = procedure.params["by_isbn"]
+    isbn = book_data["isbn"]
+    is_auteur = !is_nil(book_data["is_author"]) and book_data["is_author"] == "yes"
 
-    data_book = %{
+    book_data = %{
       isbn: isbn, is_author: is_auteur
     }
     # TODO Ne fonctionne pas encore
-    # data_book = book_data_from_providers(data_book)
+    # book_data = book_data_from_providers(book_data)
 
-    procedure = Map.put(procedure, :book, data_book)
+    procedure = Map.put(procedure, :book, book_data)
     # On passe directement à l'étape suivante
     proceed_submit_book_with_form(procedure)
   end
@@ -181,26 +184,51 @@ defmodule LdQ.Procedure.PropositionLivre do
 
   def consigner_le_livre(procedure) do
     user = procedure.user
-    data_book = procedure.params["book"]
-    is_author = !is_nil(data_book["is_author"]) and data_book["is_author"] == "yes"
+    book_data = procedure.params["book"]
+    is_author = !is_nil(book_data["is_author"]) and book_data["is_author"] == "yes"
+    book_data = Map.merge(book_data, %{
+      "is_author" => is_author
+    })
     
-    # Vérification de l'unicité du livre
-    # TODO
+    case book_registrable?(procedure, book_data) do
+    :ok -> 
+      proceed_consigner_le_livre(procedure, book_data)
+      """
+      <h2>Enregistrement du livre réussi !</h2>
+      <p>Merci pour la soumission du livre #{inspect book_data["title"]}. 
+      Dès qu'il aura été validé par l'administration du label et le comité
+      de lecture, il pourra entrer en phase d'évaluation. Vous serez alors 
+      informé#{fem(:e, user)} de toutes les étapes.</p>
+      """
+    {:error, erreur} ->
+      """
+      <h2>Livre refusé</h2>
+      <p>Malheureusement, ce livre ne peut pas être enregistré :</p>
+      <p>#{raison}</p>
+      """
+    end
+  end
 
-    # Enregistrement des premières cartes du livres
-    # TODO
+  def proceed_consigner_le_livre(procedure, book_data) do
+    user = procedure.user
+    is_author = book_data["is_author"]
+    {book, author} = book_cards_saved(book_data)
+    # Actualisation de la procédure pour qu'elle connaisse le
+    # livre et l'auteur
+    data = Map.merge(procedure.data, %{
+      book_id: book.id,
+      author_id: author.id,
+    })
+    update_procedure(procedure)
 
-    # Enregistrement des données du livre dans la procédure, 
-    # notamment pour ne permettre qu'à l'auteur de passer par
-    # la prochaine étape (soumission du manuscrit)
-    # TODO
-
-    # Enregistrement de l'auteur (s'il n'existe pas)
-    # TODO
-
+    # Les données propres aux mails
+    mail_data = %{
+      book_title: book.title,
+      book_isbn:  book.isbn
+    }
 
     # Mail pour l'user soumettant le livre
-    # TODO
+    send_mail(to: user, from: :admin, with: %{id: "user-confirmation-submission-book", variables: mail_data})
 
     # Mail pour l'administration du label
     # TODO
@@ -233,13 +261,62 @@ defmodule LdQ.Procedure.PropositionLivre do
     """
   end
 
-  
+  # ========= MÉTHODES DE CRÉATION ============
 
+  # Enregistrement des premières cartes du nouveau livre avec les
+  # données +data+
+  defp book_cards_saved(data) do
+    data_author =
+      [:email, :firstname, :lastname]
+      |> Enum.reduce(%{}, fn prop, map ->
+        Map.put(map, prop, data["author_#{prop}"])
+      end)
+    author =
+      Lib.Author.changeset(%Lib.Author{}, data_author)
+      |> Repo.insert!()
+    
+    data = Map.put(data, "author_id", author.id)
+
+    book =
+      Book.MiniCard.changeset(%Book.MiniCard{}, data)
+      |> Repo.insert()
+    
+    {book, author}
+  end
+
+  # ========= MÉTHODES DE TESTS =============
+
+  # @return :ok si le livre est registrable ou {:error, <erreur>} 
+  # dans le cas contraire.
+  defp book_registrable?(procedure, book_data) do
+    cond do
+    !book_is_uniq(book_data) ->
+      "Le livre doit être unique, or nous connaissons déjà un livre possédans le titre #{book_data["title"]} ou l'ISBN #{book_data["isbn"]}."
+    true ->
+      :ok
+    end
+  end
+
+  # @return True si le livre défini par les données (paramètres URL)
+  # +data+ n'existe pas encore en base de données
+  defp book_is_uniq(data) do
+    query = from(b in Book.MiniCard)
+    query = query
+      |> join(:inner, [b], sp in Book.Specs, on: sp.book_minicard_id == b.id)
+      |> join(:inner, [b], ev in Book.Evaluation, on: ev.book_minicard_id == b.id)
+
+    query = query
+      |> where(title: ^data["title"])
+      |> where([b, sp], sp.isbn == ^data["isbn"])
+
+    found = Repo.all(query)
+    Enum.count(found) == 0
+  end
 
   # ========= MÉTHODES UTILITAIRES =============
 
-  defp book_data_from_providers(data_book) do
-    isbn = data_book.isbn
+  defp book_data_from_providers(book_data) do
+    isbn = book_data.isbn
     @isbn_providers
     |> Enum.reduce(%{retours: [], livre_found: nil}, fn {provider_name, provider_url, methode}, collector ->
       if is_nil(collector.livre_found) do
@@ -264,7 +341,7 @@ defmodule LdQ.Procedure.PropositionLivre do
 
     # Trouver sur le net les données du livre à partir des retours
     # TODO
-    data_book
+    book_data
   end
 
   # Méthode qui reçoit la page du site isbnsearch (site qui n'a pas

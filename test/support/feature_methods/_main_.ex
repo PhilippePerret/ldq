@@ -263,6 +263,13 @@ defmodule FeaturePublicMethods do
   S'assure que le livre défini par les paramètres +params+ (contenant
   en général :author_email, :after et :title) existe bien.
 
+  @param {Keyword} params Les paramètres de la recherche
+    params[:after]  Le(s) livre(s) doit avoir été enregistré après cette date
+    params[:full]   Toutes les cartes du livre doivent avoir été créées (miniCard, specs, evaluation)
+    params[:count]  Le nombre de livres trouvés
+    params[:author_id] L'identifiant binaire de l'auteur du livre
+    params[:author_email] L'adresse email de l'auteur du livre
+
   @return {Book} Le livre trouvé
   """
   def assert_book_exists(params), do: Book.assert_book_exists(params)

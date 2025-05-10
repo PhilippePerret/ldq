@@ -332,11 +332,15 @@ defmodule LdQ.ProcedureMethods do
   @doc """
   Pour envoyer un mail
 
+  Par exemple :
+
+    send_mail(to: x, from: :admin, with: %{id: "mon-mail", variables: %{...}})
+
   @param {String|Atom} sender du message (si :admin, c'est l'administration)
   @param {String|Atom|User|Array>Users} receiver du message (si :admins, à tous les administrateurs)
   @param {Map} mail_data Les données du mail dont :
-  @param {String|Atom} mail_data.id Identifiant du mail à envoyer
-  @param {Map} mail_data.variables Les variables pour détemplatiser le message
+    @param {String|Atom} mail_data.id Identifiant du mail à envoyer
+    @param {Map} mail_data.variables Les variables pour détemplatiser le message
   """
   def send_mail([to: receiver, from: sender, with: params] = attrs) do
     send_mail(receiver, sender, params)

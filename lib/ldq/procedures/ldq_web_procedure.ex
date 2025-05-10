@@ -15,6 +15,9 @@ defmodule LdQWeb.Procedure do
     
       alias LdQ.Comptes.User
     
+      alias LdQ.Repo
+      import Ecto.Query
+
     end
   end
 

@@ -1,0 +1,15 @@
+---
+subject = Soumission d'un livre pour le label “Lecture de Qualité”
+---
+Bonjour <:: user_name ::>,
+
+Nous avons le plaisir de vous informer que le livre <:: book_title ::>
+(ISBN <:: book_isbn ::>) que vous avez enregistré pour le label “Lecture 
+de Qualité” a bien été pris en compte et sera soumis très prochainement 
+à évaluation au sein du comité de lecture du label.
+
+En vous remerciant de votre confiance et de votre patience,
+
+Bien à vous,
+
+<: signature_administration :>
