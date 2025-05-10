@@ -11,13 +11,13 @@ defmodule LdQ.Repo.Migrations.CreateBookEvaluations do
       add :label_grade, :integer
       add :rating, :integer
       add :readers_rating, :integer
-      add :book_minicard, references(:book_minicards, on_delete: :nothing, type: :binary_id)
-      add :parrain, references(:users, on_delete: :nothing, type: :binary_id)
+      add :book_minicard_id, references(:book_minicards, on_delete: :delete_all, type: :binary_id)
+      add :parrain_id, references(:users, on_delete: :nothing, type: :binary_id)
 
       timestamps(type: :utc_datetime)
     end
 
-    create index(:book_evaluations, [:book_minicard])
-    create index(:book_evaluations, [:parrain])
+    create index(:book_evaluations, [:book_minicard_id])
+    create index(:book_evaluations, [:parrain_id])
   end
 end

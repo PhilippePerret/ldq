@@ -28,7 +28,8 @@ defmodule Feature.UserTestMethods do
       [:email, :firstname, :lastname]
       |> Enum.reduce(query, fn prop, qu ->
         if params[prop] do
-          where(qu, [w], w[prop] == ^params[prop])
+          valeur = params[prop]
+          where(qu, [w], field(w, ^prop) == ^valeur)
         else qu end
       end)
     # --- Vérification ---

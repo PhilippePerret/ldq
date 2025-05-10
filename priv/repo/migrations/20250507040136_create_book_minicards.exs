@@ -6,11 +6,11 @@ defmodule LdQ.Repo.Migrations.CreateBookMinicards do
       add :id, :binary_id, primary_key: true
       add :title, :string
       add :pitch, :text
-      add :author, references(:authors, on_delete: :nothing, type: :binary_id)
+      add :author_id, references(:authors, on_delete: :delete_all, type: :binary_id)
 
       timestamps(type: :utc_datetime)
     end
 
-    create index(:book_minicards, [:author])
+    create index(:book_minicards, [:author_id])
   end
 end

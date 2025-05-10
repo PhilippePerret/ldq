@@ -11,7 +11,7 @@ defmodule LdQ.Repo.Migrations.CreateAuthors do
       add :url_perso, :string
       add :birthyear, :integer
       add :address, :text
-      add :user_id, references(:users, on_delete: :nothing, type: :binary_id)
+      add :user_id, references(:users, on_delete: :delete_all, type: :binary_id)
 
       timestamps(type: :utc_datetime)
     end

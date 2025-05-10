@@ -74,7 +74,7 @@ defmodule LdQWeb.BookSubmissionTests do
     # --- Vérification ---
 
     # S'assurer que les cartes du livres ont bien été créées
-    new_book = assert_book_exists(after: point_test, author_email: new_book.author.email)
+    new_book = assert_book_exists(after: point_test, author_email: user.email)
     # TODO
 
     # S'assurer que l'auteur a été créé

@@ -17,14 +17,14 @@ defmodule Feature.BookTestMeths do
   @return Le livre trouvé (if any) ou les livres (Liste)
   """
   def assert_book_exists(params) do
-    query = from(b in Book.MiniCard, join: w in Author)
+    query = from(b in Book.MiniCard, join: w in Author, on: [id: b.author_id])
     query = 
       if params[:after] do
         where(query, [b], b.inserted_at > ^params[:after])
       else query end
     query = 
       if params[:author_email] do
-        where(query, [w], w.email == ^params[:author_email])
+        where(query, [b, w], w.email == ^params[:author_email])
       else query end
     
     # On soumet la requête
