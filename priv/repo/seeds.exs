@@ -55,7 +55,7 @@ if false do ### METTRE À TRUE POUR TRAITER
     
     [title, summary] =
       if Map.has_key?(pdata.metadata, :title) do
-        tit = pdata.metadata.title || "#{slug à nommer}"
+        tit = pdata.metadata.title || "#{slug} à nommer"
         sum = pdata.metadata.summary || "-- RÉSUMÉ À DÉFINIR ---"
         [tit, sum]
       else
@@ -68,7 +68,7 @@ if false do ### METTRE À TRUE POUR TRAITER
       File.read!(html_path)
     else "À TRANSVASER" end
 
-    locpage = Repo.insert!(%PageLocale{
+    _locpage = Repo.insert!(%PageLocale{
       page_id:      page.id,
       locale:       "fr",
       status:       5,
@@ -84,7 +84,7 @@ end #/if il faut traiter les pages
 
 
 # Ajouter quelques éditeurs connus
-Repo.insert!(%LdQ.Libray.Publisher{
+Repo.insert!(%LdQ.Library.Publisher{
   name: "Icare Éditions",
   pays: "fr",
   address: "2 rue Goritz 4000 Mont-de-Marsan",

@@ -111,7 +111,7 @@ defmodule LdQ.Procedure.PropositionLivre do
   end
 
   def proceed_submit_book_with_isbn(procedure) do
-    IO.inspect(procedure.params, label: "Params dans submit_book_with_isbn")
+    # IO.inspect(procedure.params, label: "Params dans submit_book_with_isbn")
     data_book = procedure.params["by_isbn"]
     isbn = data_book["isbn"]
     is_auteur = !is_nil(data_book["is_author"]) and data_book["is_author"] == "yes"

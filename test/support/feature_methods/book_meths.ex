@@ -30,11 +30,15 @@ defmodule Feature.BookTestMeths do
     # On soumet la requête
     books = Repo.all(query)
 
-    if is_nil(params[:count]) or params[:count] == 1 do
-      assert Enum.count(books) == 1
+    actual_nb = Enum.count(books)
+    expect_nb = params[:count] || 1
+
+    # --- Vérification ---
+    assert(actual_nb == expect_nb, "On aurait dû trouver #{expect_nb} livre(s) avec les paramètres #{inspect params}, on en a trouvé #{actual_nb}.")
+
+    if expect_nb == 1 do
       Enum.at(books, 0)
     else
-      assert(Enum.count(books) == params[:count], "On aurait dû trouver #{params[:count]} livres avec les paramètres #{inspect params}, on en a trouvé #{Enum.count(books)}.")
       books
     end
   end

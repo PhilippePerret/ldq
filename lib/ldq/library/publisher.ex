@@ -19,6 +19,6 @@ defmodule LdQ.Library.Publisher do
   def changeset(publisher, attrs) do
     publisher
     |> cast(attrs, [:name, :address, :email, :phone, :pays, :num_isbn])
-    |> validate_required([:name, :address, :email, :phone, :pays, :num_isbn])
+    |> validate_required([:name, :pays])
   end
 end
