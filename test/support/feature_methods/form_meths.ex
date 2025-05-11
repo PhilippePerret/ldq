@@ -15,7 +15,43 @@ defmodule Feature.FormTestMethods do
     end    
   end
   def avec(fonction, value) do
+    value = 
+      cond do
+      is_struct(value, NaiveDateTime) ->
+        "#{value.year}-#{value.month}-#{value.day}"
+      is_struct(value, Date) ->
+        "#{value.year}-#{value.month}-#{value.day}"
+      true -> value
+      end
     fonction.(value)
+  end
+
+  @doc """
+  Permet de choisir une <option> dans un <select> à partir
+  du label du select (ou id, ou name) 
+
+  @param {User avec Session} sujet
+  @param {String} field :id, :name ou label du menu select
+  @param {String} value La valeur (ou le texte) du menu option à sélectionner
+  """
+  def choisit_le_menu(sujet, field, value) do
+    session = session_from(sujet)
+    option = 
+      WQ.select(field)
+      |> WB.find(WQ.css("option[value=\"#{value}\"]"))
+    WB.click(session, option)
+    sujet
+  end
+
+  def choisir_menu(session, option_value, select_id \\ nil) do
+    session = session_from(session)
+    selector = 
+      if is_nil(select_id) do
+        ~s(option[value="#{option_value}"])
+      else
+        ~s(select##{select_id} option[value="#{option_value}"])
+      end
+    WB.click(session, css(selector))
   end
 
   @doc """
@@ -57,14 +93,5 @@ defmodule Feature.FormTestMethods do
   end
 
 
-  def choisir_menu(session, option_value, select_id \\ nil) do
-    session = session_from(session)
-    selector = 
-      if is_nil(select_id) do
-        ~s(option[value="#{option_value}"])
-      else
-        ~s(select##{select_id} option[value="#{option_value}"])
-      end
-    WB.click(session, css(selector))
-  end
+
 end

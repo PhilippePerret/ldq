@@ -160,6 +160,7 @@ defmodule FeaturePublicMethods do
 
   def remplit_le_champ(suj, champ), do: Form.remplir_le_champ(suj, champ)
   def avec(fonction, value), do: Form.avec(fonction, value)
+  def choisit_le_menu(suj, field, value), do: Form.choisit_le_menu(suj, field, value)
 
 
   @doc """
