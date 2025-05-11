@@ -17,6 +17,10 @@ defmodule LdQ.ProcedureMethods do
     run_current_procedure(procedure, module, module.steps())
   end
 
+  def now do
+    NaiveDateTime.utc_now()
+  end
+
   @doc """
   Retourne le texte contenu dans le fichier spécifié, après l'avoir
   interprété en PhilHtml (s'il a besoin d'être actualisé)

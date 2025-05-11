@@ -167,9 +167,11 @@ defmodule LdQ.Procedure.PropositionLivre do
         %{type: :text, name: "author_email", label: "Adresse de courriel de l'autrice/auteur"},
         %{type: :checkbox, name: "is_author", value: "yes", label: "Je suis l'aut#{fem(:rice, user)} du livre", checked: book.is_author},
         %{type: :text, name: "isbn", label: "ISBN du livre", value: book.isbn, required: true},
-        %{type: :text, name: "year", label: "Année de publication", required: true},
+        %{type: :date, name: "published_at", label: "Date de publication", required: true},
         %{type: :text, name: "pitch", label: "Pitch (résumé court)", required: true},
-        %{type: :text, name: "publisher", label: "Éditeur (Maison d'éditions)", required: false}
+        %{type: :select, name: "publisher", label: "Éditeur (maison d'éditions)", values: Lib.publishers_for_select()},
+        %{type: :text, name: "new_publisher", label: "Autre éditeur", required: false},
+        %{type: :select, name: "new_publisher_pays", label: "Pays du nouvel éditeur", values: Constantes.get(:pays_pour_menu)}
       ],
       buttons: [
         %{type: :submit, name: "Soumettre ce livre"}
@@ -200,11 +202,12 @@ defmodule LdQ.Procedure.PropositionLivre do
       de lecture, il pourra entrer en phase d'évaluation. Vous serez alors 
       informé#{fem(:e, user)} de toutes les étapes.</p>
       """
-    {:error, erreur} ->
+      
+    erreur ->
       """
       <h2>Livre refusé</h2>
       <p>Malheureusement, ce livre ne peut pas être enregistré :</p>
-      <p>#{raison}</p>
+      <p>#{erreur}</p>
       """
     end
   end
@@ -212,19 +215,19 @@ defmodule LdQ.Procedure.PropositionLivre do
   def proceed_consigner_le_livre(procedure, book_data) do
     user = procedure.user
     is_author = book_data["is_author"]
-    {book, author} = book_cards_saved(book_data)
+    {book, book_specs, book_eval, author} = book_cards_saved(book_data)
     # Actualisation de la procédure pour qu'elle connaisse le
     # livre et l'auteur
     data = Map.merge(procedure.data, %{
       book_id: book.id,
       author_id: author.id,
     })
-    update_procedure(procedure)
+    update_procedure(procedure, %{data: data})
 
     # Les données propres aux mails
     mail_data = %{
       book_title: book.title,
-      book_isbn:  book.isbn
+      book_isbn:  book_specs.isbn
     }
 
     # Mail pour l'user soumettant le livre
@@ -264,7 +267,8 @@ defmodule LdQ.Procedure.PropositionLivre do
   # ========= MÉTHODES DE CRÉATION ============
 
   # Enregistrement des premières cartes du nouveau livre avec les
-  # données +data+
+  # données +data+ (transmises par le formulaire, donc avec des
+  # clés binary)
   defp book_cards_saved(data) do
     data_author =
       [:email, :firstname, :lastname]
@@ -279,14 +283,31 @@ defmodule LdQ.Procedure.PropositionLivre do
 
     book =
       Book.MiniCard.changeset(%Book.MiniCard{}, data)
-      |> Repo.insert()
+      |> Repo.insert!()
+
+    publisher = get_publisher_in_params(data)
+
+    data_specs = %{
+      book_minicard_id: book.id,
+      isbn: data["isbn"],
+      published_at: data["published_at"],
+      publisher_id: publisher.id
+    }
+    book_specs = Lib.create_book_specs!(data_specs)
+
+    data_eval = %{
+      book_minicard_id: book.id,
+      current_phase: 0,
+      submitted_at: now()
+    }
+    book_eval = Lib.create_book_evaluation!(data_eval)
     
-    {book, author}
+    {book, book_specs, book_eval, author}
   end
 
   # ========= MÉTHODES DE TESTS =============
 
-  # @return :ok si le livre est registrable ou {:error, <erreur>} 
+  # @return :ok si le livre est registrable ou  l'erreur rencontrée
   # dans le cas contraire.
   defp book_registrable?(procedure, book_data) do
     cond do
@@ -314,6 +335,26 @@ defmodule LdQ.Procedure.PropositionLivre do
   end
 
   # ========= MÉTHODES UTILITAIRES =============
+
+  # Méthode qui permet de récupérer ou de créer l'éditeur en fonction
+  # des données fournies par le formulaire de dépôt d'un nouveau 
+  # livre. Dans ce formulaire, l'user peut choisir un éditeur existant
+  # ou en créer un nouveau.
+  defp get_publisher_in_params(data) do
+    pub_id = data["publisher"]
+    case pub_id do
+      "" ->
+        case Lib.get_publisher_by_name(data["new_publisher"]) do
+          nil ->
+            Lib.create_publisher!(%{name: data["new_publisher"], pays: data["new_publisher_pays"]})
+          publisher -> 
+            publisher
+        end
+      pub_id -> 
+        Lib.get_publisher(pub_id)
+    end
+  end
+
 
   defp book_data_from_providers(book_data) do
     isbn = book_data.isbn

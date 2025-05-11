@@ -12,6 +12,13 @@ defmodule LdQ.Constantes do
         "admin@lecture-de-qualite.fr"
       :mail_admins -> 
         "admin@lecture-de-qualite.fr"
+      :pays_pour_menu ->
+        [
+          ["France", "fr"],
+          ["États-unis", "us"],
+          ["Angleterre", "en"],
+          ["Allemagne", "de"]
+        ]
     end
   end
 end

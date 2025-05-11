@@ -22,13 +22,15 @@ defmodule LdQWeb.BookSubmissionTests do
 
     book_data = %{
       title: "Mon plus beau livre du #{now()}",
-      isbn:  "9782487613027", # Analyse Au clair de Lune
+      isbn: "9782487613027", # Analyse Au clair de Lune
       author_firstname: "Autrice",
       author_lastname: "DuLivre",
       author_email: user.email,
-      year: "2023",
+      published_at: NaiveDateTime.add(now(), -120, :day),
       pitch: "Analyse autopsique d'un assassinat de Juillet",
-      publisher: ""
+      publisher: "",
+      new_publisher: "Oxford Editions",
+      new_publisher_pays: "en"
     }
 
     user
@@ -62,9 +64,12 @@ defmodule LdQWeb.BookSubmissionTests do
     |> remplit_le_champ("Prénom de l'autrice/auteur") |> avec(book_data.author_firstname)
     |> remplit_le_champ("Nom de l'autrice/auteur") |> avec(book_data.author_lastname)
     |> remplit_le_champ("Adresse de courriel de l'autrice/auteur") |> avec(book_data.author_email)
-    |> remplit_le_champ("Année de publication") |> avec(book_data.year)
+    |> remplit_le_champ("Date de publication") |> avec(book_data.published_at)
     |> remplit_le_champ("Pitch (résumé court)") |> avec(book_data.pitch)
     |> remplit_le_champ("Éditeur (Maison d'éditions)") |> avec(book_data.publisher)
+    |> remplit_le_champ("Éditeur (maison d'éditions)") |> avec(book_data.publisher)
+    |> remplit_le_champ("Autre éditeur") |> avec(book_data.new_publisher)
+    |> remplit_le_champ("Pays du nouvel éditeur") |> avec(book_data.new_publisher_pays)
     |> choisit_le_bon_captcha(%{form_id: "submit-book-form", prefix: "book"})
     |> clique_le_bouton("Soumettre ce livre")
     |> pause(2)

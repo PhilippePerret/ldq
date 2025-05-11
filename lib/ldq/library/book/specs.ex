@@ -13,9 +13,9 @@ defmodule LdQ.Library.Book.Specs do
     field :subtitle, :string
     field :label_year, :integer
     field :url_command, :string
-    field :publisher, :binary_id
-    field :pre_version, :binary_id
+    field :pre_version_id, :binary_id
 
+    belongs_to :publisher, Lib.Publisher
     belongs_to :book_minicard, Book.MiniCard
 
     timestamps(type: :utc_datetime)
@@ -24,7 +24,8 @@ defmodule LdQ.Library.Book.Specs do
   @doc false
   def changeset(specs, attrs) do
     specs
-    |> cast(attrs, [:book_minicard_id, :isbn, :published_at, :subtitle, :label, :label_year, :url_command])
+    |> cast(attrs, [:book_minicard_id, :publisher_id, :isbn, :published_at, :subtitle, :label, :label_year, :url_command, :pre_version_id])
     |> validate_required([:book_minicard_id, :isbn, :published_at, :subtitle, :label, :label_year, :url_command])
+    # TODO Si :pre_version_id est défini, doit faire référence à une version existante
   end
 end

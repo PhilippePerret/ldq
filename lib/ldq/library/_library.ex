@@ -7,6 +7,7 @@ defmodule LdQ.Library do
   alias LdQ.Repo
 
   alias LdQ.Library.Author
+  alias LdQ.Library.Publisher
 
   alias LdQ.Library.Book.MiniCard
   alias LdQ.Library.Book.Specs
@@ -155,10 +156,16 @@ defmodule LdQ.Library do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_specs(attrs \\ %{}) do
+  def create_book_specs(attrs \\ %{}) do
     %Specs{}
     |> Specs.changeset(attrs)
     |> Repo.insert()
+  end
+  def create_book_specs!(attrs \\ %{}) do
+    case create_book_specs(attrs) do
+    {:ok, book_specs} -> book_specs
+    {:error, changeset} -> nil
+    end
   end
 
   @doc """
@@ -249,10 +256,16 @@ defmodule LdQ.Library do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_evaluation(attrs \\ %{}) do
+  def create_book_evaluation(attrs \\ %{}) do
     %Evaluation{}
     |> Evaluation.changeset(attrs)
     |> Repo.insert()
+  end
+  def create_book_evaluation!(attrs \\ %{}) do
+    case create_book_evaluation(attrs) do
+      {:ok, card} -> card
+      {:error, changeset} -> nil
+    end
   end
 
   @doc """
@@ -267,7 +280,7 @@ defmodule LdQ.Library do
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_evaluation(%Evaluation{} = evaluation, attrs) do
+  def update_book_evaluation(%Evaluation{} = evaluation, attrs) do
     evaluation
     |> Evaluation.changeset(attrs)
     |> Repo.update()
@@ -285,7 +298,7 @@ defmodule LdQ.Library do
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_evaluation(%Evaluation{} = evaluation) do
+  def delete_book_evaluation(%Evaluation{} = evaluation) do
     Repo.delete(evaluation)
   end
 
@@ -298,7 +311,7 @@ defmodule LdQ.Library do
       %Ecto.Changeset{data: %Evaluation{}}
 
   """
-  def change_evaluation(%Evaluation{} = evaluation, attrs \\ %{}) do
+  def change_book_evaluation(%Evaluation{} = evaluation, attrs \\ %{}) do
     Evaluation.changeset(evaluation, attrs)
   end
 
@@ -312,7 +325,7 @@ defmodule LdQ.Library do
 
   """
   def list_authors do
-    raise "TODO"
+    Repo.all(Authors)
   end
 
   @doc """
@@ -326,7 +339,7 @@ defmodule LdQ.Library do
       %Author{}
 
   """
-  def get_author!(id), do: raise "TODO"
+  def get_author!(id), do: Repo.one!(id)
 
   @doc """
   Creates a author.
@@ -341,7 +354,9 @@ defmodule LdQ.Library do
 
   """
   def create_author(attrs \\ %{}) do
-    raise "TODO"
+    %Author{}
+    |> Author.changeset(attrs)
+    |> Repo.insert()
   end
 
   @doc """
@@ -387,5 +402,63 @@ defmodule LdQ.Library do
   """
   def change_author(%Author{} = author, _attrs \\ %{}) do
     raise "TODO"
+  end
+
+  @doc """
+  Créer un nouveau publisher (éditeur)
+
+  @return {:ok, publisher} en cas de succès ou {:error, changeset} en
+  cas d'erreur
+  """
+  def create_publisher(attrs) do
+    %Publisher{}
+    |> Publisher.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  def create_publisher!(attrs) do
+    case create_publisher(attrs) do
+      {:ok, publisher} -> publisher
+      {:error, changeset} -> nil
+    end
+  end
+
+  @doc """
+  Retourne tous les éditeurs
+
+  """
+  def get_publishers do
+    Repo.all(Publisher)
+  end
+
+  @doc """
+  Retourne l'éditeur d'identifiant +id+
+  """
+  def get_publisher(id) do
+    Repo.one(Publisher, id)
+  end
+
+  @doc """
+  Retourne un éditeur par son nom (s'il existe) ou nil s'il n'existe
+  pas.
+
+  @return {Publisher|Nil}
+  """
+  def get_publisher_by_name(name) do
+    from(p in Publisher, where: p.name == ^name)
+    |> Repo.one()
+  end
+
+  @doc """
+  Retourne les valeurs pour choisir un éditeur dans la liste exis-
+  tante
+  """
+  def publishers_for_select do
+    get_publishers()
+    |> Enum.sort_by(&(&1.name))
+    |> Enum.map(fn pub ->
+      [pub.name, pub.id]
+    end)
+    |> List.insert_at(0, ["Choisir…", ""])
   end
 end

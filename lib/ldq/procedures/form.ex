@@ -108,13 +108,21 @@ defmodule Html.Form do
     ~s(<input type="checkbox" id="#{dfield.id}" name="#{dfield.name}" value="#{dfield.value}"#{checked} /><label class="inline" for="#{dfield.id}">#{dfield.label}</label>)
     # 
   end
+  def build_field(:input, %{type: :date} = dfield) do
+    ~s(<input type="date" id="#{dfield.id}" name="#{dfield.name}" value="#{dfield.value}" />)
+  end
   def build_field(:select, dfield) do
     options = 
       dfield.options
       |> Enum.map(fn option ->
         cond do
-        is_tuple(option) -> option
-        is_binary(option) -> {option, option}
+        is_tuple(option) -> 
+          option
+        is_binary(option) -> 
+          {option, option}
+        is_list(option)   -> 
+          [title, value] = option
+          {title, value}
         true -> option # beurk
         end
       end)
@@ -165,7 +173,8 @@ defmodule Html.Form do
     %{question: "En français, par quel signe se termine une question ?", options: ["?", "!", "¡", "¿"], answer: "?"},
     %{question: "Dans quel sport se sert-on d'une raquette ?", options: ["Tennis", "Football", "Tir à l'arc", "Cyclisme"], answer: "Tennis"},
     %{question: "Où peut-on trouver le résumé d'un livre ?", options: ["Sur la 4e de couverture", "Sur la couverture", "Sur la tranche", "Sur le dos"], answer: "Sur la 4e de couverture"},
-    %{question: "Le handball est un sport…", options: ["d'équipe", "individuel", "reposant", "à raquette"], answer: "d'équipe"}
+    %{question: "Le handball est un sport…", options: ["d'équipe", "individuel", "reposant", "à raquette"], answer: "d'équipe"},
+    %{question: "Victor Hugo et Émile Zola sont réputés comme…", options: ["écrivains", "basketeurs", "chimistes", "parfumeurs"], answer: "écrivains"}
   ] |> Enum.with_index() |> Enum.map(fn {captcha, index} -> Map.put(captcha, :index, index) end)
   defp random_captcha do
     Enum.random(@table_captcha)
@@ -294,12 +303,14 @@ defmodule Html.Form do
       true -> dfield
       end
 
-    # Quand type: :text, type: :checkbox sans :tag
+    # Quand type: :text, :checkbox, :select ou :date sans :tag
     dfield = 
       cond do
       is_nil(Map.get(dfield, :tag)) ->
         case Map.get(dfield, :type, nil) do
         nil -> raise ":tag et :type ne peuvent pas être non définis tous les deux"
+        :select -> Map.put(dfield, :tag, :select)
+        :date -> Map.put(dfield, :tag, :input)
         :text -> Map.put(dfield, :tag, :input)
         :checkbox -> Map.put(dfield, :tag, :input)
         _ -> raise ":tag non défini et :type inconnu (#{Map.get(dfield, :type)})"
@@ -312,6 +323,17 @@ defmodule Html.Form do
       cond do
       is_nil(dfield[:type]) -> dfield
       (dfield.type == :checkbox) and is_nil(dfield[:checked]) -> Map.put(dfield, :checked, false)
+      true -> dfield
+      end
+
+    # Quand tag :select et :values au lieu d':options
+    dfield =
+      cond do
+      (dfield[:tag] == :select) and is_nil(dfield[:options]) ->
+        case dfield[:values] do
+          nil -> raise "Pour un :select, il faut obligatoirement transmettre :options ou :values"
+          _ -> Map.put(dfield, :options, dfield[:values])
+        end
       true -> dfield
       end
 

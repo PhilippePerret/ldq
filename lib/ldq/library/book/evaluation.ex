@@ -24,6 +24,6 @@ defmodule LdQ.Library.Book.Evaluation do
   def changeset(evaluation, attrs) do
     evaluation
     |> cast(attrs, [:book_minicard_id, :transmitted, :current_phase, :submitted_at, :evaluated_at, :label_grade, :rating, :readers_rating])
-    |> validate_required([:book_minicard_id, :transmitted, :current_phase, :submitted_at, :evaluated_at, :label_grade, :rating, :readers_rating])
+    |> validate_required([:book_minicard_id, :current_phase, :submitted_at])
   end
 end

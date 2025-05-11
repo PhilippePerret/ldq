@@ -12,6 +12,8 @@ defmodule LdQWeb.Procedure do
       import Helpers.Feminines
       use Phoenix.Component
       import Html.Helpers
+      
+      alias LdQ.Constantes
     
       alias LdQ.Comptes.User
     
