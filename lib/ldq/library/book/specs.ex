@@ -9,7 +9,7 @@ defmodule LdQ.Library.Book.Specs do
   schema "book_specs" do
     field :label, :boolean, default: false
     field :isbn, :string
-    field :published_at, :naive_datetime
+    field :published_at, :date
     field :subtitle, :string
     field :label_year, :integer
     field :url_command, :string
@@ -25,7 +25,8 @@ defmodule LdQ.Library.Book.Specs do
   def changeset(specs, attrs) do
     specs
     |> cast(attrs, [:book_minicard_id, :publisher_id, :isbn, :published_at, :subtitle, :label, :label_year, :url_command, :pre_version_id])
-    |> validate_required([:book_minicard_id, :isbn, :published_at, :subtitle, :label, :label_year, :url_command])
+    |> validate_required([:book_minicard_id, :publisher_id, :isbn, :published_at, :label])
     # TODO Si :pre_version_id est défini, doit faire référence à une version existante
   end
+
 end

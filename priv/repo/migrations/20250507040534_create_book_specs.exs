@@ -5,7 +5,7 @@ defmodule LdQ.Repo.Migrations.CreateBookSpecs do
     create table(:book_specs, primary_key: false) do
       add :id, :binary_id, primary_key: true
       add :isbn, :string
-      add :published_at, :naive_datetime
+      add :published_at, :date
       add :subtitle, :string
       add :label, :boolean, default: false, null: false
       add :label_year, :integer

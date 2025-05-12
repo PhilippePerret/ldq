@@ -160,7 +160,6 @@ defmodule FeaturePublicMethods do
 
   def remplit_le_champ(suj, champ), do: Form.remplir_le_champ(suj, champ)
   def avec(fonction, value), do: Form.avec(fonction, value)
-  def choisit_le_menu(suj, field, value), do: Form.choisit_le_menu(suj, field, value)
 
 
   @doc """
@@ -193,7 +192,9 @@ defmodule FeaturePublicMethods do
 
   @return {Wallaby.Session} La session courante
   """
-  def choisit_le_menu(suj, opt_val, sel_id \\ nil), do: Form.choisir_menu(suj, opt_val, sel_id)
+  def choisit_option(suj, option_value, select_id \\ nil), do: Form.choisir_menu(suj, option_value, select_id)
+
+  def choisit_le_menu(suj, select_ref, option_value), do: Form.choisir_le_menu(suj, select_ref, option_value)
 
   def coche_la_case(suj, case_name), do: Form.cocher_la_case(suj, case_name)
 
@@ -256,6 +257,10 @@ defmodule FeaturePublicMethods do
   Pour tester le log (activité) dans le pipe des vérifications
 
   @param {Keyword} params Liste des paramètres
+    :as       {Atom} soit :creator soit rien (ou :owner) pour préciser le rôle de l'user
+    :content  {String} Ce que doit contenir (extrait) l'acitivté
+    :after    {NaiveDateTime} Doit avoir été émis après cette date
+    :public   {Boolean} Pour savoir si l'activité doit être publique ou non
   """
   def has_activity(suj, params), do: Log.has_activity(suj, params)
 

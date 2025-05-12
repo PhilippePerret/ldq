@@ -18,28 +18,36 @@ defmodule Feature.FormTestMethods do
     value = 
       cond do
       is_struct(value, NaiveDateTime) ->
-        "#{value.year}-#{value.month}-#{value.day}"
+        NaiveDateTime.to_iso8601(value)
       is_struct(value, Date) ->
-        "#{value.year}-#{value.month}-#{value.day}"
-      true -> value
+        [y, m, d] = Date.to_iso8601(value) |> String.split("-")
+        "#{d}#{m}#{y}" # |> IO.inspect(label: "VALEUR Date")
+      is_binary(value) ->
+        value # |> IO.inspect(label: "VALEUR BINAIRE")
+      true ->
+        value # |> IO.inspect(label: "VALEUR NON TOUCHÉE")
       end
     fonction.(value)
   end
 
   @doc """
   Permet de choisir une <option> dans un <select> à partir
-  du label du select (ou id, ou name) 
+  du label du select (ou id, ou name).
+
+  Pour trouver l'item de menu directement par son contenu ou son
+  titre, utiliser l'autre méthode
 
   @param {User avec Session} sujet
   @param {String} field :id, :name ou label du menu select
   @param {String} value La valeur (ou le texte) du menu option à sélectionner
   """
-  def choisit_le_menu(sujet, field, value) do
+  def choisir_le_menu(sujet, field, value) do
     session = session_from(sujet)
-    option = 
-      WQ.select(field)
-      |> WB.find(WQ.css("option[value=\"#{value}\"]"))
-    WB.click(session, option)
+    query   = WQ.select(field)
+    select  = WB.find(session, query)
+    # option = WB.find(select, WQ.css("option[value=\"#{value}\"]"))
+    # WB.click(session, option)
+    WB.click(session, WQ.css("option[value=\"#{value}\"]"))
     sujet
   end
 

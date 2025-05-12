@@ -92,9 +92,6 @@ defmodule Html.Form do
   def build_field(:input, %{type: :password} = dfield) do
     ~s(<input type="password" id="#{dfield.id}" name="#{dfield.name}" value="#{dfield.value}" #{required(dfield)}/>)
   end
-  def build_field(:input, %{type: :naive_datetime} = dfield) do
-    ~s(<input type="naive_datetime" id="#{dfield.id}" name="#{dfield.name}" value="#{dfield.value}" #{required(dfield)}/>)
-  end
   def build_field(:input, %{type: :text} = dfield) do
     ~s(<input type="text" id="#{dfield.id}" name="#{dfield.name}" value="#{dfield.value}" #{required(dfield)}/>)
   end
@@ -111,6 +108,12 @@ defmodule Html.Form do
   def build_field(:input, %{type: :date} = dfield) do
     ~s(<input type="date" id="#{dfield.id}" name="#{dfield.name}" value="#{dfield.value}" />)
   end
+  def build_field(:input, %{type: :datetime} = dfield) do
+    ~s(<input type="datetime" id="#{dfield.id}" name="#{dfield.name}" value="#{dfield.value}" />)
+  end
+  # def build_field(:input, %{type: :naive_datetime} = dfield) do
+  #   ~s(<input type="naive_datetime" id="#{dfield.id}" name="#{dfield.name}" value="#{dfield.value}" #{required(dfield)}/>)
+  # end
   def build_field(:select, dfield) do
     options = 
       dfield.options

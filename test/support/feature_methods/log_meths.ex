@@ -7,8 +7,12 @@ defmodule Feature.LogTestMethods do
   @param {Keyword} params
   """
   def has_activity(suj, params) do
-    params = Keyword.put(params, :user, suj)
-    params = Keyword.put(params, :owner, suj)
+    params =
+      if params[:as] == :creator do
+        Keyword.put(params, :creator, suj)
+      else 
+        Keyword.put(params, :owner, suj)
+      end
     check_activities(params)
     suj
   end

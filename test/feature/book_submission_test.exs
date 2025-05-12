@@ -18,6 +18,8 @@ defmodule LdQWeb.BookSubmissionTests do
   # @tag :skip
   test "Un utilisateur quelconque peut soumettre un nouveau livre" do
 
+    detruire_les_mails()
+
     user = make_user_with_session(%{name: "Autrice DuLivre"})
 
     book_data = %{
@@ -26,7 +28,7 @@ defmodule LdQWeb.BookSubmissionTests do
       author_firstname: "Autrice",
       author_lastname: "DuLivre",
       author_email: user.email,
-      published_at: NaiveDateTime.add(now(), -120, :day),
+      published_at: Date.add(Date.utc_today(), -60),
       pitch: "Analyse autopsique d'un assassinat de Juillet",
       publisher: "",
       new_publisher: "Oxford Editions",
@@ -47,7 +49,6 @@ defmodule LdQWeb.BookSubmissionTests do
     # |> remplit_le_champ("ISBN") |> avec("9798883337573") # Livre gabarits
     |> remplit_le_champ("ISBN") |> avec(book_data.isbn) 
     |> coche_la_case("#by_isbn_is_author")
-    # https://openlibrary.org/isbn/9798883337573.json
     |> choisit_le_bon_captcha(%{form_id: "form-submit-with-isbn", prefix: "by_isbn"})
     |> pause(1)
     |> clique_le_bouton("Soumettre par ISBN")
@@ -68,7 +69,7 @@ defmodule LdQWeb.BookSubmissionTests do
     |> remplit_le_champ("Pitch (résumé court)") |> avec(book_data.pitch)
     |> choisit_le_menu("Éditeur (maison d'éditions)", book_data.publisher)
     |> remplit_le_champ("Autre éditeur") |> avec(book_data.new_publisher)
-    |> remplit_le_champ("Pays du nouvel éditeur") |> avec(book_data.new_publisher_pays)
+    |> choisit_le_menu("Pays du nouvel éditeur", book_data.new_publisher_pays)
     |> choisit_le_bon_captcha(%{form_id: "submit-book-form", prefix: "book"})
     |> clique_le_bouton("Soumettre ce livre")
     |> pause(2)
@@ -90,7 +91,7 @@ defmodule LdQWeb.BookSubmissionTests do
     |> recoit_un_mail(after: point_test, mail_id: "user-confirmation-submission-book")
     # en tant qu'autrice du livre
     |> recoit_un_mail(after: point_test, mail_id: "author-on-submission-book")
-    |> has_activity(after: point_test, content: "soumission d’un nouveau livre")
+    |> has_activity(after: point_test, as: :creator, content: "Soumission du livre “#{book_data.title}”")
 
     admin = make_admin_with_session()
 

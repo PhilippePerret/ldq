@@ -61,7 +61,13 @@ defmodule LdQ.ProcedureMethods do
 
   @doc """
   Pour enregistrer une activité
+  -----------------------------
   @param {Map} params Les paramètres requis par %LdQ.Site.Log{}. Cf. lib/site/log.ex
+    :public     {Boolean}   True/False pour savoir si c'est une annonce publique
+    :text       {String}    Le texte exact et formaté en HTML du message
+    :owner_type {String}    Type du propriétaire (souvent "book" ou "user")
+    :owner_id   {Binary}    Identifiant binaire du propriétaire
+    :creator    {User}      Le créateur du message, simple user ou administrateur
   """
   def log_activity(params) do
     case LdQ.Site.Log.create(params) do
@@ -342,9 +348,16 @@ defmodule LdQ.ProcedureMethods do
 
   @param {String|Atom} sender du message (si :admin, c'est l'administration)
   @param {String|Atom|User|Array>Users} receiver du message (si :admins, à tous les administrateurs)
-  @param {Map} mail_data Les données du mail dont :
-    @param {String|Atom} mail_data.id Identifiant du mail à envoyer
-    @param {Map} mail_data.variables Les variables pour détemplatiser le message
+  @param {Map} params Les données du mail dont :
+    :mail_id    {String} L'identifiant du mail dans son dossier
+    :procedure  {Procedure} La procédure générant le mail
+    :folder     {String} Le dossier dans lequel trouver le dossiers mails (en général __DIR__)
+    :user       {User} l'user du mail, la cible, en général (mais pas forcément toujours le destinataire)
+    :variables  {Map} Table des variables particulières
+                De nombreuses variables seront ajoutées automatiquement aux mails,
+                comme les féminines, les variables user (user_name, user_mail, etc.)
+                Seront aussi injectée automatiquement les variables de la procédure si
+                la procédure est transmise
   """
   def send_mail([to: receiver, from: sender, with: params] = attrs) do
     send_mail(receiver, sender, params)

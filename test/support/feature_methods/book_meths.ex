@@ -45,7 +45,7 @@ defmodule Feature.BookTestMeths do
       end)
     
     # On soumet la requête
-    books = Repo.all(query)
+    books = Repo.all(query) |> Repo.preload(:author)
 
     actual_nb = Enum.count(books)
     expect_nb = params[:count] || 1

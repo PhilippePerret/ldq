@@ -164,7 +164,9 @@ defmodule LdQ.Library do
   def create_book_specs!(attrs \\ %{}) do
     case create_book_specs(attrs) do
     {:ok, book_specs} -> book_specs
-    {:error, changeset} -> nil
+    {:error, changeset} -> 
+      raise(inspect changeset)
+      nil
     end
   end
 
@@ -264,7 +266,9 @@ defmodule LdQ.Library do
   def create_book_evaluation!(attrs \\ %{}) do
     case create_book_evaluation(attrs) do
       {:ok, card} -> card
-      {:error, changeset} -> nil
+      {:error, changeset} -> 
+        raise(inspect changeset)
+        nil
     end
   end
 

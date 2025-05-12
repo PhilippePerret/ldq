@@ -167,7 +167,7 @@ defmodule LdQ.Procedure.PropositionLivre do
         %{type: :text, name: "author_email", label: "Adresse de courriel de l'autrice/auteur"},
         %{type: :checkbox, name: "is_author", value: "yes", label: "Je suis l'aut#{fem(:rice, user)} du livre", checked: book.is_author},
         %{type: :text, name: "isbn", label: "ISBN du livre", value: book.isbn, required: true},
-        %{type: :date, name: "published_at", label: "Date de publication", required: true},
+        %{type: :date, name: "published_at", label: "Date de publication", value: Date.utc_today() |> Date.to_iso8601(), required: true},
         %{type: :text, name: "pitch", label: "Pitch (résumé court)", required: true},
         %{type: :select, name: "publisher", label: "Éditeur (maison d'éditions)", values: Lib.publishers_for_select()},
         %{type: :text, name: "new_publisher", label: "Autre éditeur", required: false},
@@ -222,27 +222,41 @@ defmodule LdQ.Procedure.PropositionLivre do
       book_id: book.id,
       author_id: author.id,
     })
-    update_procedure(procedure, %{data: data})
+    procedure = update_procedure(procedure, %{data: data})
 
     # Les données propres aux mails
     mail_data = %{
-      book_title: book.title,
-      book_isbn:  book_specs.isbn
+      mail_id: "user-confirmation-submission-book",
+      user: user,
+      variables: %{
+        book_title: book.title,
+        book_isbn:  book_specs.isbn
+      },
+      folder: __DIR__,
+      procedure: procedure
     }
 
     # Mail pour l'user soumettant le livre
-    send_mail(to: user, from: :admin, with: %{id: "user-confirmation-submission-book", variables: mail_data})
-
-    # Mail pour l'administration du label
-    # TODO
-
+    send_mail(to: user, from: :admin, with: mail_data)
+    
     # Mail à l'auteur du livre (même si c'est le même)
     # Dans ce mail, on lui demande de confirmer la soumission et
     # de rejoindre pour ça une page qui va lui permettre
-    # TODO
+    mail_data = %{mail_data | mail_id: "author-on-submission-book"}
+    send_mail(to: author, from: :admin, with: mail_data)
+
+    # Mail pour l'administration du label
+    mail_data = %{mail_data | mail_id: "admin-annonce-submission-book"}
 
     # Annonce d'activité
-    # TODO (contenant "soumission d’un nouveau livre")
+    author_name = "#{author.firstname} #{author.lastname}" |> String.trim()
+    log_activity(%{
+      public: true,
+      owner_type: "author",
+      owner_id:   author.id,
+      creator:    user,
+      text: "Soumission du livre “#{book.title}” de #{author_name}"
+    })
 
     ajout_quand_auteur =
       if is_author do
@@ -291,8 +305,10 @@ defmodule LdQ.Procedure.PropositionLivre do
       book_minicard_id: book.id,
       isbn: data["isbn"],
       published_at: data["published_at"],
-      publisher_id: publisher.id
+      publisher_id: publisher.id,
+      label: false
     }
+
     book_specs = Lib.create_book_specs!(data_specs)
 
     data_eval = %{
