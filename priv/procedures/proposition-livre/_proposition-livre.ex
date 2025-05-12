@@ -165,6 +165,7 @@ defmodule LdQ.Procedure.PropositionLivre do
         %{type: :text, name: "author_firstname", label: "Prénom de l'autrice/auteur", required: true},
         %{type: :text, name: "author_lastname", label: "Nom de l'autrice/auteur", required: true},
         %{type: :text, name: "author_email", label: "Adresse de courriel de l'autrice/auteur"},
+        %{type: :select, name: "author_sexe", label: "L'autrice/auteur est…", values: [["une femme", "F"], ["un homme", "H"]]},
         %{type: :checkbox, name: "is_author", value: "yes", label: "Je suis l'aut#{fem(:rice, user)} du livre", checked: book.is_author},
         %{type: :text, name: "isbn", label: "ISBN du livre", value: book.isbn, required: true},
         %{type: :date, name: "published_at", label: "Date de publication", value: Date.utc_today() |> Date.to_iso8601(), required: true},
@@ -285,7 +286,7 @@ defmodule LdQ.Procedure.PropositionLivre do
   # clés binary)
   defp book_cards_saved(data) do
     data_author =
-      [:email, :firstname, :lastname]
+      [:email, :firstname, :lastname, :sexe]
       |> Enum.reduce(%{}, fn prop, map ->
         Map.put(map, prop, data["author_#{prop}"])
       end)

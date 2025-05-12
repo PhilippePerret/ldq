@@ -6,8 +6,10 @@ defmodule LdQ.Repo.Migrations.CreateAuthors do
       add :id, :binary_id, primary_key: true
       add :firstname, :string
       add :lastname, :string
+      add :name, :string
       add :pseudo, :string
       add :email, :string
+      add :sexe, :string
       add :url_perso, :string
       add :birthyear, :integer
       add :address, :text

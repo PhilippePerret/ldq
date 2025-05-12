@@ -8,8 +8,10 @@ defmodule LdQ.Library.Author do
     field :address, :string
     field :firstname, :string
     field :lastname, :string
+    field :name, :string
     field :pseudo, :string
     field :email, :string
+    field :sexe, :string, default: "H"
     field :url_perso, :string
     field :birthyear, :integer
     field :user_id, :binary_id
@@ -19,8 +21,14 @@ defmodule LdQ.Library.Author do
 
   @doc false
   def changeset(author, attrs) do
+    attrs = attrs
+    |> add_name_property()
     author
-    |> cast(attrs, [:firstname, :lastname, :pseudo, :email, :url_perso, :birthyear, :address])
-    |> validate_required([:firstname, :lastname, :email])
+    |> cast(attrs, [:name, :firstname, :lastname, :pseudo, :email, :url_perso, :birthyear, :address, :sexe])
+    |> validate_required([:name, :sexe, :firstname, :lastname, :email])
+  end
+
+  def add_name_property(attrs) do
+    Map.put(attrs, "name", String.trim("#{attrs["firstname"]} #{attrs["lastname"]}"))
   end
 end

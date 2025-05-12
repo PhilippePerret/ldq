@@ -257,7 +257,7 @@ defmodule FeaturePublicMethods do
   Pour tester le log (activité) dans le pipe des vérifications
 
   @param {Keyword} params Liste des paramètres
-    :as       {Atom} soit :creator soit rien (ou :owner) pour préciser le rôle de l'user
+    :as       {Atom} soit :creator soit rien (ou :owner) pour préciser le rôle de l'user (le sujet)
     :content  {String} Ce que doit contenir (extrait) l'acitivté
     :after    {NaiveDateTime} Doit avoir été émis après cette date
     :public   {Boolean} Pour savoir si l'activité doit être publique ou non

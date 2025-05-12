@@ -27,6 +27,7 @@ defmodule LdQWeb.BookSubmissionTests do
       isbn: "9782487613027", # Analyse Au clair de Lune
       author_firstname: "Autrice",
       author_lastname: "DuLivre",
+      author_sexe: "F",
       author_email: user.email,
       published_at: Date.add(Date.utc_today(), -60),
       pitch: "Analyse autopsique d'un assassinat de Juillet",
@@ -64,6 +65,7 @@ defmodule LdQWeb.BookSubmissionTests do
     |> remplit_le_champ("Titre du livre") |> avec(book_data.title)
     |> remplit_le_champ("Prénom de l'autrice/auteur") |> avec(book_data.author_firstname)
     |> remplit_le_champ("Nom de l'autrice/auteur") |> avec(book_data.author_lastname)
+    |> choisit_le_menu("L'autrice/auteur est…", book_data.author_sexe)
     |> remplit_le_champ("Adresse de courriel de l'autrice/auteur") |> avec(book_data.author_email)
     |> remplit_le_champ("Date de publication") |> avec(book_data.published_at)
     |> remplit_le_champ("Pitch (résumé court)") |> avec(book_data.pitch)
