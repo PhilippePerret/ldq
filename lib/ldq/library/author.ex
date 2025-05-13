@@ -23,6 +23,7 @@ defmodule LdQ.Library.Author do
   def changeset(author, attrs) do
     attrs = attrs
     |> add_name_property()
+    
     author
     |> cast(attrs, [:name, :firstname, :lastname, :pseudo, :email, :url_perso, :birthyear, :address, :sexe])
     |> validate_required([:name, :sexe, :firstname, :lastname, :email])

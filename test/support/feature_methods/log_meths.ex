@@ -1,4 +1,5 @@
 defmodule Feature.LogTestMethods do
+  use LdQWeb.FeatureCase, async: false
 
   alias LdQ.Repo
   import Ecto.Query
@@ -40,7 +41,7 @@ defmodule Feature.LogTestMethods do
       nil # ok
     true ->
       # Erreur
-      formate_activity_errors(res.bads)
+      assert(false, formate_activity_errors(res.bads))
     end
   end
 
@@ -116,7 +117,7 @@ end
   defp get_logs_with_content(res, params) do
     if Keyword.has_key?(params, :content) do
       condition = fn log -> log.text =~ params[:content] end
-      get_logs_with_cond(res, condition, "ne contient pas “#{params[:content]}” (contient: \#{log.text})")
+      get_logs_with_cond(res, condition, "\nAttendu : «#{params[:content]}»\nContenu : «\#{log.text})»")
     else res end
   end
 

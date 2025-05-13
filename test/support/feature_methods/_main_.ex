@@ -5,7 +5,7 @@ defmodule FeaturePublicMethods do
   # alias Wallaby.Query,    as: WQ
   # alias Wallaby.Element,  as: WE
 
-  import TestHelpers
+  # import TestHelpers
 
   alias Feature.UserTestMethods,    as: U
   alias Feature.FormTestMethods,    as: Form

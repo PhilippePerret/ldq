@@ -61,10 +61,18 @@ defmodule LdQ.Library do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_mini_card(attrs \\ %{}) do
+  def create_book_mini_card(attrs \\ %{}) do
     %MiniCard{}
     |> MiniCard.changeset(attrs)
     |> Repo.insert()
+  end
+  def create_book_mini_card!(attrs \\ %{}) do
+    case create_book_mini_card(attrs) do
+    {:ok, mini_card} -> mini_card
+    {:error, changeset} ->
+      raise(inspect changeset)
+      nil
+    end
   end
 
   @doc """
@@ -362,6 +370,14 @@ defmodule LdQ.Library do
     |> Author.changeset(attrs)
     |> Repo.insert()
   end
+  def create_author!(attrs \\ %{}) do
+    case create_author(attrs) do
+    {:ok, author} -> author
+    {:error, changeset} ->
+      raise(inspect changeset)
+      nil
+    end
+  end
 
   @doc """
   Updates a author.
@@ -376,7 +392,9 @@ defmodule LdQ.Library do
 
   """
   def update_author(%Author{} = author, attrs) do
-    raise "TODO"
+    author
+    |> Author.changeset(attrs)
+    |> Repo.update()
   end
 
   @doc """
@@ -392,7 +410,7 @@ defmodule LdQ.Library do
 
   """
   def delete_author(%Author{} = author) do
-    raise "TODO"
+    Repo.delete(author)
   end
 
   @doc """
@@ -465,4 +483,9 @@ defmodule LdQ.Library do
     end)
     |> List.insert_at(0, ["Choisir…", ""])
   end
-end
+
+  def delete_publisher(%Publisher{} = publisher) do
+    Repo.delete(publisher)
+  end
+
+end #/ Library

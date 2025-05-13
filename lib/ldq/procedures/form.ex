@@ -235,7 +235,7 @@ defmodule Html.Form do
   def label(%{label: label} = dfield) do
     ~s(<label for="#{dfield.id}">#{dfield.label}</label>)
   end
-  def label(dfield), do: ""
+  def label(_dfield), do: ""
 
 
   def wrap(code, dfield) do

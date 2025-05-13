@@ -462,14 +462,16 @@ defmodule LdQ.ProcedureMethods do
         end
     end
 
-    receivers = case receiver do
-      :admins   -> [%{name: "Administrateurs", email: "admin@lecture-de-qualite.fr", sexe: "H"}]
-      :admin    -> [%{name: "Administrateur", email: "admin@lecture-de-qualite.fr", sexe: "H"}]
-      :readers  -> [%{name: "Lecteurs", email: "readers@lecture-de-qualite.fr", sexe: "H"}]
-      :members  -> [%{name: "Membres du comité", email: "membre-comite@lecture-de-qualite.fr", sexe: "H"}]
-      :membres  -> [%{name: "Membres du comité", email: "membre-comite@lecture-de-qualite.fr", sexe: "H"}]
-      _ -> [receiver]
-    end
+    receivers = 
+      case receiver do
+        :admins   -> [%{name: "Administrateurs", email: "admin@lecture-de-qualite.fr", sexe: "H"}]
+        :admin    -> [%{name: "Administrateur", email: "admin@lecture-de-qualite.fr", sexe: "H"}]
+        :readers  -> [%{name: "Lecteurs", email: "readers@lecture-de-qualite.fr", sexe: "H"}]
+        :members  -> [%{name: "Membres du comité", email: "membre-comite@lecture-de-qualite.fr", sexe: "H"}]
+        :membres  -> [%{name: "Membres du comité", email: "membre-comite@lecture-de-qualite.fr", sexe: "H"}]
+        _ -> [receiver]
+      end
+      # |> IO.inspect(label: "Receivers")
 
     email = Swoosh.Email.new()
     |> Swoosh.Email.from({sender.name, sender.email})

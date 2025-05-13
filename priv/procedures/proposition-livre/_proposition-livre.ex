@@ -216,7 +216,10 @@ defmodule LdQ.Procedure.PropositionLivre do
   def proceed_consigner_le_livre(procedure, book_data) do
     user = procedure.user
     is_author = book_data["is_author"]
-    {book, book_specs, book_eval, author} = book_cards_saved(book_data)
+
+    # - Création de tous les éléments -
+    {book, book_specs, _book_eval, author} = book_cards_saved(book_data)
+
     # Actualisation de la procédure pour qu'elle connaisse le
     # livre et l'auteur
     data = Map.merge(procedure.data, %{
@@ -237,6 +240,7 @@ defmodule LdQ.Procedure.PropositionLivre do
       procedure: procedure
     }
 
+
     # Mail pour l'user soumettant le livre
     send_mail(to: user, from: :admin, with: mail_data)
     
@@ -245,18 +249,18 @@ defmodule LdQ.Procedure.PropositionLivre do
     # de rejoindre pour ça une page qui va lui permettre
     mail_data = %{mail_data | mail_id: "author-on-submission-book"}
     send_mail(to: author, from: :admin, with: mail_data)
-
+    
     # Mail pour l'administration du label
     mail_data = %{mail_data | mail_id: "admin-annonce-submission-book"}
+    send_mail(to: :admin, from: user, with: mail_data)
 
     # Annonce d'activité
-    author_name = "#{author.firstname} #{author.lastname}" |> String.trim()
     log_activity(%{
       public: true,
       owner_type: "author",
       owner_id:   author.id,
       creator:    user,
-      text: "Soumission du livre “#{book.title}” de #{author_name}"
+      text: "Soumission du livre “#{book.title}” de #{author.name}"
     })
 
     ajout_quand_auteur =
@@ -286,47 +290,41 @@ defmodule LdQ.Procedure.PropositionLivre do
   # clés binary)
   defp book_cards_saved(data) do
     data_author =
-      [:email, :firstname, :lastname, :sexe]
+      ["email", "firstname", "lastname", "sexe"]
       |> Enum.reduce(%{}, fn prop, map ->
         Map.put(map, prop, data["author_#{prop}"])
       end)
-    author =
-      Lib.Author.changeset(%Lib.Author{}, data_author)
-      |> Repo.insert!()
+    author = Lib.create_author!(data_author)
     
     data = Map.put(data, "author_id", author.id)
-
-    book =
-      Book.MiniCard.changeset(%Book.MiniCard{}, data)
-      |> Repo.insert!()
+    minicard = Lib.create_book_mini_card!(data)
 
     publisher = get_publisher_in_params(data)
 
     data_specs = %{
-      book_minicard_id: book.id,
+      book_minicard_id: minicard.id,
       isbn: data["isbn"],
       published_at: data["published_at"],
       publisher_id: publisher.id,
       label: false
     }
-
     book_specs = Lib.create_book_specs!(data_specs)
 
     data_eval = %{
-      book_minicard_id: book.id,
+      book_minicard_id: minicard.id,
       current_phase: 0,
       submitted_at: now()
     }
     book_eval = Lib.create_book_evaluation!(data_eval)
     
-    {book, book_specs, book_eval, author}
+    {minicard, book_specs, book_eval, author}
   end
 
   # ========= MÉTHODES DE TESTS =============
 
   # @return :ok si le livre est registrable ou  l'erreur rencontrée
   # dans le cas contraire.
-  defp book_registrable?(procedure, book_data) do
+  defp book_registrable?(_procedure, book_data) do
     cond do
     !book_is_uniq(book_data) ->
       "Le livre doit être unique, or nous connaissons déjà un livre possédans le titre #{book_data["title"]} ou l'ISBN #{book_data["isbn"]}."
@@ -376,7 +374,7 @@ defmodule LdQ.Procedure.PropositionLivre do
   defp book_data_from_providers(book_data) do
     isbn = book_data.isbn
     @isbn_providers
-    |> Enum.reduce(%{retours: [], livre_found: nil}, fn {provider_name, provider_url, methode}, collector ->
+    |> Enum.reduce(%{retours: [], livre_found: nil}, fn {_provider_name, provider_url, methode}, collector ->
       if is_nil(collector.livre_found) do
         url = String.replace(provider_url, "__ISBN__", isbn)
         res = System.cmd("curl", [url])

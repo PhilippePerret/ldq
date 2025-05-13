@@ -74,7 +74,7 @@ defmodule LdQWeb.BookSubmissionTests do
     |> choisit_le_menu("Pays du nouvel éditeur", book_data.new_publisher_pays)
     |> choisit_le_bon_captcha(%{form_id: "submit-book-form", prefix: "book"})
     |> clique_le_bouton("Soumettre ce livre")
-    |> pause(2)
+    |> pause(1)
     # On doit se trouver sur la page de registration
     |> et_voit("h2", "Enregistrement du livre")
 
@@ -83,7 +83,6 @@ defmodule LdQWeb.BookSubmissionTests do
     # S'assurer que les cartes du livres ont bien été créées
     # (le full: true ci-dessous signifie qu'on checke aussi ses cartes)
     new_book = assert_book_exists(full: true, after: point_test, author_email: user.email)
-    # TODO
 
     # S'assurer que l'auteur a été créé
     assert_author_exists(after: point_test, email: new_book.author.email, firstname: new_book.author.firstname)
@@ -93,7 +92,7 @@ defmodule LdQWeb.BookSubmissionTests do
     |> recoit_un_mail(after: point_test, mail_id: "user-confirmation-submission-book")
     # en tant qu'autrice du livre
     |> recoit_un_mail(after: point_test, mail_id: "author-on-submission-book")
-    |> has_activity(after: point_test, as: :creator, content: "Soumission du livre “#{book_data.title}”")
+    |> has_activity(after: point_test, as: :creator, content: "Sooumission du livre “#{book_data.title}”")
 
     admin = make_admin_with_session()
 
