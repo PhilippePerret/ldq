@@ -15,8 +15,9 @@ defmodule LdQWeb.BookSubmissionTests do
   import TestHelpers
   import FeaturePublicMethods
 
-  # @tag :skip
+  @tag :skip
   test "Un utilisateur quelconque peut soumettre un nouveau livre" do
+    # on_exit(fn -> bdd_dump("book-just-submitted") end)
 
     detruire_les_mails()
 
@@ -92,13 +93,30 @@ defmodule LdQWeb.BookSubmissionTests do
     |> recoit_un_mail(after: point_test, mail_id: "user-confirmation-submission-book")
     # en tant qu'autrice du livre
     |> recoit_un_mail(after: point_test, mail_id: "author-on-submission-book")
-    |> has_activity(after: point_test, as: :creator, content: "Sooumission du livre “#{book_data.title}”")
+    |> has_activity(after: point_test, as: :creator, content: "Soumission du livre “#{book_data.title}”")
 
     admin = make_admin_with_session()
 
     admin
     |> recoit_un_mail(after: point_test, mail_id: "admin-annonce-submission-book")
 
+    # Photographie de la BDD après enregistrement de la soumission du livre
+    bdd_dump("book-just-submitted", %{
+      user: user, point_test: point_test
+    })
+
+    LdQ.Library.list_authors()
+    |> IO.inspect(label: "\n\nTous les auteurs en FIN")
+
+  end
+
+  # @tag :skip
+  test "Après soumission, l'auteur du livre peut venir confirmer la soumission" do
+    test_data = bdd_load("book-just-submitted")
+    IO.inspect(test_data, label: "Données du test")
+
+    LdQ.Library.list_authors()
+    |> IO.inspect(label: "\n\nTous les auteurs en DÉBUT")
 
   end
 

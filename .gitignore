@@ -11,6 +11,7 @@ certificat.pem
 /cover/
 
 /test/xtmp/mails_sent
+/test/xbdd_dumps
 
 # The directory Mix downloads your dependencies sources to.
 /deps/

@@ -337,7 +337,7 @@ defmodule LdQ.Library do
 
   """
   def list_authors do
-    Repo.all(Authors)
+    Repo.all(Author)
   end
 
   @doc """

@@ -17,15 +17,20 @@ defmodule LdQWeb.FeatureCase do
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(LdQ.Repo)
 
-    unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(LdQ.Repo, {:shared, self()})
-    end
+    # Puisqu'on n'utilise plus la sandbox, on doit forcer le vidage
+    # de la base de données
+    TestHelpers.bdd_reset()
 
-    metadata = Phoenix.Ecto.SQL.Sandbox.metadata_for(LdQ.Repo, self())
+    # :ok = Ecto.Adapters.SQL.Sandbox.checkout(LdQ.Repo)
+
+    # unless tags[:async] do
+    #   Ecto.Adapters.SQL.Sandbox.mode(LdQ.Repo, {:shared, self()})
+    # end
+
+    # metadata = Phoenix.Ecto.SQL.Sandbox.metadata_for(LdQ.Repo, self())
     {:ok, session} = Wallaby.start_session([
-      metadata: metadata,
+      # metadata: metadata,
       window_size: [width: 1000, height: 1200]
       ])
     {:ok, session: session}

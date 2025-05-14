@@ -13,8 +13,8 @@ defmodule LdQ.Library.Book.Evaluation do
     field :label_grade, :integer
     field :rating, :integer
     field :readers_rating, :integer
-    field :parrain, :binary_id
-
+    
+    belongs_to :parrain, LdQ.Comptes.User
     belongs_to :book_minicard, Book.MiniCard
 
     timestamps(type: :utc_datetime)
@@ -23,7 +23,7 @@ defmodule LdQ.Library.Book.Evaluation do
   @doc false
   def changeset(evaluation, attrs) do
     evaluation
-    |> cast(attrs, [:book_minicard_id, :transmitted, :current_phase, :submitted_at, :evaluated_at, :label_grade, :rating, :readers_rating])
+    |> cast(attrs, [:book_minicard_id, :transmitted, :parrain_id, :current_phase, :submitted_at, :evaluated_at, :label_grade, :rating, :readers_rating])
     |> validate_required([:book_minicard_id, :current_phase, :submitted_at])
   end
 end

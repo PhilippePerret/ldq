@@ -13,8 +13,9 @@ config :ldq, LdQ.Repo,
   password: "postgres",
   hostname: "localhost",
   database: "ldq_test#{System.get_env("MIX_TEST_PARTITION")}",
-  pool: Ecto.Adapters.SQL.Sandbox,
-  pool_size: System.schedulers_online() * 2
+  # pool: Ecto.Adapters.SQL.Sandbox,            | Pour désactiver
+  # pool_size: System.schedulers_online() * 2   | la sandbox
+  sandbox: false # Pour essayer                 | complètement
 
 config :ldq, env: :test
 
