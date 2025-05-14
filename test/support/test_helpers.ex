@@ -9,7 +9,10 @@ defmodule TestHelpers do
   alias LdQ.ProcedureMethods, as: Proc
 
   @doc """
-  Procède à une copie de la base test actuelle
+  Procède à une copie de la base de test actuelle
+  C'est ce que j'appelle les « Photographies de la BdD ». Grâce à 
+  elles on peut repartir de n'importe quel point des tests 
+  d'intégration.
   """
   def bdd_dump(dump_name, data) do
     path = dump_path(dump_name)
@@ -29,52 +32,21 @@ defmodule TestHelpers do
       LdQ.Library.Publisher
     ]
 
+  @doc """
+  Réinitialisation de la BdD de test, avant chaque test d'intégration
+  cette fonction est appelée. Elle vide les tables ci-dessus.
+
+  NB : Les tables des pages ne sont pas remises à zéro.
+  """
   def bdd_reset() do
     Enum.each(@tables, fn table ->
       Repo.delete_all(table)
     end)
   end
 
-  def bdd_dump_with_sandbox(dump_name, data) do
-    path = dump_path(dump_name)
-
-    tables = @tables
-    # Note : on ne prend pas Pages et PagesLocales
-
-    truncate_lines = for module <- Enum.uniq(tables), do: "TRUNCATE TABLE #{module.__schema__(:source)} CASCADE;"
-    inserts =
-      for module <- tables, record <- Repo.all(module) do
-        table = module.__schema__(:source)
-        fields = module.__schema__(:fields)
-        values = Enum.map(fields, &Map.get(record, &1))
-
-        field_list = Enum.map(fields, &~s("#{&1}")) |> Enum.join(", ")
-        value_list =
-          values
-          |> Enum.map(&dump_sql_value/1)
-          |> Enum.join(", ")
-
-        "INSERT INTO #{table} (#{field_list}) VALUES (#{value_list});"
-      end
-
-    File.write!(path, Enum.join(truncate_lines ++ inserts, "\n"))
-
-    data_path = "#{path}.data"
-    File.write!(data_path, :erlang.term_to_binary(data))
-  end
-
-  defp dump_sql_value(nil), do: "NULL"
-  defp dump_sql_value(%NaiveDateTime{} = dt), do: "'#{NaiveDateTime.to_string(dt)}'"
-  defp dump_sql_value(%DateTime{} = dt), do: "'#{DateTime.to_string(dt)}'"
-  defp dump_sql_value(%Date{} = d), do: "'#{Date.to_string(d)}'"
-  defp dump_sql_value(%Time{} = t), do: "'#{Time.to_string(t)}'"
-  defp dump_sql_value(binary) when is_binary(binary), do: "'#{String.replace(binary, "'", "''")}'"
-  defp dump_sql_value(%{} = map), do: "'#{Jason.encode!(map)}'"
-  defp dump_sql_value(list) when is_list(list), do: "'{" <> Enum.join(list, ",") <> "}'"
-  defp dump_sql_value(other), do: "#{other}"
-
   @doc """
-  Restaure la photographie +dump_name+ de la base 
+  Restaure la photographie +dump_name+ de la base et retourne les 
+  données associées à cette table.
 
   @return {Map} Une table des données enregistrées avec l'état de la
   base.
@@ -83,10 +55,6 @@ defmodule TestHelpers do
     dump_path = dump_path(dump_name)
     if File.exists?(dump_path) do
       System.cmd("pg_restore", ["--clean", "--no-owner", "-dldq_test", dump_path])
-      # Repo.query!(File.read!(dump_path))
-      # for query <- String.split(File.read!(dump_path), ";", trim: true), String.trim(query) != "" do
-      #   Repo.query!(query <> ";")
-      # end      
     else
       raise "Dump introuvable : #{dump_name}"
     end
@@ -102,7 +70,6 @@ defmodule TestHelpers do
   def dump_path(name) do
     "#{dumps_folder()}/#{name}.dump"
   end
-
   def dumps_folder do
     Path.absname(Path.join(["test", "xbdd_dumps"]))
   end
