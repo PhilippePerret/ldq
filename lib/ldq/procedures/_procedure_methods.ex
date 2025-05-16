@@ -176,8 +176,11 @@ defmodule LdQ.ProcedureMethods do
   """
   def impasse(procedure) do
     """
-    <h3>Voie sans issue</h3>
-    <p>Il semblerait que vous n'ayez rien à faire dans cette partie.</p>
+    <div style="position:relative;clear:both;">
+      <img src="/images/impasse.png" style="vertical-align:middle;float:left;margin-right:4em;margin-bottom:2em;" />
+      <span class="bigger" style="padding:1.5em;border-radius:0.5em;position:absolute;display:block;background-color:red;color:white;left:8em;top:2em;">Il semblerait que vous n'ayez rien à faire sur cette page.</span>
+    </div>
+    <div style="clear:both;"> </div>
     """
   end
 
@@ -323,6 +326,9 @@ defmodule LdQ.ProcedureMethods do
     # - Relève de toutes les procédures -
     allfounds = Repo.all(query)
     |> Repo.preload(:submitter)
+    |> Enum.map(fn proc ->
+      Map.put(proc, :data, Jason.decode!(proc.data || "{}"))
+    end)
     if params[:one] || params[:last] do
       Enum.at(allfounds, 0)
     else
@@ -331,7 +337,7 @@ defmodule LdQ.ProcedureMethods do
   end
   # @return Nil si la procédure n'existe pas
   def get_procedure(proc_id) do
-    Repo.get(Procedure, proc_id)
+    Procedure.get(proc_id)
   end
 
   def update_procedure(%Procedure{} = proc, attrs) do

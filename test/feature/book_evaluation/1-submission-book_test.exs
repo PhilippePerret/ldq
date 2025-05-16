@@ -22,7 +22,10 @@ defmodule LdQWeb.BookSubmissionTestsStep1 do
   import TestHelpers
   import FeaturePublicMethods
 
-  @tag :skip
+  # @tag :skip
+  @tag :admin
+  @tag :user
+  @tag :author
   test "Un utilisateur quelconque peut soumettre un nouveau livre" do
     # on_exit(fn -> bdd_dump("book-just-submitted") end)
 

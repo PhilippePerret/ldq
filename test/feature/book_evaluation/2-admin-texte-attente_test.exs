@@ -8,6 +8,7 @@ defmodule LdQWeb.BookSubmissionTestsStep2 do
 
 
   # @tag :skip
+  @tag :admin
   test "Un administrateur trouve le texte d'attente" do
     %{admin: admin, procedure: procedure, point_test: point_test} = bdd_load("book-just-submitted")
     
@@ -15,7 +16,7 @@ defmodule LdQWeb.BookSubmissionTestsStep2 do
     
     admin
     |> rejoint_la_page("/proc/#{procedure.id}")
-    |> pause(1)
+    |> pause(4)
     |> et_voit("attend confirmation de sa soumission")
     |> end_session()
   end

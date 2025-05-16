@@ -13,7 +13,7 @@ defmodule LdQ.Procedure do
     field :current_step, :string
     field :next_step, :string
     field :steps_done, {:array, :string}
-    field :data, :map
+    field :data, :string
 
     belongs_to :submitter, LdQ.Comptes.User
 
@@ -21,10 +21,19 @@ defmodule LdQ.Procedure do
   end
 
   def changeset(%__MODULE__{} = procedure, attrs) do
+    attrs = 
+      attrs
+      |> data_to_json()
+
     procedure
     |> cast(attrs, [:proc_dim, :submitter_id, :owner_type, :owner_id, :current_step, :next_step, :steps_done, :data])
-    |> validate_required([:proc_dim, :submitter_id, :owner_type, :owner_id, :current_step, :data])
+    |> validate_required([:proc_dim, :submitter_id, :owner_type, :owner_id, :current_step])
   end
+
+def data_to_json(%{"data" => data} = attrs) when is_map(data), do: %{attrs | "data" => Jason.encode!(data)}
+def data_to_json(%{"data" => data} = attrs) when is_binary(data), do: attrs
+def data_to_json(attrs), do: Map.put(attrs, "data", "{}")
+
 
   @doc """
   Principalement appelée par la page du contrôleur de procédure pour
@@ -39,7 +48,9 @@ defmodule LdQ.Procedure do
   Retourne la procédure d'identifiant +id+
   """
   def get(proc_id) do
-    Repo.one!(from p in __MODULE__, where: p.id == ^proc_id)
+    proc = Repo.get!(__MODULE__, proc_id)
+    %{proc | data: proc.data && Jason.decode!(proc.data)}
+    |> IO.inspect(label: "PROCÉDURE RELEVÉE")
   end
 
   @doc """

@@ -16,7 +16,7 @@ defmodule LdQ.Repo.Migrations.CreateProcedures do
       # Les étapes déjà effectuées
       add :steps_done, {:array, :string}
       # Les données quelconques de la procédure
-      add :data, :map
+      add :data, :text
       # Pour connaitre celui qui a soumis la procédure
       add :submitter_id, references(:users, on_delete: :delete_all, type: :binary_id)
 

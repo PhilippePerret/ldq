@@ -6,7 +6,8 @@ defmodule LdQWeb.BookSubmissionTestsStep2_3 do
   import TestHelpers
   import FeaturePublicMethods
 
-  # @tag :skip
+  # @tag :skip 
+  @tag :user
   test "Un user quelconque, même inscrit, ne peut pas rejoindre cette procédure" do
     %{admin: admin, procedure: procedure, point_test: point_test} = bdd_load("book-just-submitted")
 
@@ -14,8 +15,8 @@ defmodule LdQWeb.BookSubmissionTestsStep2_3 do
 
     user
     |> rejoint_la_page("/proc/#{procedure.id}")
-    |> pause(10)
-    |> et_voit("Voie sans issue")
+    |> pause(4)
+    |> et_voit("rien à faire sur cette page")
     |> end_session()
   end
 

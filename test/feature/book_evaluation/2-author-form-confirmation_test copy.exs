@@ -7,6 +7,7 @@ defmodule LdQWeb.BookSubmissionTestsStep2_2 do
   import FeaturePublicMethods
 
   # @tag :skip
+  @tag :author
   test "Après soumission, l'auteur du livre peut venir confirmer la soumission" do
     %{user: user, procedure: procedure, point_test: point_test} = bdd_load("book-just-submitted")
     # IO.inspect(test_data, label: "Données du test")
@@ -19,7 +20,7 @@ defmodule LdQWeb.BookSubmissionTestsStep2_2 do
     Map.put(user, :password, "passepartout")
     |> IO.inspect(label: "User pour connexion")
     |> rejoint_la_page("/proc/#{procedure.id}")
-    |> pause(10)
+    |> pause(4)
     |> et_voit("h3", "Confirmation de la soumission du livre")
 
   end
