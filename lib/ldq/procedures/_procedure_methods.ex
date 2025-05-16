@@ -611,6 +611,7 @@ defmodule LdQ.ProcedureMethods do
       LdQ.LinkHelpers,
       LdQ.Mails.Helpers,
       Helpers.Feminines,
+      LdQ.Site.PageHelpers
     ]
   end
 

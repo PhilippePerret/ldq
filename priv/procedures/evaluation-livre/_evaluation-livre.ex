@@ -52,7 +52,7 @@ defmodule LdQ.Procedure.PropositionLivre do
   def defaultize_procedure(p) do
     # Ajout du livre s'il est défini
     p = if Map.get(p.data, "book_id") do
-      Map.put(p, :book, Lib.get_book(p.data["book_id"]))
+      Map.put(p, :book, Lib.get_book_minicard(p.data["book_id"]))
     else p end
 
     p

@@ -9,9 +9,39 @@ defmodule LdQ.Library do
   alias LdQ.Library.Author
   alias LdQ.Library.Publisher
 
+  alias LdQ.Library.Book
+
+  # @deprecated
   alias LdQ.Library.Book.MiniCard
   alias LdQ.Library.Book.Specs
   alias LdQ.Library.Book.Evaluation
+
+
+  @doc """
+  Pour récupérer tous les livres
+  """
+  def get_books(params) do
+    fields = 
+      case params do
+        :mini -> [:title, :pitch]
+        :specs -> [:title, :pitch, :subtitle, :isbn]
+        _ -> Book
+      end
+    from(Book, select: ^fields)
+    |> Repo.all()
+    |> Repo.preload(:author)
+  end
+
+  def create_book(attrs \\ %{}) do
+    %Book{}
+    |> Book.changeset(attrs)
+    |> Repo.insert()
+  end
+  def update_book(book, attrs) do
+    Book.changeset(book, attrs)
+    |> Repo.update()
+  end
+
 
   @doc """
   Returns the list of book_minicards.
@@ -42,7 +72,7 @@ defmodule LdQ.Library do
   """
   def get_mini_card!(id), do: Repo.get!(MiniCard, id)
 
-  def get_book(id) do
+  def get_book_minicard(id) do
     Repo.get!(MiniCard, id)
     |> Repo.preload(:author)
     |> get_book_specs_of()

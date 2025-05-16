@@ -34,6 +34,7 @@ end
 # ==== Pages et Pages Locales ====
 
 if false do ### METTRE À TRUE POUR TRAITER
+# if true do ### METTRE À FALSE POUR PASSER
 
   Repo.delete_all(PageLocale)
   Repo.delete_all(Page)
@@ -51,7 +52,18 @@ if false do ### METTRE À TRUE POUR TRAITER
     })
 
     # On récupère les données dans l'entête du fichier .phil
-    pdata = PhilHtml.to_data(fullpath, [evaluation: false, to_file: false, no_header: true])
+    pdata = PhilHtml.to_data(fullpath, [
+      dest_folder: "xhtml",
+      evaluation: false, to_file: false, no_header: true, variables: %{
+        # ldq_label: LdQWeb.ViewHelpers.ldq_label()
+      },
+      helpers: [
+        LdQWeb.ViewHelpers, 
+        LdQ.LinkHelpers,
+        LdQ.Mails.Helpers,
+        Helpers.Feminines,
+        LdQ.Site.PageHelpers
+      ]])
     
     [title, summary] =
       if Map.has_key?(pdata.metadata, :title) do
