@@ -29,7 +29,8 @@ defmodule TestHelpers do
       LdQ.Library.Book.MiniCard,
       LdQ.Comptes.User,
       LdQ.Library.Author,
-      LdQ.Library.Publisher
+      LdQ.Library.Publisher,
+      LdQ.Tests.Mails
     ]
 
   @doc """

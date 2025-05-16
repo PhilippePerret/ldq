@@ -324,19 +324,21 @@ defmodule LdQ.ProcedureMethods do
   end
 
   @doc """
-  En mode test, au lieu d'envoyer le mail, on l'enregistre dans un 
-  fichier avec sa date d'envoi.
+  En mode test, au lieu d'envoyer le mail, on l'enregistre dans la
+  base de données (LdQ.Tests.Mails/tests_mails)
   """
   def consigne_mail_for_test(data_mail) do
-    path = Path.join(["test","xtmp", "mails_sent", "#{Ecto.UUID.generate()}"])
     data_mail = Map.merge(data_mail, %{
       sent_at: NaiveDateTime.utc_now()
     })
-    # Pour le moment, pour ne pas alourdir, on retire l'objet PhilHtml
-    data_mail = Map.delete(data_mail, :philhtml)
-    # IO.inspect(data_mail, label: "\nDonnées du mail simulé")
-    data_string = :erlang.term_to_binary(data_mail)
-    File.write!(path, data_string)
+    bdd_data = %{
+      to:           data_mail.receiver.email,
+      from:         data_mail.from.email,
+      mail_id:      data_mail.mail_id,
+      body:         data_mail.html_body,
+      attachment:   Map.get(data_mail, :attachment, nil),
+      subject:      data_mail.subject
+    } |> LdQ.Tests.Mails.create()
   end
 
   @doc """

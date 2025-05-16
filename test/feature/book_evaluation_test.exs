@@ -1,12 +1,19 @@
 defmodule LdQWeb.BookSubmissionTests do
   @moduledoc """
-  Module de test permettant de tester la soumission d'un livre en 
-  mode intégration.
+  Module de test permettant de tester l'évaluation d'un livre, depuis
+  sa soumission jusqu'à l'attribution de son label (ou pas).
+  Ce module unique permet de tester les choses quand tout va bien et
+  que le livre passe toutes les étapes.
+  On se sert intenséement de bdd_dump et bdd_load pour repartir d'un
+  point précis de la base.
 
   QUESTION :
 
   Comment s'assurer de la validité du livre => par l'ISBN ? en faisant une
   recherche sur Amazon (sur un autre site)
+  REPONSE : Pour le moment, il n'y a pas de moyen gratuit de s'assurer de
+  l'existence du livre par ISBN.
+  
   """
   use LdQWeb.FeatureCase, async: false
 

@@ -97,22 +97,13 @@ defmodule Feature.MailTestMethods do
   def get_mails_against_params(params) do
     params = defaultize_mail_params(params)
 
-    resultat = %{
-      params:       params,
-      destinataire: params.destinataire, 
-      allmails: [],
-      keptmails: [], # les mails conservés
-      exclusions: [] # les mails exclus
-    }
+    # On prend tous les mails dans la table
+    allmails = LdQ.Tests.Mails.find(params)
+    |> IO.inspect(label: "Tous les mails filtrés")
+    raise "pour voir"
 
-    folder = dossier_mails()
-    # On prend tous les fichiers mails
-    File.ls!(folder)
-    # On les load pour retrouver les maps
-    |> Enum.reduce(resultat, fn fname, res ->
-      mail = :erlang.binary_to_term(File.read!(Path.join([folder,fname])))
-      %{res | allmails: res.allmails ++ [mail]}
-    end)
+    params
+    |> Map.put(:allmails, allmails)
     # On ne garde que les mails après le points-test fourni (if any)
     |> keep_only_mails_after_point_test()
     |> keep_only_mails_received_by_dest()
@@ -281,9 +272,7 @@ defmodule Feature.MailTestMethods do
   
 
   def exec_delete_all_mails do
-    folder = dossier_mails()
-    File.rm_rf!(folder)
-    File.mkdir!(folder)
+    LdQ.Tests.Mails.delete_all()
   end
 
   defp dossier_mails do
@@ -293,12 +282,13 @@ defmodule Feature.MailTestMethods do
   # Pour simplifier et clarifier
   defp defaultize_mail_params(params) do
     Map.merge(%{
-      sender: nil,
-      mail_id: nil,
-      after: nil,
-      subject: nil,
-      content: nil,
-      count: nil
+      to: params.sender.email,
+      from: params.from.email,
+      mail_id:  nil,
+      subject:  nil,
+      body:     params.content,
+      after:    nil,
+      count:    nil
     }, params)
   end
 
