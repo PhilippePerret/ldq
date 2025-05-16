@@ -1,4 +1,4 @@
-defmodule LdQWeb.BookSubmissionTests do
+defmodule LdQWeb.BookSubmissionTestsStep1 do
   @moduledoc """
   Module de test permettant de tester l'évaluation d'un livre, depuis
   sa soumission jusqu'à l'attribution de son label (ou pas).
@@ -119,34 +119,6 @@ defmodule LdQWeb.BookSubmissionTests do
       procedure_id: procedure.id
     })
 
-  end
-
-  @tag :skip
-  test "Soumission d'un livre par quelqu'un d'autre que l'auteur" do
-  end
-  @tag :skip
-  test "Après soumission, un auteur non enregistrer doit s'enregistrer avant de confirmer la soumission" do
-  end
-
-  @tag :skip
-  test "Un non inscrit ne peut pas soumettre un livre" do
-  end
-
-  @tag :skip
-  test "On ne peut pas soumettre de force un formulaire incomplet" do
-  end
-
-  @tag :skip
-  test "On peut soumettre un livre directement par formulaire" do
-  end
-
-  @tag :skip
-  test "On ne peut pas soumettre deux fois le même livre" do
-  end
-
-  @tag :skip
-  test "Soumission par quelqu'un d'autre que l'auteur" do
-    # L'auteur reçoit un mail aussi
   end
 
 end

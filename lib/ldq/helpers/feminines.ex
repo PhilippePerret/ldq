@@ -27,13 +27,16 @@ defmodule Helpers.Feminines do
   peut ajouter toutes les féminines en Map. Donc :
     variables = Map.merge(variables, Helpers.Feminines.as_map(sexe))
   """
-  def as_map(sexe) do
+  def as_map(s, p \\ "f")
+  def as_map(sexe, prefix) do
     @fem_ids
     |> Enum.reduce(%{}, fn fem_id, map -> 
-      f_id = "f_#{fem_id}" |> String.to_atom
+      f_id = "#{prefix}_#{fem_id}" |> String.to_atom
       Map.put(map, f_id, fem(fem_id, sexe))
     end)
   end
+  def as_map(%LdQ.Comptes.User{} = user, prefix), do: as_map(user.sexe, prefix)
+  def as_map(%LdQ.Library.Author{} = user, prefix), do: as_map(user.sexe, prefix)
 
   def as_keyword(sexe) do
     @fem_ids

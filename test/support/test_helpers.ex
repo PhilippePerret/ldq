@@ -13,8 +13,21 @@ defmodule TestHelpers do
   C'est ce que j'appelle les « Photographies de la BdD ». Grâce à 
   elles on peut repartir de n'importe quel point des tests 
   d'intégration.
+
+  Certaines propriétés peuvent avoir des sessions, il faut les 
+  supprimer avant enregistrement.
   """
+  @prop_with_session [:user, :author, :admin, :super_admin, :super_user]
   def bdd_dump(dump_name, data) do
+    data = @prop_with_session
+    |> Enum.reduce(data, fn key, d -> 
+      if Map.get(data, key) do
+        if Map.get(data[key], :session) do
+          new_value = Map.delete(data[key], :session)
+          Map.put(d, key, new_value)
+        else d end
+      else d end
+    end)
     path = dump_path(dump_name)
     System.cmd("pg_dump", ["-Fc", "-dldq_test", ~s(-f#{path})])
     data_path = "#{path}.data"

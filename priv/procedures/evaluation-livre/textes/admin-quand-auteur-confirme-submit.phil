@@ -1,3 +1,5 @@
 h3: Confirmation par l'auteur requise
 
-Administrateur, ce livre attend confirmation de la soumission par l'auteur.
+Administrateur, le livre « <:: book_title ::> » attend confirmation de sa soumission par son aut<:: ff_rice ::> <:: book_author ::>.
+
+Vous en serez averti et vous pourrez ensuite le mettre en évaluation.

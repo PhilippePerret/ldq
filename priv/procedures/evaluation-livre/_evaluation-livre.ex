@@ -50,13 +50,11 @@ defmodule LdQ.Procedure.PropositionLivre do
   procédure.
   """
   def defaultize_procedure(p) do
-    IO.inspect(p, label: "Procédure avant defaultize_procedure")
     # Ajout du livre s'il est défini
     p = if Map.get(p.data, "book_id") do
       Map.put(p, :book, Lib.get_book(p.data["book_id"]))
     else p end
 
-    IO.inspect(p, label: "Procédure APRÈS defaultize_procedure")
     p
   end
 
@@ -314,14 +312,24 @@ defmodule LdQ.Procedure.PropositionLivre do
     # Barrière administrateur ou auteur du livre (attention, le vrai
     # auteur du livre, pas celui qui l'a soumis, qui peut être quelqu'un
     # d'autre que l'auteur)
-    author = LdQ.Library.get_author!(procedure.data["author_id"])
+    book    = procedure.book
+    author  = book.author
     cond do
-    author.user_id == procedure.user.id ->
-      # C'est l'auteur qui vient confirmer
+    book.author.user_id == procedure.current_user.id ->
+      # C'est l'auteur qui vient confirmer. Noter qu'il faut que ça 
+      # soit avant le test de l'administrateur, car un administrateur
+      # peut tout à fait être l'auteur d'un livre soumis.
       proceed_confirmation_soumission(procedure)
-    user_is_admin?(procedure) ->
+    current_user_is_admin?(procedure) ->
       # C'est un administrateur qui visite
-      load_phil_text(__DIR__, "admin-quand-auteur-confirme-submit")
+      variables = Map.merge(%{book_title: book.title, book_author: book.author.name},
+        Helpers.Feminines.as_map(author, "ff")
+      )
+      load_phil_text(
+        __DIR__, 
+        "admin-quand-auteur-confirme-submit",
+        variables
+        )
     true ->
       # Visiteur mal venu
       impasse(procedure)

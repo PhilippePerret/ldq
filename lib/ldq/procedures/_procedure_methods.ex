@@ -24,8 +24,8 @@ defmodule LdQ.ProcedureMethods do
   @doc """
   @return True si l'user courant est administrateur
   """
-  def user_is_admin?(procedure) do
-    Comptes.User.admin?(procedure.user)
+  def current_user_is_admin?(procedure) do
+    Comptes.User.admin?(procedure.current_user)
   end
 
   @doc """
@@ -50,6 +50,10 @@ defmodule LdQ.ProcedureMethods do
       if Map.has_key?(vars, :user) do
         vars
         |> Map.merge(Helpers.Feminines.as_map(vars.user.sexe))
+        # La table ci-dessus contient tous les suffixes féminins ou
+        # masculins suivant l'user, préfixés par "f_". Pour le "e" de
+        # "ami" ou "amie" par exemple, c'est "f_e". Donc on doit mettre
+        # dans le message « C'est mon ami<:: f_e ::> »
         |> Map.merge(%{
           user_name:  vars.user.name,
           user_email: vars.user.email, user_mail: vars.user.email,
