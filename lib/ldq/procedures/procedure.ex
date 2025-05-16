@@ -1,6 +1,8 @@
 defmodule LdQ.Procedure do
   use Ecto.Schema
   import Ecto.Changeset
+  alias LdQ.Repo
+  import Ecto.Query
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
@@ -31,6 +33,13 @@ defmodule LdQ.Procedure do
   def run(procedure) when is_struct(procedure, __MODULE__) do
     module = get_proc_module(procedure)
     LdQ.ProcedureMethods.__run__(module, procedure)
+  end
+
+  @doc """
+  Retourne la procédure d'identifiant +id+
+  """
+  def get(proc_id) do
+    Repo.one!(from p in __MODULE__, where: p.id == ^proc_id)
   end
 
   @doc """

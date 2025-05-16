@@ -22,13 +22,13 @@ defmodule LdQWeb.BookSubmissionTests do
   import TestHelpers
   import FeaturePublicMethods
 
-  # @tag :skip
+  @tag :skip
   test "Un utilisateur quelconque peut soumettre un nouveau livre" do
     # on_exit(fn -> bdd_dump("book-just-submitted") end)
 
     detruire_les_mails()
 
-    user = make_user_with_session(%{name: "Autrice DuLivre"})
+    user = make_user_with_session(%{name: "Autrice DuLivre", password: "passepartout"})
 
     book_data = %{
       title: "Mon plus beau livre du #{now()}",
@@ -107,23 +107,55 @@ defmodule LdQWeb.BookSubmissionTests do
     admin
     |> recoit_un_mail(after: point_test, mail_id: "admin-annonce-submission-book")
 
+    # La prochaine étape doit être la bonne
+    procedure = last_procedure_of(user, "evaluation-livre")
+    assert procedure.next_step == "auteur_confirme_soumission_livre"
+
     # Photographie de la BDD après enregistrement de la soumission du livre
     bdd_dump("book-just-submitted", %{
-      user: user, 
+      user: user,
+      admin: admin,
       point_test: point_test,
-      procedure_id: last_procedure_of(user, "evaluation-livre").id
+      procedure_id: procedure.id
     })
 
   end
 
   @tag :skip
   test "Après soumission, l'auteur du livre peut venir confirmer la soumission" do
-    test_data = bdd_load("book-just-submitted")
-    IO.inspect(test_data, label: "Données du test")
+    %{user: user, procedure: procedure, point_test: point_test} = bdd_load("book-just-submitted")
+    # IO.inspect(test_data, label: "Données du test")
+    # |> IO.inspect(label: "La procédure")
 
-    LdQ.Library.list_authors()
-    |> IO.inspect(label: "\n\nTous les auteurs en DÉBUT")
+    author = get_author(procedure.data["author_id"])
+    author_as_user = start_session(author.user, [])
+    user = get_user_with_session(user)
+    # Map.put(author_as_user, :password, "passepartout")
+    Map.put(user, :password, "passepartout")
+    |> IO.inspect(label: "User pour connexion")
+    |> rejoint_la_page("/proc/#{procedure.id}")
+    |> pause(10)
+    |> et_voit("h3", "Confirmation de la soumission du livre")
 
+  end
+
+  # @tag :skip
+  test "Un administrateur trouve le texte d'attente" do
+    %{admin: admin, procedure: procedure, point_test: point_test} = bdd_load("book-just-submitted")
+    
+    admin = get_user_with_session(admin)
+    
+    admin
+    |> rejoint_la_page("/proc/#{procedure.id}")
+    |> pause(10)
+    |> et_voit("en attente de confirmation par l'auteur")
+  end
+
+  @tag :skip
+  test "Soumission d'un livre par quelqu'un d'autre que l'auteur" do
+  end
+  @tag :skip
+  test "Après soumission, un auteur non enregistrer doit s'enregistrer avant de confirmer la soumission" do
   end
 
   @tag :skip

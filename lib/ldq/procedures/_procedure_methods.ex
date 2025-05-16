@@ -22,6 +22,13 @@ defmodule LdQ.ProcedureMethods do
   end
 
   @doc """
+  @return True si l'user courant est administrateur
+  """
+  def user_is_admin?(procedure) do
+    Comptes.User.admin?(procedure.user)
+  end
+
+  @doc """
   Retourne le texte contenu dans le fichier spécifié, après l'avoir
   interprété en PhilHtml (s'il a besoin d'être actualisé)
 
@@ -156,6 +163,21 @@ defmodule LdQ.ProcedureMethods do
   end
 
   @doc """
+  Voie sans issue
+  On envoie ici un utilisateur qui n'a rien à faire à un
+  endroit. Cette méthode doit alors être la dernière de l'étape.
+
+  TODO Plus tard, on pourra faire une issue propre à une procédure en
+  définissant un fichier <dossier proc>/textes/impasse.phil.
+  """
+  def impasse(procedure) do
+    """
+    <h3>Voie sans issue</h3>
+    <p>Il semblerait que vous n'ayez rien à faire dans cette partie.</p>
+    """
+  end
+
+  @doc """
   Données par défaut pour le mail
 
   """
@@ -179,7 +201,12 @@ defmodule LdQ.ProcedureMethods do
 
   def run_current_procedure(procedure, module, steps) do
     step = current_procedure(procedure, steps)
-    # IO.puts "Jouer la fonction #{inspect step} du module #{inspect module}"
+    # Si une fonction defaultize_procedure existe, il faut la jouer
+    procedure =
+    if function_exported?(module, :defaultize_procedure, 1) do
+      apply(module, :defaultize_procedure, [procedure])
+    else procedure end
+    # On joue l'étape en question
     apply(module, step.fun, [procedure])
   end
 

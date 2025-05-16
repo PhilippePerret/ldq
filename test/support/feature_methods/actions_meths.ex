@@ -7,14 +7,19 @@ defmodule Feature.ActionTestMethods do
 
   import TestHelpers
   import Feature.SessionMethods
+  import Feature.PageTestMethods
 
 
   def visiter_la_page(sujet, url, added_to_msg \\ nil) do
     session = session_from(sujet)
-    msg = "-> On rejoint la page #{url} #{added_to_msg}"
-    w msg, :blue
+    # msg = "-> On rejoint la page #{url} #{added_to_msg}"
+    # w msg, :blue
     WB.visit(session, url)
-    sujet
+    if on_login_page?(sujet) do
+      FeaturePublicMethods.se_connecte(sujet)
+    else 
+      sujet 
+    end
   end
 
   def cliquer_le_bouton(sujet, button_name) do

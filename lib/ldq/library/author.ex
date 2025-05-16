@@ -14,7 +14,9 @@ defmodule LdQ.Library.Author do
     field :sexe, :string, default: "H"
     field :url_perso, :string
     field :birthyear, :integer
-    field :user_id, :binary_id
+    # field :user_id, :binary_id
+
+    belongs_to :user, LdQ.Comptes.User
 
     timestamps(type: :utc_datetime)
   end
@@ -25,7 +27,7 @@ defmodule LdQ.Library.Author do
     |> add_name_property()
     
     author
-    |> cast(attrs, [:name, :firstname, :lastname, :pseudo, :email, :url_perso, :birthyear, :address, :sexe])
+    |> cast(attrs, [:name, :firstname, :lastname, :pseudo, :email, :url_perso, :birthyear, :address, :sexe, :user_id])
     |> validate_required([:name, :sexe, :firstname, :lastname, :email])
   end
 

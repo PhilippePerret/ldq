@@ -5,6 +5,8 @@ defmodule LdQ.Procedure.PropositionLivre do
   Donc il ne s'agit que du début de la longue procédure.
   """
   use LdQWeb.Procedure
+  
+  import LdQ.Site.PageHelpers # notamment pour ldq_label
 
   alias LdQ.Library, as: Lib
   alias LdQ.Library.Book
@@ -15,7 +17,8 @@ defmodule LdQ.Procedure.PropositionLivre do
     %{name: "Proposition du livre", fun: :proposition_livre, admin_required: false, owner_required: false},
     %{name: "Soumission par l'ISBN", fun: :submit_book_with_isbn, admin_required: false, owner_required: true},
     %{name: "Soumission par formulaire", fun: :submit_book_with_form, admin_required: false, owner_required: true},
-    %{name: "Consigner le livre pour évaluation", fun: :consigner_le_livre, admin_required: false, owner_required: true}
+    %{name: "Consigner le livre pour évaluation", fun: :consigner_le_livre, admin_required: false, owner_required: true},
+    %{name: "Confirmation de la soumission par l'auteur", fun: :auteur_confirme_soumission_livre, admin_required: false, owner_required: false}
   ]
   def steps, do: @steps
 
@@ -39,6 +42,22 @@ defmodule LdQ.Procedure.PropositionLivre do
         folder:     __DIR__
       }
     }
+  end
+
+  @doc """
+  Méthode propre à chaque procédure qui permet d'injecter 
+  systématiquement des propriétés volatile dans la table de la
+  procédure.
+  """
+  def defaultize_procedure(p) do
+    IO.inspect(p, label: "Procédure avant defaultize_procedure")
+    # Ajout du livre s'il est défini
+    p = if Map.get(p.data, "book_id") do
+      Map.put(p, :book, Lib.get_book(p.data["book_id"]))
+    else p end
+
+    IO.inspect(p, label: "Procédure APRÈS defaultize_procedure")
+    p
   end
 
 
@@ -218,7 +237,7 @@ defmodule LdQ.Procedure.PropositionLivre do
     is_author = book_data["is_author"]
 
     # - Création de tous les éléments -
-    {book, book_specs, _book_eval, author} = book_cards_saved(book_data)
+    {book, book_specs, _book_eval, author} = book_cards_saved(Map.put(book_data, "user_id", user.id))
 
     # Actualisation de la procédure pour qu'elle connaisse le
     # livre et l'auteur
@@ -226,7 +245,12 @@ defmodule LdQ.Procedure.PropositionLivre do
       book_id: book.id,
       author_id: author.id,
     })
-    procedure = update_procedure(procedure, %{data: data})
+    procedure = update_procedure(procedure, %{
+      data: data,
+      next_step: "auteur_confirme_soumission_livre"
+      })
+
+    # IO.inspect(procedure, label: "\nPROCÉDURE FINALE de l'étape proceed_consigner_le_livre")
 
     # Les données propres aux mails
     mail_data = %{
@@ -283,17 +307,60 @@ defmodule LdQ.Procedure.PropositionLivre do
     """
   end
 
+  @doc """
+  Après la soumission du livre, l'auteur doit la confirmer
+  """
+  def auteur_confirme_soumission_livre(procedure) do
+    # Barrière administrateur ou auteur du livre (attention, le vrai
+    # auteur du livre, pas celui qui l'a soumis, qui peut être quelqu'un
+    # d'autre que l'auteur)
+    author = LdQ.Library.get_author!(procedure.data["author_id"])
+    cond do
+    author.user_id == procedure.user.id ->
+      # C'est l'auteur qui vient confirmer
+      proceed_confirmation_soumission(procedure)
+    user_is_admin?(procedure) ->
+      # C'est un administrateur qui visite
+      load_phil_text(__DIR__, "admin-quand-auteur-confirme-submit")
+    true ->
+      # Visiteur mal venu
+      impasse(procedure)
+    end
+  end
+
+  def proceed_confirmation_soumission(procedure) do
+    user = procedure.user
+    book = procedure.book
+
+    """
+    <h3>Confirmation de la soumission du livre</h3>
+
+    <p>Bonjour #{user.name}, en tant qu’aut#{fem(:rice, user)} du livre 
+    #{book.title}, vous devez confirmer sa soumission pour le label #{ldq_label()}
+    afin que le comité de lecture puisse l’évaluer.</p>
+
+    <p class=warning>Formulaire pour confirmer</p>
+    """
+  end
+
   # ========= MÉTHODES DE CRÉATION ============
 
   # Enregistrement des premières cartes du nouveau livre avec les
   # données +data+ (transmises par le formulaire, donc avec des
   # clés binary)
   defp book_cards_saved(data) do
+    # IO.inspect(data, label: "\n\n Data in book_cards_saved")
+    is_author = data["is_author"]
+
     data_author =
       ["email", "firstname", "lastname", "sexe"]
       |> Enum.reduce(%{}, fn prop, map ->
         Map.put(map, prop, data["author_#{prop}"])
       end)
+    data_author =
+      if is_author do
+        Map.put(data_author, "user_id", data["user_id"])
+      else data_author end
     author = Lib.create_author!(data_author)
     
     data = Map.put(data, "author_id", author.id)

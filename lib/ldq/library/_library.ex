@@ -44,9 +44,16 @@ defmodule LdQ.Library do
 
   def get_book(id) do
     Repo.get!(MiniCard, id)
-    |> Repo.preload(:book_specs)
-    |> Repo.preload(:book_evaluation)
     |> Repo.preload(:author)
+    |> get_book_specs_of()
+    |> get_book_evaluation_of()
+  end
+
+  def get_book_specs_of(minicard) do
+    Map.put(minicard, :book_specs, Repo.one!(from bs in Specs, where: bs.book_minicard_id == ^minicard.id))
+  end
+  def get_book_evaluation_of(minicard) do
+    Map.put(minicard, :book_evaluation, Repo.one!(from bs in Evaluation, where: bs.book_minicard_id == ^minicard.id))
   end
 
   @doc """
@@ -351,7 +358,10 @@ defmodule LdQ.Library do
       %Author{}
 
   """
-  def get_author!(id), do: Repo.one!(id)
+  def get_author!(id) do
+    Repo.one(from w in Author, where: w.id == ^id)
+    |> Repo.preload(:user)
+  end
 
   @doc """
   Creates a author.
@@ -457,7 +467,7 @@ defmodule LdQ.Library do
   Retourne l'éditeur d'identifiant +id+
   """
   def get_publisher(id) do
-    Repo.one(Publisher, id)
+    Repo.get!(Publisher, id)
   end
 
   @doc """

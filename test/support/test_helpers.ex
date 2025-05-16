@@ -62,7 +62,14 @@ defmodule TestHelpers do
 
     data_path = "#{dump_path}.data"
     if File.exists?(data_path) do
-      :erlang.binary_to_term(File.read!(data_path))
+      data = :erlang.binary_to_term(File.read!(data_path))
+      # On ajoute l'instance de la procédure si son identifiant
+      # est défini
+      data =
+        if Map.get(data, :procedure_id) do
+          Map.put(data, :procedure, LdQ.Procedure.get( Map.get(data, :procedure_id)))
+        else data end
+      data
     else
       raise "Data du dump #{dump_name} introuvable (#{data_path})"
     end

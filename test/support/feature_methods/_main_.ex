@@ -31,6 +31,18 @@ defmodule FeaturePublicMethods do
   def make_user_with_session(attrs \\ %{}) do
     start_session(make_simple_user(attrs), [])
   end
+  def get_user(user_id) do
+    LdQ.Comptes.get_user!(user_id)
+  end
+  def get_user_with_session(user_id) when is_binary(user_id) do
+    start_session(get_user(user_id), [])
+  end
+  def get_user_with_session(%LdQ.Comptes.User{} = user) do
+    start_session(user, [])
+  end
+  def get_author(author_id) do
+    LdQ.Library.get_author!(author_id)
+  end
 
 
   def start_session(sujet, params), do: Sess.start_session(sujet, params)
@@ -58,6 +70,8 @@ defmodule FeaturePublicMethods do
   Fonction permet à l'utilisateur de se connecter.
   Soit il se trouve déjà sur la page d'identification (parce qu'il a été
   redirigé) soit il rejoint l'identification)
+
+  @return Le visiteur (avec :identified à true)
   """
   def se_connecte(visiteur) when is_map(visiteur) or is_struct(visiteur, User) do
     if not Page.on_login_page?(visiteur) do
