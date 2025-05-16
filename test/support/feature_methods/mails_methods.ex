@@ -24,26 +24,22 @@ defmodule Feature.MailTestMethods do
   @return {destinataire, [mails trouvés]}
   """
   def user_recoit_un_mail(destinataire, params) when (is_map(destinataire) or is_struct(destinataire, User)) and is_map(params) do 
+    params = defaultize_mail_params(params)
+    mails_found = get_mails_to(destinataire, params)
 
-    resultat = get_mails_to(destinataire, params)
-    params = resultat.params # actualisé
-
-    mails_found = resultat.keptmails
     nombre_mails_found = Enum.count(mails_found)
     aucun_mail_trouved = nombre_mails_found == 0
 
     if aucun_mail_trouved && params.count != 0 do
       w("\n\n##### PROBLÈME DE MAILS AVEC PARAMS #{inspect params}", :red)
-      IO.inspect(resultat.exclusions, label: "\n##### RAISON DES EXCLUSIONS ###")
     end
 
-    formated_error = formate_exclusions(resultat.exclusions)
     if is_nil(params.count) do
-      msg_err = IO.ANSI.red() <> "Aucun mail trouvé répondant aux paramètres : \nDestinataire : #{inspect destinataire}\nParamètres attendus : #{inspect params}\n#{formated_error}" <> IO.ANSI.reset()
+      msg_err = IO.ANSI.red() <> "Aucun mail trouvé répondant aux paramètres : \nDestinataire : #{inspect destinataire}\nParamètres attendus : #{inspect params}" <> IO.ANSI.reset()
       assert Enum.any?(mails_found), msg_err
     else
       s = if params.count > 1, do: "s", else: ""
-      msg_err = IO.ANSI.red() <> "On devait trouver #{params.count} mail#{s}, on en a trouver #{nombre_mails_found} pour \nDestinataire : #{inspect destinataire}\nParamètres attendus : #{inspect params}\n#{formated_error}." <> IO.ANSI.reset()
+      msg_err = IO.ANSI.red() <> "On devait trouver #{params.count} mail#{s}, on en a trouver #{nombre_mails_found} pour \nDestinataire : #{inspect destinataire}\nParamètres attendus : #{inspect params}." <> IO.ANSI.reset()
       assert nombre_mails_found == params.count, msg_err
     end
 
@@ -64,7 +60,14 @@ defmodule Feature.MailTestMethods do
   @return {Map} Une table avec les résultats complets (cf. get_mails_against_params/1 pour le détail)
   """
   def get_mails_to(destinataire, params \\ %{}) do
-    params = Map.put(params, :destinataire, destinataire)
+    destin =
+      cond do
+        is_binary(destinataire) -> destinataire
+        %{email: email} = destinataire -> email
+        %{mail: email} = destinataire -> email
+        true -> raise "Destinataire mail défini. Ça devrait être l'adresse courriel ou une map contenant :mail ou :email"
+      end
+    params = Map.put(params, :to, destin)
     get_mails_against_params(params)
   end
 
@@ -81,52 +84,20 @@ defmodule Feature.MailTestMethods do
   Filtre complet et détaillé des mails envoyés répondant à +params+
 
   @param {Map} params Paramètres complet du filtre
-    params.destinataire   Les mails doivent être reçus par lui
-    params.after          Les mails doivent avoir été envoyés après cette date (et strictement après cette date)
-    params.sender         Les mails doivent avoir été envoyés par ce sender
-    params.mail_id        {String} Le mail doit avoir cet identifiant.
-    params.subject        {String|Regex|List of this} Le sujet du mail doit contenir ce ou ces éléments.
-    params.contents       {String|Regex|List of this} Le corps du message doit contenir ce ou ces éléments.
+    params.to       Les mails doivent être reçus par lui
+    params.after    Les mails doivent avoir été envoyés après cette date (et strictement après cette date)
+    params.from     Les mails doivent avoir été envoyés par ce sender
+    params.mail_id  {String} Le mail doit avoir cet identifiant.
+    params.subject  {String|Regex|List of this} Le sujet du mail doit contenir ce ou ces éléments.
+    params.body     {String|Regex|List of this} Le corps du message doit contenir ce ou ces éléments.
 
-  @return {Map} res une table complète des éléments
-    res.allmails  {List} Liste de tous les mails, non filtrés
-    res.keptmails:  {List} Liste des mails qui ont passé le test avec succès
-    res.exclusions: {List} Liste des mails exclus avec le détail des raisons de leur exclusion.
-                    On peut envoyer cette valeur à formate_exclusions/1 pour obtenir un string des raisons près à être écrit.
+  @return {Map} res une table contenant les mails
   """
   def get_mails_against_params(params) do
     params = defaultize_mail_params(params)
-
     # On prend tous les mails dans la table
-    allmails = LdQ.Tests.Mails.find(params)
-    |> IO.inspect(label: "Tous les mails filtrés")
-    raise "pour voir"
-
-    params
-    |> Map.put(:allmails, allmails)
-    # On ne garde que les mails après le points-test fourni (if any)
-    |> keep_only_mails_after_point_test()
-    |> keep_only_mails_received_by_dest()
-    # |> IO.inspect(label: "\nRÉSULTAT après by-dest")
-    |> keep_only_mails_from_sender()
-    |> keep_only_mails_by_identifiant()
-    |> keep_only_mails_with_expected_subject()
-    |> keep_only_mails_with_expected_body()
-  end
-
-  defp formate_exclusions(exclusions) do
-    exclusions
-    |> Enum.map(fn exclu ->
-      """
-      -------------------------------
-      Raison : #{exclu[:reason]}
-      destinataire : #{inspect exclu[:mail].receiver}
-      Objet : #{exclu[:subject]}
-      Body: #{exclu[:html_body]}
-      -------------------------------
-      """
-    end)
-    |> Enum.join("\n")
+    LdQ.Tests.Mails.find(params)
+    # |> IO.inspect(label: "Tous les mails filtrés")
   end
 
   @doc """
@@ -170,92 +141,6 @@ defmodule Feature.MailTestMethods do
 
   # ---- Sous-méthodes privées ----
 
-  defp keep_only_mails_after_point_test(resultat) do
-    if is_nil(resultat.params.after) do 
-      resultat 
-    else
-      Enum.reduce(resultat.allmails, resultat, fn mail, res ->
-        if NaiveDateTime.after?(mail.sent_at, resultat.params.after) do
-          %{res | keptmails: res.keptmails ++ [mail]}
-        else
-          %{res | exclusions: res.exclusions ++ [[reason: "AFTER TEST POINT #{resultat.params.after}", mail: mail]]}
-        end
-      end)
-    end
-  end
-  defp keep_only_mails_received_by_dest(resultat) do
-    keptmails = resultat.keptmails
-    if is_nil(resultat.destinataire) or Enum.empty?(keptmails) do 
-      resultat 
-    else
-      resultat = %{resultat | keptmails: []}
-      Enum.reduce(keptmails, resultat, fn mail, res ->
-        if mail.receiver.email == resultat.destinataire.email do
-          %{res | keptmails: res.keptmails ++ [mail]}
-        else
-          %{res | exclusions: res.exclusions ++ [[reason: "BAD RECEIVER (required #{resultat.destinataire.email})", mail: mail]]}
-        end
-      end)
-    end
-  end
-  defp keep_only_mails_from_sender(resultat) do
-    keptmails = resultat.keptmails
-    if is_nil(resultat.params.sender) or Enum.empty?(keptmails) do resultat else
-      resultat = %{resultat | keptmails: []}
-      Enum.reduce(keptmails, resultat, fn mail, res ->
-        {sender_name, sender_email} = mail.email.from
-        if sender_email == resultat.params.sender do
-          %{res | keptmails: res.keptmails ++ [mail]}
-        else
-          %{res | exclusions: res.exclusions ++ [[reason: "BAD SENDER (wanted #{resultat.params.sender})", mail: mail]]}
-        end
-      end)
-    end
-  end
-  defp keep_only_mails_by_identifiant(resultat) do
-    keptmails = resultat.keptmails
-    if is_nil(resultat.params.mail_id) or Enum.empty?(keptmails) do resultat else
-      resultat = %{resultat | keptmails: []}
-      Enum.reduce(keptmails, resultat, fn mail, res ->
-        if mail.mail_id == resultat.params.mail_id do
-          %{res | keptmails: res.keptmails ++ [mail]}
-        else
-          %{res | exclusions: res.exclusions ++ [[reason: "BAD SENDER (wanted #{resultat.params.sender})", mail: mail]]}
-        end
-      end)
-    end
-  end
-  defp keep_only_mails_with_expected_subject(resultat) do
-    keptmails = resultat.keptmails
-    if is_nil(resultat.params.subject) or Enum.empty?(keptmails) do resultat else
-      resultat = %{resultat | keptmails: []}
-      params = resultat.params
-      Enum.reduce(keptmails, resultat, fn mail, res ->
-        case string_contains(mail.subject, params.subject, params) do
-        {:ok, _} ->
-          %{res | keptmails: res.keptmails ++ [mail]}
-        {:error, retour} ->
-          %{res | exclusions: res.exclusions ++ [[reason: "BAD SUBJECT: #{inspect retour.error}", mail: mail]]}
-        end
-      end)
-    end
-  end
-  defp keep_only_mails_with_expected_body(resultat) do
-    keptmails = resultat.keptmails
-    if is_nil(resultat.params.content) or Enum.empty?(keptmails) do resultat else
-      resultat = %{resultat | keptmails: []}
-      params = resultat.params
-      Enum.reduce(keptmails, resultat, fn mail, res ->
-        case string_contains(mail.html_body, params.content, params) do
-        {:ok, _} ->
-          %{res | keptmails: res.keptmails ++ [mail]}
-        {:error, retour} ->
-          %{res | exclusions: res.exclusions ++ [[reason: "BAD BODY: #{inspect retour.errors}", mail: mail]]}
-        end
-      end)
-    end
-  end
-
   def user_recoit_un_mail(who, params) when is_list(params) do
     params = Enum.reduce(params, %{}, fn {key, value}, coll ->
       Map.put(coll, key, value)
@@ -269,26 +154,42 @@ defmodule Feature.MailTestMethods do
     user_recoit_un_mail(%{email: "admin@lecture-de-qualite.fr", name: "Admin"}, params)
   end
 
-  
-
   def exec_delete_all_mails do
     LdQ.Tests.Mails.delete_all()
   end
 
-  defp dossier_mails do
-    Path.join(["test","xtmp","mails_sent"])
+  # Fonction pour extraire une adresse de courriel dans la table 
+  # +map+ avec les clés +keys
+  # 
+  # @param {Map} map Table pouvant contenir beaucoup de choses
+  # @param {List} keys Liste des clés qui peuvent contenir un mail
+  defp extract_email_from(map, keys) do
+    candidat = 
+      Enum.reduce(keys, nil, fn key, cur_value ->
+        if is_nil(cur_value) do
+          Map.get(map, key, nil)
+        else cur_value end
+      end)
+    cond do
+    is_nil(candidat)            -> nil
+    is_binary(candidat)         -> candidat
+    %{mail: email} = candidat   -> email
+    %{email: email} = candidat  -> email
+    true -> raise "Impossible de trouve le mail dans #{inspect map} avec les clés #{inspect keys}"
+    end
   end
-
   # Pour simplifier et clarifier
   defp defaultize_mail_params(params) do
+    the_to = extract_email_from(params, [:receiver, :to])
+    the_from = extract_email_from(params, [:from, :sender])
     Map.merge(%{
-      to: params.sender.email,
-      from: params.from.email,
+      to:       the_to,
+      from:     the_from,
       mail_id:  nil,
       subject:  nil,
-      body:     params.content,
+      body:     Map.get(params, :content),
       after:    nil,
-      count:    nil
+      count:    1
     }, params)
   end
 

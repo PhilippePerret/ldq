@@ -151,6 +151,11 @@ defmodule FeaturePublicMethods do
   def has_no_procedure(suj, pid), do: Proc.has_no_procedure(suj, pid)
 
   @doc """
+  Retourne la dernière procédure du sujet +suj+
+  """
+  def last_procedure_of(suj, proc_dim), do: Proc.get_last_procedure_of(suj, proc_dim)
+
+  @doc """
   Pour vérifier que l'user a le niveau de privilège spécifié
   """
   def has_privileges(suj, priv), do: U.has_privileges(suj, priv)

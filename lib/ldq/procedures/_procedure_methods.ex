@@ -252,7 +252,9 @@ defmodule LdQ.ProcedureMethods do
       param[:submitter] {User} La personne qui a soumis la procédure (qui l'a créée)
       param[:dim]   {String} Le proc_dim de la procédure
       param[:after] {NaiveDateTime} La procédure doit avoir été créée après cette date
-  @return %{List of Map} Liste des procédures répondant aux paramètres +params+
+      param[:last]  {Boolean} Si True, on prend la dernière et on la renvoie SEULE
+      param[:one]   {Boolean} Si True, on ne retourne que la première
+  @return %{Map|List of Map} Liste des procédures répondant aux paramètres +params+ OU seulement celle recherchée
   """
   def get_procedure(params) when is_list(params) do
     # - Défaultize params -
@@ -278,9 +280,23 @@ defmodule LdQ.ProcedureMethods do
       if Keyword.has_key?(params, :after) do
         where(query, [p], p.inserted_at > ^params[:after])
       else query end
+    query =
+      if params[:last] do
+        order_by(query, [p], asc: p.inserted_at)
+        |> limit(1)
+      else query end
+    query =
+      if params[:one] do
+        limit(query, 1)
+      else query end
     # - Relève de toutes les procédures -
-    Repo.all(query)
+    allfounds = Repo.all(query)
     |> Repo.preload(:submitter)
+    if params[:one] || params[:last] do
+      Enum.at(allfounds, 0)
+    else
+      allfounds
+    end
   end
   # @return Nil si la procédure n'existe pas
   def get_procedure(proc_id) do
@@ -328,12 +344,10 @@ defmodule LdQ.ProcedureMethods do
   base de données (LdQ.Tests.Mails/tests_mails)
   """
   def consigne_mail_for_test(data_mail) do
-    data_mail = Map.merge(data_mail, %{
-      sent_at: NaiveDateTime.utc_now()
-    })
-    bdd_data = %{
+    {sender_name, sender_email} = data_mail.email.from
+    %{
       to:           data_mail.receiver.email,
-      from:         data_mail.from.email,
+      from:         sender_email,
       mail_id:      data_mail.mail_id,
       body:         data_mail.html_body,
       attachment:   Map.get(data_mail, :attachment, nil),

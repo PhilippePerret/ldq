@@ -10,4 +10,8 @@ defmodule Feature.ProcedureTestMeths do
   def has_no_procedure(sujet, procedure) do
     has_no_procedure(sujet, procedure.id)
   end
+
+  def get_last_procedure_of(suj, proc_dim) do
+    get_procedure(last: true, proc_dim: proc_dim, owner: suj)
+  end
 end

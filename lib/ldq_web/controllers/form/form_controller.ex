@@ -45,7 +45,7 @@
 #   end
 
 
-#   def get_data_by_form("proposition-livre", params) do
+#   def get_data_by_form("evaluation-livre", params) do
 #     book = Map.get(params, "book", %{})
 #     SubmittedBook.changeset(%SubmittedBook{}, %{
 #       title:              book["title"],

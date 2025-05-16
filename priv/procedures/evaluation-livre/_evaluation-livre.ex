@@ -27,7 +27,7 @@ defmodule LdQ.Procedure.PropositionLivre do
   def procedure_attributes(params) do
     user = params.user
     %{
-      proc_dim:     "proposition-livre",
+      proc_dim:     "evaluation-livre",
       owner_type:   "user",
       owner_id:     user.id,
       steps_done:   ["create"],

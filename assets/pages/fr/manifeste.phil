@@ -49,7 +49,7 @@ Si vous êtes parvenu jusqu’ici, c’est que cette initiative a peut-être tro
 
 p#si_auteur.question: Vous êtes autrice ou auteur :
 list:
-* Vous pouvez <: proclink(soumettre votre livre,proposition-livre) :> au comité de lecture pour recevoir ce label qui vous ouvrira grand les horizons des lectrices et des lecteurs.
+* Vous pouvez <: proclink(soumettre votre livre,evaluation-livre) :> au comité de lecture pour recevoir ce label qui vous ouvrira grand les horizons des lectrices et des lecteurs.
 * Vous pouvez <: proclink(devenir membre du comité de lecture,candidature-comite) :> qui compte en ses rangs de nombreuses autrices et auteurs labellisés (ou pas — car on peut être piètre auteur et excellent lecteur).
 * Vous pouvez <: lien_faire_connaitre(si_auteur) :> autour de vous !
 :list

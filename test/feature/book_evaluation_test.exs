@@ -13,7 +13,7 @@ defmodule LdQWeb.BookSubmissionTests do
   recherche sur Amazon (sur un autre site)
   REPONSE : Pour le moment, il n'y a pas de moyen gratuit de s'assurer de
   l'existence du livre par ISBN.
-  
+
   """
   use LdQWeb.FeatureCase, async: false
 
@@ -22,7 +22,7 @@ defmodule LdQWeb.BookSubmissionTests do
   import TestHelpers
   import FeaturePublicMethods
 
-  @tag :skip
+  # @tag :skip
   test "Un utilisateur quelconque peut soumettre un nouveau livre" do
     # on_exit(fn -> bdd_dump("book-just-submitted") end)
 
@@ -109,15 +109,14 @@ defmodule LdQWeb.BookSubmissionTests do
 
     # Photographie de la BDD après enregistrement de la soumission du livre
     bdd_dump("book-just-submitted", %{
-      user: user, point_test: point_test
+      user: user, 
+      point_test: point_test,
+      procedure_id: last_procedure_of(user, "evaluation-livre").id
     })
-
-    LdQ.Library.list_authors()
-    |> IO.inspect(label: "\n\nTous les auteurs en FIN")
 
   end
 
-  # @tag :skip
+  @tag :skip
   test "Après soumission, l'auteur du livre peut venir confirmer la soumission" do
     test_data = bdd_load("book-just-submitted")
     IO.inspect(test_data, label: "Données du test")
