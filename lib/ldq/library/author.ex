@@ -31,7 +31,10 @@ defmodule LdQ.Library.Author do
     |> validate_required([:name, :sexe, :firstname, :lastname, :email])
   end
 
-  def add_name_property(attrs) do
-    Map.put(attrs, "name", String.trim("#{attrs["firstname"]} #{attrs["lastname"]}"))
+  def add_name_property(%{"firstname" => fname, "lastname" => lname} = attrs) do
+    Map.put(attrs, "name", String.trim("#{fname} #{lname}"))
+  end
+  def add_name_property(%{firstname: fname, lastname: lname} = attrs) do
+    Map.put(attrs, :name, String.trim("#{fname} #{lname}"))
   end
 end

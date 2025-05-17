@@ -3,7 +3,7 @@ defmodule LdQ.LogsTest do
   
   alias LdQ.Site.Log
   alias LdQ.ComptesFixtures, as: F
-  alias Random.RandMethods, as: Rand
+  alias Random.Methods, as: Rand
 
   def new_user(attrs \\ %{}) do
     F.user_fixture(attrs)

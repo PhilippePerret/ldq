@@ -8,7 +8,7 @@ defmodule LdQWeb.FeatureCase do
       alias LdQ.Repo
       import Ecto.Query
       import Wallaby.Query
-      import LdQWeb.Gettext
+      # import LdQWeb.Gettext
 
       import LdQ.ComptesFixtures
 
@@ -16,7 +16,7 @@ defmodule LdQWeb.FeatureCase do
     end
   end
 
-  setup tags do
+  setup _tags do
 
     # Puisqu'on n'utilise plus la sandbox pour pouvoir faire des
     # photographies de la BdD, on doit forcer le vidage de la base 

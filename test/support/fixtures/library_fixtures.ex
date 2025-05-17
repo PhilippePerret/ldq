@@ -4,15 +4,22 @@ defmodule LdQ.LibraryFixtures do
   entities via the `LdQ.Library` context.
   """
 
+  import Random.Methods
+
+
   @doc """
   Generate a author.
   """
   def author_fixture(attrs \\ %{}) do
+    sexe = random_sexe()
     {:ok, author} =
-      attrs
-      |> Enum.merge(%{
-
-      })
+      Map.merge(%{
+        firstname:  random_firstname(sexe),
+        lastname:   random_lastname(),
+        sexe:       sexe,
+        email:      "author#{uniq_int()}@example.com",
+        birthyear:  Enum.random((1960..2010))
+      }, attrs)
       |> LdQ.Library.create_author()
 
     author

@@ -12,8 +12,8 @@
   <.input type="text" field={f[:title]} label="Titre du livre" required />
   <.input type="text" field={f[:subtitle]} label="Sous-titre éventuel" />
   <.input type="text" field={f[:isbn]} label="ISBN, EAN ou ASIN" required />
-  <.input type="select" field={f[:main_genre]} label="Genres" options={LdQ.Book.Genre.values("Genre principal…")} required />
-  <.input type="select" field={f[:sub_genre]} label="" options={LdQ.Book.Genre.values("Genre secondaire…")} required />
+  <.input type="select" field={f[:main_genre]} label="Genres" options={LdQ.Library.Genre.values("Genre principal…")} required />
+  <.input type="select" field={f[:sub_genre]} label="" options={LdQ.Library.Genre.values("Genre secondaire…")} required />
   <.input type="email" field={f[:main_author_email]} label="Mail de l'autrice ou l'auteur principal" required />
   <.input type="textarea" field={f[:resume]} label="Résumé de l'histoire" required />
   <.input type="text" field={f[:url_command]} label="Lien de commande du livre (Amazon…)" required />

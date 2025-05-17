@@ -2,7 +2,7 @@ defmodule TestHelpers do
 
   alias LdQ.Repo
   alias LdQ.Comptes
-  alias Random.RandMethods, as: Rand
+  alias Random.Methods, as: Rand
   import LdQ.ComptesFixtures
   alias LdQ.ProcedureFixture, as: FProc # create_procedure([...])
   alias LdQ.Site.Log
@@ -37,9 +37,10 @@ defmodule TestHelpers do
   @tables [
       LdQ.Procedure,
       LdQ.Notification,
-      LdQ.Library.Book.Evaluation,
-      LdQ.Library.Book.Specs,
-      LdQ.Library.Book.MiniCard,
+      LdQ.Library.Book,
+      # LdQ.Library.Book.Evaluation,
+      # LdQ.Library.Book.Specs,
+      # LdQ.Library.Book.MiniCard,
       LdQ.Comptes.User,
       LdQ.Library.Author,
       LdQ.Library.Publisher,
@@ -52,7 +53,7 @@ defmodule TestHelpers do
 
   NB : Les tables des pages ne sont pas remises à zéro.
   """
-  def bdd_reset() do
+  def bdd_reset do
     Enum.each(@tables, fn table ->
       Repo.delete_all(table)
     end)

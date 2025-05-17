@@ -3,15 +3,13 @@ defmodule LdQ.ComptesFixtures do
   This module defines test helpers for creating
   entities via the `LdQ.Comptes` context.
   """
-
+  alias Random.Methods, as: Rand
   alias LdQ.Comptes
   import Bitwise
+  import LdQ.LibraryFixtures
 
-  def uniq_int() do
-    System.unique_integer([:positive, :monotonic])
-  end
 
-  def unique_user_email, do: "user#{uniq_int()}@example.com"
+  def unique_user_email, do: "user#{Rand.uniq_int()}@example.com"
   def valid_user_password, do: "hello world!"
 
   def valid_user_attributes(nil), do: valid_user_attributes(%{})
@@ -22,7 +20,7 @@ defmodule LdQ.ComptesFixtures do
       if is_nil(Map.get(attrs, prop, nil)) do
         val =
         case prop do
-          :name     -> "Stranger-#{uniq_int()}"
+          :name     -> "Stranger-#{Rand.uniq_int()}"
           :email    -> unique_user_email()
           :sexe     -> "F"
           :password -> valid_user_password()
@@ -77,7 +75,7 @@ defmodule LdQ.ComptesFixtures do
 
   def make_admin(params \\ %{}) do
     new_attrs = %{
-      name:       Map.get(params, :name, "Ben #{uniq_int()} Admin"),
+      name:       Map.get(params, :name, "Ben #{Rand.uniq_int()} Admin"),
       email:      "admin@lecture-de-qualite.fr",
       password:   Map.get(params, :password, valid_user_password()),
       privileges: Map.get(params, :privileges, [:admin3])
@@ -88,7 +86,7 @@ defmodule LdQ.ComptesFixtures do
 
   def make_member(params \\ %{}) do
     new_attrs = %{
-      name:       Map.get(params, :name, "Brigitte #{uniq_int()} Membre"),
+      name:       Map.get(params, :name, "Brigitte #{Rand.uniq_int()} Membre"),
       email:      "membre-comite@lecture-de-qualite.fr",
       password:   Map.get(params, :password, valid_user_password()),
       sexe:       Map.get(params, :sexe, "F"),
@@ -98,9 +96,12 @@ defmodule LdQ.ComptesFixtures do
     |> Map.put(:password, new_attrs.password)
   end
 
+  # Cette méthode semble un vieil héritage de l'époque où les auteurs
+  # des livres étaient des User spéciaux. Maintenant, les auteurs des
+  # livres sont des LdQ.Library.Author (cf. make_author/2)
   def make_writer(params \\ %{}) do
     new_attrs = %{
-      name:       Map.get(params, :name, "Caro#{uniq_int()} Autrice"),
+      name:       Map.get(params, :name, "Caro#{Rand.uniq_int()} Autrice"),
       password:   Map.get(params, :password, valid_user_password()),
       sexe:       Map.get(params, :sexe, "F"),
       privileges: [:writer]
@@ -108,5 +109,7 @@ defmodule LdQ.ComptesFixtures do
     user_fixture(Map.merge(params, new_attrs))
     |> Map.put(:password, new_attrs.password)
   end
+
+  def make_author(params \\ %{}), do: author_fixture(params)
 
 end

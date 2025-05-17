@@ -1,4 +1,4 @@
-defmodule LdQ.Book.Genre do
+defmodule LdQ.Library.Genre do
   use Ecto.Type
   @moduledoc """
   Module pour la gestion des genres d'histoire

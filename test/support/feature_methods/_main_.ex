@@ -1,11 +1,6 @@
 
 defmodule FeaturePublicMethods do
   use LdQWeb.FeatureCase, async: false
-  # alias Wallaby.Browser,  as: WB
-  # alias Wallaby.Query,    as: WQ
-  # alias Wallaby.Element,  as: WE
-
-  # import TestHelpers
 
   alias Feature.UserTestMethods,    as: U
   alias Feature.FormTestMethods,    as: Form
@@ -43,6 +38,7 @@ defmodule FeaturePublicMethods do
   def get_author(author_id) do
     LdQ.Library.get_author!(author_id)
   end
+  def make_author(attrs \\ %{}), do: LdQ.ComptesFixtures.make_author(attrs)
 
 
   def start_session(sujet, params), do: Sess.start_session(sujet, params)

@@ -1,4 +1,8 @@
-defmodule Random.RandMethods do
+defmodule Random.Methods do
+
+  def uniq_int() do
+    System.unique_integer([:positive, :monotonic])
+  end
 
   @lorem_words ~w(Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua Ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur Excepteur sint occaecat cupidatat non proident sunt in culpa qui officia deserunt mollit anim id est laborum Curabitur pretium tincidunt lacus Nulla gravida orci a odio Nullam varius turpis et commodo pharetra est eros bibendum elit nec luctus magna felis sollicitudin mauris Integer in mauris eu nibh euismod gravida Duis ac tellus et risus vulputate vehicula Donec lobortis risus a elit Etiam tempor ultricies mi Proin gravida orci porttitor iaculis sapien eros vehicula velit eget egestas augue orci ac sem Donec bibendum quam in tellus Nullam cursus pulvinar lectus Pellentesque egestas nisl)
   def random_text(el \\ 200, al \\ 0, t \\ "")
@@ -20,6 +24,24 @@ defmodule Random.RandMethods do
   """
   def now do
     NaiveDateTime.utc_now()
+  end
+
+  @firstnames %{
+    "F" => ~w(Marion Salomé Christine Liza Lila Berthe Sophie Josiane Joséphine Sarah Lucie Valérie Géraldine Solange),
+    "H" => ~w(Michel Dominique Élie Bertrand Bernard Jean-Michel Alex Alexandre Hugo Dumas Sanders Gilles Thierry Kevin Marc Luc Gérard Pierre)
+  }
+  @lastnames ~w(Monnier Dubois Dussapin Michel Saxon Hugo Maupassant Flaubert Saint-Beuve Sollers Uderzo Brussolo)
+
+  def random_firstname(sexe \\ "H") do
+    Enum.random(Map.get(@firstnames, sexe))
+  end
+
+  def random_lastname do
+    Enum.random(@lastnames)
+  end
+
+  def random_sexe do
+    Enum.random(["H", "F"])
   end
 
   @doc """

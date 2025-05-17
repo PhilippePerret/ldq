@@ -389,8 +389,7 @@ defmodule LdQ.Library do
 
   """
   def get_author!(id) do
-    Repo.one(from w in Author, where: w.id == ^id)
-    |> Repo.preload(:user)
+    Repo.get!(Author, id)
   end
 
   @doc """
@@ -496,7 +495,7 @@ defmodule LdQ.Library do
   @doc """
   Retourne l'éditeur d'identifiant +id+
   """
-  def get_publisher(id) do
+  def get_publisher!(id) do
     Repo.get!(Publisher, id)
   end
 

@@ -28,17 +28,23 @@ defmodule LdQ.DataCase do
   end
 
   setup tags do
-    LdQ.DataCase.setup_sandbox(tags)
+    # LdQ.DataCase.setup_sandbox(tags)
+
+    # Puisqu'on n'utilise plus la sandbox pour pouvoir faire des
+    # photographies de la BdD, on doit forcer le vidage de la base 
+    # de données avant chaque test.
+    TestHelpers.bdd_reset()
+
     :ok
   end
 
-  @doc """
-  Sets up the sandbox based on the test tags.
-  """
-  def setup_sandbox(tags) do
-    pid = Ecto.Adapters.SQL.Sandbox.start_owner!(LdQ.Repo, shared: not tags[:async])
-    on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
-  end
+  # @doc """
+  # Sets up the sandbox based on the test tags.
+  # """
+  # def setup_sandbox(tags) do
+  #   pid = Ecto.Adapters.SQL.Sandbox.start_owner!(LdQ.Repo, shared: not tags[:async])
+  #   on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
+  # end
 
   @doc """
   A helper that transforms changeset errors into a map of messages.

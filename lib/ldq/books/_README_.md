@@ -1,1 +1,0 @@
-Cf. le document sur les livres dans doc/
