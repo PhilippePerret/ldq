@@ -40,6 +40,7 @@ defmodule FeaturePublicMethods do
   end
   def make_author(attrs \\ %{}), do: LdQ.ComptesFixtures.make_author(attrs)
 
+  def make_publisher(attrs \\ %{}), do: LdQ.LibraryFixtures.make_publisher(attrs)
 
   def start_session(sujet, params), do: Sess.start_session(sujet, params)
   def start_session(params), do: Sess.start_session(params)

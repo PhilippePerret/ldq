@@ -68,8 +68,11 @@ defmodule LdQ.Library.Book do
   @return {LdQ.Library.Book} Le livre avec seulement les propriétés voulues
   """
   def get(book_id, fields \\ @min_fields) do
-    IO.inspect(book_id, label: "BOOK_ID")
-    IO.inspect(fields, label: "FIELDS")
+    # IO.inspect(book_id, label: "BOOK_ID")
+    # IO.inspect(fields, label: "FIELDS")
+    fields = if Enum.member?(fields, :id) do fields else
+      List.insert_at(fields, 0, :id)
+    end
     dfields =
       Enum.reduce(fields, %{fields: [], foreigners: %{}}, fn field, coll ->
         case field do
@@ -113,6 +116,7 @@ defmodule LdQ.Library.Book do
     "isbn"            => %{type: :string},
     "author_id"       => %{type: :author},
     "parrain_id"      => %{type: :user},
+    "publisher_id"    => %{type: :publisher},
     "current_phase"   => %{type: :integer},
     "label"           => %{type: :boolean},
     "rating"          => %{type: :integer}
@@ -274,6 +278,14 @@ defmodule LdQ.Library.Book do
       true          -> {:error, "Author #{nval} inconnu…"}
     end
   end
+  def validate("publisher_id", ival, nval, set) do
+    cond do
+      is_nil(nval) -> :ok
+      nval == ""   -> :ok
+      Lib.get_publisher!(nval) -> :ok
+      true -> {:error, "Éditeur #{nval} inconnu…"} 
+    end
+  end
   def validate("parrain_id", ival, nval, set) do
     # Il faut vérifier que le parrain (user) existe et qu'il fait
     # partie du comité de lecture
@@ -307,9 +319,10 @@ defmodule LdQ.Library.Book do
     {cast_v(type, ivalue), cast_v(type, nvalue)}
   end
   defp cast_v(:integer, value), do: String.to_integer(value)
-  defp cast_v(:string,  value), do: value
-  defp cast_v(:boolean, value), do: value == "true" # à vérifier parce qu'elle est peut-être transformée en true, vraiment
-  defp cast_v(:user,    value), do: value
-  defp cast_v(:author, value), do: value
-
+  defp cast_v(:string,    value), do: value
+  defp cast_v(:boolean,   value), do: value == "true" # à vérifier parce qu'elle est peut-être transformée en true, vraiment
+  defp cast_v(:user,      value), do: value
+  defp cast_v(:author,    value), do: value
+  defp cast_v(:publisher, value), do: value
+  defp cast_v(_anytype, value), do: value
 end

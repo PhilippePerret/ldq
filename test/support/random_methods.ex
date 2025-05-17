@@ -26,11 +26,17 @@ defmodule Random.Methods do
     NaiveDateTime.utc_now()
   end
 
+  @extensions ~w(fr net org us en com)
+  @domaines   ~w(chezlui gmail yahoo outlook hotmail)
+  def random_email do
+    "user#{uniq_int()}@#{Enum.random(@domaines)}.#{Enum.random(@extensions)}"
+  end
+
   @firstnames %{
     "F" => ~w(Marion Salomé Christine Liza Lila Berthe Sophie Josiane Joséphine Sarah Lucie Valérie Géraldine Solange),
-    "H" => ~w(Michel Dominique Élie Bertrand Bernard Jean-Michel Alex Alexandre Hugo Dumas Sanders Gilles Thierry Kevin Marc Luc Gérard Pierre)
+    "H" => ~w(Michel Dominique Élie Stanilas Bertrand Bernard Jean-Michel Alex Alexandre Hugo Dumas Sanders Gilles Thierry Kevin Marc Luc Gérard Pierre)
   }
-  @lastnames ~w(Monnier Dubois Dussapin Michel Saxon Hugo Maupassant Flaubert Saint-Beuve Sollers Uderzo Brussolo)
+  @lastnames ~w(Monnier Dubois Ferry Dussapin Michel Saxon Hugo Maupassant Flaubert Saint-Beuve Sollers Uderzo Brussolo Raspail Maréchal)
 
   def random_firstname(sexe \\ "H") do
     Enum.random(Map.get(@firstnames, sexe))
@@ -42,6 +48,31 @@ defmodule Random.Methods do
 
   def random_sexe do
     Enum.random(["H", "F"])
+  end
+
+  def random_address do
+    "#{Enum.random((1..100))} #{Enum.random(["rue", "avenue", "boulevard", "place", "impasse", ])} #{random_firstname()} #{random_lastname()} - #{Enum.random((10000..95500))} #{random_ville()}"
+  end
+
+  @villes ~w(Paris Tourcoing Montbéliard Sochaux Aubagne Bordeaux Marseille Lille Cambray Savy Versaille Vermant Compiègne Aix Sète Gruissan Narbonne)
+  def random_ville do
+    Enum.random(@villes)
+  end
+
+  @pays [
+    [dim: "fr", name: "France"],
+    [dim: "us", name: "USA"],
+    [dim: "en", name: "English"],
+    [dim: "de", name: "Allemagne"],
+    [dim: "es", name: "Espagne"],
+    [dim: "it", name: "Italie"]
+  ]
+  
+  def random_pays(:dim) do
+    Enum.random(@pays)[:dim]
+  end
+  def random_pays do
+    Enum.random(@pays)
   end
 
   @doc """

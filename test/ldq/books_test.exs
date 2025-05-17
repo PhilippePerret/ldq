@@ -52,14 +52,25 @@ defmodule LdQ.BookTests do
     # --- Préparation ---
     author = make_author(%{firstname: "Tanguy", lastname: "EtLaverdure"})
     book = Book.save(%{"author_id" => {nil, author.id}, "title" => "Le livre avec auteur"})
-    IO.inspect(book, label: "BOOK")
     # --- Test ---
     booked = Book.get(book.id, [:title, :author])
     # --- Vérification post-test ---
     assert booked.id == book.id
-    assert booked.author_id == author.id
-    assert booked.author_name == "Tanguy EtLaverdure"
+    assert booked.author.id == author.id
     assert booked.author.name == "Tanguy EtLaverdure"
+  end
+
+  test "Un livre peut retrouver son éditeur s'il existe" do
+    # --- Préparation ---
+    publisher = make_publisher()
+    book = Book.save(%{"publisher_id" => publisher.id, "title" => "Le livre avec un éditeur au bout"})
+    # --- Test ---
+    booked = Book.get(book.id, [:title, :publisher])
+    # IO.inspect(booked, label: "BOOKED")
+    # --- Vérification post-test ---
+    assert booked.id == book.id
+    assert booked.publisher.id == publisher.id
+    assert booked.publisher.name == publisher.name
   end
 
 end

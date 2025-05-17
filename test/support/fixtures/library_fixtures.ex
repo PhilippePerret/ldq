@@ -25,6 +25,24 @@ defmodule LdQ.LibraryFixtures do
     author
   end
 
+  def make_publisher(attrs \\ %{}) do
+    {:ok, publisher} =
+      Map.merge(%{
+        name:     random_publisher_name(),
+        addess:   random_address(),
+        email:    random_email(),
+        pays:     random_pays(:dim)
+      }, attrs)
+      |> LdQ.Library.create_publisher()
+    
+    publisher
+  end
+
+  @publisher_names ~w(Gallimard Flamarion Albin Michel Icare Éditions Marvel Seuil Acte Sud Pol PUF Fayard Larousse Belin Oxford Editions)
+  defp random_publisher_name do
+    Enum.random(@publisher_names)
+  end
+
   @doc """
   Generate a mini_card.
   """
