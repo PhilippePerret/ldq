@@ -6,6 +6,25 @@ defmodule LdQ.BookTests do
 
   alias LdQ.Library.Book
 
+  @doc """
+  Pour vérifier une erreur
+
+  Rappel : lorsque Book.save rencontre une erreur, ce n'est pas une
+  structure Book qui est retournée, mais le setchange de travail. Il
+  contient une propriété :invalid listant les erreurs.
+
+  Pour le moment, on suppose que c'est la première erreur qui est
+  l'erreur testée. Si, plus tard, on doit en vérifier plusieurs, on
+  pourra améliorer les choses
+  """
+  def contains_book_error(badbook, expected_key, error_seg \\ nil) do
+    {key, error} = badbook.invalid |> Enum.at(0)
+    assert(key == expected_key, "C'est la clé #{inspect expected_key} qu'on attendait, pas la clé #{inspect key}")
+    if error_seg do
+      assert( error =~ error_seg, "On aurait dû trouver #{inspect error_seg} dans le message d'erreur #{inspect error}")
+    end
+  end
+
   test "On peut créer un livre à partir de données minimales" do
 
     # --- Vérification préliminaire ---
@@ -92,21 +111,31 @@ defmodule LdQ.BookTests do
 
   test "get(id, :all) permet de relever toutes les propriétés du livre" do
     # --- Préparation ---
+    preversion = Book.save(%{"title" => "La version précédente."})
     publisher = make_publisher()
     parrain   = make_member()
     author    = make_author()
     book = Book.save(%{
       "author_id"       => author.id,
       "current_phase"   => "12",
+      "evaluated_at"    => "2025-08-02 10:21:23",
       "isbn"            => Rand.random_isbn(),
-      "publisher_id"    => publisher.id,
-      "parrain_id"      => parrain.id,
       "label"           => "true",
+      "label_grade"     => "2",
       "label_year"      => "2025",
       "pitch"           => "C'est le résumé très court du livre",
+      "parrain_id"      => parrain.id,
+      "pre_version_id"  => "#{preversion.id}",
       "published_at"    => "2025-05-18",
+      "publisher_id"    => publisher.id,
       "rating"          => "123",
-      "title"           => "Le titre du livre avec toutes les propriétés"
+      "readers_rating"  => "154",
+      "readers_count"   => "120",
+      "submitted_at"    => "2025-06-02 11:00:23",
+      "subtitle"        => "Le sous-titre du livre",
+      "title"           => "Le titre du livre avec toutes les propriétés",
+      "transmitted"     => "true",
+      "url_command"     => "https://www.amazon.fr/dp/B09521VMZQ"
       })
     # |> IO.inspect(label: "\nBOOK")
     # --- Test ---
@@ -181,15 +210,38 @@ defmodule LdQ.BookTests do
     assert(is_nil(book.label_year), "L'année du label aurait avoir dû être mise à false.")
   end
 
-  test "Le sous-titre du livre ne peut pas être trop long" do
-    # TODO
+  test "Le sous-titre (subtitle) du livre ne peut pas être trop long" do
+    # --- Préparation/test ---
+    goodbook = Book.save(%{"title" => "Le titre du livre", "subtitle" => "Un sous-titre qui est largement assez court."})
+    assert is_struct(goodbook, Book)
+    badbook = Book.save(%{
+      "title" => "Le titre du mauvais livre", 
+      "subtitle" => String.duplicate("Ceci est une courte portion ", 15)
+    })
+    refute(is_struct(badbook, Book))
+    contains_book_error(badbook, "subtitle")
   end
 
   test "L'URL de commande du livre doit être bien formaté et valide" do
-    # Ça doit être une URL
-    # TODO
-    # Cette URL doit retourner le livre
-    # TODO
+    # Book avec une URL mal formatée
+    badbook = Book.save(%{
+      "title" => "Livre avec une URL qui n'en est pas une",
+      "url_command" => "une/vraiment/mauvaise"
+    })
+    refute(is_struct(badbook, Book), "Le livre avec une URL de commande mal formatée ne devrait pas être un Book…")
+    contains_book_error(badbook, "url_command", "n'est pas une URL valide")
+    badbook = Book.save(%{
+      "title" => "Livre avec une URL bien formatée mais inexistante",
+      "url_command" => "https://www.amazon.fr/dpdp/B09521VMZQ"
+    })
+    refute(is_struct(badbook, Book), "Le livre avec un URL de commande morte ne devrait pas être un Book")
+    contains_book_error(badbook, "url_command", "est une URL qui ne conduit nulle part")
+    # Une bonne URL existante
+    goodbook = Book.save(%{
+      "title" => "Livre avec une url de commande valide",
+      "url_command" => "https://www.amazon.fr/dp/B09521VMZQ"
+      })
+    assert(is_struct(goodbook, Book))
   end
 
   test "S'il y a une pré-version (pre_version_id), elle doit exister" do
@@ -240,6 +292,33 @@ defmodule LdQ.BookTests do
   end
   test "Un reader peut changer son rating (mais il a un seul rating quand même)" do
     # TODO
+  end
+
+  test "La méthode add permet d'ajouter des propriétés enregistrées" do
+    # --- Préparation ---
+    book_id = Book.save(%{
+      "title" => "Le livre dont il faut ajouter des choses",
+      "pitch" => "C'est un livre qui permet de tester l'ajout en direct de données dans la table grâce à la méthode add/2",
+      "subtitle" => "C'est un sous-titre actif du livre",
+      "submitted_at" => "2024-12-23 10:21:00",
+      "label" => "true",
+      "label_year" => "2024",
+    }).id
+    # --- Test ---
+    book = Book.get(book_id, [:title])
+    # IO.inspect(book, label: "\nBOOK")
+    # --- Vérification dans le test ---
+    assert is_nil(book.pitch)
+    assert book.label === false
+    assert is_nil(book.label_year)
+    assert is_nil(book.submitted_at)
+    # --- Suite test ---
+    book = Book.add(book, [:label, :label_year, :pitch, :submitted_at])
+    # --- Vérification post-test ---
+    refute is_nil(book.pitch)
+    assert book.label === true
+    assert book.label_year == 2024
+    assert book.submitted_at == NaiveDateTime.from_iso8601!("2024-12-23 10:21:00")
   end
 
 end

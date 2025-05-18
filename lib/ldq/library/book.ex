@@ -47,9 +47,9 @@ defmodule LdQ.Library.Book do
     # qu'il y a validation de la propriété
     "author_id"       => %{type: :author},
     "current_phase"   => %{type: :integer},
+    "evaluated_at"    => %{type: :datetime},
     "id"              => %{type: :string},
     "isbn"            => %{type: :string},
-    "evaluated_at"    => %{type: :datetime},
     "label"           => %{type: :boolean},
     "label_grade"     => %{type: :integer},
     "label_year"      => %{type: :year},
@@ -66,7 +66,6 @@ defmodule LdQ.Library.Book do
     "title"           => %{type: :string},
     "transmitted"     => %{type: :boolean},
     "url_command"     => %{type: :string}
-    # TODO Poursuivre avec les autres propriétés
   }
   def fields_data, do: @fields_data
 
@@ -141,6 +140,20 @@ defmodule LdQ.Library.Book do
     else
       Map.merge(book, dfields.foreigners)
     end
+  end
+
+  @doc """
+  Ajoute au livre +book+ les propriétés contenues dans +fields+ et 
+  le retourne.
+
+  @param {Book} book Le livre auquel il faut ajouter les propriétés
+  @params {List of Atoms} Les champs à charger dans le livre
+
+  @return {Book} Le livre augmenté des propriétés voulues
+  """
+  def add(book, fields) when is_struct(book, __MODULE__) and is_list(fields) do
+    surbook = get(book.id, fields)
+    Map.merge(book, surbook)
   end
 
   @doc """
@@ -435,6 +448,16 @@ defmodule LdQ.Library.Book do
         true -> {:error, "Parrain inconnu… (user #{nval} inexistant)"}    
       end
   end
+
+  def validate("subtitle", initv, newv, set) do
+    len = String.length(newv)
+    cond do
+      len == 0 -> :ok
+      len > 255 -> {:error, "Le sous-titre est trop long (255 caractères maximum, il en fait #{len})"}
+      true -> :ok
+    end
+  end
+
   def validate("title", initv, newv, set) do
     len = String.length(newv)
     cond do
@@ -443,6 +466,21 @@ defmodule LdQ.Library.Book do
       title_exist?(newv)  -> {:error, "Le titre “#{newv}” existe déjà"}
       len > 255           -> {:error, "Le titre est trop long (255 caractères maximum)"}
       true                -> :ok
+    end
+  end
+  def validate("url_command", initv, newv, set) do
+    cond do
+      String.replace(newv, " ", "") != newv -> {:error, "Une URL (de commande) ne devrait pas contenir d'espaces"}
+      !String.match?(newv, ~r/^https?\:\/\//) -> {:error, "L'URL de commande #{inspect newv} n'est pas une URL valide (elle devrait commencer par http(s)://)"}
+      true ->
+        # {retour, 0} = System.cmd("cUrl", [newv])
+        {http_code, 0} = System.cmd("curl", ["-s", "-o", "/dev/null", "-w", "%{http_code}", newv])
+        http_code = String.to_integer(http_code)
+        cond do
+          http_code > 400 -> {:error, "L'URL de commande est une URL qui ne conduit nulle part" }
+          200 -> :ok
+          http_code >= 300 && http_code <= 310 -> :ok
+        end
     end
   end
   def validate(_unvalidated_key, _i, _n, _s), do: :ok
