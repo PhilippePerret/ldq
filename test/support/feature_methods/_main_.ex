@@ -13,6 +13,9 @@ defmodule FeaturePublicMethods do
   alias Feature.BookTestMeths     , as: Book
   alias LdQ.ComptesFixtures       , as: Compt
 
+  def now do
+    NaiveDateTime.utc_now()
+  end
 
   def make_admin_with_session(attrs \\ %{}) do
     start_session(make_admin(attrs), [])

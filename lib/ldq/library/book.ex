@@ -171,22 +171,17 @@ defmodule LdQ.Library.Book do
   @return {Map} Une table contenant :
     :book_id    L'identifiant du livre (à nil si nouveau)
     :invalid    Liste des erreurs rencontrées. Chaque élément est un tuplet {"key", "erreur"}
-    :changed    Map ou Keyword liste des changements à enregistrer. Map pour une création, Keyword pour un update
+    :changed    Keyword liste des changements à enregistrer. Map pour une création, Keyword pour un update
     :changes_map  {List}  Liste des changements, pour s'en servir en cas d'erreur, puisque c'est toujours une liste, contrairement à :changed qui est une chose à la création et une autre à l'update. 
                           Noter que le format de :changes (liste de duplets) est le même que :invalid, pour utilisation dans les formulaires.
     :unchanged  {Map} Table des non changements
   """
   def setchange(attrs) do
-    operation = if attrs["id"], do: :update, else: :create
-    # Si c'est une création, on doit transmettre les valeurs avec une
-    # map, alors que si c'est une actualisation, on doit transmettre 
-    # une liste de tuples.
-    changed   = if operation == :update, do: [], else: %{}
-    Enum.reduce(attrs, %{book_id: nil, changes_map: [], changed: changed, invalid: [], unchanged: [], attrs: attrs}, fn {key, dup_or_string}, set ->
+    Enum.reduce(attrs, %{book_id: nil, changes_map: [], changed: [], invalid: [], unchanged: [], attrs: attrs}, fn {key, dup_or_string}, set ->
       {init_value, new_value} =
         cond do
-          is_binary(dup_or_string)  -> {nil, dup_or_string}
-          {a, b} = (dup_or_string)  -> dup_or_string
+          is_binary(dup_or_string) -> {nil, dup_or_string}
+          is_tuple(dup_or_string)  -> dup_or_string
           true -> raise "La donnée transmise à setchange est mauvaise (#{inspect dup_or_string}). Il faut transmettre soit un string soit un duplet {init-value, new-value}"
         end
       # On normalise la valeur dans set.attrs car on en aura besoin dans les
@@ -198,8 +193,8 @@ defmodule LdQ.Library.Book do
       cond do
       key == "id" -> %{set | book_id: new_value}
       @fields_data[key] ->
-        setchange_known_key(key, init_value, new_value, set, operation)
-        |> IO.inspect(label: "\nSET tourné par key #{inspect key}")
+        setchange_known_key(key, init_value, new_value, set)
+        # |> IO.inspect(label: "\nSET tourné par key #{inspect key}")
       true -> 
         set 
       end
@@ -211,9 +206,10 @@ defmodule LdQ.Library.Book do
   @param {String} ival  Pour "initial-value" La valeur initiale (quand c'est une modification, pour savoir si la valeur a changé)
   @param {String} nval  Pour "new-value", la nouvelle valeur du champ
   @param {Map}    set La table contenant l'état de la transaction
-  @param {Atom}   operation L'opération, soit :update, soit :create
+
+  @return {Map} Retourne le +set+ avec les nouveaux résultats
   """
-  def setchange_known_key(key, ival, nval, set, operation) do
+  def setchange_known_key(key, ival, nval, set) do
     nval = if is_binary(nval), do: String.trim(nval), else: nval
     {ival, nval} = cast_values(key, ival, nval)
     if ival != nval do
@@ -221,31 +217,43 @@ defmodule LdQ.Library.Book do
       case validate(key, ival, nval, set) do
       :ok -> 
         akey = String.to_atom(key)
+        # Les modifications qui peuvent être entraînées par des
+        # modifications de données validées
+        set = on_change(akey, nval, set)
         # IO.puts "Ajout de la propriété #{inspect akey} de valeur #{inspect nval}"
-        case operation  do
-          :update -> 
-            Map.merge(set, %{
-              changed: set.changed ++ [{akey, nval}],
-              changes_map: set.changes_map ++ [{key, nval}]
-            })
-          :create ->
-            Map.merge(set, %{
-              changed: Map.put(set.changed, akey, nval),
-              changes_map: set.changes_map ++ [{key, nval}]
-            })
-        end
+        add_changed_value(akey, nval, set)
       {:error, error} ->
         %{set | invalid: set.invalid ++ [{key, error}]}
       end
     else
       # Valeur inchangée
-      cond do
-        is_map(set.unchanged) -> 
-          %{set | unchanged: Map.put(set.unchanged, key, ival)}
-        true -> 
-          %{set | unchanged: set.unchanged ++ [{key, ival}]}
-      end
+      %{set | unchanged: set.unchanged ++ [{key, ival}]}
+      # cond do
+      #   is_map(set.unchanged) -> 
+      #     %{set | unchanged: Map.put(set.unchanged, key, ival)}
+      #   true -> 
+      #     %{set | unchanged: set.unchanged ++ [{key, ival}]}
+      # end
     end
+  end
+
+  @doc """
+  Pour ajouter une valeur à changer dans le setchange. Cette valeur
+  est ajoutée à la table qui sera transmise à insert_all ou 
+  update_all en fonction du fait qu'il s'agit d'un changement ou
+  d'une création
+
+  @param {Atom} key La clé atomique du champ
+  @param {Any} value La valeur quelconque du champ
+  @param {Map} set Le setchange véhiculant toutes les informations sur le traitement d'enregistrement.
+
+  @return {Map} le setchange actualisé
+  """
+  def add_changed_value(key, value, set) do
+    Map.merge(set, %{
+      changed: set.changed ++ [{key, value}],
+      changes_map: set.changes_map ++ [{"#{key}", value}]
+    })
   end
 
   @doc """
@@ -291,10 +299,14 @@ defmodule LdQ.Library.Book do
   end
   
   def create(bookset) do
-    values = Map.merge(bookset.changed, %{
-      inserted_at:  now_without_msec(),
-      updated_at:   now_without_msec()
-    })
+    # values = Map.merge(bookset.changed, %{
+    #   inserted_at:  now_without_msec(),
+    #   updated_at:   now_without_msec()
+    # })
+    values = bookset.changed ++ [
+      {:inserted_at, now_without_msec()}, 
+      {:updated_at, now_without_msec()}
+    ]
     # Repo.insert_all(__MODULE__, [values], returning: [:id, :title])
     Repo.insert_all(__MODULE__, [values], returning: true)
   end
@@ -302,12 +314,26 @@ defmodule LdQ.Library.Book do
     values = bookset.changed ++ [{:updated_at, now_without_msec()}]
     from(b in __MODULE__, where: b.id == ^bookset.book_id)
     |> Repo.update_all(set: values)
-    |> IO.inspect(label: "FIN D'UPDATE")
+    # |> IO.inspect(label: "FIN D'UPDATE")
   end
 
   def now_without_msec do
     DateTime.utc_now() |> DateTime.truncate(:second)
   end
+
+  # === FONCTIONS DE CHANGEMENT ===
+
+  def on_change(:label, nval, set) do
+    if nval == true do
+      if set.attrs["label_year"] do set else
+        add_changed_value(:label_year, Date.utc_today().year, set)
+      end
+    else
+      # Quand le label est mis à false (retiré exceptionnellement)
+      add_changed_value(:label_year, nil, set)
+    end
+  end
+  def on_change(_k, _v, set), do: set
 
   # === FONCTIONS DE VALIDATION ===
   #
@@ -341,6 +367,9 @@ defmodule LdQ.Library.Book do
       true -> {:error, "L'ISBN doit faire soit 10 soit 13 caractère (il en fait #{len})"}
     end
   end
+  def validate("label", ival, nval, set) do
+    :ok
+  end
   def validate("label_year", ival, nval, set) do
     # Pour qu'une année de label soit définie, il faut que le label 
     # ait été ou soit attribué ce coup-ci
@@ -350,7 +379,7 @@ defmodule LdQ.Library.Book do
     # Mais si :label n'est pas défini et que :book_id non plus, c'est un
     # problème : on essaie de créer un livre avec une année de label sans
     # définir que le livre a le label.
-    IO.inspect(set, label: "\nSET")
+    # IO.inspect(set, label: "\nSET")
     if is_nil(nval) do
       :ok
     else

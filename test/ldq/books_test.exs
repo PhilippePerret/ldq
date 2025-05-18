@@ -33,7 +33,7 @@ defmodule LdQ.BookTests do
   end
 
 
-  test "On peut actualiser les données d'un livre" do
+  test "On peut actualiser les données d'un livre (en mettant 'id' en attribut)" do
     # --- Vérification préliminaire ---
     assert Enum.empty?(Book.get_all())
     # --- Préparation ---
@@ -43,7 +43,23 @@ defmodule LdQ.BookTests do
     assert Book.get_all() |> Enum.count == 1
     assert(Book.get(book_id, [:title]).title == "Le titre du nouveau")
     # --- Test ---
-    Book.save(%{"id" => {book_id, nil}, "title" => {"Le titre du nouveau", "Un nouveau titre pour le titre du nouveau"}})
+    Book.save(%{"id" => {nil, book_id}, "title" => {"Le titre du nouveau", "Un nouveau titre pour le titre du nouveau"}})
+    # --- Vérification post-test ---
+    assert Book.get_all() |> Enum.count == 1
+    assert(Book.get(book_id, [:title]).title == "Un nouveau titre pour le titre du nouveau")
+  end
+  
+  test "On peut actualiser les données d'un livre avec Book.save/2" do
+    # --- Vérification préliminaire ---
+    assert Enum.empty?(Book.get_all())
+    # --- Préparation ---
+    book = Book.save(%{"title" => {nil, "Le titre du nouveau"}})
+    book_id = book.id
+    # --- Vérification préparation ---
+    assert Book.get_all() |> Enum.count == 1
+    assert(Book.get(book_id, [:title]).title == "Le titre du nouveau")
+    # --- Test ---
+    Book.save(book, %{"title" => {"Le titre du nouveau", "Un nouveau titre pour le titre du nouveau"}})
     # --- Vérification post-test ---
     assert Book.get_all() |> Enum.count == 1
     assert(Book.get(book_id, [:title]).title == "Un nouveau titre pour le titre du nouveau")
@@ -132,6 +148,23 @@ defmodule LdQ.BookTests do
     assert(Enum.at(book.invalid, 0) |> Tuple.to_list() |> Enum.at(0) == "label_year")
   end
 
+  test "L'année de labélisation d'un livre se met automatiquement si elle n'est pas fourni" do
+    # --- Préparation ---
+    book = Book.save(%{"title" => "Mon livre pas encore labélisé"})
+    # --- Test 1 : en actualisation ---
+    book = Book.save(book, %{"label" => "true"})
+    # --- Test 2 : en créant le livre ---
+    book2 = Book.save(%{"title" => "Mon livre déjà labélisé", "label" => "true"})
+    # --- Vérification test 1 ---
+    annee_courante = now().year
+    refute( is_nil(book.label_year), "L'année de labélisation aurait dû être définie")
+    assert( book.label_year == annee_courante)
+    # --- Vérification test 2 ---
+    refute( is_nil(book2.label_year), "L'année de labélisation aurait dû être définie")
+    assert( book2.label_year == annee_courante)
+
+  end
+
   test "L'année de labélisation d'un livre dont on retire le label doit être mise à nul" do
     # --- Préparation ---
     book = Book.save(%{"label" => "true", "label_year" => "2000"})
@@ -141,8 +174,7 @@ defmodule LdQ.BookTests do
     assert(book.label === true)
     assert(book.label_year == 2000)
     # --- Test ---
-    res = Book.save(book, %{"label" => "false"})
-    IO.inspect(res, label: "\nRES d'UPDATE")
+    Book.save(book, %{"label" => "false"})
     # --- Vérification ---
     book = Book.get(book.id, [:label, :label_year])
     assert(book.label === false)
