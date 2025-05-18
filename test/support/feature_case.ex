@@ -8,9 +8,9 @@ defmodule LdQWeb.FeatureCase do
       alias LdQ.Repo
       import Ecto.Query
       import Wallaby.Query
-      # import LdQWeb.Gettext
 
-      import LdQ.ComptesFixtures
+      # Non, trop de conflits
+      # import LdQ.ComptesFixtures
 
       @endpoint LdQWeb.Endpoint
     end

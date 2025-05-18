@@ -75,6 +75,13 @@ defmodule Random.Methods do
     Enum.random(@pays)
   end
 
+  def random_isbn do
+    "#{rand((1..9))}-#{rand((1..9))}-#{rand(100..999)}-#{rand(10000..99999)}-#{rand((10..99))}-#{rand(1..9)}"
+  end
+
+  # Raccourcis
+  def rand(foo), do: Enum.random(foo)
+
   @doc """
   Retourne une date aléatoire par rapport à maintenant
 

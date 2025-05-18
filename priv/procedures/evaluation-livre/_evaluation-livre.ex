@@ -46,13 +46,13 @@ defmodule LdQ.Procedure.PropositionLivre do
 
   @doc """
   Méthode propre à chaque procédure qui permet d'injecter 
-  systématiquement des propriétés volatile dans la table de la
-  procédure.
+  systématiquement des propriétés volatiles dans la table de la
+  procédure qui circule de fonction en fonction.
   """
   def defaultize_procedure(p) do
     # Ajout du livre s'il est défini
     p = if Map.get(p.data, "book_id") do
-      Map.put(p, :book, Lib.get_book_minicard(p.data["book_id"]))
+      Map.put(p, :book, Book.get(p.data["book_id"]))
     else p end
 
     p

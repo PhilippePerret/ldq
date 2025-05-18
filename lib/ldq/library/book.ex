@@ -4,6 +4,7 @@ defmodule LdQ.Library.Book do
   # import Ecto.Changeset
   alias LdQ.Repo
 
+  alias LdQ.Comptes
   alias LdQ.Comptes.User
   alias LdQ.Library, as: Lib
 
@@ -37,6 +38,27 @@ defmodule LdQ.Library.Book do
     timestamps(type: :utc_datetime)
   end
 
+  # Tous les champs qu'on peut trouver dans les formulairespour les
+  # livres.
+  @fields_data %{
+    # Note 1 : Inutile d'indiquer si la propriété doit être validée : 
+    # l'existence seule d'une fonction `validate(<key>, ...)' fait 
+    # qu'il y a validation de la propriété
+    "author_id"       => %{type: :author},
+    "current_phase"   => %{type: :integer},
+    "id"              => %{type: :string},
+    "isbn"            => %{type: :string},
+    "label"           => %{type: :boolean},
+    "label_year"      => %{type: :year},
+    "pitch"           => %{type: :string},
+    "parrain_id"      => %{type: :user},
+    "published_at"    => %{type: :date},
+    "publisher_id"    => %{type: :publisher},
+    "rating"          => %{type: :integer},
+    "title"           => %{type: :string}
+    # TODO Poursuivre avec les autres propriétés
+  }
+  def fields_data, do: @fields_data
 
   # === FONCTIONS DE RÉCUPÉRATION ===
 
@@ -67,9 +89,22 @@ defmodule LdQ.Library.Book do
 
   @return {LdQ.Library.Book} Le livre avec seulement les propriétés voulues
   """
+  
+  # Récupère toutes les valeurs d'un coup
+  def get(book_id, :all) do
+    Repo.get!(__MODULE__, book_id)
+    |> Repo.preload([:author, :publisher, :parrain])
+  end
+  # Récupère seulement les valeurs des champs +fields+
+  # @param {Binary} book_id Identifiant du livre
+  # @param {List of Atoms} fields List des champs à relevér. 
+  #   Note 1 : le champ :id sera toujours ajouté
+  #   Note 2 : Si +fields+ contient :author, :publisher ou :parrain, ces structures seront aussi ajoutées.
   def get(book_id, fields \\ @min_fields) do
     # IO.inspect(book_id, label: "BOOK_ID")
     # IO.inspect(fields, label: "FIELDS")
+
+    # On met toujours la propriété :id
     fields = if Enum.member?(fields, :id) do fields else
       List.insert_at(fields, 0, :id)
     end
@@ -88,40 +123,43 @@ defmodule LdQ.Library.Book do
       from(b in __MODULE__, where: b.id == ^book_id, select: ^dfields.fields)
       |> Repo.one!()
 
+    book = add_foreign_properties(book, fields)
+
+    # On ajoute toutes les évaluations si c'est nécessaire
+    if Enum.empty?(dfields.foreigners) do
+      book
+    else
+      Map.merge(book, dfields.foreigners)
+    end
+  end
+
+  @doc """
+  Ajoute à +book+ {Book} les structures étrangères en fonction de
+  +fields+, pour le moment peut ajouter l'auteur du livre, son
+  éditeur et son parrain
+
+  @param {Book} book La structure du livre
+  @param {List} fields Liste des champs qui peut contenir, pour cette fonction, :author, :parrain ou :publisher
+  """
+  def add_foreign_properties(book, fields) do
     book =
-      if Enum.member?(fields, :author) && book.author_id do
+      if Enum.member?(fields, :author) && Map.get(book, :author_id) do
         Map.put(book, :author, Lib.get_author!(book.author_id))
       else book end
     book = 
-      if Enum.member?(fields, :publisher) && book.publisher_id do
+      if Enum.member?(fields, :publisher) && Map.get(book, :publisher_id) do
         Map.put(book, :publisher, Lib.get_publisher!(book.publisher_id))
       else book end
     book =
-      if Enum.member?(fields, :parrain) && book.parrain_id do
+      if Enum.member?(fields, :parrain) && Map.get(book, :parrain_id) do
         Map.put(book, :parrain, Comptes.get_user!(book.parrain_id))
       else book end
 
-    Map.merge(book, dfields.foreigners)
+    book
   end
 
   # === FONCTIONS D'ENREGISTREMENT ===
 
-  @fields_data %{
-    # Note 1 : Inutile d'indiquer si la propriété doit être validée : 
-    # l'existence seule d'une fonction `validate(<key>, ...)' fait 
-    # qu'il y a validation de la propriété
-    "id"              => %{type: :string},
-    "title"           => %{type: :string},
-    "pitch"           => %{type: :string},
-    "isbn"            => %{type: :string},
-    "author_id"       => %{type: :author},
-    "parrain_id"      => %{type: :user},
-    "publisher_id"    => %{type: :publisher},
-    "current_phase"   => %{type: :integer},
-    "label"           => %{type: :boolean},
-    "rating"          => %{type: :integer}
-    # TODO Poursuivre avec les autres propriétés
-  }
 
   @doc """
 
@@ -144,17 +182,24 @@ defmodule LdQ.Library.Book do
     # map, alors que si c'est une actualisation, on doit transmettre 
     # une liste de tuples.
     changed   = if operation == :update, do: [], else: %{}
-    Enum.reduce(attrs, %{book_id: nil, changes_map: [], changed: changed, invalid: [], unchanged: []}, fn {key, dup_or_string}, set ->
+    Enum.reduce(attrs, %{book_id: nil, changes_map: [], changed: changed, invalid: [], unchanged: [], attrs: attrs}, fn {key, dup_or_string}, set ->
       {init_value, new_value} =
         cond do
-          is_binary(dup_or_string) -> {nil, dup_or_string}
-          {a, b} = (dup_or_string) -> dup_or_string
-          true -> raise "La donnée transmise à sechange est mauvaise (#{inspect dup_or_string}). Il faut transmettre soit un string soit un duplet {init-value, new-value}"
+          is_binary(dup_or_string)  -> {nil, dup_or_string}
+          {a, b} = (dup_or_string)  -> dup_or_string
+          true -> raise "La donnée transmise à setchange est mauvaise (#{inspect dup_or_string}). Il faut transmettre soit un string soit un duplet {init-value, new-value}"
         end
+      # On normalise la valeur dans set.attrs car on en aura besoin dans les
+      # validations
+      attrs = set.attrs
+      attrs = %{attrs | key => {init_value, new_value} }
+      set = %{set | attrs: attrs}
+
       cond do
-      key == "id" -> %{set | book_id: init_value}
+      key == "id" -> %{set | book_id: new_value}
       @fields_data[key] ->
         setchange_known_key(key, init_value, new_value, set, operation)
+        |> IO.inspect(label: "\nSET tourné par key #{inspect key}")
       true -> 
         set 
       end
@@ -169,13 +214,14 @@ defmodule LdQ.Library.Book do
   @param {Atom}   operation L'opération, soit :update, soit :create
   """
   def setchange_known_key(key, ival, nval, set, operation) do
-    nval = String.trim(nval)
+    nval = if is_binary(nval), do: String.trim(nval), else: nval
     {ival, nval} = cast_values(key, ival, nval)
     if ival != nval do
       # C'est une propriété persistante du livre et elle a changé
       case validate(key, ival, nval, set) do
       :ok -> 
         akey = String.to_atom(key)
+        # IO.puts "Ajout de la propriété #{inspect akey} de valeur #{inspect nval}"
         case operation  do
           :update -> 
             Map.merge(set, %{
@@ -193,7 +239,12 @@ defmodule LdQ.Library.Book do
       end
     else
       # Valeur inchangée
-      %{set | unchanged: set.unchanged ++ [{key, ival}]}
+      cond do
+        is_map(set.unchanged) -> 
+          %{set | unchanged: Map.put(set.unchanged, key, ival)}
+        true -> 
+          %{set | unchanged: set.unchanged ++ [{key, ival}]}
+      end
     end
   end
 
@@ -216,24 +267,42 @@ defmodule LdQ.Library.Book do
         {_nb, books} = create(bookset) 
         books |> Enum.at(0)
       _   -> 
-        {_nb, books} = update(bookset)
-        books
+        {_nb, error} = update(bookset)
+        Map.put(bookset, :error, error)
       end
     else
       bookset
     end
   end
+  # Actualisation, en fait
+  def save(book, attrs) do
+    attrs = Map.put(attrs, "id", {nil, book.id})
+    bookset = save(attrs)
+    if is_nil(bookset.error) do
+      # Quand l'actualisation s'est bien passée, on doit mettre les
+      # nouvelles valeurs dans le livre
+      bookset.changed
+      |> Enum.reduce(book, fn {key, value}, bk ->
+        %{bk | key => value}
+      end)
+    else
+      raise bookset.error
+    end
+  end
+  
   def create(bookset) do
     values = Map.merge(bookset.changed, %{
       inserted_at:  now_without_msec(),
       updated_at:   now_without_msec()
     })
-    Repo.insert_all(__MODULE__, [values], returning: [:id, :title])
+    # Repo.insert_all(__MODULE__, [values], returning: [:id, :title])
+    Repo.insert_all(__MODULE__, [values], returning: true)
   end
   def update(bookset) do
     values = bookset.changed ++ [{:updated_at, now_without_msec()}]
     from(b in __MODULE__, where: b.id == ^bookset.book_id)
     |> Repo.update_all(set: values)
+    |> IO.inspect(label: "FIN D'UPDATE")
   end
 
   def now_without_msec do
@@ -245,23 +314,25 @@ defmodule LdQ.Library.Book do
   # Rappel : On ne vient dans ces fonctions QUE si la valeur a chan-
   # gé, dans tout autre cas, on n'en a pas besoin.
 
-  def validate("title", initv, newv, set) do
-    len = String.length(newv)
+  def validate("author_id", ival, nval, set) do
     cond do
-      newv == ""          -> {:error, "Il faut fournir un titre"}
-      is_nil(newv)        -> {:error, "Il faut fournir un titre"}
-      title_exist?(newv)  -> {:error, "Le titre “#{newv}” existe déjà"}
-      len > 255           -> {:error, "Le titre est trop long (255 caractères maximum)"}
-      true                -> :ok
+      is_nil(nval)  -> :ok
+      nval == ""    -> :ok
+      Lib.get_author!(nval) -> :ok
+      true          -> {:error, "Author #{nval} inconnu…"}
     end
   end
-  def validate("pitch", init_value, newv, set) do
-    len = String.length(newv)
+
+  def validate("current_phase", ival, nval, set) do
+    # La nouvelle phase doit obligatoirement être supérieur à 
+    # la précédente
     cond do
-      len > 5000  -> {:error, "Le pitch est trop long (max: 5000 caractère, il en fait #{len})"}
-      true        -> :ok
+      is_nil(ival)  -> :ok
+      nval > ival   -> :ok
+      nval < ival   -> {:error, "La nouvelle phase courante (#{nval}) devrait être supérieure à la phase précédente (#{ival})"}
     end
   end
+
   def validate("isbn", ival, nval, set) do
     len = String.replace(nval, "-", "") |> String.length()
     cond do
@@ -270,12 +341,37 @@ defmodule LdQ.Library.Book do
       true -> {:error, "L'ISBN doit faire soit 10 soit 13 caractère (il en fait #{len})"}
     end
   end
-  def validate("author_id", ival, nval, set) do
+  def validate("label_year", ival, nval, set) do
+    # Pour qu'une année de label soit définie, il faut que le label 
+    # ait été ou soit attribué ce coup-ci
+    # Dans tous les cas, on cherche déjà dans +set+ pour voir si :label
+    # est mis à true. Si c'est le cas, tout est bon. Si :label n'est pas
+    # défini et que :book_id est défini, on demande sa valeur.
+    # Mais si :label n'est pas défini et que :book_id non plus, c'est un
+    # problème : on essaie de créer un livre avec une année de label sans
+    # définir que le livre a le label.
+    IO.inspect(set, label: "\nSET")
+    if is_nil(nval) do
+      :ok
+    else
+      label_value = if Map.get(set.attrs, "label") do
+        set.attrs["label"] |> Tuple.to_list() |> Enum.at(1)
+      else nil end
+
+      cond do
+        label_value == "true" -> :ok
+        label_value == "false" -> {:error, "On ne peut définir une année de labélisation si le label n'est pas accordé au livre…"}
+        is_nil(set.book_id) -> {:error, "On ne peut pas affecter d'année de labélisation à la création d'un livre qui ne reçoit pas le label…"}
+        get(set.book_id, [:label]).label === true -> :ok
+        get(set.book_id, [:label]).label === false -> {:error, "On ne peut pas définir l'année de labélisation d'un livre qui n'a pas (encore) reçu le label…"}
+      end
+    end
+  end
+  def validate("pitch", init_value, newv, set) do
+    len = String.length(newv)
     cond do
-      is_nil(nval)  -> :ok
-      nval == ""    -> :ok
-      Lib.get_author!(nval) -> :ok
-      true          -> {:error, "Author #{nval} inconnu…"}
+      len > 5000  -> {:error, "Le pitch est trop long (max: 5000 caractère, il en fait #{len})"}
+      true        -> :ok
     end
   end
   def validate("publisher_id", ival, nval, set) do
@@ -289,16 +385,25 @@ defmodule LdQ.Library.Book do
   def validate("parrain_id", ival, nval, set) do
     # Il faut vérifier que le parrain (user) existe et qu'il fait
     # partie du comité de lecture
-    parrain = User.get!(nval)
     cond do
       is_nil(nval)        -> :ok
       nval == ""          -> :ok
-      parrain = User.get!(nval) ->
-        case User.member?(parrain) do
+      parrain = Comptes.get_user!(nval) ->
+        case User.membre?(parrain) do
           true  -> :ok
           false -> {:error, "#{parrain.name} (#{parrain.email}) n'est pas membre du comité de lecture… Il ne peut pas être parrain"}
         end
-      true -> {:error, "Parrain inconnu… (user #{nval} inexistant)"}    
+        true -> {:error, "Parrain inconnu… (user #{nval} inexistant)"}    
+      end
+  end
+  def validate("title", initv, newv, set) do
+    len = String.length(newv)
+    cond do
+      newv == ""          -> {:error, "Il faut fournir un titre"}
+      is_nil(newv)        -> {:error, "Il faut fournir un titre"}
+      title_exist?(newv)  -> {:error, "Le titre “#{newv}” existe déjà"}
+      len > 255           -> {:error, "Le titre est trop long (255 caractères maximum)"}
+      true                -> :ok
     end
   end
   def validate(_unvalidated_key, _i, _n, _s), do: :ok
@@ -318,11 +423,35 @@ defmodule LdQ.Library.Book do
     type = @fields_data[key].type
     {cast_v(type, ivalue), cast_v(type, nvalue)}
   end
-  defp cast_v(:integer, value), do: String.to_integer(value)
+  defp cast_v(:integer, value) do
+    if is_binary(value) do
+      String.to_integer(value)
+    else value end
+  end
   defp cast_v(:string,    value), do: value
-  defp cast_v(:boolean,   value), do: value == "true" # à vérifier parce qu'elle est peut-être transformée en true, vraiment
+  defp cast_v(:boolean, value) do
+    if is_binary(value) do
+      value == "true"
+    else value end
+  end
+  defp cast_v(:datetime, value) do
+    if is_binary(value) do
+      NaiveDateTime.from_iso8601!(value)
+    else value end
+  end
+  defp cast_v(:date, value) do
+    if is_binary(value) do
+      Date.from_iso8601!(value)
+    else value end
+  end
   defp cast_v(:user,      value), do: value
   defp cast_v(:author,    value), do: value
   defp cast_v(:publisher, value), do: value
+  defp cast_v(:year, value) do
+    if is_binary(value) do
+      value = if String.length(value) == 2, do: "20#{value}", else: value
+      String.to_integer(value)
+    else value end
+  end
   defp cast_v(_anytype, value), do: value
 end

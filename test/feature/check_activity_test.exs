@@ -10,7 +10,6 @@ defmodule LdQWeb.CheckActivityTest do
   import TestHelpers
   import FeaturePublicMethods # Méthodes rejoint_la_page, etc.
   # alias LdQ.Comptes.User
-  import LdQ.ComptesFixtures
 
   # Les méthodes testées
   # import Feature.LogTestMethods, except: [check_activities: 1]

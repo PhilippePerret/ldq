@@ -11,8 +11,8 @@ defmodule FeaturePublicMethods do
   alias Feature.SessionMethods,     as: Sess
   alias Feature.ProcedureTestMeths, as: Proc
   alias Feature.BookTestMeths     , as: Book
+  alias LdQ.ComptesFixtures       , as: Compt
 
-  # import TestHelpers
 
   def make_admin_with_session(attrs \\ %{}) do
     start_session(make_admin(attrs), [])
@@ -38,8 +38,12 @@ defmodule FeaturePublicMethods do
   def get_author(author_id) do
     LdQ.Library.get_author!(author_id)
   end
-  def make_author(attrs \\ %{}), do: LdQ.ComptesFixtures.make_author(attrs)
 
+  def make_simple_user(attrs \\ %{}), do: Compt.make_simple_user(attrs)
+  def make_admin(attrs \\ %{}), do: Compt.make_admin(attrs)
+  def make_writer(attrs \\ %{}), do: Compt.make_writer(attrs)
+  def make_author(attrs \\ %{}), do: Compt.make_author(attrs)
+  def make_member(attrs \\ %{}), do: Compt.make_member(attrs)
   def make_publisher(attrs \\ %{}), do: LdQ.LibraryFixtures.make_publisher(attrs)
 
   def start_session(sujet, params), do: Sess.start_session(sujet, params)
