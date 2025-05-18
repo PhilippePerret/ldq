@@ -181,4 +181,65 @@ defmodule LdQ.BookTests do
     assert(is_nil(book.label_year), "L'année du label aurait avoir dû être mise à false.")
   end
 
+  test "Le sous-titre du livre ne peut pas être trop long" do
+    # TODO
+  end
+
+  test "L'URL de commande du livre doit être bien formaté et valide" do
+    # Ça doit être une URL
+    # TODO
+    # Cette URL doit retourner le livre
+    # TODO
+  end
+
+  test "S'il y a une pré-version (pre_version_id), elle doit exister" do
+    # TODO
+  end
+
+  test "Si le manuscrit/epub a été transmis, il faut qu'il existe" do
+    # Note : il est dans un dossier connu, avec un nom standardisé
+    # TODO
+  end
+
+  test "On doit savoir quand le livre a été soumis pour évaluation" do
+    # Note : c'est la date où l'administrateur valide la soumission
+    # TODO
+    # Il ne doit pas être défini quand l'utilisateur/auteur le soumet
+    # TODO
+    # Il est défini quand l'administrateur valide la soumission
+    # TODO
+  end
+
+  test "La date d'évaluation est fixée quand le livre reçoit ou non le label" do
+    # Un livre qui reçoit le label
+    # TODO
+    # Un livre qui ne reçoit pas le label
+    # TODO
+  end
+
+  test "On peut définir le grade du label du livre" do
+    # TODO
+  end
+  test "Le grade du label ne peut être défini si le livre n'a pas été évalué" do
+    # TODO
+  end
+  test "Le grade du label ne peut être défini si le label est refusé au livre" do
+    # TODO
+  end
+  test "Quand on retire le label à un livre, son grade de label s'annule" do
+    # TODO
+  end
+  test "On peut définir le :rating d'un livre et l'augmenter" do
+    # TODO
+  end
+  test "Un reader peut augmenter le rating" do
+    # TODO
+  end
+  test "Un reader peut diminuer le rating" do
+    # TODO
+  end
+  test "Un reader peut changer son rating (mais il a un seul rating quand même)" do
+    # TODO
+  end
+
 end

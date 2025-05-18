@@ -24,6 +24,7 @@ defmodule LdQ.Repo.Migrations.CreateBooks do
       add :label_grade, :integer
       add :rating, :integer
       add :readers_rating, :integer
+      add :readers_count, :integer
 
       add :parrain_id, references(:users, on_delete: :nothing, type: :binary_id)
       add :publisher_id, references(:publishers, on_delete: :delete_all, type: :binary_id)

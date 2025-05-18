@@ -24,11 +24,12 @@ defmodule LdQ.Library.Book do
     # --- Evaluation ---
     field :transmitted, :boolean, default: false
     field :current_phase, :integer
-    field :submitted_at, :naive_datetime
+    field :submitted_at, :naive_datetime # pour savoir quand l'administrateur a validé la candidature
     field :evaluated_at, :naive_datetime
     field :label_grade, :integer
     field :rating, :integer
     field :readers_rating, :integer
+    field :readers_count, :integer
 
     # --- Appartenance ---
     belongs_to :parrain,    User # l'user qui s'en occupe
@@ -48,14 +49,23 @@ defmodule LdQ.Library.Book do
     "current_phase"   => %{type: :integer},
     "id"              => %{type: :string},
     "isbn"            => %{type: :string},
+    "evaluated_at"    => %{type: :datetime},
     "label"           => %{type: :boolean},
+    "label_grade"     => %{type: :integer},
     "label_year"      => %{type: :year},
     "pitch"           => %{type: :string},
     "parrain_id"      => %{type: :user},
+    "pre_version_id"  => %{type: :string},
     "published_at"    => %{type: :date},
     "publisher_id"    => %{type: :publisher},
     "rating"          => %{type: :integer},
-    "title"           => %{type: :string}
+    "readers_rating"  => %{type: :integer},
+    "readers_count"   => %{type: :integer},
+    "submitted_at"    => %{type: :datetime}, # naive date time
+    "subtitle"        => %{type: :string},
+    "title"           => %{type: :string},
+    "transmitted"     => %{type: :boolean},
+    "url_command"     => %{type: :string}
     # TODO Poursuivre avec les autres propriétés
   }
   def fields_data, do: @fields_data
