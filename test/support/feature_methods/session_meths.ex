@@ -15,7 +15,7 @@ defmodule Feature.SessionMethods do
       window_handle: Wallaby.Browser.window_handle(session)
     })
   end
-  def start_session(params) do
+  def start_session(_params) do
     {:ok, sess} = Wallaby.start_session()
     sess
   end

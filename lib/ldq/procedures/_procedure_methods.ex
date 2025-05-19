@@ -7,7 +7,7 @@ defmodule LdQ.ProcedureMethods do
   alias LdQ.{Repo, Comptes, Notification, Constantes, Procedure}
   alias LdQ.Comptes.User
 
-  import Html.Helpers
+  # import Html.Helpers
 
   @prefix_mail_subject "[📚 LdQ] "
 
@@ -82,8 +82,8 @@ defmodule LdQ.ProcedureMethods do
   """
   def log_activity(params) do
     case LdQ.Site.Log.create(params) do
-    {:ok, changeset} -> true
-    {:error, changeset} -> 
+    {:ok, _changeset} -> true
+    {:error, _changeset} -> 
       # TODO Prévenir l'administration du site
       false
     end
@@ -174,7 +174,7 @@ defmodule LdQ.ProcedureMethods do
   TODO Plus tard, on pourra faire une issue propre à une procédure en
   définissant un fichier <dossier proc>/textes/impasse.phil.
   """
-  def impasse(procedure) do
+  def impasse(_procedure) do
     """
     <div style="position:relative;clear:both;">
       <img src="/images/impasse.png" style="vertical-align:middle;float:left;margin-right:4em;margin-bottom:2em;" />
@@ -208,11 +208,12 @@ defmodule LdQ.ProcedureMethods do
 
   def run_current_procedure(procedure, module, steps) do
     step = current_procedure(procedure, steps)
-    # Si une fonction defaultize_procedure existe, il faut la jouer
-    procedure =
-    if function_exported?(module, :defaultize_procedure, 1) do
-      apply(module, :defaultize_procedure, [procedure])
-    else procedure end
+    # # Si une fonction defaultize_procedure existe, il faut la jouer
+    # OBSOLETE: Maintenant, on fait ça dans le contrôleur
+    # procedure =
+    # if function_exported?(module, :defaultize_procedure, 1) do
+    #   apply(module, :defaultize_procedure, [procedure])
+    # else procedure end
     # On joue l'étape en question
     apply(module, step.fun, [procedure])
   end
@@ -381,7 +382,7 @@ defmodule LdQ.ProcedureMethods do
   base de données (LdQ.Tests.Mails/tests_mails)
   """
   def consigne_mail_for_test(data_mail) do
-    {sender_name, sender_email} = data_mail.email.from
+    {_sender_name, sender_email} = data_mail.email.from
     %{
       to:           data_mail.receiver.email,
       from:         sender_email,
@@ -412,7 +413,7 @@ defmodule LdQ.ProcedureMethods do
                 Seront aussi injectée automatiquement les variables de la procédure si
                 la procédure est transmise
   """
-  def send_mail([to: receiver, from: sender, with: params] = attrs) do
+  def send_mail([to: receiver, from: sender, with: params] = _attrs) do
     send_mail(receiver, sender, params)
   end
   def send_mail(receiver, sender, params) do
@@ -530,7 +531,7 @@ defmodule LdQ.ProcedureMethods do
     |> Swoosh.Email.from({sender.name, sender.email})
     email =
     if attached_file do
-      email |> Swoosh.Email.attach(attached_file)
+      email |> Swoosh.Email.attachment(attached_file)
     else email end
 
     %{

@@ -9,8 +9,6 @@ defmodule LdQ.Library do
   alias LdQ.Library.Author
   alias LdQ.Library.Publisher
 
-  alias LdQ.Library.Book
-
   @doc """
   Returns the list of authors.
 
@@ -108,7 +106,7 @@ defmodule LdQ.Library do
       %Todo{...}
 
   """
-  def change_author(%Author{} = author, _attrs \\ %{}) do
+  def change_author(%Author{} = _author, _attrs \\ %{}) do
     raise "TODO"
   end
 
@@ -127,7 +125,7 @@ defmodule LdQ.Library do
   def create_publisher!(attrs) do
     case create_publisher(attrs) do
       {:ok, publisher} -> publisher
-      {:error, changeset} -> nil
+      {:error, _changeset} -> nil
     end
   end
 

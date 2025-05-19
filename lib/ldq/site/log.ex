@@ -89,7 +89,7 @@ defmodule LdQ.Site.Log do
   defp add_owner(attrs, owner) when is_struct(owner, LdQ.Book) do
     Map.merge(attrs, %{owner_type: "book", owner_id: owner.id})
   end
-  defp add_owner(attrs, owner) do
+  defp add_owner(attrs, _owner) do
     Map.merge(attrs, %{owner_type: "unknown", owner_id: nil})
   end
 end

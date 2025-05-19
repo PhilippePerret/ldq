@@ -21,7 +21,7 @@ defmodule LdQ.Procedure.PropositionLivre do
     %{name: "Soumission par l'ISBN", fun: :submit_book_with_isbn, admin_required: false, owner_required: true},
     %{name: "Soumission par formulaire", fun: :submit_book_with_form, admin_required: false, owner_required: true},
     %{name: "Consigner le livre pour évaluation", fun: :consigner_le_livre, admin_required: false, owner_required: true},
-    %{name: "Confirmation de la soumission par l'auteur", fun: :auteur_confirme_soumission_livre, admin_required: false, owner_required: false}
+    %{name: "Confirmation de la soumission par l'auteur", fun: :auteur_confirme_soumission_livre, admin_required: false, owner_required: false},
   
     %{name: "Suppression complète du livre", fun: :complete_book_remove, admin_required: true, owner_required: false}
   ]
@@ -54,13 +54,13 @@ defmodule LdQ.Procedure.PropositionLivre do
   systématiquement des propriétés volatiles dans la table de la
   procédure qui circule de fonction en fonction.
   """
-  def defaultize_procedure(p) do
+  def defaultize_procedure(proc) do
     # Ajout du livre s'il est défini
-    p = if Map.get(p.data, "book_id") do
-      Map.put(p, :book, Book.get(p.data["book_id"]))
-    else p end
-
-    p
+    if Map.get(proc.data, "book_id") do
+      Map.put(proc, book:, Book.get(p.data["book_id"]))
+    else 
+      proc
+    end
   end
 
 
@@ -79,7 +79,7 @@ defmodule LdQ.Procedure.PropositionLivre do
       captcha: true,
       fields: [
         %{type: :hidden, strict_name: "nstep", value: "submit_book_with_isbn"},
-        %{type: :text, name: "isbn", label: "ISBN du livre"},
+        %{type: :text, name: "isbn", label: "ISBN du livre", required: true},
         %{type: :checkbox, name: "is_author", value: "yes", label: "Je suis l'aut#{fem(:rice, user)} du livre"}
       ],
       buttons: [
@@ -114,14 +114,14 @@ defmodule LdQ.Procedure.PropositionLivre do
     """
   end
 
-  @isbn_providers [
-    {"ISBN Search", "https://isbnsearch.org/isbn/__ISBN__", :parse_from_isbn_search},
-    {"google books", "https://www.googleapis.com/books/v1/volumes?q=isbn:__ISBN__", :none},
-    {"open library", "https://openlibrary.org/api/books?bibkeys=ISBN:__ISBN__&format=json&jscmd=details", :none},
-    {"word cat", "http://xisbn.worldcat.org/webservices/xid/isbn/__ISBN__?method=getMetadata&fl=*&format=json", :none},
-    {"Chasse aux livres", "https://www.chasse-aux-livres.fr/recherche-par-isbn/search?catalog=fr&query=__ISBN__", :parse_from_chasse_aux_livres}
-    # Le meilleur mais Par abonnement {"ISBN Db", "https://api2.isbndb.com/book/__ISBN__"}
-  ]
+  # @isbn_providers [
+  #   {"ISBN Search", "https://isbnsearch.org/isbn/__ISBN__", :parse_from_isbn_search},
+  #   {"google books", "https://www.googleapis.com/books/v1/volumes?q=isbn:__ISBN__", :none},
+  #   {"open library", "https://openlibrary.org/api/books?bibkeys=ISBN:__ISBN__&format=json&jscmd=details", :none},
+  #   {"word cat", "http://xisbn.worldcat.org/webservices/xid/isbn/__ISBN__?method=getMetadata&fl=*&format=json", :none},
+  #   {"Chasse aux livres", "https://www.chasse-aux-livres.fr/recherche-par-isbn/search?catalog=fr&query=__ISBN__", :parse_from_chasse_aux_livres}
+  #   # Le meilleur mais Par abonnement {"ISBN Db", "https://api2.isbndb.com/book/__ISBN__"}
+  # ]
 
   @doc """
   Soumission du livre par son ISBN. En fait, la fonction relève les
@@ -135,47 +135,61 @@ defmodule LdQ.Procedure.PropositionLivre do
     end
   end
 
-  def proceed_submit_book_with_isbn(procedure) do
+  @book_first_data %{
+    title: nil, 
+    pitch: nil, 
+    author_firstname: nil,
+    author_lastname: nil,
+    author_email: nil,
+    isbn: nil,
+    publisher_name: nil,
+    year: nil,
+    is_author: false
+  }
+
+  # Simple fonction de passage qui traite un peu l'ISBN (pour le 
+  # moment, on ne fait rien de sérieu, mais à l'avenir, si le label
+  # reçoit un peu d'argent, on pourra s'abonner isbndb pour obtenir
+  # les informations de n'importe quel livre)
+  defp proceed_submit_book_with_isbn(procedure) do
     # IO.inspect(procedure.params, label: "Params dans submit_book_with_isbn")
     book_data = procedure.params["by_isbn"]
     isbn = book_data["isbn"]
     is_auteur = !is_nil(book_data["is_author"]) and book_data["is_author"] == "yes"
 
-    book_data = %{
-      isbn: isbn, is_author: is_auteur
-    }
+    book_data = Map.merge(@book_first_data, %{
+      isbn: isbn, 
+      is_author: is_auteur
+    })
     # TODO Ne fonctionne pas encore
     # book_data = book_data_from_providers(book_data)
 
-    procedure = Map.put(procedure, :book, book_data)
+    procedure = Map.put(procedure, :book_data, book_data)
     # On passe directement à l'étape suivante
     proceed_submit_book_with_form(procedure)
   end
 
-  def submit_book_with_form(procedure) do
+  # Fonction intermédiaire qui appelle le formulaire de soumission du
+  # livre sans ISBN
+  defp submit_book_with_form(procedure) do
     case check_captcha(procedure, "by_form") do
-    :ok -> proceed_submit_book_with_form(procedure)
+    :ok -> 
+      params = procedure.params["by_form"]
+      book_data = Map.merge(@book_first_data, %{
+        is_author: !is_nil(params["is_author"]) and params["is_author"] == "yes"
+      })
+      proceed_submit_book_with_form(Map.merge(procedure, :book_data, book_data))
     {:error, message} -> message
     end
   end
 
+  @doc """
+  Étape de procédure qui affiche le formulaire pour soumettre les
+  informations du livre et l'enregistrer pour le label.
+  """
   def proceed_submit_book_with_form(procedure) do
     user = procedure.user
-    book = if Map.has_key?(procedure, :book) do
-      # Quand l'user a demandé la soumission par ISBN et que les
-      # information du livre ont pu être récupérées
-      procedure.book
-    else %{
-      title: nil, 
-      pitch: nil, 
-      author_firstname: nil,
-      author_lastname: nil,
-      author_email: nil,
-      isbn: nil,
-      publisher: nil,
-      year: nil
-    }
-    end
+    book_data = procedure.book_data
 
     book_form = Html.Form.formate(%Html.Form{
       id: "submit-book-form",
@@ -188,8 +202,8 @@ defmodule LdQ.Procedure.PropositionLivre do
         %{type: :text, name: "author_lastname", label: "Nom de l'autrice/auteur", required: true},
         %{type: :text, name: "author_email", label: "Adresse de courriel de l'autrice/auteur"},
         %{type: :select, name: "author_sexe", label: "L'autrice/auteur est…", values: [["une femme", "F"], ["un homme", "H"]]},
-        %{type: :checkbox, name: "is_author", value: "yes", label: "Je suis l'aut#{fem(:rice, user)} du livre", checked: book.is_author},
-        %{type: :text, name: "isbn", label: "ISBN du livre", value: book.isbn, required: true},
+        %{type: :checkbox, name: "is_author", value: "yes", label: "Je suis l'aut#{fem(:rice, user)} du livre", checked: book_data.is_author},
+        %{type: :text, name: "isbn", label: "ISBN du livre", value: book_data.isbn, required: true},
         %{type: :date, name: "published_at", label: "Date de publication", value: Date.utc_today() |> Date.to_iso8601(), required: true},
         %{type: :text, name: "pitch", label: "Pitch (résumé court)", required: true},
         %{type: :select, name: "publisher", label: "Éditeur (maison d'éditions)", values: Lib.publishers_for_select()},
@@ -239,8 +253,8 @@ defmodule LdQ.Procedure.PropositionLivre do
     user = procedure.user
     is_author = book_data["is_author"]
 
-    # - Création de tous les éléments -
-    {book, book_specs, _book_eval, author} = book_cards_saved(Map.put(book_data, "user_id", user.id))
+    # - Création du livre et de l'auteur -
+    {book, author} = create_book_and_author(Map.put(book_data, "user_id", user.id))
 
     # Actualisation de la procédure pour qu'elle connaisse le
     # livre et l'auteur
@@ -261,7 +275,7 @@ defmodule LdQ.Procedure.PropositionLivre do
       user: user,
       variables: %{
         book_title: book.title,
-        book_isbn:  book_specs.isbn
+        book_isbn:  book.isbn
       },
       folder: __DIR__,
       procedure: procedure
@@ -306,12 +320,12 @@ defmodule LdQ.Procedure.PropositionLivre do
     <p>Un grand merci à vous pour la soumission de ce livre.</p>
     <p>Vous devriez avoir reçu un mail de confirmation.</p>
     #{ajout_quand_auteur}
-    <p class="warning">Je dois apprendre à consigner le livre</p>
     """
   end
 
   @doc """
-  Après la soumission du livre, l'auteur doit la confirmer
+  Après la soumission du livre, l'auteur doit la confirmer pour que 
+  le livre soit vraiment inscrit au label.
   """
   def auteur_confirme_soumission_livre(procedure) do
     # Barrière administrateur ou auteur du livre (attention, le vrai
@@ -319,14 +333,21 @@ defmodule LdQ.Procedure.PropositionLivre do
     # d'autre que l'auteur)
     book    = procedure.book
     author  = book.author
+    user_is_author = book.author.user_id == procedure.current_user.id
+    user_is_admin  = current_user_is_admin?(procedure)
+
     cond do
-    book.author.user_id == procedure.current_user.id ->
+
+    user_is_author ->
       # C'est l'auteur qui vient confirmer. Noter qu'il faut que ça 
       # soit avant le test de l'administrateur, car un administrateur
       # peut tout à fait être l'auteur d'un livre soumis.
       proceed_confirmation_soumission(procedure)
-    current_user_is_admin?(procedure) ->
-      # C'est un administrateur qui visite
+
+    user_is_admin ->
+      # C'est un administrateur qui visite, on lui explique simple-
+      # ment qu'on attend la validation de la soumission par l'auteur
+      # du livre soumis.
       variables = Map.merge(%{book_title: book.title, book_author: book.author.name},
         Helpers.Feminines.as_map(author, "ff")
       )
@@ -335,13 +356,16 @@ defmodule LdQ.Procedure.PropositionLivre do
         "admin-quand-auteur-confirme-submit",
         variables
         )
+
     true ->
       # Visiteur mal venu
       impasse(procedure)
     end
   end
 
-  def proceed_confirmation_soumission(procedure) do
+  # Sous-fonction permettant à l'auteur du livre de confirmer sa
+  # soumission ou au contraire de l'infirmer.
+  defp proceed_confirmation_soumission(procedure) do
     user = procedure.user
     book = procedure.book
 
@@ -362,7 +386,7 @@ defmodule LdQ.Procedure.PropositionLivre do
   quand quelque chose s'est mal passé ou que l'auteur n'a pas respec-
   té les règles du label
   """
-  def complete_book_remove(operation) do
+  def complete_book_remove(_operation) do
     raise "Je dois apprendre à supprimer complètement le livre."
   end
 
@@ -370,14 +394,14 @@ defmodule LdQ.Procedure.PropositionLivre do
   ##### / FIN DES MÉTHODES ÉTAPES ######
 
 
-  
+
   # ========= MÉTHODES DE CRÉATION ============
 
   # Enregistrement des premières cartes du nouveau livre avec les
   # données +data+ (transmises par le formulaire, donc avec des
   # clés binary)
-  defp book_cards_saved(data) do
-    # IO.inspect(data, label: "\n\n Data in book_cards_saved")
+  defp create_book_and_author(data) do
+    # IO.inspect(data, label: "\n\n Data in create_book_and_author")
     is_author = data["is_author"]
 
     data_author =
@@ -391,28 +415,25 @@ defmodule LdQ.Procedure.PropositionLivre do
       else data_author end
     author = Lib.create_author!(data_author)
     
-    data = Map.put(data, "author_id", author.id)
-    minicard = Lib.create_book_mini_card!(data)
-
+    # La maison d'édition
     publisher = get_publisher_in_params(data)
 
-    data_specs = %{
-      book_minicard_id: minicard.id,
-      isbn: data["isbn"],
-      published_at: data["published_at"],
-      publisher_id: publisher.id,
-      label: false
-    }
-    book_specs = Lib.create_book_specs!(data_specs)
+    # Les données pour créer le nouveau livre 
+    # (rappel : LdQ.Library.Book est un format propre au label
+    #  et qui ne fonctionne pas du tout comme les autres structures
+    #  elixir/phoenix)
+    data = Map.merge(data, %{
+      "isbn"          => {nil, data["isbn"]},
+      "author_id"     => {nil, author.id},
+      "published_at"  => {nil, data["published_at"]},
+      "publisher_id"  => {nil, publisher.id},
+      "label"         => {nil, "false"},
+      "current_phase" => {nil, "0"},
+      "submitted_at"  => {nil, now()}
+    })
+    book = Lib.Book.save(data)
 
-    data_eval = %{
-      book_minicard_id: minicard.id,
-      current_phase: 0,
-      submitted_at: now()
-    }
-    book_eval = Lib.create_book_evaluation!(data_eval)
-    
-    {minicard, book_specs, book_eval, author}
+    {book, author}
   end
 
   # ========= MÉTHODES DE TESTS =============
@@ -430,18 +451,14 @@ defmodule LdQ.Procedure.PropositionLivre do
 
   # @return True si le livre défini par les données (paramètres URL)
   # +data+ n'existe pas encore en base de données
+  # Note : Il existe si le titre existe avec le même ISBN
   defp book_is_uniq(data) do
-    query = from(b in Book.MiniCard)
-    query = query
-      |> join(:inner, [b], sp in Book.Specs, on: sp.book_minicard_id == b.id)
-      |> join(:inner, [b], ev in Book.Evaluation, on: ev.book_minicard_id == b.id)
-
-    query = query
-      |> where(title: ^data["title"])
-      |> where([b, sp], sp.isbn == ^data["isbn"])
-
-    found = Repo.all(query)
-    Enum.count(found) == 0
+    0 == 
+      from(b in Book)
+      |> where([b], b.title == ^data["title"])
+      |> where([b], b.isbn == ^data["isbn"])
+      |> Repo.all()
+      |> Enum.count()
   end
 
   # ========= MÉTHODES UTILITAIRES =============
@@ -461,39 +478,38 @@ defmodule LdQ.Procedure.PropositionLivre do
             publisher
         end
       pub_id -> 
-        Lib.get_publisher(pub_id)
+        Lib.get_publisher!(pub_id)
     end
   end
 
+  # defp book_data_from_providers(book_data) do
+  #   isbn = book_data.isbn
+  #   @isbn_providers
+  #   |> Enum.reduce(%{retours: [], livre_found: nil}, fn {_provider_name, provider_url, methode}, collector ->
+  #     if is_nil(collector.livre_found) do
+  #       url = String.replace(provider_url, "__ISBN__", isbn)
+  #       res = System.cmd("curl", [url])
+  #       IO.inspect(res, label: "\n\nRetour de #{url}")
+  #       res = 
+  #         if methode == :none do
+  #           res
+  #         else
+  #           apply(__MODULE__, methode, [res])
+  #         end
+  #       Map.merge(collector, %{
+  #         retours: collector.retours ++ [res],
+  #         livre_found: nil # TODO LE METTRE SI ON A PU LE RÉCUPÉRER
+  #       })
+  #     else
+  #       collector
+  #     end
+  #   end)
+  #   |> IO.inspect(label: "Résultat des pour #{isbn}")
 
-  defp book_data_from_providers(book_data) do
-    isbn = book_data.isbn
-    @isbn_providers
-    |> Enum.reduce(%{retours: [], livre_found: nil}, fn {_provider_name, provider_url, methode}, collector ->
-      if is_nil(collector.livre_found) do
-        url = String.replace(provider_url, "__ISBN__", isbn)
-        res = System.cmd("curl", [url])
-        IO.inspect(res, label: "\n\nRetour de #{url}")
-        res = 
-          if methode == :none do
-            res
-          else
-            apply(__MODULE__, methode, [res])
-          end
-        Map.merge(collector, %{
-          retours: collector.retours ++ [res],
-          livre_found: nil # TODO LE METTRE SI ON A PU LE RÉCUPÉRER
-        })
-      else
-        collector
-      end
-    end)
-    |> IO.inspect(label: "Résultat des pour #{isbn}")
-
-    # Trouver sur le net les données du livre à partir des retours
-    # TODO
-    book_data
-  end
+  #   # Trouver sur le net les données du livre à partir des retours
+  #   # TODO
+  #   book_data
+  # end
 
   # Méthode qui reçoit la page du site isbnsearch (site qui n'a pas
   # d'API) et en tire les données du livre

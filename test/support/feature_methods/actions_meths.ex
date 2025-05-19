@@ -3,14 +3,13 @@ defmodule Feature.ActionTestMethods do
 
   alias Wallaby.Browser,  as: WB
   alias Wallaby.Query,    as: WQ
-  alias Wallaby.Element,  as: WE
+  # alias Wallaby.Element,  as: WE
 
-  import TestHelpers
   import Feature.SessionMethods
   import Feature.PageTestMethods
 
 
-  def visiter_la_page(sujet, url, added_to_msg \\ nil) do
+  def visiter_la_page(sujet, url, _added_to_msg \\ nil) do
     session = session_from(sujet)
     # msg = "-> On rejoint la page #{url} #{added_to_msg}"
     # w msg, :blue

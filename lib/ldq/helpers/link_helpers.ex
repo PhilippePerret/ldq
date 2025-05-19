@@ -1,7 +1,7 @@
 defmodule LdQ.LinkHelpers do
 
   alias LdQ.Constantes
-  import LdQ.Site.PageHelpers
+  # import LdQ.Site.PageHelpers
 
   def full_url(rel_url) do
     [Constantes.get(:app_url), rel_url] |> Enum.join("/")
@@ -13,7 +13,7 @@ defmodule LdQ.LinkHelpers do
 
   @param {Boolean} full Si True, on retourne une URL complète. Sinon, elle sera relative.
   """
-  def page_debut_comite_lecture(title, full \\ false) do
+  def page_debut_comite_lecture(_title, full \\ false) do
     url = "pg/debut-comite-lecture"
     if full, do: full_url(url), else: url
   end

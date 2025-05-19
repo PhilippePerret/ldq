@@ -47,6 +47,15 @@ defmodule Feature.MailTestMethods do
     Map.put(destinataire, :mails, mails_found)
 
   end
+  def user_recoit_un_mail(who, params) when is_list(params) do
+    params = Enum.reduce(params, %{}, fn {key, value}, coll ->
+      Map.put(coll, key, value)
+    end)
+    user_recoit_un_mail(who, params)
+  end
+  def user_recoit_un_mail(:admin, params) do
+    user_recoit_un_mail(%{name: "Administration", email: Constantes.get(:mail_admins)}, params)
+  end
 
   @doc """
   Récupère tous les mails au +destinataire+ qui répondent aux
@@ -63,8 +72,8 @@ defmodule Feature.MailTestMethods do
     destin =
       cond do
         is_binary(destinataire) -> destinataire
-        %{email: email} = destinataire -> email
-        %{mail: email} = destinataire -> email
+        Map.get(destinataire, :mail) -> Map.get(destinataire, :mail)
+        Map.get(destinataire, :email) -> Map.get(destinataire, :email)
         true -> raise "Destinataire mail défini. Ça devrait être l'adresse courriel ou une map contenant :mail ou :email"
       end
     params = Map.put(params, :to, destin)
@@ -141,15 +150,6 @@ defmodule Feature.MailTestMethods do
 
   # ---- Sous-méthodes privées ----
 
-  def user_recoit_un_mail(who, params) when is_list(params) do
-    params = Enum.reduce(params, %{}, fn {key, value}, coll ->
-      Map.put(coll, key, value)
-    end)
-    user_recoit_un_mail(who, params)
-  end
-  def user_recoit_un_mail(:admin, params) do
-    user_recoit_un_mail(%{name: "Administration", email: Constantes.get(:mail_admins)}, params)
-  end
   def admin_recoit_un_mail(params) do
     user_recoit_un_mail(%{email: "admin@lecture-de-qualite.fr", name: "Admin"}, params)
   end
@@ -171,11 +171,11 @@ defmodule Feature.MailTestMethods do
         else cur_value end
       end)
     cond do
-    is_nil(candidat)            -> nil
-    is_binary(candidat)         -> candidat
-    %{mail: email} = candidat   -> email
-    %{email: email} = candidat  -> email
-    true -> raise "Impossible de trouve le mail dans #{inspect map} avec les clés #{inspect keys}"
+      is_nil(candidat)          -> nil
+      is_binary(candidat)       -> candidat
+      Map.get(candidat, :mail)  -> Map.get(candidat, :mail)
+      Map.get(candidat, :email) -> Map.get(candidat, :email)
+      true -> raise "Impossible de trouver le mail dans #{inspect map} avec les clés #{inspect keys}"
     end
   end
   # Pour simplifier et clarifier

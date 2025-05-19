@@ -32,7 +32,7 @@ defmodule LdQWeb.ConnCase do
   end
 
   setup tags do
-    LdQ.DataCase.setup_sandbox(tags)
+    # LdQ.DataCase.setup_sandbox(tags)
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
 

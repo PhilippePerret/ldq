@@ -9,6 +9,8 @@ defmodule LdQWeb.FeatureCase do
       import Ecto.Query
       import Wallaby.Query
 
+      alias TestHelpers, as: T
+
       # Non, trop de conflits
       # import LdQ.ComptesFixtures
 

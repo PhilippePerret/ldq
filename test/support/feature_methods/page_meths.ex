@@ -1,7 +1,7 @@
 defmodule Feature.PageTestMethods do
   use LdQWeb.FeatureCase, async: false
   alias Wallaby.Browser,  as: WB
-  alias Wallaby.Query,    as: WQ
+  # alias Wallaby.Query,    as: WQ
   alias Wallaby.Element,  as: WE
 
   import Feature.SessionMethods
@@ -43,16 +43,16 @@ defmodule Feature.PageTestMethods do
       ok_text = WE.text(el) =~ searched 
       ok_attrs = attrs 
         |> Enum.reduce(%{ok: true, errors: []}, fn {attr, value}, res ->
-          if WE.attribute(attr) == value do 
+          if WE.attr(attr) == value do 
             res
           else
-            Map.merge(res, %{ok: false, errors: res.errors ++ ["Prop #{attr} devrait valoir #{inspect value}, il vaut #{WE.attribute(attr)}."]})
+            Map.merge(res, %{ok: false, errors: res.errors ++ ["Prop #{attr} devrait valoir #{inspect value}, il vaut #{WE.attr(attr)}."]})
           end
         end)
       ok_text and ok_attrs.ok
     end)
     ok = ok || Enum.any?(WB.all(session, css("a.btn")), fn el -> 
-      ok_text = WE.text(el) =~ searched 
+      WE.text(el) =~ searched 
     end)
     assert(ok)
     sujet
@@ -66,7 +66,7 @@ defmodule Feature.PageTestMethods do
     sujet
   end
   # Quand on recherche une liste de string/balise/regex
-  def la_page_contient(sujet, liste, params) when is_list(liste) do
+  def la_page_contient(sujet, liste, _params) when is_list(liste) do
     liste |> Enum.each(fn searched -> 
       # la_page_contient(sujet, searched, params)
       # Pour l'instant on ne peut que faire ça, sinon c'est une 
@@ -76,10 +76,6 @@ defmodule Feature.PageTestMethods do
     end)
     sujet
   end
-  def la_page_contient(sujet, liste) when is_list(liste) do
-    la_page_contient(sujet, liste, %{})
-  end
-
   # Quand on cherche une balise avec des attributs (mais +attrs+ peut
   # aussi contenir :text qui définit le contenu).
   def la_page_contient(sujet, balise, attrs) when is_binary(balise) and is_map(attrs) do
@@ -95,6 +91,11 @@ defmodule Feature.PageTestMethods do
     end)
     sujet
   end
+
+  def la_page_contient(sujet, liste) when is_list(liste) do
+    la_page_contient(sujet, liste, %{})
+  end
+
   def la_page_contient(sujet, searched) when is_binary(searched) or is_struct(searched, Regex) do
     session = session_from(sujet)
     searched = if is_binary(searched) do
@@ -106,6 +107,7 @@ defmodule Feature.PageTestMethods do
     assert(Regex.match?(searched, WB.page_source(session)), err_msg)
     sujet
   end
+
 
   @doc """
   Pour tester que la page ne contienne pas les éléments spécifiés.

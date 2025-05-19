@@ -233,7 +233,7 @@ defmodule Html.Form do
 
   def label(%{type: :checkbox}), do: ""
   def label(%{label: label} = dfield) do
-    ~s(<label for="#{dfield.id}">#{dfield.label}</label>)
+    ~s(<label for="#{dfield.id}">#{label}</label>)
   end
   def label(_dfield), do: ""
 

@@ -2,7 +2,7 @@ defmodule Feature.LogTestMethods do
   use LdQWeb.FeatureCase, async: false
 
   alias LdQ.Repo
-  import Ecto.Query
+  # import Ecto.Query
 
   @doc """
   @param {Keyword} params
@@ -68,7 +68,7 @@ end
       # Aucun log enregistré
       %{res | error: "Aucun log enregistré."}
     else
-      res = %{bons: logs, bads: []}
+      %{bons: logs, bads: []}
       |> get_logs_after(params)
       |> get_logs_public(params)
       |> get_logs_with_owner(params)

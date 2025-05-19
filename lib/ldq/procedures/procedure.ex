@@ -2,7 +2,7 @@ defmodule LdQ.Procedure do
   use Ecto.Schema
   import Ecto.Changeset
   alias LdQ.Repo
-  import Ecto.Query
+  # import Ecto.Query
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
@@ -30,9 +30,19 @@ defmodule LdQ.Procedure do
     |> validate_required([:proc_dim, :submitter_id, :owner_type, :owner_id, :current_step])
   end
 
-def data_to_json(%{"data" => data} = attrs) when is_map(data), do: %{attrs | "data" => Jason.encode!(data)}
-def data_to_json(%{"data" => data} = attrs) when is_binary(data), do: attrs
-def data_to_json(attrs), do: Map.put(attrs, "data", "{}")
+
+  # defp data_to_json(%{data: data} = attrs) when is_map(data), do: %{attrs | data: Jason.encode!(data)}
+  # defp data_to_json(%{data: data} = attrs) when is_binary(data), do: attrs
+  defp data_to_json(%{"data" => data} = attrs) when is_map(data), do: %{attrs | "data" => Jason.encode!(data)}
+  defp data_to_json(%{"data" => data} = attrs) when is_binary(data), do: attrs
+  defp data_to_json(attrs) do
+    key =
+      cond do
+        is_binary(Map.keys(attrs) |> Enum.at(0)) -> "data"
+        true -> :data
+      end
+    Map.put(attrs, key, "{}")
+  end
 
 
   @doc """

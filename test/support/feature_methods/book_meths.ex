@@ -13,19 +13,19 @@ defmodule Feature.BookTestMeths do
   alias LdQ.Library.Author
 
   @doc """
+  Fonction qui s'assure qu'un livre existe bien avec les propriétés
+  +params+
 
+  @param {Map} params Les paramètres de recherche
+    En plus des propriétés du livre, +params+ peut définir :count qui précise
+    le nombre de livres attendus. Si :count vaut 1, seul ce livre sera 
+    renvoyé, sinon c'est une liste de {Book}.
+    
   @return Le livre trouvé (if any) ou les livres (Liste)
   """
   def assert_book_exists(params) do
-    query = from(b in Book.MiniCard)
+    query = from(b in Book)
     query = join(query, :inner, [b], w in Author, on: [id: b.author_id])
-
-    query = 
-      if params[:full] do
-        query
-        |> join(:inner, [b], sp in Book.Specs, on: sp.book_minicard_id == b.id)
-        |> join(:inner, [b], ev in Book.Evaluation, on: ev.book_minicard_id == b.id)
-      else query end
 
     query = 
       if params[:after] do

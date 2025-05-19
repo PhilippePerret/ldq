@@ -48,12 +48,37 @@ defmodule LdQWeb.ProcedureController do
     module = 
       if is_nil(module) do
         LdQ.Procedure.get_proc_module(procedure.proc_dim)
-      else module end
+      else 
+        module 
+      end
     procedure 
     |> Map.put(:params, params)
     |> Map.put(:name,  module.proc_name())
     |> Map.put(:user,  LdQ.ProcedureMethods.get_owner(procedure))
+    |> transform_data_if_required()
+    |> add_procedure_own_properties(module)
   end
+
+  # Fonction qui s'assure que la propriété :data soit bien dejsonnées
+  defp transform_data_if_required(procedure) do
+    cond do
+      is_nil(Map.get(procedure, :data, nil)) -> procedure
+      is_binary(procedure.data) -> %{procedure | data: Jason.decode!(procedure.data)}
+      true -> procedure
+    end
+  end
+
+  # Si une fonction :defaultize_procedure/1 existe, il faut la jouer
+  # pour ajouter les propriétés propres à la procédure en question
+  defp add_procedure_own_properties(procedure, module) do
+    IO.inspect(procedure, label: "Procédure dans add_procedure_own_properties")
+    if function_exported?(module, :defaultize_procedure, 1) do
+      apply(module, :defaultize_procedure, [procedure])
+    else 
+      procedure 
+    end
+  end
+
 
   @doc """
   Joue la prochaine étape de la procédure d'identifiant +proc_id+

@@ -12,8 +12,9 @@ defmodule LdQ.ComptesFixtures do
   def unique_user_email, do: "user#{Rand.uniq_int()}@example.com"
   def valid_user_password, do: "hello world!"
 
+  def valid_user_attributes(a \\ %{})
   def valid_user_attributes(nil), do: valid_user_attributes(%{})
-  def valid_user_attributes(attrs \\ %{}) do
+  def valid_user_attributes(attrs) do
     [
       :name, :email, :sexe, :password
     ] |> Enum.reduce(attrs, fn prop, attrs ->

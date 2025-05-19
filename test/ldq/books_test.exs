@@ -31,11 +31,28 @@ defmodule LdQ.BookTests do
     assert Enum.empty?(Book.get_all())
 
     # --- test ---
-    Book.save(%{"title" => {nil, "Le nouveau titre"}})
+    book = Book.save(%{"title" => {nil, "Le nouveau titre"}})
 
     # --- Vérification ---
+    assert(is_struct(book, Book))
     assert Book.get_all() |> Enum.count == 1
 
+  end
+
+  test "On peut envoyer tout un tas de données pour créer le livre" do
+    thetitre = "Le titre seul au milieu de plein de données"
+    data = %{
+      "title" => {nil, thetitre},
+      "badkey" => "Une clé tout à fait inutile",
+      "badbad" => {nil, "Celle-là fait croire qu'elle est bonne"},
+      "badtype" => true
+    }
+    book = Book.save(data)
+    # --- Vérification ---
+    assert(is_struct(book, Book))
+    assert(is_nil(Map.get(book, :badkey)))
+    refute(is_nil(Map.get(book, :title)))
+    assert(book.title == thetitre)
   end
 
 

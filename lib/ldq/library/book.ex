@@ -73,7 +73,7 @@ defmodule LdQ.Library.Book do
 
   @min_fields [:title, :author, :isbn]
 
-  def get_all(fields) do
+  def get_all(_fields) do
     raise "Il faut que j'apprenne"
   end
 
@@ -98,7 +98,7 @@ defmodule LdQ.Library.Book do
 
   @return {LdQ.Library.Book} Le livre avec seulement les propriétés voulues
   """
-  
+  def get(b, d \\ @min_fields)
   # Récupère toutes les valeurs d'un coup
   def get(book_id, :all) do
     Repo.get!(__MODULE__, book_id)
@@ -109,7 +109,7 @@ defmodule LdQ.Library.Book do
   # @param {List of Atoms} fields List des champs à relevér. 
   #   Note 1 : le champ :id sera toujours ajouté
   #   Note 2 : Si +fields+ contient :author, :publisher ou :parrain, ces structures seront aussi ajoutées.
-  def get(book_id, fields \\ @min_fields) do
+  def get(book_id, fields) do
     # IO.inspect(book_id, label: "BOOK_ID")
     # IO.inspect(fields, label: "FIELDS")
 
@@ -201,25 +201,31 @@ defmodule LdQ.Library.Book do
   """
   def setchange(attrs) do
     Enum.reduce(attrs, %{book_id: nil, changes_map: [], changed: [], invalid: [], unchanged: [], attrs: attrs}, fn {key, dup_or_string}, set ->
+      is_unknown_key = is_nil(@fields_data[key])
       {init_value, new_value} =
         cond do
+          is_unknown_key -> {nil, nil}
           is_binary(dup_or_string) -> {nil, dup_or_string}
           is_tuple(dup_or_string)  -> dup_or_string
           true -> raise "La donnée transmise à setchange est mauvaise (#{inspect dup_or_string}). Il faut transmettre soit un string soit un duplet {init-value, new-value}"
         end
-      # On normalise la valeur dans set.attrs car on en aura besoin dans les
-      # validations
-      attrs = set.attrs
-      attrs = %{attrs | key => {init_value, new_value} }
-      set = %{set | attrs: attrs}
+      # On normalise la valeur dans set.attrs aussi car on en aura
+      # besoin dans les validations
+      set =
+        if is_unknown_key do set else
+          attrs = set.attrs
+          attrs = %{attrs | key => {init_value, new_value} }
+          set = %{set | attrs: attrs}
+        end
 
       cond do
-      key == "id" -> %{set | book_id: new_value}
-      @fields_data[key] ->
-        setchange_known_key(key, init_value, new_value, set)
-        # |> IO.inspect(label: "\nSET tourné par key #{inspect key}")
-      true -> 
-        set 
+        is_unknown_key -> set
+        key == "id" -> %{set | book_id: new_value}
+        @fields_data[key] ->
+          setchange_known_key(key, init_value, new_value, set)
+          # |> IO.inspect(label: "\nSET tourné par key #{inspect key}")
+        true -> 
+          set 
       end
     end)
   end
@@ -363,7 +369,7 @@ defmodule LdQ.Library.Book do
   # Rappel : On ne vient dans ces fonctions QUE si la valeur a chan-
   # gé, dans tout autre cas, on n'en a pas besoin.
 
-  def validate("author_id", ival, nval, set) do
+  def validate("author_id", _ival, nval, _set) do
     cond do
       is_nil(nval)  -> :ok
       nval == ""    -> :ok
@@ -372,7 +378,7 @@ defmodule LdQ.Library.Book do
     end
   end
 
-  def validate("current_phase", ival, nval, set) do
+  def validate("current_phase", ival, nval, _set) do
     # La nouvelle phase doit obligatoirement être supérieur à 
     # la précédente
     cond do
@@ -382,7 +388,7 @@ defmodule LdQ.Library.Book do
     end
   end
 
-  def validate("isbn", ival, nval, set) do
+  def validate("isbn", _ival, nval, _set) do
     len = String.replace(nval, "-", "") |> String.length()
     cond do
       len == 10 -> :ok
@@ -390,10 +396,10 @@ defmodule LdQ.Library.Book do
       true -> {:error, "L'ISBN doit faire soit 10 soit 13 caractère (il en fait #{len})"}
     end
   end
-  def validate("label", ival, nval, set) do
+  def validate("label", _ival, _nval, _set) do
     :ok
   end
-  def validate("label_year", ival, nval, set) do
+  def validate("label_year", _ival, nval, set) do
     # Pour qu'une année de label soit définie, il faut que le label 
     # ait été ou soit attribué ce coup-ci
     # Dans tous les cas, on cherche déjà dans +set+ pour voir si :label
@@ -419,14 +425,14 @@ defmodule LdQ.Library.Book do
       end
     end
   end
-  def validate("pitch", init_value, newv, set) do
+  def validate("pitch", _ival, newv, _set) do
     len = String.length(newv)
     cond do
       len > 5000  -> {:error, "Le pitch est trop long (max: 5000 caractère, il en fait #{len})"}
       true        -> :ok
     end
   end
-  def validate("publisher_id", ival, nval, set) do
+  def validate("publisher_id", _ival, nval, _set) do
     cond do
       is_nil(nval) -> :ok
       nval == ""   -> :ok
@@ -434,7 +440,7 @@ defmodule LdQ.Library.Book do
       true -> {:error, "Éditeur #{nval} inconnu…"} 
     end
   end
-  def validate("parrain_id", ival, nval, set) do
+  def validate("parrain_id", _ival, nval, _set) do
     # Il faut vérifier que le parrain (user) existe et qu'il fait
     # partie du comité de lecture
     cond do
@@ -449,7 +455,7 @@ defmodule LdQ.Library.Book do
       end
   end
 
-  def validate("subtitle", initv, newv, set) do
+  def validate("subtitle", _ival, newv, _set) do
     len = String.length(newv)
     cond do
       len == 0 -> :ok
@@ -458,7 +464,7 @@ defmodule LdQ.Library.Book do
     end
   end
 
-  def validate("title", initv, newv, set) do
+  def validate("title", _ival, newv, _set) do
     len = String.length(newv)
     cond do
       newv == ""          -> {:error, "Il faut fournir un titre"}
@@ -468,7 +474,7 @@ defmodule LdQ.Library.Book do
       true                -> :ok
     end
   end
-  def validate("url_command", initv, newv, set) do
+  def validate("url_command", _ival, newv, _set) do
     cond do
       String.replace(newv, " ", "") != newv -> {:error, "Une URL (de commande) ne devrait pas contenir d'espaces"}
       !String.match?(newv, ~r/^https?\:\/\//) -> {:error, "L'URL de commande #{inspect newv} n'est pas une URL valide (elle devrait commencer par http(s)://)"}

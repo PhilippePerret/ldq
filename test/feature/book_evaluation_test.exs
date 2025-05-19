@@ -12,18 +12,24 @@ defmodule LdQWeb.BookSubmissionTests do
   Comment s'assurer de la validité du livre => par l'ISBN ? en faisant une
   recherche sur Amazon (sur un autre site)
   REPONSE : Pour le moment, il n'y a pas de moyen gratuit de s'assurer de
-  l'existence du livre par ISBN.
+  l'existence du livre par ISBN. La vérification est donc manuelle, en 
+  utilisant l'URL de commande
 
   """
   use LdQWeb.FeatureCase, async: false
 
   # alias Helpers.Feminines, as: Fem
 
-  import TestHelpers
   import FeaturePublicMethods
+  import TestHelpers
 
-  @tag :skip
-  test "Un utilisateur quelconque peut soumettre un nouveau livre" do
+  @tag :skip 
+  test "Un visiteur inconnu ne peut pas soumettre un livre" do
+    # TODO
+  end
+
+  # @tag :skip
+  test "Un utilisateur identifié peut soumettre un nouveau livre" do
     # on_exit(fn -> bdd_dump("book-just-submitted") end)
 
     detruire_les_mails()
@@ -47,7 +53,7 @@ defmodule LdQWeb.BookSubmissionTests do
     user
     |> rejoint_la_page("/")
     |> clique_le_lien("soumettre votre livre")
-    # Il doit se connecter
+    # Il doit obligatoirement se connecter
     |> se_connecte()
     |> pause(1)
     |> et_voit("h2", "Soumission d’un livre")
@@ -88,8 +94,7 @@ defmodule LdQWeb.BookSubmissionTests do
 
     # --- Vérification ---
 
-    # S'assurer que les cartes du livres ont bien été créées
-    # (le full: true ci-dessous signifie qu'on checke aussi ses cartes)
+    # S'assurer que le livre a bien été créé
     new_book = assert_book_exists(full: true, after: point_test, author_email: user.email)
 
     # S'assurer que l'auteur a été créé

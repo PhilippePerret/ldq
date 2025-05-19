@@ -2,6 +2,7 @@
 defmodule FeaturePublicMethods do
   use LdQWeb.FeatureCase, async: false
 
+  import TestHelpers, only: [pause: 2]
   alias Feature.UserTestMethods,    as: U
   alias Feature.FormTestMethods,    as: Form
   alias Feature.PageTestMethods,    as: Page
@@ -12,10 +13,6 @@ defmodule FeaturePublicMethods do
   alias Feature.ProcedureTestMeths, as: Proc
   alias Feature.BookTestMeths     , as: Book
   alias LdQ.ComptesFixtures       , as: Compt
-
-  def now do
-    NaiveDateTime.utc_now()
-  end
 
   def make_admin_with_session(attrs \\ %{}) do
     start_session(make_admin(attrs), [])
@@ -87,8 +84,9 @@ defmodule FeaturePublicMethods do
       |> et_voit("input", %{type: "email", id: "user_email", name: "user[email]"})
       |> remplit_le_champ("Mail") |> avec(visiteur.email)
       |> remplit_le_champ("Mot de passe") |> avec(visiteur.password)
-      # |> pause(1)
+      |> pause(10)
       |> clique_le_bouton("Se connecter")
+      |> pause(10)
       |> Map.put(:identified, true)
       # |> IO.inspect(label: "VISITEUR APRÈS CONNEXION")
   end
