@@ -4,11 +4,11 @@
 
 * Ajouter `import LdQ.Site.PageHelpers # formlink, ldb_label etc.`
 * Ajouter `import Helpers.Feminines` pour bénéficier des féminines dans les messages en mettant `#{fem("<suffix>", procedure.user)}`,
-* Orienter vers Html.Form pour les formulaires au lieu des composant Hex.
+* Orienter vers Html.Form pour les formulaires au lieu des composant Hex. Pour le `LdQ.Library.Book` c'est une obligation puisqu'il a un système de gestion différent
 
 ## Introduction
 
-[Suivre les étapes de création d'une nouvelle procédure](#create-proc)
+[Suivre les étapes de création rapide d'une nouvelle procédure](#create-proc)
 
 Ce document décrit comment gérer les procédures
 
@@ -62,15 +62,28 @@ La fonction à appeler est toujours une fonction qui reçoit la structure de la 
 
 ## Procédure de création d'une procédure
 
-* Trouver un nom humain unique — appelé *dim* — pour la procédure (pour qu'il soit unique, il suffit de voir les noms donnés dans le dossier `priv/procedure` — les dossiers portent les noms/dims de leur procédure). Pour l'exemple, on fera la procédure **procedure-exemple**
+* Trouver un nom humain unique — appelé *dim* — pour la procédure (pour qu'il soit unique, il suffit de voir les noms donnés dans le dossier `priv/procedure` — les dossiers portent les noms/dims de leur procédure). Pour l'exemple, on fera la procédure **new-proc**
 * Dupliquer le dossier `priv/procedures/xmodele_procedure` et :
-  * changer son nom de dossier,
-  * changer le nom du fichier principal `_xmodele_procedure.ex`,
-  * renseigner tout ce qui doit l'être dans ce fichier
-* Définir les étapes successives de cette procédure. Mener une réflexion profonde pour ne pas avoir à trop les modifier ensuite.
-* Pour chaque `:fun` définie pour chaque étape/step, définir la fonction de même nom, qui, par convention et obligation :
-  * reçoit en seul paramètre la structure procedure,
-  * retourne le texte à écrire dans la page.
+  * changer son nom de dossier en `priv/procedures/new-proc/`,
+  * changer le nom du fichier principal `_xmodele_procedure.ex` en `_new-proc.ex`,
+  * renseigner tout ce qui doit l'être dans ce fichier à savoir principalement :
+    * `proc_name/0`, le nom humain de la procédure
+    * `@steps`, constante définissant la liste des étapes avec leurs propriétés (cf. [définition des étapes](#define-steps)),
+    * `procedure_attributes/1`, les attributs de base propre à la procédure (ceux qui seront enregistrés dans la table `procedures`),
+    * `defaultize_procedure/1`, la fonction qui permet de mettre dans la procédure véhiculée dans chaque fonction des propriétés générales indispensables
+
+<a name="define-steps"></a>
+
+### Définition des étapes
+
+Chaque étape doit impérativement contenir/définir :
+
+* `name {String}` : Nom humain de l'étape en question,
+* `fun {Atom}` : Nom de la fonction/1 principale de l'étape, celle qui sera appellée quand la procédure sera jouée. Cette donnée sert aussi d'identifiant à l'étape (par exemple pour `next_step` qui définit l'étape suivante du statut actuel).
+  
+  Ces fonctions reçoivent toute un seul paramètre, qui est la procédure elle-même avec toutes les données qui peuvent être ajoutées.
+* `admin_required {Boolean}`: Pour savoir si un administrateur est requis pour l'étape,
+* `user_required {Boolean}` : Pour savoir si l'user propriétaire de la procédure est requis. *Noter que ce propriétaire n'est pas toujours la personne concernée directement par la procédure. Pour l'évaluation des livres, par exemple, ça n'est pas obligatoirement l'auteur qui soumet son livre*.
 
 
 ## Les textes des étapes

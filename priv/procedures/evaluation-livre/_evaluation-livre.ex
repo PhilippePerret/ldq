@@ -1,8 +1,11 @@
 defmodule LdQ.Procedure.PropositionLivre do
   @moduledoc """
   Cette procédure commence avec la proposition d'un livre pour le
-  label Lecture de Qualité jusqu'à sa mise en test.
-  Donc il ne s'agit que du début de la longue procédure.
+  label Lecture de Qualité et se termine par son attribution ou non
+  du label suivi de son évaluation au fil du temps par les lecteurs.
+
+  Il s'agit donc de la vie totale d'un livre au sein du label.
+
   """
   use LdQWeb.Procedure
   
@@ -19,6 +22,8 @@ defmodule LdQ.Procedure.PropositionLivre do
     %{name: "Soumission par formulaire", fun: :submit_book_with_form, admin_required: false, owner_required: true},
     %{name: "Consigner le livre pour évaluation", fun: :consigner_le_livre, admin_required: false, owner_required: true},
     %{name: "Confirmation de la soumission par l'auteur", fun: :auteur_confirme_soumission_livre, admin_required: false, owner_required: false}
+  
+    %{name: "Suppression complète du livre", fun: :complete_book_remove, admin_required: true, owner_required: false}
   ]
   def steps, do: @steps
 
@@ -351,6 +356,21 @@ defmodule LdQ.Procedure.PropositionLivre do
     """
   end
 
+
+  @doc """
+  Méthode finale qui permet, le cas échéant, de détruire le livre, 
+  quand quelque chose s'est mal passé ou que l'auteur n'a pas respec-
+  té les règles du label
+  """
+  def complete_book_remove(operation) do
+    raise "Je dois apprendre à supprimer complètement le livre."
+  end
+
+
+  ##### / FIN DES MÉTHODES ÉTAPES ######
+
+
+  
   # ========= MÉTHODES DE CRÉATION ============
 
   # Enregistrement des premières cartes du nouveau livre avec les
