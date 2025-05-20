@@ -49,4 +49,13 @@ defmodule LdQWeb.BookSubmissionTests do
     # L'auteur reçoit un mail aussi
   end
 
+  @tag :skip
+  test "Un auteur ne peut pas revenir confirmer la soumission plus tard" do
+  end
+
+  @tag :skip
+  test "Un user quelconque ne peut pas forcer la soumission d'un livre, même avec la procédure" do
+  end
+
+  
 end

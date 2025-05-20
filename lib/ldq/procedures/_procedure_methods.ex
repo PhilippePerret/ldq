@@ -156,7 +156,9 @@ defmodule LdQ.ProcedureMethods do
   @return True si l'utilisateur courant est autorisé, False dans le
   cas contraire
   """
-  def current_user_can_run_step?(curuser, procedure) do
+  def current_user_can_run_step(curuser, procedure) do
+    IO.inspect(procedure, label: "\nPROCÉDURE")
+    IO.inspect(self(), label: "\nSELF")
     steps = LdQ.Procedure.get_steps_of(procedure)
     step  = current_procedure(procedure, steps)
     owner = get_owner(procedure)
@@ -165,10 +167,21 @@ defmodule LdQ.ProcedureMethods do
     is_boolean(Map.get(step, :admin_required)) || raise("L'étape de procédure #{inspect step} devrait définir :admin_required")
     is_boolean(Map.get(step, :owner_required)) || raise("L'étape de procédure #{inspect step} devrait définir :owner_required")
 
-    admin_validity = !step.admin_required || User.admin?(curuser)
-    owner_validity = !step.owner_required || (curuser.id == owner.id)
+    user_not_admin = !User.admin?(curuser)
+    user_not_owner = curuser.id != owner.id
 
-    admin_validity && owner_validity
+    other_validity =
+      if Map.get(step, :required) do
+        LdQ.Procedure.get_proc_module(procedure.proc_dim)
+        |> apply(step.required, [procedure])
+      else true end
+
+    cond do
+      step.admin_required && user_not_admin -> :not_admin
+      step.owner_required && user_not_owner -> :not_owner
+      !other_validity -> :impasse
+      true -> true
+    end
   end
 
   @doc """

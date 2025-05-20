@@ -85,6 +85,7 @@ Chaque étape doit impérativement contenir/définir :
   Ces fonctions reçoivent toute un seul paramètre, qui est la procédure elle-même avec toutes les données qui peuvent être ajoutées.
 * `admin_required {Boolean}`: Pour savoir si un administrateur est requis pour l'étape,
 * `user_required {Boolean}` : Pour savoir si l'user propriétaire de la procédure est requis. *Noter que ce propriétaire n'est pas toujours la personne concernée directement par la procédure. Pour l'évaluation des livres, par exemple, ça n'est pas obligatoirement l'auteur qui soumet son livre*.
+* `required {Fonction par Atom}` : la fonction optionnelle qui doit retourner True pour que le visiteur ne soit pas renvoyé dans une impasse.
 
 
 ## Les textes des étapes

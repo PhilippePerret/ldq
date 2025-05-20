@@ -308,4 +308,13 @@ defmodule FeaturePublicMethods do
   """
   def assert_author_exists(params), do: U.assert_author_exists(params)
 
+
+  # ========= POUR LES FICHIERS =========
+  def depose_les_fichiers(suj, files, field) when is_list(files) do
+    files = Enum.map(files, fn file -> {:path, file} end)
+    Form.deposer_les_fichiers(suj, files, field)
+  end
+  def depose_le_fichier(suj, file, field) when is_binary(file) do
+    Form.deposer_les_fichiers(suj, [path: file], field)
+  end
 end

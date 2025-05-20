@@ -84,6 +84,9 @@ defmodule Feature.FormTestMethods do
   S'il y a plusieurs formulaires, il faut indiquer dans +params+
   celui qu'il faut utiliser (par exemple avec son +id+ par :form_id)
   """
+  def mettre_bon_captcha(session, prefix) when is_binary(prefix) do
+    mettre_bon_captcha(session, %{prefix: prefix})
+  end
   def mettre_bon_captcha(session, params \\ %{}) do
     prefix = Map.get(params, :prefix, "f")
     session = session_from(session)
@@ -96,6 +99,13 @@ defmodule Feature.FormTestMethods do
     choisir_menu(session, option_name, "#{prefix}_captcha")
   end
 
-
+  @doc """
+  Pour mettre un fichier dans le formulaire
+  """
+  def deposer_les_fichiers(sujet, files, field) do
+    session = session_from(sujet)
+    attach_file(session, WQ.css(field), files)
+    sujet
+  end
 
 end

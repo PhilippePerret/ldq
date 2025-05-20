@@ -121,11 +121,15 @@ defmodule LdQWeb.ProcedureController do
   de la procédure +procedure+
   """
   def run_avec_autorisation(conn, procedure, _params) do
-    case current_user_can_run_step?(conn.assigns.current_user, procedure) do
+    case current_user_can_run_step(conn.assigns.current_user, procedure) do
     true ->
       render(conn, :procedure, procedure: procedure)
-    false ->
+    :not_admin ->
       render(conn, :require_admin, procedure: procedure)
+    :not_owner ->
+      render(conn, :require_owner, procedure: procedure)
+    :impasse ->
+      render(conn, :impasse)
     end
   end
 

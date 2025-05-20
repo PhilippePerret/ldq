@@ -6,6 +6,11 @@ defmodule LdQ.Procedure.PropositionLivre do
 
   Il s'agit donc de la vie totale d'un livre au sein du label.
 
+  TODO
+  * bien penser à suivre les phases de l'évaluation (le paramètre current_phase)
+    -> dans les tests aussi
+    + penser à les tester pour ne pas pouvoir revenir à une étape finie
+
   """
   use LdQWeb.Procedure
   
@@ -21,8 +26,8 @@ defmodule LdQ.Procedure.PropositionLivre do
     %{name: "Soumission du livre par l'ISBN", no_name: true, fun: :submit_book_with_isbn, admin_required: false, owner_required: true},
     %{name: "Soumission du livre par formulaire", fun: :submit_book_with_form, admin_required: false, owner_required: true},
     %{name: "Consignation du livre", fun: :consigner_le_livre, admin_required: false, owner_required: true},
-    %{name: "Confirmation de la soumission", fun: :form_confirmation_soumission_per_auteur, admin_required: false, owner_required: false},
-    %{name: "Soumission confirmée", fun: :author_confirm_submission, admin_required: false, owner_required: false},
+    %{name: "Confirmation de la soumission", fun: :form_confirmation_soumission_per_auteur, required: :user_is_author_or_admin?, admin_required: false, owner_required: false},
+    %{name: "Soumission confirmée", fun: :author_confirm_submission, required: :user_is_author_or_admin?, admin_required: false, owner_required: false},
     %{name: "Lancement de l'évaluation", fun: :form_admin_debut_evaluation, admin_required: true, owner_required: false},
   
     %{name: "Suppression complète du livre", fun: :complete_book_remove, admin_required: true, owner_required: false}
@@ -325,6 +330,14 @@ defmodule LdQ.Procedure.PropositionLivre do
     """
   end
 
+  def user_is_author_or_admin?(procedure) do
+    book    = procedure.book
+    author  = book.author
+    user_is_author = book.author.user_id == procedure.current_user.id
+    user_is_admin  = current_user_is_admin?(procedure)
+    user_is_author || user_is_admin
+  end
+
   @doc """
   Après la soumission du livre, l'auteur doit la confirmer pour que 
   le livre soit vraiment inscrit au label.
@@ -383,12 +396,12 @@ defmodule LdQ.Procedure.PropositionLivre do
         %{type: :text, label: "Pré-version optionnelle", explication: "Si une version précédente du livre a été soumise au label, en l'ayant reçu ou non, indiquer ici son identifiant."},
         %{type: :text, label: "Année de publication"},
         %{type: :text, label: "URL de commande", explication: "Permet de certifier que l'ouvrage est bien mis en vente. Une fois le label reçu, cet URL permettra aux lectrice et aux lecteurs intéressés d'acheter le livre."},
-        %{type: :checkbox, label: "Je suis d’accord avec les <a href=\"/pg/regles-evaluation\">règles d'évaluation du label</a> et m'engage à les respecter"},
-        %{type: :checkbox, label: "J'accepte le partage de mon manuscrit", explication: "Mais comme les <a href=\"/pg/regles-evaluation\">Règles</a> du label le stipule, il ne sera partagé qu’entre les membres du comité de lecture qui auront la charge de l'évaluer."},
-        %{type: :file, name: "book_file", label: "Manuscrit/livre", explication: "Le manuscrit du livre pour être soumis sous n'importe quelle forme lisible, que ce soit un ePub, un fichier PDF, Word. Il convient simplement de s'assurer qu'il n'est pas protégé en lecture."}
+        %{type: :checkbox, strict_id: "accord_regles", label: "Je suis d’accord avec les <a href=\"/pg/regles-evaluation\">règles d'évaluation du label</a> et m'engage à les respecter"},
+        %{type: :checkbox, label: "Mon livre est gros, je préfère l'envoyer par mail"},
+        %{type: :file, name: "book_file", strict_id: "book_file", label: "Manuscrit/livre", explication: "Le manuscrit du livre pour être soumis sous n'importe quelle forme lisible, que ce soit un ePub, un fichier PDF, Word. Il convient simplement de s'assurer qu'il n'est pas protégé en lecture. S'il est trop lourd pour le formulaire, cocher la case ci-dessus et <a href=\"mailto:#{Constantes.get(:mail_admin)}\">transmettez-le par mail</a> (ou upload de gros fichiers)."}
       ],
       buttons: [
-        %{type: :submit, name: "Soumettre le livre"}
+        %{type: :submit, name: "Soumettre mon livre"}
       ]
     })
 
@@ -403,8 +416,9 @@ defmodule LdQ.Procedure.PropositionLivre do
   end
 
   @doc """
-  Fonction appelée quand l'auteur confirme la soumission de son livre
-
+  Fonction appelée quand l'auteur confirme la soumission de son livre.
+  Mais celle-ci ne fait que vérifier le captcha, c'est la suivante
+  qui procède véritablement à l'opération.
   """
   def author_confirm_submission(procedure) do
     case check_captcha(procedure, "book") do
@@ -413,7 +427,7 @@ defmodule LdQ.Procedure.PropositionLivre do
     end
   end
 
-  def proceed_author_confirm_submission(procedure) do
+  defp proceed_author_confirm_submission(procedure) do
     book_params = procedure.params["book"]
     IO.inspect(book_params, label: "BOOK PARAMS")
 
@@ -444,7 +458,7 @@ defmodule LdQ.Procedure.PropositionLivre do
 
 
     """
-    <p>Merci d'avoir confirmé le livre</p>
+    <p>Merci d'avoir confirmé la soumission de votre le livre</p>
     """
   end
 
