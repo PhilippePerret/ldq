@@ -67,7 +67,7 @@ La fonction à appeler est toujours une fonction qui reçoit la structure de la 
   * changer son nom de dossier en `priv/procedures/new-proc/`,
   * changer le nom du fichier principal `_xmodele_procedure.ex` en `_new-proc.ex`,
   * renseigner tout ce qui doit l'être dans ce fichier à savoir principalement :
-    * `proc_name/0`, le nom humain de la procédure
+    * `proc_name/0`, le nom humain de la procédure, qui servira de titre `h2` dans la page,
     * `@steps`, constante définissant la liste des étapes avec leurs propriétés (cf. [définition des étapes](#define-steps)),
     * `procedure_attributes/1`, les attributs de base propre à la procédure (ceux qui seront enregistrés dans la table `procedures`),
     * `defaultize_procedure/1`, la fonction qui permet de mettre dans la procédure véhiculée dans chaque fonction des propriétés générales indispensables
@@ -78,7 +78,7 @@ La fonction à appeler est toujours une fonction qui reçoit la structure de la 
 
 Chaque étape doit impérativement contenir/définir :
 
-* `name {String}` : Nom humain de l'étape en question,
+* `name {String}` : Nom humain de l'étape en question, il sera mis dans un `h3` sous le titre principal de la procédure.
 * `fun {Atom}` : Nom de la fonction/1 principale de l'étape, celle qui sera appellée quand la procédure sera jouée. Cette donnée sert aussi d'identifiant à l'étape (par exemple pour `next_step` qui définit l'étape suivante du statut actuel).
   
   Ces fonctions reçoivent toute un seul paramètre, qui est la procédure elle-même avec toutes les données qui peuvent être ajoutées.
