@@ -78,7 +78,8 @@ La fonction à appeler est toujours une fonction qui reçoit la structure de la 
 
 Chaque étape doit impérativement contenir/définir :
 
-* `name {String}` : Nom humain de l'étape en question, il sera mis dans un `h3` sous le titre principal de la procédure.
+* `name {String}` : Nom humain de l'étape en question, il sera mis dans un `h3` sous le titre principal de la procédure. Pour que ce titre ne soit pas affiché, cf. `no_name` ci-dessous.
+* `no_name {Boolean}` : (propriété optionnelle) Si cette propriété est mise à True, le titre `name` ci-dessus n'est pas affiché dans la page.
 * `fun {Atom}` : Nom de la fonction/1 principale de l'étape, celle qui sera appellée quand la procédure sera jouée. Cette donnée sert aussi d'identifiant à l'étape (par exemple pour `next_step` qui définit l'étape suivante du statut actuel).
   
   Ces fonctions reçoivent toute un seul paramètre, qui est la procédure elle-même avec toutes les données qui peuvent être ajoutées.

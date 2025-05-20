@@ -18,10 +18,10 @@ defmodule LdQ.Procedure.PropositionLivre do
 
   @steps [
     %{name: "Soumission du livre", fun: :proposition_livre, admin_required: false, owner_required: false},
-    %{name: "Soumission du livre par l'ISBN", fun: :submit_book_with_isbn, admin_required: false, owner_required: true},
+    %{name: "Soumission du livre par l'ISBN", no_name: true, fun: :submit_book_with_isbn, admin_required: false, owner_required: true},
     %{name: "Soumission du livre par formulaire", fun: :submit_book_with_form, admin_required: false, owner_required: true},
-    %{name: "Consigner le livre pour évaluation", fun: :consigner_le_livre, admin_required: false, owner_required: true},
-    %{name: "Confirmation de la soumission par l'auteur", fun: :auteur_confirme_soumission_livre, admin_required: false, owner_required: false},
+    %{name: "Consignation du livre", fun: :consigner_le_livre, admin_required: false, owner_required: true},
+    %{name: "Confirmation de la soumission", fun: :auteur_confirme_soumission_livre, admin_required: false, owner_required: false},
   
     %{name: "Suppression complète du livre", fun: :complete_book_remove, admin_required: true, owner_required: false}
   ]
@@ -216,7 +216,7 @@ defmodule LdQ.Procedure.PropositionLivre do
     })
 
     """
-    <h2>Caractéristiques du livre</h2>
+    <h4>Caractéristiques du livre</h4>
     #{book_form}
     """
   end
@@ -233,7 +233,6 @@ defmodule LdQ.Procedure.PropositionLivre do
     :ok -> 
       proceed_consigner_le_livre(procedure, book_data)
       """
-      <h2>Enregistrement du livre réussi !</h2>
       <p>Merci pour la soumission du livre #{inspect book_data["title"]}. 
       Dès qu'il aura été validé par l'administration du label et le comité
       de lecture, il pourra entrer en phase d'évaluation. Vous serez alors 
@@ -265,7 +264,7 @@ defmodule LdQ.Procedure.PropositionLivre do
     procedure = update_procedure(procedure, %{
       data: data,
       next_step: "auteur_confirme_soumission_livre"
-      })
+    })
 
     IO.inspect(procedure, label: "\nPROCÉDURE FINALE de l'étape proceed_consigner_le_livre")
 
@@ -316,7 +315,6 @@ defmodule LdQ.Procedure.PropositionLivre do
       else "" end
     # Confirmation (ou non) de l'enregistrement
     """
-    <h2>Enregistrement du livre</h2>
     <p>Un grand merci à vous pour la soumission de ce livre.</p>
     <p>Vous devriez avoir reçu un mail de confirmation.</p>
     #{ajout_quand_auteur}

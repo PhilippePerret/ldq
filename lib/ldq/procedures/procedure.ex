@@ -31,10 +31,11 @@ defmodule LdQ.Procedure do
   end
 
 
-  # defp data_to_json(%{data: data} = attrs) when is_map(data), do: %{attrs | data: Jason.encode!(data)}
-  # defp data_to_json(%{data: data} = attrs) when is_binary(data), do: attrs
+  defp data_to_json(%{data: data} = attrs) when is_map(data), do: %{attrs | data: Jason.encode!(data)}
+  defp data_to_json(%{data: data} = attrs) when is_binary(data), do: attrs
   defp data_to_json(%{"data" => data} = attrs) when is_map(data), do: %{attrs | "data" => Jason.encode!(data)}
   defp data_to_json(%{"data" => data} = attrs) when is_binary(data), do: attrs
+  # Quand :data/"data" n'est pas défini
   defp data_to_json(attrs) do
     key =
       cond do

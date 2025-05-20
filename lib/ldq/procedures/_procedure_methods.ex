@@ -221,11 +221,15 @@ defmodule LdQ.ProcedureMethods do
 
 
   defp plain_title(procedure, step) do
+    subtitle = if Map.get(step, :no_name) do "" else
+      "<h3>#{step.name}</h3>"
+    end
+
     """
-    <h2><%= @procedure.name %>
-      <div class="tiny">ID <%= @procedure.id %></div>
+    <h2>#{procedure.name}
+      <div class="tiny">ID #{procedure.id}</div>
     </h2>
-    <h3>#{step.name}</h3>
+    #{subtitle}
     """
   end
 
