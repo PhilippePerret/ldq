@@ -14,7 +14,7 @@ defmodule LdQ.Procedure.PropositionLivre do
   alias LdQ.Library, as: Lib
   alias LdQ.Library.Book
 
-  def proc_name, do: "Soumission d’un livre au label"
+  def proc_name, do: "Évaluation d’un livre pour le label"
 
   @steps [
     %{name: "Proposition du livre", fun: :proposition_livre, admin_required: false, owner_required: false},

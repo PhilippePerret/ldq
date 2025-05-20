@@ -27,7 +27,7 @@ defmodule LdQ.DataCase do
     end
   end
 
-  setup tags do
+  setup _tags do
     # LdQ.DataCase.setup_sandbox(tags)
 
     # Puisqu'on n'utilise plus la sandbox pour pouvoir faire des

@@ -43,7 +43,7 @@ defmodule Feature.PageTestMethods do
       ok_text = WE.text(el) =~ searched 
       ok_attrs = attrs 
         |> Enum.reduce(%{ok: true, errors: []}, fn {attr, value}, res ->
-          if WE.attr(attr) == value do 
+          if WE.attr(el, attr) == value do 
             res
           else
             Map.merge(res, %{ok: false, errors: res.errors ++ ["Prop #{attr} devrait valoir #{inspect value}, il vaut #{WE.attr(attr)}."]})

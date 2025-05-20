@@ -215,7 +215,7 @@ defmodule LdQ.Library.Book do
         if is_unknown_key do set else
           attrs = set.attrs
           attrs = %{attrs | key => {init_value, new_value} }
-          set = %{set | attrs: attrs}
+          %{set | attrs: attrs}
         end
 
       cond do
@@ -483,8 +483,8 @@ defmodule LdQ.Library.Book do
         {http_code, 0} = System.cmd("curl", ["-s", "-o", "/dev/null", "-w", "%{http_code}", newv])
         http_code = String.to_integer(http_code)
         cond do
-          http_code > 400 -> {:error, "L'URL de commande est une URL qui ne conduit nulle part" }
-          200 -> :ok
+          http_code > 400   -> {:error, "L'URL de commande est une URL qui ne conduit nulle part" }
+          http_code == 200 -> :ok
           http_code >= 300 && http_code <= 310 -> :ok
         end
     end

@@ -8,7 +8,7 @@ defmodule Feature.BookTestMeths do
   alias LdQ.Repo
   import Ecto.Query
 
-  alias LdQ.Library, as: Lib
+  # alias LdQ.Library, as: Lib
   alias LdQ.Library.Book
   alias LdQ.Library.Author
 

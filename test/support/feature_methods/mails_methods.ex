@@ -5,7 +5,7 @@ defmodule Feature.MailTestMethods do
   alias LdQ.Comptes.User
 
   import TestHelpers # w() etc.
-  import TestStringMethods # string_contains etc.
+  # import TestStringMethods # string_contains etc.
   import FeaturePublicMethods # Méthodes je_rejoins, etc.
 
   import Feature.PageTestMethods, only: [on_login_page?: 1]

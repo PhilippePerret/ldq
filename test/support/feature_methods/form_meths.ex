@@ -43,8 +43,8 @@ defmodule Feature.FormTestMethods do
   """
   def choisir_le_menu(sujet, field, value) do
     session = session_from(sujet)
-    query   = WQ.select(field)
-    select  = WB.find(session, query)
+    # query   = WQ.select(field)
+    # select  = WB.find(session, query)
     # option = WB.find(select, WQ.css("option[value=\"#{value}\"]"))
     # WB.click(session, option)
     WB.click(session, WQ.css("option[value=\"#{value}\"]"))
