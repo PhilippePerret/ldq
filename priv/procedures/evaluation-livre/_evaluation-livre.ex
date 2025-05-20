@@ -21,7 +21,9 @@ defmodule LdQ.Procedure.PropositionLivre do
     %{name: "Soumission du livre par l'ISBN", no_name: true, fun: :submit_book_with_isbn, admin_required: false, owner_required: true},
     %{name: "Soumission du livre par formulaire", fun: :submit_book_with_form, admin_required: false, owner_required: true},
     %{name: "Consignation du livre", fun: :consigner_le_livre, admin_required: false, owner_required: true},
-    %{name: "Confirmation de la soumission", fun: :auteur_confirme_soumission_livre, admin_required: false, owner_required: false},
+    %{name: "Confirmation de la soumission", fun: :form_confirmation_soumission_per_auteur, admin_required: false, owner_required: false},
+    %{name: "Soumission confirmée", fun: :author_confirm_submission, admin_required: false, owner_required: false},
+    %{name: "Lancement de l'évaluation", fun: :form_admin_debut_evaluation, admin_required: true, owner_required: false},
   
     %{name: "Suppression complète du livre", fun: :complete_book_remove, admin_required: true, owner_required: false}
   ]
@@ -131,7 +133,7 @@ defmodule LdQ.Procedure.PropositionLivre do
   def submit_book_with_isbn(procedure) do
     case check_captcha(procedure, "by_isbn") do
     :ok -> proceed_submit_book_with_isbn(procedure)
-    {:error, message} -> message
+    {:error, message} -> {:error, message}
     end
   end
 
@@ -171,7 +173,7 @@ defmodule LdQ.Procedure.PropositionLivre do
 
   # Fonction intermédiaire qui appelle le formulaire de soumission du
   # livre sans ISBN
-  defp submit_book_with_form(procedure) do
+  def submit_book_with_form(procedure) do
     case check_captcha(procedure, "by_form") do
     :ok -> 
       params = procedure.params["by_form"]
@@ -179,7 +181,7 @@ defmodule LdQ.Procedure.PropositionLivre do
         is_author: !is_nil(params["is_author"]) and params["is_author"] == "yes"
       })
       proceed_submit_book_with_form(Map.merge(procedure, :book_data, book_data))
-    {:error, message} -> message
+    {:error, message} -> {:error, message}
     end
   end
 
@@ -240,11 +242,13 @@ defmodule LdQ.Procedure.PropositionLivre do
       """
       
     erreur ->
-      """
-      <h2>Livre refusé</h2>
-      <p>Malheureusement, ce livre ne peut pas être enregistré :</p>
-      <p>#{erreur}</p>
-      """
+      {:error,
+        """
+        <h2>Livre refusé</h2>
+        <p>Malheureusement, ce livre ne peut pas être enregistré :</p>
+        <p>#{erreur}</p>
+        """
+      }
     end
   end
 
@@ -263,7 +267,7 @@ defmodule LdQ.Procedure.PropositionLivre do
     })
     procedure = update_procedure(procedure, %{
       data: data,
-      next_step: "auteur_confirme_soumission_livre"
+      next_step: "form_confirmation_soumission_per_auteur"
     })
 
     # IO.inspect(procedure, label: "\nPROCÉDURE FINALE de l'étape proceed_consigner_le_livre")
@@ -324,8 +328,10 @@ defmodule LdQ.Procedure.PropositionLivre do
   @doc """
   Après la soumission du livre, l'auteur doit la confirmer pour que 
   le livre soit vraiment inscrit au label.
+  (mais un administrateur devra encore confirmer que le livre est bon
+   c'est-à-dire que toutes ses données sont définies)
   """
-  def auteur_confirme_soumission_livre(procedure) do
+  def form_confirmation_soumission_per_auteur(procedure) do
     # Barrière administrateur ou auteur du livre (attention, le vrai
     # auteur du livre, pas celui qui l'a soumis, qui peut être quelqu'un
     # d'autre que l'auteur)
@@ -357,7 +363,7 @@ defmodule LdQ.Procedure.PropositionLivre do
 
     true ->
       # Visiteur mal venu
-      impasse(procedure)
+      {:error, impasse(procedure)}
     end
   end
 
@@ -367,17 +373,80 @@ defmodule LdQ.Procedure.PropositionLivre do
     user = procedure.user
     book = procedure.book
 
-    """
-    <h3>Confirmation de la soumission du livre</h3>
+    form = Html.Form.formate(%Html.Form{
+      id: "confirm-submit-book",
+      prefix: "book",
+      captcha: true,
+      fields: [
+        %{type: :hidden, strict_name: "nstep", value: "author_confirm_submission"},
+        %{type: :text, label: "Sous-titre optionnel"},
+        %{type: :text, label: "Pré-version optionnelle", explication: "Si une version précédente du livre a été soumise au label, en l'ayant reçu ou non, indiquer ici son identifiant."},
+        %{type: :text, label: "Année de publication"},
+        %{type: :text, label: "URL de commande", explication: "Permet de certifier que l'ouvrage est bien mis en vente. Une fois le label reçu, cet URL permettra aux lectrice et aux lecteurs intéressés d'acheter le livre."},
+        %{type: :checkbox, label: "Je suis d’accord avec les <a href=\"/pg/regles-evaluation\">règles d'évaluation du label</a> et m'engage à les respecter"},
+        %{type: :checkbox, label: "J'accepte le partage de mon manuscrit", explication: "Mais comme les <a href=\"/pg/regles-evaluation\">Règles</a> du label le stipule, il ne sera partagé qu’entre les membres du comité de lecture qui auront la charge de l'évaluer."},
+        %{type: :file, name: "book_file", label: "Manuscrit/livre", explication: "Le manuscrit du livre pour être soumis sous n'importe quelle forme lisible, que ce soit un ePub, un fichier PDF, Word. Il convient simplement de s'assurer qu'il n'est pas protégé en lecture."}
+      ],
+      buttons: [
+        %{type: :submit, name: "Soumettre le livre"}
+      ]
+    })
 
+    """
     <p>Bonjour #{user.name}, en tant qu’aut#{fem(:rice, user)} du livre 
     #{book.title}, vous devez confirmer sa soumission pour le label #{ldq_label()}
-    afin que le comité de lecture puisse l’évaluer.</p>
+    afin que le comité de lecture puisse l’évaluer. Cette confirmation consiste à 
+    remplir le formulaire ci-dessous.</p>
 
-    <p class=warning>Formulaire pour confirmer</p>
+    #{form}
     """
   end
 
+  @doc """
+  Fonction appelée quand l'auteur confirme la soumission de son livre
+
+  """
+  def author_confirm_submission(procedure) do
+    case check_captcha(procedure, "book") do
+    :ok -> proceed_author_confirm_submission(procedure)
+    {:error, message} -> {:error, message}
+    end
+  end
+
+  def proceed_author_confirm_submission(procedure) do
+    book_params = procedure.params["book"]
+    IO.inspect(book_params, label: "BOOK PARAMS")
+
+    added_message =
+      case book_params["book_file"] do
+        nil -> 
+          # pas de livre fourni
+          # => Il faut expliquer à l'auteur qu'on attendra son livre par mail
+          "Il faut le transmettre par mail."
+        upload -> 
+          %Plug.Upload{filename: filename, path: tmp_path} = upload
+          dest_path = Path.join("priv/static/uploads", filename)
+          File.cp!(tmp_path, dest_path)
+          ""
+      end
+    
+    # Mettre l'étape suivante
+    # TODO
+
+    # Actualisation de la procédure
+    # TODO
+
+    # Informer l'administration
+    # TODO
+
+    # Lettre de confirmation à l'auteur
+    # TODO
+
+
+    """
+    <p>Merci d'avoir confirmé le livre</p>
+    """
+  end
 
   @doc """
   Méthode finale qui permet, le cas échéant, de détruire le livre, 

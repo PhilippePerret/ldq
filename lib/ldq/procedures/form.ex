@@ -52,14 +52,20 @@ defmodule Html.Form do
       else
         %{data | prefix: "f"}
       end
-
-    lines = [~s(<form id="#{data.id}" class="philform" method="#{data.method}" action="#{data.action}">)]
-    lines = lines ++ [token_field()]
-    lines = lines ++ (
-      data.fields
+    
+    fields = data.fields
       |> Enum.map(fn dfield -> 
         defaultize_field(Map.merge(dfield, %{prefix: data.prefix, original_name: dfield[:name]||dfield[:strict_name]}))
       end)
+
+    enctype = 
+      if has_a_file?(fields) do
+        ~s( enctype="multipart/form-data")
+      else "" end
+    lines = [~s(<form id="#{data.id}" class="philform" method="#{data.method}" action="#{data.action}"#{enctype}>)]
+    lines = lines ++ [token_field()]
+    lines = lines ++ (
+      fields
       |> Enum.map(fn dfield ->
         (label(dfield) <> explication(dfield) <> build_field(dfield.tag, dfield))
         |> wrap(dfield)
@@ -110,6 +116,9 @@ defmodule Html.Form do
   end
   def build_field(:input, %{type: :datetime} = dfield) do
     ~s(<input type="datetime" id="#{dfield.id}" name="#{dfield.name}" value="#{dfield.value}" />)
+  end
+  def build_field(:input, %{type: :file} = dfield) do
+    ~s(<input type="file" id="#{dfield.id}" name="#{dfield.name}" />)
   end
   # def build_field(:input, %{type: :naive_datetime} = dfield) do
   #   ~s(<input type="naive_datetime" id="#{dfield.id}" name="#{dfield.name}" value="#{dfield.value}" #{required(dfield)}/>)
@@ -163,6 +172,10 @@ defmodule Html.Form do
     """
   end
 
+  # @return True s'il y a un champ de type :file
+  defp has_a_file?(fields) do
+    Enum.any?(fields, fn dfield -> dfield.type == :file end)
+  end
 
   # --- Méthodes Captcha ---
 
@@ -179,7 +192,8 @@ defmodule Html.Form do
     %{question: "Le handball est un sport…", options: ["d'équipe", "individuel", "reposant", "à raquette"], answer: "d'équipe"},
     %{question: "Victor Hugo et Émile Zola sont réputés comme…", options: ["écrivains", "basketeurs", "chimistes", "parfumeurs"], answer: "écrivains"},
     %{question: "Quand vous avez soif, vous prenez…", options: ["un verre d'eau", "des frites grasses", "le large", "la mouche"], answer: "un verre d'eau"},
-    %{question: "Qu'est-ce qu'on ne peut pas prendre ?", options: ["l'au revoir", "la mouche", "la grosse tête", "le large"], answer: "l'au revoir"}
+    %{question: "Qu'est-ce qu'on ne peut pas prendre ?", options: ["l'au revoir", "la mouche", "la grosse tête", "le large"], answer: "l'au revoir"},
+    %{question: "Qu'est-ce qu'on ne peut pas avaler ?", options: ["une armoire", "une pomme", "une énormité", "une choucroute"], answer: "une armoire"}
   ] |> Enum.with_index() |> Enum.map(fn {captcha, index} -> Map.put(captcha, :index, index) end)
   defp random_captcha do
     Enum.random(@table_captcha)
@@ -308,17 +322,18 @@ defmodule Html.Form do
       true -> dfield
       end
 
-    # Quand type: :text, :checkbox, :select ou :date sans :tag
+    # Quand type: :text, :checkbox, :select, :file ou :date sans :tag
     dfield = 
       cond do
       is_nil(Map.get(dfield, :tag)) ->
         case Map.get(dfield, :type, nil) do
-        nil -> raise ":tag et :type ne peuvent pas être non définis tous les deux"
-        :select -> Map.put(dfield, :tag, :select)
-        :date -> Map.put(dfield, :tag, :input)
-        :text -> Map.put(dfield, :tag, :input)
+        nil       -> raise ":tag et :type ne peuvent pas être non définis tous les deux"
+        :select   -> Map.put(dfield, :tag, :select)
+        :date     -> Map.put(dfield, :tag, :input)
+        :text     -> Map.put(dfield, :tag, :input)
         :checkbox -> Map.put(dfield, :tag, :input)
-        _ -> raise ":tag non défini et :type inconnu (#{Map.get(dfield, :type)})"
+        :file     -> Map.put(dfield, :tag, :input)
+        _         -> raise ":tag non défini et :type inconnu (#{Map.get(dfield, :type)})"
         end
       true -> dfield
       end

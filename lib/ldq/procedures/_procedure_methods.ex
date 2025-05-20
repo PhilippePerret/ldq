@@ -161,6 +161,10 @@ defmodule LdQ.ProcedureMethods do
     step  = current_procedure(procedure, steps)
     owner = get_owner(procedure)
 
+    !is_nil(step) || raise("Impossible de trouver l'étape suivante (next_step : #{procedure.next_step}) dans le @steps de la procédure : #{inspect procedure}")
+    is_boolean(Map.get(step, :admin_required)) || raise("L'étape de procédure #{inspect step} devrait définir :admin_required")
+    is_boolean(Map.get(step, :owner_required)) || raise("L'étape de procédure #{inspect step} devrait définir :owner_required")
+
     admin_validity = !step.admin_required || User.admin?(curuser)
     owner_validity = !step.owner_required || (curuser.id == owner.id)
 
@@ -215,10 +219,19 @@ defmodule LdQ.ProcedureMethods do
   """
   def run_current_procedure(procedure, module, steps) do
     current_step = current_procedure(procedure, steps)
-    plain_title = plain_title(procedure, current_step)
-    plain_title <> apply(module, current_step.fun, [procedure])
-  end
+    resultat = apply(module, current_step.fun, [procedure])
 
+    cond do
+    is_binary(resultat) ->
+      # Condition normale, quand la fonction retourne le texte à 
+      # écrire dans la page
+      plain_title = plain_title(procedure, current_step)
+      plain_title <> resultat
+    {:error, message} = resultat ->
+      # Quand une erreur fatale a été rencontrée
+      message
+    end    
+  end
 
   defp plain_title(procedure, step) do
     subtitle = if Map.get(step, :no_name) do "" else

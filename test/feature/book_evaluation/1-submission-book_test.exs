@@ -112,7 +112,7 @@ defmodule LdQWeb.BookSubmissionTestsStep1 do
 
     # La prochaine étape doit être la bonne
     procedure = last_procedure_of(user, "evaluation-livre")
-    assert procedure.next_step == "auteur_confirme_soumission_livre"
+    assert procedure.next_step == "form_confirmation_soumission_per_auteur"
 
     # La procédure a bien mémorisé l'identifiant du livre et de 
     # l'autueur

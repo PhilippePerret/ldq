@@ -9,7 +9,7 @@ defmodule LdQWeb.BookSubmissionTestsStep2_3 do
   # @tag :skip 
   @tag :user
   test "Un user quelconque, même inscrit, ne peut pas rejoindre cette procédure" do
-    %{admin: admin, procedure: procedure, point_test: point_test} = bdd_load("book-just-submitted")
+    %{admin: admin, procedure: procedure} = bdd_load("book-just-submitted")
 
     user = make_user_with_session(%{password: "monpassepartout"})
 
