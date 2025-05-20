@@ -520,6 +520,7 @@ defmodule LdQ.Library.Book do
   defp cast_v(:datetime, value) do
     if is_binary(value) do
       NaiveDateTime.from_iso8601!(value)
+      |> NaiveDateTime.truncate(:second)
     else value end
   end
   defp cast_v(:date, value) do

@@ -172,12 +172,14 @@ defmodule Html.Form do
     %{question: "Comment s'appelle le label ?", options: ["Renaudeau", "Valeurs sûres", "Lecture de Qualité"], answer: "Lecture de Qualité"},
     %{question: "Autour de quoi tourne la Terre", options: ["Le soleil", "Le pot de fleur", "Un point"], answer: "Le soleil"},
     %{question: "Quelle est la capitale de la France", options: ["Paris", "Marseille", "Londres", "Genève"], answer: "Paris"},
-    %{question: "Comment est qualifié une femmme de grande taille", options: ["Géante", "Naine", "Reine", "Rassis"], answer: "Géante"},
+    %{question: "Comment est qualifiée une femmme de grande taille", options: ["Géante", "Sourissette", "Reine", "Schéhérazade"], answer: "Géante"},
     %{question: "En français, par quel signe se termine une question ?", options: ["?", "!", "¡", "¿"], answer: "?"},
     %{question: "Dans quel sport se sert-on d'une raquette ?", options: ["Tennis", "Football", "Tir à l'arc", "Cyclisme"], answer: "Tennis"},
     %{question: "Où peut-on trouver le résumé d'un livre ?", options: ["Sur la 4e de couverture", "Sur la couverture", "Sur la tranche", "Sur le dos"], answer: "Sur la 4e de couverture"},
     %{question: "Le handball est un sport…", options: ["d'équipe", "individuel", "reposant", "à raquette"], answer: "d'équipe"},
-    %{question: "Victor Hugo et Émile Zola sont réputés comme…", options: ["écrivains", "basketeurs", "chimistes", "parfumeurs"], answer: "écrivains"}
+    %{question: "Victor Hugo et Émile Zola sont réputés comme…", options: ["écrivains", "basketeurs", "chimistes", "parfumeurs"], answer: "écrivains"},
+    %{question: "Quand vous avez soif, vous prenez…", options: ["un verre d'eau", "des frites grasses", "le large", "la mouche"], answer: "un verre d'eau"},
+    %{question: "Qu'est-ce qu'on ne peut pas prendre ?", options: ["l'au revoir", "la mouche", "la grosse tête", "le large"], answer: "l'au revoir"}
   ] |> Enum.with_index() |> Enum.map(fn {captcha, index} -> Map.put(captcha, :index, index) end)
   defp random_captcha do
     Enum.random(@table_captcha)

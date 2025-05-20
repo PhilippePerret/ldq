@@ -84,9 +84,9 @@ defmodule FeaturePublicMethods do
       |> et_voit("input", %{type: "email", id: "user_email", name: "user[email]"})
       |> remplit_le_champ("Mail") |> avec(visiteur.email)
       |> remplit_le_champ("Mot de passe") |> avec(visiteur.password)
-      |> pause(10)
+      |> pause(1)
       |> clique_le_bouton("Se connecter")
-      |> pause(10)
+      |> pause(1)
       |> Map.put(:identified, true)
       # |> IO.inspect(label: "VISITEUR APRÈS CONNEXION")
   end

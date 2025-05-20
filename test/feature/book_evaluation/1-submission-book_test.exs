@@ -26,7 +26,7 @@ defmodule LdQWeb.BookSubmissionTestsStep1 do
   @tag :admin
   @tag :user
   @tag :author
-  test "Un utilisateur quelconque peut soumettre un nouveau livre" do
+  test "Un utilisateur identifié peut soumettre un nouveau livre" do
     # on_exit(fn -> bdd_dump("book-just-submitted") end)
 
     detruire_les_mails()

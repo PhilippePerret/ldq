@@ -327,7 +327,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     autreuser = Map.put(autreuser, :session, sessionother)
     autreuser
     |> rejoint_la_page("/home")
-    |> pause(5)
+    |> pause(2)
     |> et_voit("#{user.name} vient de rejoindre le comité de lecture du label.")
 
   end
