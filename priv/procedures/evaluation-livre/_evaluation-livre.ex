@@ -266,7 +266,7 @@ defmodule LdQ.Procedure.PropositionLivre do
       next_step: "auteur_confirme_soumission_livre"
     })
 
-    IO.inspect(procedure, label: "\nPROCÉDURE FINALE de l'étape proceed_consigner_le_livre")
+    # IO.inspect(procedure, label: "\nPROCÉDURE FINALE de l'étape proceed_consigner_le_livre")
 
     # Les données propres aux mails
     mail_data = %{

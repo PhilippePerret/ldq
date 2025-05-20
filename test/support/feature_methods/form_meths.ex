@@ -41,12 +41,8 @@ defmodule Feature.FormTestMethods do
   @param {String} field :id, :name ou label du menu select
   @param {String} value La valeur (ou le texte) du menu option à sélectionner
   """
-  def choisir_le_menu(sujet, field, value) do
+  def choisir_le_menu(sujet, _field, value) do
     session = session_from(sujet)
-    # query   = WQ.select(field)
-    # select  = WB.find(session, query)
-    # option = WB.find(select, WQ.css("option[value=\"#{value}\"]"))
-    # WB.click(session, option)
     WB.click(session, WQ.css("option[value=\"#{value}\"]"))
     sujet
   end

@@ -46,7 +46,7 @@ defmodule Feature.PageTestMethods do
           if WE.attr(el, attr) == value do 
             res
           else
-            Map.merge(res, %{ok: false, errors: res.errors ++ ["Prop #{attr} devrait valoir #{inspect value}, il vaut #{WE.attr(attr)}."]})
+            Map.merge(res, %{ok: false, errors: res.errors ++ ["Prop #{attr} devrait valoir #{inspect value}, il vaut #{WE.attr(el, attr)}."]})
           end
         end)
       ok_text and ok_attrs.ok

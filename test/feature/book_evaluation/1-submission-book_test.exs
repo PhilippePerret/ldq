@@ -114,6 +114,14 @@ defmodule LdQWeb.BookSubmissionTestsStep1 do
     procedure = last_procedure_of(user, "evaluation-livre")
     assert procedure.next_step == "auteur_confirme_soumission_livre"
 
+    # La procédure a bien mémorisé l'identifiant du livre et de 
+    # l'autueur
+    data_proc = procedure.data
+    assert Map.has_key?(data_proc, "author_id")
+    assert Map.has_key?(data_proc, "book_id")
+    assert(data_proc["book_id"] == new_book.id)
+    assert(data_proc["author_id"] == new_book.author.id)
+
     # Photographie de la BDD après enregistrement de la soumission du livre
     bdd_dump("book-just-submitted", %{
       user: user,

@@ -61,7 +61,7 @@ defmodule LdQ.Procedure do
   def get(proc_id) do
     proc = Repo.get!(__MODULE__, proc_id)
     %{proc | data: proc.data && Jason.decode!(proc.data)}
-    |> IO.inspect(label: "PROCÉDURE RELEVÉE")
+    # |> IO.inspect(label: "PROCÉDURE RELEVÉE")
   end
 
   @doc """
