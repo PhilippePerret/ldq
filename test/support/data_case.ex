@@ -35,6 +35,9 @@ defmodule LdQ.DataCase do
     # de données avant chaque test.
     TestHelpers.bdd_reset()
 
+    # Les autres choses à resetter à chaque test
+    TestHelpers.reset_all()
+
     :ok
   end
 

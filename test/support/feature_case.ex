@@ -20,10 +20,8 @@ defmodule LdQWeb.FeatureCase do
 
   setup _tags do
 
-    # Puisqu'on n'utilise plus la sandbox pour pouvoir faire des
-    # photographies de la BdD, on doit forcer le vidage de la base 
-    # de données avant chaque test.
-    TestHelpers.bdd_reset()
+    # À resetter à chaque test
+    TestHelpers.reset_all()
 
     # Tout le code ci-dessous supprimé permet de ne pas utiliser
     # la sandbox (Photographies de la BdD)

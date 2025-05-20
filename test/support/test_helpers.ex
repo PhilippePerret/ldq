@@ -48,6 +48,25 @@ defmodule TestHelpers do
     ]
 
   @doc """
+  Pour tout ré-initialiser à chaque test
+  """
+  def reset_all do
+    # Puisqu'on n'utilise plus la sandbox pour pouvoir faire des
+    # photographies de la BdD, on doit forcer le vidage de la base 
+    # de données avant chaque test.
+    TestHelpers.bdd_reset()
+    # Supprimer tous les mails
+    # Note : si des mails sont utiles pour un test suivant, il faut
+    # les enregistrer au moment de figer l'état de la base de données
+    # (avec bdd_dump) et récupérer cet état avec bdd_load/1
+    Feature.MailTestMethods.exec_delete_all_mails()
+    # Vider le dossier des uploads
+    uploads_folder = Path.join(["priv","static","uploads"])
+    File.rm_rf!(uploads_folder)
+    File.mkdir!(uploads_folder)
+  end
+
+  @doc """
   Réinitialisation de la BdD de test, avant chaque test d'intégration
   cette fonction est appelée. Elle vide les tables ci-dessus.
 

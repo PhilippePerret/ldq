@@ -33,6 +33,10 @@ defmodule LdQWeb.ConnCase do
 
   setup _tags do
     # LdQ.DataCase.setup_sandbox(tags)
+
+    # À resetter à chaque test
+    TestHelpers.reset_all()
+
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
 
