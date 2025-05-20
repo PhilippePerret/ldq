@@ -24,7 +24,22 @@ defmodule Html.Form do
 
   Pour vérifier le captcha :
 
-    Html.Form.captcha_valid?(form_data)
+    case Html.Form.captcha_valid?(form_data) do
+      true -> # ok
+      false -> # pas ok
+    end
+
+  Les types :
+
+  :text
+  :email
+  :integer    :max, :min
+  :checkbox
+  :file
+  :hidden
+  :textarea
+  :date
+  :select
   """
   defstruct [
     sujet: nil, # Map du sujet dans lequel il faut prendre les données
@@ -100,6 +115,11 @@ defmodule Html.Form do
   end
   def build_field(:input, %{type: :text} = dfield) do
     ~s(<input type="text" id="#{dfield.id}" name="#{dfield.name}" value="#{dfield.value}" #{required(dfield)}/>)
+  end
+  def build_field(:input, %{type: :number} = dfield) do
+    max = if Map.get(dfield, :max), do: ~s( max="#{dfield.max}"), else: ""
+    min = if Map.get(dfield, :min), do: ~s( min="#{dfield.min}"), else: ""
+    ~s(<input type="number" id="#{dfield.id}" name="#{dfield.name}"#{min}#{max} value="#{dfield.value}" #{required(dfield)}/>)
   end
   def build_field(:textarea, dfield) do
     """
@@ -333,6 +353,7 @@ defmodule Html.Form do
         :text     -> Map.put(dfield, :tag, :input)
         :checkbox -> Map.put(dfield, :tag, :input)
         :file     -> Map.put(dfield, :tag, :input)
+        :number   -> Map.put(dfield, :tag, :input)
         _         -> raise ":tag non défini et :type inconnu (#{Map.get(dfield, :type)})"
         end
       true -> dfield

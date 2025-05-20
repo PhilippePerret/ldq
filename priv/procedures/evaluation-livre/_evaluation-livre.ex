@@ -394,8 +394,8 @@ defmodule LdQ.Procedure.PropositionLivre do
         %{type: :hidden, strict_name: "nstep", value: "author_confirm_submission"},
         %{type: :text, label: "Sous-titre optionnel"},
         %{type: :text, label: "Pré-version optionnelle", explication: "Si une version précédente du livre a été soumise au label, en l'ayant reçu ou non, indiquer ici son identifiant."},
-        %{type: :text, label: "Année de publication"},
-        %{type: :text, label: "URL de commande", explication: "Permet de certifier que l'ouvrage est bien mis en vente. Une fois le label reçu, cet URL permettra aux lectrice et aux lecteurs intéressés d'acheter le livre."},
+        %{type: :number, label: "Année de publication", min: 1990, max: now().year + 1, value: now().year},
+        %{type: :text, label: "URL de commande", required: true, explication: "Permet de certifier que l'ouvrage est bien mis en vente. Une fois le label reçu, cet URL permettra aux lectrice et aux lecteurs intéressés d'acheter le livre."},
         %{type: :checkbox, strict_id: "accord_regles", label: "Je suis d’accord avec les <a href=\"/pg/regles-evaluation\">règles d'évaluation du label</a> et m'engage à les respecter"},
         %{type: :checkbox, label: "Mon livre est gros, je préfère l'envoyer par mail"},
         %{type: :file, name: "book_file", strict_id: "book_file", label: "Manuscrit/livre", explication: "Le manuscrit du livre pour être soumis sous n'importe quelle forme lisible, que ce soit un ePub, un fichier PDF, Word. Il convient simplement de s'assurer qu'il n'est pas protégé en lecture. S'il est trop lourd pour le formulaire, cocher la case ci-dessus et <a href=\"mailto:#{Constantes.get(:mail_admin)}\">transmettez-le par mail</a> (ou upload de gros fichiers)."}
@@ -427,16 +427,29 @@ defmodule LdQ.Procedure.PropositionLivre do
     end
   end
 
-  defp proceed_author_confirm_submission(procedure) do
+  defp check_author_confirm_submission(procedure) do
+    book = procedure.book
     book_params = procedure.params["book"]
     IO.inspect(book_params, label: "BOOK PARAMS")
+    # --- Vérifications ---
+    # TODO
+    # Si une chose n'est pas bonne, on renvoie au formulaire
+  end
+
+  # Note : On ne passe ici que lorsque tout est OK et certifié
+  defp proceed_author_confirm_submission(procedure) do
+    book = procedure.book
+    book_params = procedure.params["book"]
+    IO.inspect(book_params, label: "BOOK PARAMS")
+
+
 
     added_message =
       case book_params["book_file"] do
         nil -> 
           # pas de livre fourni
           # => Il faut expliquer à l'auteur qu'on attendra son livre par mail
-          "Il faut le transmettre par mail."
+          "<p>Il vous faut à présent transmettre votre livre (sous forme de PDF, d'ePub ou autre format lisible) par mail ou par wetransfer et similaire.<p>"
         upload -> 
           %Plug.Upload{filename: filename, path: tmp_path} = upload
           dest_path = Path.join("priv/static/uploads", filename)
@@ -458,7 +471,7 @@ defmodule LdQ.Procedure.PropositionLivre do
 
 
     """
-    <p>Merci d'avoir confirmé la soumission de votre le livre</p>
+    <p>Merci d'avoir confirmé la soumission de votre livre <em>#{book.title}</em></p>
     """
   end
 
