@@ -30,11 +30,6 @@ defmodule LdQ.DataCase do
   setup _tags do
     # LdQ.DataCase.setup_sandbox(tags)
 
-    # Puisqu'on n'utilise plus la sandbox pour pouvoir faire des
-    # photographies de la BdD, on doit forcer le vidage de la base 
-    # de données avant chaque test.
-    TestHelpers.bdd_reset()
-
     # Les autres choses à resetter à chaque test
     TestHelpers.reset_all()
 
