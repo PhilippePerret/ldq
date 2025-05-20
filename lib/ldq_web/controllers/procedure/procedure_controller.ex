@@ -71,7 +71,7 @@ defmodule LdQWeb.ProcedureController do
   # Si une fonction :defaultize_procedure/1 existe, il faut la jouer
   # pour ajouter les propriétés propres à la procédure en question
   defp add_procedure_own_properties(procedure, module) do
-    IO.inspect(procedure, label: "Procédure dans add_procedure_own_properties")
+    # IO.inspect(procedure, label: "Procédure dans add_procedure_own_properties")
     if function_exported?(module, :defaultize_procedure, 1) do
       apply(module, :defaultize_procedure, [procedure])
     else 

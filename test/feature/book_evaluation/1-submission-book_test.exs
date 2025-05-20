@@ -53,7 +53,7 @@ defmodule LdQWeb.BookSubmissionTestsStep1 do
     # Il doit se connecter
     |> se_connecte()
     |> pause(1)
-    |> et_voit("h2", "Soumission d’un livre")
+    |> et_voit("h3", "Soumission du livre")
     |> pause(1)
     # Il trouve un formulaire pour choisir entre définir le livre par son ISBN
     # ou par formulaire
@@ -71,7 +71,7 @@ defmodule LdQWeb.BookSubmissionTestsStep1 do
 
     user
     |> pause(1)
-    |> et_voit("h2", "Caractéristiques du livre")
+    |> et_voit("h3", "Caractéristiques du livre")
     |> pause(1)
     |> remplit_le_champ("Titre du livre") |> avec(book_data.title)
     |> remplit_le_champ("Prénom de l'autrice/auteur") |> avec(book_data.author_firstname)
@@ -87,7 +87,7 @@ defmodule LdQWeb.BookSubmissionTestsStep1 do
     |> clique_le_bouton("Soumettre ce livre")
     |> pause(1)
     # On doit se trouver sur la page de registration
-    |> et_voit("h2", "Enregistrement du livre")
+    |> et_voit("h3", "Enregistrement du livre")
 
     # --- Vérification ---
 

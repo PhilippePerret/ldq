@@ -18,7 +18,7 @@ defmodule LdQ.Procedure.CandidatureComite do
     %{name: "Procéder au refus", fun: :proceed_refus_candidature, admin_required: true, owner_required: false},
     %{name: "Soumettre à un test", fun: :soumettre_a_test, admin_required: true, owner_required: false},
     %{name: "Test d'admission", fun: :test_admission_comite, admin_required: false, owner_required: true},
-    %{name: "Évaluvation du test", fun: :eval_test_admission, admin_required: false, owner_required: true}
+    %{name: "Résultat du test d'admission", fun: :eval_test_admission, admin_required: false, owner_required: true}
   ] |> Enum.with_index() |> Enum.map(fn {s, index} -> Map.put(s, :index, index) end)
   def steps, do: @steps
 
@@ -71,8 +71,6 @@ defmodule LdQ.Procedure.CandidatureComite do
       <li>#{pagelink("Engagement des membres du comité de lecture","engagement-membres","url:/proc/new/candidature-comite")}</li>
     </ul>
     
-    <h3>Formulaire de soumission de la candidature</h3>
-
     #{Html.Form.formate(form)}
     """
   end
@@ -155,7 +153,6 @@ defmodule LdQ.Procedure.CandidatureComite do
       ]
     }
     """
-    <h3>Refus de candidature au comité de lecture</h3
     <p>Pour procéder au refus de la candidature, merci de remplir le formulaire ci-dessous.</p>
     #{Html.Form.formate(form)}
     """
@@ -380,7 +377,6 @@ defmodule LdQ.Procedure.CandidatureComite do
     end
     
     """
-    <h3>Test d'admission au comité de lecture</h3>
     <p>Merci de remplir ce test et de le soumettre.</p>
     <p class="warning">Attention : le principe d'incitation à l'honnêteté est appliqué dans ce <nowrap>test :</nowrap> une mauvaise réponse retire un point tandis que la réponse « je ne sais pas » n'en ôte pas.</p>
     <section class="quiz">
@@ -491,7 +487,6 @@ defmodule LdQ.Procedure.CandidatureComite do
     delete_procedure(procedure)
 
     """
-    <h3>Résultat du test d'admission</h3>
     <p class="bigger bold center #{main_class}">Votre total est de #{report.note} / #{report.total}.</p>
     <p class="bigger #{main_class}">#{msg_resultat}</p>
     #{report.rapport}

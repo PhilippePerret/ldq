@@ -207,16 +207,26 @@ defmodule LdQ.ProcedureMethods do
     end)
   end
 
+  @doc """
+  Joue l'étape désirée (next_step) de la procédure courante et 
+  retourne son résultat.
+
+  @return {HTMLString} Le code HTML à écrire dans la page
+  """
   def run_current_procedure(procedure, module, steps) do
-    step = current_procedure(procedure, steps)
-    # # Si une fonction defaultize_procedure existe, il faut la jouer
-    # OBSOLETE: Maintenant, on fait ça dans le contrôleur
-    # procedure =
-    # if function_exported?(module, :defaultize_procedure, 1) do
-    #   apply(module, :defaultize_procedure, [procedure])
-    # else procedure end
-    # On joue l'étape en question
-    apply(module, step.fun, [procedure])
+    current_step = current_procedure(procedure, steps)
+    plain_title = plain_title(procedure, current_step)
+    plain_title <> apply(module, current_step.fun, [procedure])
+  end
+
+
+  defp plain_title(procedure, step) do
+    """
+    <h2><%= @procedure.name %>
+      <div class="tiny">ID <%= @procedure.id %></div>
+    </h2>
+    <h3>#{step.name}</h3>
+    """
   end
 
   @doc """

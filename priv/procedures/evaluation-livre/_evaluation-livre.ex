@@ -14,12 +14,12 @@ defmodule LdQ.Procedure.PropositionLivre do
   alias LdQ.Library, as: Lib
   alias LdQ.Library.Book
 
-  def proc_name, do: "Évaluation d’un livre pour le label"
+  def proc_name, do: "Évaluation d’un livre"
 
   @steps [
-    %{name: "Proposition du livre", fun: :proposition_livre, admin_required: false, owner_required: false},
-    %{name: "Soumission par l'ISBN", fun: :submit_book_with_isbn, admin_required: false, owner_required: true},
-    %{name: "Soumission par formulaire", fun: :submit_book_with_form, admin_required: false, owner_required: true},
+    %{name: "Soumission du livre", fun: :proposition_livre, admin_required: false, owner_required: false},
+    %{name: "Soumission du livre par l'ISBN", fun: :submit_book_with_isbn, admin_required: false, owner_required: true},
+    %{name: "Soumission du livre par formulaire", fun: :submit_book_with_form, admin_required: false, owner_required: true},
     %{name: "Consigner le livre pour évaluation", fun: :consigner_le_livre, admin_required: false, owner_required: true},
     %{name: "Confirmation de la soumission par l'auteur", fun: :auteur_confirme_soumission_livre, admin_required: false, owner_required: false},
   
@@ -257,7 +257,7 @@ defmodule LdQ.Procedure.PropositionLivre do
     {book, author} = create_book_and_author(Map.put(book_data, "user_id", user.id))
 
     # Actualisation de la procédure pour qu'elle connaisse le
-    # livre et l'auteur
+    # livre et l'auteur pour les étapes suivantes
     data = Map.merge(procedure.data, %{
       book_id: book.id,
       author_id: author.id,
@@ -267,7 +267,7 @@ defmodule LdQ.Procedure.PropositionLivre do
       next_step: "auteur_confirme_soumission_livre"
       })
 
-    # IO.inspect(procedure, label: "\nPROCÉDURE FINALE de l'étape proceed_consigner_le_livre")
+    IO.inspect(procedure, label: "\nPROCÉDURE FINALE de l'étape proceed_consigner_le_livre")
 
     # Les données propres aux mails
     mail_data = %{
