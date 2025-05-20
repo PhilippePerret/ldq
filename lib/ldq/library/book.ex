@@ -336,7 +336,7 @@ defmodule LdQ.Library.Book do
       {:inserted_at, now_without_msec()}, 
       {:updated_at, now_without_msec()}
     ]
-    # Repo.insert_all(__MODULE__, [values], returning: [:id, :title])
+    # IO.inspect(values, label: "\nVALEURS INJECTÉES")
     Repo.insert_all(__MODULE__, [values], returning: true)
   end
   def update(bookset) do
