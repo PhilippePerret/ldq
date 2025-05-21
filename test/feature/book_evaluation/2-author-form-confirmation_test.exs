@@ -14,7 +14,7 @@ defmodule LdQWeb.BookSubmissionTestsStep2_2 do
     # |> IO.inspect(label: "La procédure")
 
     file_book_path = Path.join(["test","assets","files", "book_pour_soumission.pdf"])
-    book_file_dest = Path.join(["priv", "static", "uploads", "book_pour_soumission.pdf"])
+    book_file_dest = Path.join(["priv", "static", "uploads", "books", "book-#{procedure.id}.pdf"])
 
 
     author = get_author(procedure.data["author_id"])
@@ -28,12 +28,24 @@ defmodule LdQWeb.BookSubmissionTestsStep2_2 do
     |> remplit_le_champ("Sous-titre optionnel") |> avec("Mon sous-titre de livre")
     |> remplit_le_champ("URL de commande") |> avec("https://www.amazon.fr/dp/B09521VMZQ")
     |> remplit_le_champ("Année de publication") |> avec("2024")
-    |> coche_la_case("#book_accord_regles")
+    # |> coche_la_case("#book_accord_regles")
+    # Je fais exprès d'oublier de cocher la case des règles
     |> depose_le_fichier(file_book_path, "#book_book_file")
     |> choisit_le_bon_captcha("book")
-    |> pause(20)
     |> clique_le_bouton("Soumettre mon livre")
     # --- Vérification ---
+    # TODO le formulaire a dû être affiché à nouveau
+    |> pause(30)
+    |> et_voit("h3", "Confirmation de la soumission")
+    |> et_voit(~s(div.error[data-field="accord_regles"]), "Il faut approuver les règles")
+    # TODO Le champ du fichier a été transformé
+    |> et_ne_voit_pas("h3", "Soumission confirmée")
+    # --- Correction du formulaire ---
+    |> coche_la_case("#book_accord_regles")
+    |> choisit_le_bon_captcha("book")
+    |> clique_le_bouton("Soumettre mon livre")
+    # --- Vérification ---
+    |> pause(1)
     |> et_voit("h3", "Soumission confirmée")
     |> et_voit("Merci d'avoir confirmé la soumission de votre livre")
 

@@ -429,11 +429,34 @@ defmodule LdQ.Procedure.PropositionLivre do
 
   defp check_author_confirm_submission(procedure) do
     book = procedure.book
-    book_params = procedure.params["book"]
-    IO.inspect(book_params, label: "BOOK PARAMS")
+    params = procedure.params["book"]
+    IO.inspect(params, label: "BOOK PARAMS")
     # --- Vérifications ---
-    # TODO
-    # Si une chose n'est pas bonne, on renvoie au formulaire
+    resultat = {ok: true, errors: %{}}
+    |> signature_accord_regles(params)
+    |> url_commande_valide(params)
+
+    if resultat.ok do
+      proceed_author_confirm_submission(procedure)
+    else
+    end
+  end
+
+  defp signature_accord_regles(res, params) do
+    if res.ok do
+      if params["accord_regles"] == "yes" do res else
+        Map.put(res, :errors, Map.merge(res.errors, %{"accord_regles" => "Il faut approuver les règles"}))
+      end
+    else res end
+  end
+  defp url_commande_valide(res, params) do
+    if res.ok do
+      url = params["url_command"]
+      case Book.validate("url_command", nil, url, nil) do
+      :ok -> res
+      {:error, erreur} -> Html.Form.add_error(res, "accord_regles", "Il faut entrer une URL valide et qui permet d'acheter le livre.")
+      end
+    else res end
   end
 
   # Note : On ne passe ici que lorsque tout est OK et certifié
@@ -441,7 +464,6 @@ defmodule LdQ.Procedure.PropositionLivre do
     book = procedure.book
     book_params = procedure.params["book"]
     IO.inspect(book_params, label: "BOOK PARAMS")
-
 
 
     added_message =
@@ -452,7 +474,8 @@ defmodule LdQ.Procedure.PropositionLivre do
           "<p>Il vous faut à présent transmettre votre livre (sous forme de PDF, d'ePub ou autre format lisible) par mail ou par wetransfer et similaire.<p>"
         upload -> 
           %Plug.Upload{filename: filename, path: tmp_path} = upload
-          dest_path = Path.join("priv/static/uploads", filename)
+          books_folder = ensure_books_folder()
+          dest_path = Path.join([books_folder, "book-#{procedure.id}#{Path.extname(filename)}"])
           File.cp!(tmp_path, dest_path)
           ""
       end

@@ -657,4 +657,13 @@ defmodule LdQ.ProcedureMethods do
     ]
   end
 
+  @doc """
+  Fonction qui s'assure que le dossier des livres existe et retourne
+  """
+  def ensure_books_folder do
+    path = Path.join(~w("priv static uploads books))
+    File.mkdir_p!(path)
+    path
+  end
+
 end

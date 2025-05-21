@@ -474,6 +474,9 @@ defmodule LdQ.Library.Book do
       true                -> :ok
     end
   end
+  # Warning : la méthode est utilisée aussi dans la procédure qui
+  # gère l'évaluation des livres. Dans ce cas, +i_val+ et +set+ ne
+  # valent rien.
   def validate("url_command", _ival, newv, _set) do
     cond do
       String.replace(newv, " ", "") != newv -> {:error, "Une URL (de commande) ne devrait pas contenir d'espaces"}

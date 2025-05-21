@@ -49,11 +49,16 @@ defmodule Html.Form do
     action: nil,
     fields: [],
     buttons: [],
+    errors: nil, # ou une Map %{field => error}
     captcha: false
   ]
 
   @doc """
   Formate et retourne le code pour le formulaire de données +data+
+
+  @api
+
+  @return {HTMLString} Le code du formulaire, à inscrire dans la page
   """
   def formate(%__MODULE__{} = data, _params \\ %{}) do
 
@@ -70,8 +75,17 @@ defmodule Html.Form do
     
     fields = data.fields
       |> Enum.map(fn dfield -> 
-        defaultize_field(Map.merge(dfield, %{prefix: data.prefix, original_name: dfield[:name]||dfield[:strict_name]}))
+        defaultize_field(Map.merge(dfield, %{error: nil, prefix: data.prefix, original_name: dfield[:strict_name]||dfield[:name]}))
       end)
+
+    fields =
+      if is_nil(data.errors) do 
+        fields 
+      else
+        Enum.map(dfields fn dfield ->
+          Map.merge(dfield, %{error: Map.get(data.errors, dfield.original_name, nil)})
+        end)
+      end
 
     enctype = 
       if has_a_file?(fields) do
@@ -79,12 +93,7 @@ defmodule Html.Form do
       else "" end
     lines = [~s(<form id="#{data.id}" class="philform" method="#{data.method}" action="#{data.action}"#{enctype}>)]
     lines = lines ++ [token_field()]
-    lines = lines ++ (
-      fields
-      |> Enum.map(fn dfield ->
-        (label(dfield) <> explication(dfield) <> build_field(dfield.tag, dfield))
-        |> wrap(dfield)
-      end))
+    lines = lines ++ build_fields(fields)
     lines = lines ++ [~s(<div class="buttons">)]
     lines = lines ++ (data.buttons
     |> Enum.map(fn dbutton ->
@@ -96,6 +105,47 @@ defmodule Html.Form do
     lines
     |> List.flatten()
     |> Enum.join("\n")
+  end
+
+  @doc """
+  Fonction qui permet de tenir à jour une table :
+    %{ok: ..., errors: %{...}} 
+  pour savoir si les données d'un formulaire sont valides. C'est la 
+  table qu'on peut ensuite envoyer à formate/2 pour créer le formu-
+  laire en indiquant les données invalides.
+
+  Par exemple :
+
+    res = {ok: true, errors: %{}}
+
+    res = 
+    if params["monchamp"] == "" do
+      Html.Form.add_error(res, "monchamp", "Le champ monchamp ne peut être vide")
+    end
+
+  @param {Map} table Une table contenant {ok: true|false, errors: %{...}}
+  @param {String} field Le nom du champ, hors préfix (donc comme il est défini pour définir le formulaire)
+  @param {String} error_message Le message à associer au champ. Ce message sera écrit en rouge à côté du champ.
+  """
+  def add_error(table, field, error_message) do
+    Map.merge(table, %{
+      ok: false,
+      errors: Map.put(table.errors, field, error_message)
+    })
+  end
+
+  @doc """
+  Construction de tous les champs
+
+  @param {List of Map} fields Liste des données de chaque champ
+  """
+  def build_fields(fields) do
+    fields
+    |> Enum.map(fn dfield ->
+      (label(dfield) <> explication(dfield) <> build_field(dfield.tag, dfield))
+      |> wrap(dfield)
+      |> exergue_if_error(dfield)
+    end)
   end
 
   def build_field(:raw, dfield) do
@@ -273,13 +323,26 @@ defmodule Html.Form do
   end
   def label(_dfield), do: ""
 
-
   def wrap(code, dfield) do
     if dfield.label do
       tag = dfield.wrapper
       "<#{tag}>#{code}</#{tag}>"
     else 
       code 
+    end
+  end
+
+  # Méthode de fin de construction du champ, qui le met dans un
+  # champ d'erreur si une erreur a été rencontrée
+  def exergue_if_error(code, dfield) do
+    if is_nil(dfield.error) do
+      code
+    else
+      # Il y a une erreur
+      # Note : le data-field permet aux tests de savoir que le champ
+      # est marqué erroné (noter que c'est le nom original qui est 
+      # spécifié, pour plus de commodité)
+      ~s(<div class="error" data-field="#{dfield.original_name}"><div>#{dfield.error}</div>#{code}</div>)
     end
   end
 
