@@ -35,7 +35,7 @@ Pour voir concrètement le mécanisme en route :
 * Cette fonction charge le module de la procédure et invoque sa fonction `LdQ.Procedure.__run__/1` qui va lancer le processus.
 * L'étape `procedure.next_step` est alors automatiquement jouée, elle exécute les opérations voulues et retourne le code à écrire dans la page (formulaire à remplir, confirmation d'opération, etc.).
 
-### Redirection vers une autre étape
+### Redirection vers une autre étape (url)
 
 Il suffit de définir dans l'url `?nstep=<nom de la step>` pour jouer une autre étape que l'étape naturelle de l'opération courante.
 
@@ -189,4 +189,38 @@ Où `params` contient :
   # Optionnellement
   inserted_at:  {NaiveDateTime} Pour mettre une autre date que maintenant
 }
+~~~
+
+
+## Rejouer une étape (redirection)
+
+Parfois, notamment avec le traitement des formulaires, il est nécessaire de revenir à une étape précédente. Pour le faire proprement, il est impératif d'utiliser la méthode `rerun_procedure` en lui donnant la procédure et l'étape (sa fonction) vers laquelle on doit revenir.
+
+Par exemple :
+
+~~~
+def une_premiere_etape(procedure) do
+  form = %Html.form{
+    ...
+    errors: Map.get(procedure, :errors_form, nil)
+  }
+  ...
+end
+
+def une_seconde_etape(procedure) do
+
+  case resultat do
+  :ok     -> une_troisieme_etape(procedure)
+  :not_ok -> 
+    # Souvent, on doit indiquer à la méthode précédente les erreurs 
+    # rencontrées
+    procedure = Map.put(procedure, :errors_from, map_erreurs_formulaire)
+    # Et on rejoue l'étape
+    rerun_procedure(procedure, :une_premiere_etape)
+  end
+end
+
+def une_troisieme_etape(procedure) do
+  ...
+end
 ~~~

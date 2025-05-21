@@ -217,9 +217,19 @@ defmodule LdQ.ProcedureMethods do
 
   # Pour retourne la procédure courante (Map)
   defp current_procedure(procedure, steps) do
-    Enum.find(steps, fn step ->
-      step.fun == procedure.next_step |> String.to_atom()
-    end)
+    current_fun = procedure.next_step |> String.to_atom()
+    Enum.find(steps, fn step -> step.fun == current_fun end)
+  end
+
+  @doc """
+  Pour rejouer proprement une procédure
+
+  """
+  def rerun_procedure(procedure, step_fun) do
+    module = LdQ.Procedure.get_proc_module(procedure.proc_dim)
+    step_fun = if is_binary(step_fun), do: step_fun, else: Atom.to_string(step_fun)
+    resultat = run_current_procedure(%{procedure | next_step: step_fun}, module)
+    {:reran, resultat}
   end
 
   @doc """
@@ -228,8 +238,16 @@ defmodule LdQ.ProcedureMethods do
 
   @return {HTMLString} Le code HTML à écrire dans la page
   """
-  def run_current_procedure(procedure, module, steps) do
-    current_step = current_procedure(procedure, steps)
+  def run_current_procedure(procedure, module, steps \\ nil) do
+    current_step = current_procedure(procedure, steps || module.steps())
+    current_step || raise """
+    Étape de procédure #{inspect procedure.next_step} introuvable dans :
+    #{inspect steps || module.steps()}
+    """
+    run_procedure(module, procedure, current_step)
+  end
+
+  def run_procedure(module, procedure, current_step) do
     resultat = apply(module, current_step.fun, [procedure])
 
     cond do
@@ -238,6 +256,9 @@ defmodule LdQ.ProcedureMethods do
       # écrire dans la page
       plain_title = plain_title(procedure, current_step)
       plain_title <> resultat
+    {:reran, texte_final} = resultat ->
+      # Obtenu lors d'un redirection
+      texte_final
     {:error, message} = resultat ->
       # Quand une erreur fatale a été rencontrée
       message
@@ -388,6 +409,18 @@ defmodule LdQ.ProcedureMethods do
   # Pour éviter une erreur classique
   def update_procedure(%Procedure{}) do
     raise "Pour actualiser la procédure, il faut envoyer la procédure courante en premier argument et les modifications dans une Map en second argument."
+  end
+
+  @doc """
+  Pour actualiser simplement une ou des données dans :data
+
+  @param {Procedure} proc La procédure en question
+  @param {Map} new_data Table des nouvelles données
+
+  @return {Procedure} la procédure actualisée
+  """
+  def update_data_procedure(%Procedure{} = proc, new_data) do
+    update_procedure(proc, %{data: Map.merge(proc.data, new_data)})
   end
 
   def delete_procedure(%Procedure{} = procedure) do

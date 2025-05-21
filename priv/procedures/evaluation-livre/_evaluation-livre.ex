@@ -403,9 +403,10 @@ defmodule LdQ.Procedure.PropositionLivre do
       if is_nil(form_errors) || form_errors["book_file"] do
         # Première visite ou erreur sur le fichier
         [%{type: :file, name: "book_file", strict_id: "book_file", label: "Manuscrit/livre", explication: "Le manuscrit du livre pour être soumis sous n'importe quelle forme lisible, que ce soit un ePub, un fichier PDF, Word. Il convient simplement de s'assurer qu'il n'est pas protégé en lecture. S'il est trop lourd pour le formulaire, cocher la case ci-dessus et <a href=\"mailto:#{Constantes.get(:mail_admin)}\">transmettez-le par mail</a> (ou upload de gros fichiers)."}]
-      else [] end
+      else 
+        [%{type: :raw, label: "Manuscrit/livre", content: "<div><em>Transmis avec succès</em></div>"}] 
+      end
     )
-
 
     form = Html.Form.formate(%Html.Form{
       id: "confirm-submit-book",
@@ -446,61 +447,34 @@ defmodule LdQ.Procedure.PropositionLivre do
     IO.inspect(params, label: "BOOK PARAMS")
     # --- Vérifications ---
     resultat = 
-    %{ok: true, errors: %{}}
+    %{ok: true, errors: %{}, procedure: procedure}
+    |> livre_ou_manuscrit_transmit(params)
     |> signature_accord_regles(params)
     |> IO.inspect(label: "Résultat après signature_accord_regles")
     |> url_commande_valide(params)
     |> IO.inspect(label: "Résultat après url_commande_valide")
 
+    # La procédure a pu être modifiée
+    procedure = resultat.procedure
+    |> IO.inspect(label: "PROCÉDURE MODIFIÉE")
+
     if resultat.ok do
       # On poursuit
+      IO.puts "On poursuit car resultat = #{inspect resultat}"
       proceed_author_confirm_submission(procedure)
     else
       # On ressoumet le formulaire
-      proceed_confirmation_soumission(Map.put(procedure, :errors_form, resultat.errors))
+      IO.puts "On repropose le formulaire car resultat = #{inspect resultat}"
+      rerun_procedure(Map.put(procedure, :errors_form, resultat.errors), :form_confirmation_soumission_per_auteur)
     end
   end
 
-  defp signature_accord_regles(res, params) do
-    IO.puts "-> signature_accord_regles(res = #{inspect res}, params = #{inspect params})"
-    if res.ok do
-      if params["accord_regles"] == "yes" do 
-        res 
-      else
-        Html.Form.add_error(res, "accord_regles", "Il faut approuver les règles du label")
-      end
-    else res end
-  end
-  defp url_commande_valide(res, params) do
-    if res.ok do
-      url = params["url_command"]
-      case Book.validate("url_command", nil, url, nil) do
-      :ok -> res
-      {:error, erreur} -> Html.Form.add_error(res, "accord_regles", "Il faut entrer une URL valide et qui permet d'acheter le livre.")
-      end
-    else res end
-  end
 
   # Note : On ne passe ici que lorsque tout est OK et certifié
   defp proceed_author_confirm_submission(procedure) do
     book = procedure.book
     book_params = procedure.params["book"]
     IO.inspect(book_params, label: "BOOK PARAMS")
-
-
-    added_message =
-      case book_params["book_file"] do
-        nil -> 
-          # pas de livre fourni
-          # => Il faut expliquer à l'auteur qu'on attendra son livre par mail
-          "<p>Il vous faut à présent transmettre votre livre (sous forme de PDF, d'ePub ou autre format lisible) par mail ou par wetransfer et similaire.<p>"
-        upload -> 
-          %Plug.Upload{filename: filename, path: tmp_path} = upload
-          books_folder = ensure_books_folder()
-          dest_path = Path.join([books_folder, "book-#{procedure.id}#{Path.extname(filename)}"])
-          File.cp!(tmp_path, dest_path)
-          ""
-      end
     
     # Mettre l'étape suivante
     # TODO
@@ -666,4 +640,51 @@ defmodule LdQ.Procedure.PropositionLivre do
     # IO.inspect(code, label: "Code d'après Chasse aux livres")
     "[EXTRAIRE LES DONNÉES DE LA CHASSE AUX LIVRES]"
   end
+
+
+  # ======== FONCTIONS DE CHECK DE L'AUTORISATION PAR L'AUTEUR =============
+
+  defp livre_ou_manuscrit_transmit(res, params) do
+    procedure = res.procedure
+    if res.ok do
+      if params["book_file"] do
+        # C'est la première soumission du formulaire
+        %Plug.Upload{filename: filename, path: tmp_path} = params["book_file"]
+        books_folder = ensure_books_folder()
+        dest_path = Path.join([books_folder, "book-#{procedure.id}#{Path.extname(filename)}"])
+        File.cp!(tmp_path, dest_path)
+        newproc = update_data_procedure(procedure, %{manuscrit_path: dest_path})
+        %{res | procedure: newproc}
+      else
+        # C'est une autre soumission où le manuscrit a été transmit.
+        # On doit le trouver dans le dossier des livres
+        man_path = procedure.data.manuscrit_path
+        if File.exists?(man_path) do
+          res
+        else
+          Html.Form.add_error(res, "book_file", "Le fichier consigné est introuvable… Il faut le redonner.")
+        end
+      end
+    else res end
+  end
+  defp signature_accord_regles(res, params) do
+    IO.puts "-> signature_accord_regles(res = #{inspect res}, params = #{inspect params})"
+    if res.ok do
+      if params["accord_regles"] == "yes" do 
+        res 
+      else
+        Html.Form.add_error(res, "accord_regles", "Il faut approuver les règles du label")
+      end
+    else res end
+  end
+  defp url_commande_valide(res, params) do
+    if res.ok do
+      url = params["url_command"]
+      case Book.validate("url_command", nil, url, nil) do
+      :ok -> res
+      {:error, erreur} -> Html.Form.add_error(res, "accord_regles", "Il faut entrer une URL valide et qui permet d'acheter le livre.")
+      end
+    else res end
+  end
+  
 end

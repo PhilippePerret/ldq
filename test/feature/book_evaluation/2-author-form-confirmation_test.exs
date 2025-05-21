@@ -35,16 +35,21 @@ defmodule LdQWeb.BookSubmissionTestsStep2_2 do
     |> choisit_le_bon_captcha("book")
     |> clique_le_bouton("Soumettre mon livre")
     # --- Vérification ---
-    |> pause(100)
+    |> pause(1)
+    # On doit corriger les erreurs
     |> et_voit("h3", "Confirmation de la soumission")
-    |> et_voit(~s(div.form-error[data-field="accord_regles"]), "Il faut approuver les règles")
-    |> et_ne_voit_pas("input#book_file[type=file]")
-    |> et_voit("div.error", "Merci de bien vouloir corriger")
     |> et_ne_voit_pas("h3", "Soumission confirmée")
+    |> et_voit(~s(div.form-error[data-field="accord_regles"]), "Il faut approuver les règles")
+    |> et_ne_voit_pas("input", %{id: "book_file"})
+    |> et_voit("Transmis avec succès")
+    |> et_voit("div.error", "Merci de bien vouloir corriger")
+    |> pause(1)
     # --- Correction du formulaire ---
-    |> coche_la_case("#book_accord_regles")
+    # (note : les autres valeurs doivent avoir été remises)
+    |> coche_la_case("#accord_regles")
     |> choisit_le_bon_captcha("book")
     |> clique_le_bouton("Soumettre mon livre")
+    |> pause(5)
     # --- Vérification ---
     |> pause(1)
     |> et_voit("h3", "Soumission confirmée")

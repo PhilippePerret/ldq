@@ -80,7 +80,7 @@ defmodule Feature.PageTestMethods do
   # aussi contenir :text qui définit le contenu).
   def la_page_contient(sujet, balise, attrs) when is_binary(balise) and is_map(attrs) do
     session = session_from(sujet)
-    found = seek_in_page(session, balise, attrs)
+    found = seek_in_page(session, balise, attrs, :positif)
     assert(found, "Aucune balise #{balise} trouvée possédant les attributs #{inspect attrs}")
     sujet
   end
@@ -119,11 +119,8 @@ defmodule Feature.PageTestMethods do
     - une balise et des attributs spécifiés ainsi que des propriétés
       supplémentaires comme le nombre d'élément à trouver TODO
   """
-  def la_page_ne_contient_pas(sujet, tag, attrs) when is_map(attrs) do
-    session = session_from(sujet)
-    refute(seek_in_page(session, tag, attrs), "La page ne devrait pas contenir de balise #{tag} répondant aux attributs #{inspect attrs}.")
-    sujet
-  end
+  # Il faut abolument mettre cette fonction avant la suivante car une
+  # expression régulière est aussi une Map…
   def la_page_ne_contient_pas(sujet, tag, searched) when is_struct(searched, Regex) do
     session = session_from(sujet)
     founds = 
@@ -134,22 +131,26 @@ defmodule Feature.PageTestMethods do
     assert(Enum.empty?(founds), "Aucune balise #{tag} contenant #{inspect searched} n'aurait dû être trouvée.")
     sujet
   end
+  def la_page_ne_contient_pas(sujet, tag, attrs) when is_map(attrs) do
+    session = session_from(sujet)
+    refute(seek_in_page(session, tag, attrs, :negatif), "La page ne devrait pas contenir de balise #{tag} répondant aux attributs #{inspect attrs}.")
+    sujet
+  end
   def la_page_ne_contient_pas(sujet, balise, string) when is_binary(string) do
     la_page_ne_contient_pas(sujet, balise, ~r/#{Regex.escape(string)}/)
   end
   def la_page_ne_contient_pas(sujet, searched) when is_struct(searched, Regex) do
     session = session_from(sujet)
     err_msg = IO.ANSI.red() <> "On ne devrait pas trouver #{inspect searched} dans la page. La page contient : #{inspect WB.all(session, css("body")) |> Enum.at(0) |> WE.text()}" <> IO.ANSI.reset()
-    assert(not Regex.match?(searched, WB.page_source(session)), err_msg)
+    refute(Regex.match?(searched, WB.page_source(session)), err_msg)
     sujet
   end
   def la_page_ne_contient_pas(sujet, string) when is_binary(string) do
     la_page_ne_contient_pas(sujet, ~r/#{Regex.escape(string)}/)
   end
 
-
-
-  defp seek_in_page(session, balise, attrs) do
+  defp seek_in_page(session, balise, attrs, positif) do
+    positif = positif == :positif
     Enum.any?(WB.all(session, css(balise)), fn el ->
       resultat  =
         attrs
@@ -166,7 +167,7 @@ defmodule Feature.PageTestMethods do
             })
           end
         end)
-      if resultat.ok == false do
+      if resultat.ok != positif do
         IO.puts [
           IO.ANSI.red(),
           """
@@ -179,7 +180,6 @@ defmodule Feature.PageTestMethods do
       end
       resultat.ok
     end)
-
   end
 
 end
