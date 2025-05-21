@@ -84,10 +84,11 @@ defmodule Feature.FormTestMethods do
   S'il y a plusieurs formulaires, il faut indiquer dans +params+
   celui qu'il faut utiliser (par exemple avec son +id+ par :form_id)
   """
+  def mettre_bon_captcha(s, p \\ %{})
   def mettre_bon_captcha(session, prefix) when is_binary(prefix) do
     mettre_bon_captcha(session, %{prefix: prefix})
   end
-  def mettre_bon_captcha(session, params \\ %{}) do
+  def mettre_bon_captcha(session, params) do
     prefix = Map.get(params, :prefix, "f")
     session = session_from(session)
     # Récupérer l'index

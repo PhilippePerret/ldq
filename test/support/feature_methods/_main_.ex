@@ -142,13 +142,19 @@ defmodule FeaturePublicMethods do
   # ---- Méthodes de vérification --------
 
   @doc """
-  Recherche d'un contenu dans la page, toujours à l'intérieur d'une
-  balise.
+  Recherche d'un contenu dans la page, à l'aide d'une balise ou non.
+
+  On peut utiliser :
+
+  et_voit("un texte")   Pour un texte tel quel dans la page
+  et_voit("h2", "un texte")   Pour un texte dans une balise h2
+  et_voit("h2", %{id: "sonId", class: "saClass"}) Pour une balise  avec identifiant et classe
+
   """
   def la_page_contient(session, balise, attrs), do: Page.la_page_contient(session, balise, attrs)
-  def et_voit(suj, balise, attrs), do: la_page_contient(suj, balise, attrs)
+  def et_voit(suj, balise, attrs), do: Page.la_page_contient(suj, balise, attrs)
   def la_page_contient(session, string), do: Page.la_page_contient(session, string)
-  def et_voit(suj, string), do: la_page_contient(suj, string)
+  def et_voit(suj, string), do: Page.la_page_contient(suj, string)
   def la_page_contient_le_bouton(session, bouton, params \\ %{}), do: Page.la_page_contient(session, "button", bouton, params)
   def et_voit_le_bouton(suj, bouton, params \\ %{}), do: la_page_contient_le_bouton(suj, bouton, params)
   

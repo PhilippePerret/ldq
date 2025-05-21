@@ -47,3 +47,11 @@ form.philform div.explication {
 form.philform div.buttons {
   text-align: right;
 }
+
+/* Pour marquer qu'un champ est erroné */
+.form-error {
+  background-color: #FFCCCC;
+}
+.form-error div.error {
+  padding: 1em;
+}

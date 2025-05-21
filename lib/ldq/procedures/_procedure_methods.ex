@@ -157,8 +157,6 @@ defmodule LdQ.ProcedureMethods do
   cas contraire
   """
   def current_user_can_run_step(curuser, procedure) do
-    IO.inspect(procedure, label: "\nPROCÉDURE")
-    IO.inspect(self(), label: "\nSELF")
     steps = LdQ.Procedure.get_steps_of(procedure)
     step  = current_procedure(procedure, steps)
     owner = get_owner(procedure)

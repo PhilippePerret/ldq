@@ -386,20 +386,33 @@ defmodule LdQ.Procedure.PropositionLivre do
     user = procedure.user
     book = procedure.book
 
+    fields = [
+        %{type: :hidden, strict_name: "nstep", value: "author_confirm_submission"},
+        %{type: :text, name: "subtitle", label: "Sous-titre optionnel"},
+        %{type: :text, name: "preversion_id", label: "Pré-version optionnelle", explication: "Si une version précédente du livre a été soumise au label, en l'ayant reçu ou non, indiquer ici son identifiant."},
+        %{type: :number, name: "published_at", label: "Année de publication", min: 1990, max: now().year + 1, value: now().year},
+        %{type: :text, name: "url_command", label: "URL de commande", required: true, explication: "Permet de certifier que l'ouvrage est bien mis en vente. Une fois le label reçu, cet URL permettra aux lectrice et aux lecteurs intéressés d'acheter le livre."},
+        %{type: :checkbox, name: "accord_regles", value: "yes", strict_id: "accord_regles", label: "Je suis d’accord avec les <a href=\"/pg/regles-evaluation\">règles d'évaluation du label</a> et m'engage à les respecter"},
+        %{type: :checkbox, name: "send_by_mail", value: "yes", label: "Mon livre est gros, je préfère l'envoyer par mail"}
+      ]
+
+    # Quand on revient ici suite à une erreur de formulaire
+    form_errors = Map.get(procedure, :errors_form, nil)
+
+    fields = fields ++ (
+      if is_nil(form_errors) || form_errors["book_file"] do
+        # Première visite ou erreur sur le fichier
+        [%{type: :file, name: "book_file", strict_id: "book_file", label: "Manuscrit/livre", explication: "Le manuscrit du livre pour être soumis sous n'importe quelle forme lisible, que ce soit un ePub, un fichier PDF, Word. Il convient simplement de s'assurer qu'il n'est pas protégé en lecture. S'il est trop lourd pour le formulaire, cocher la case ci-dessus et <a href=\"mailto:#{Constantes.get(:mail_admin)}\">transmettez-le par mail</a> (ou upload de gros fichiers)."}]
+      else [] end
+    )
+
+
     form = Html.Form.formate(%Html.Form{
       id: "confirm-submit-book",
       prefix: "book",
       captcha: true,
-      fields: [
-        %{type: :hidden, strict_name: "nstep", value: "author_confirm_submission"},
-        %{type: :text, label: "Sous-titre optionnel"},
-        %{type: :text, label: "Pré-version optionnelle", explication: "Si une version précédente du livre a été soumise au label, en l'ayant reçu ou non, indiquer ici son identifiant."},
-        %{type: :number, label: "Année de publication", min: 1990, max: now().year + 1, value: now().year},
-        %{type: :text, label: "URL de commande", required: true, explication: "Permet de certifier que l'ouvrage est bien mis en vente. Une fois le label reçu, cet URL permettra aux lectrice et aux lecteurs intéressés d'acheter le livre."},
-        %{type: :checkbox, strict_id: "accord_regles", label: "Je suis d’accord avec les <a href=\"/pg/regles-evaluation\">règles d'évaluation du label</a> et m'engage à les respecter"},
-        %{type: :checkbox, label: "Mon livre est gros, je préfère l'envoyer par mail"},
-        %{type: :file, name: "book_file", strict_id: "book_file", label: "Manuscrit/livre", explication: "Le manuscrit du livre pour être soumis sous n'importe quelle forme lisible, que ce soit un ePub, un fichier PDF, Word. Il convient simplement de s'assurer qu'il n'est pas protégé en lecture. S'il est trop lourd pour le formulaire, cocher la case ci-dessus et <a href=\"mailto:#{Constantes.get(:mail_admin)}\">transmettez-le par mail</a> (ou upload de gros fichiers)."}
-      ],
+      errors: form_errors,
+      fields: fields,
       buttons: [
         %{type: :submit, name: "Soumettre mon livre"}
       ]
@@ -422,7 +435,7 @@ defmodule LdQ.Procedure.PropositionLivre do
   """
   def author_confirm_submission(procedure) do
     case check_captcha(procedure, "book") do
-    :ok -> proceed_author_confirm_submission(procedure)
+    :ok -> check_author_confirm_submission(procedure)
     {:error, message} -> {:error, message}
     end
   end
@@ -432,20 +445,29 @@ defmodule LdQ.Procedure.PropositionLivre do
     params = procedure.params["book"]
     IO.inspect(params, label: "BOOK PARAMS")
     # --- Vérifications ---
-    resultat = {ok: true, errors: %{}}
+    resultat = 
+    %{ok: true, errors: %{}}
     |> signature_accord_regles(params)
+    |> IO.inspect(label: "Résultat après signature_accord_regles")
     |> url_commande_valide(params)
+    |> IO.inspect(label: "Résultat après url_commande_valide")
 
     if resultat.ok do
+      # On poursuit
       proceed_author_confirm_submission(procedure)
     else
+      # On ressoumet le formulaire
+      proceed_confirmation_soumission(Map.put(procedure, :errors_form, resultat.errors))
     end
   end
 
   defp signature_accord_regles(res, params) do
+    IO.puts "-> signature_accord_regles(res = #{inspect res}, params = #{inspect params})"
     if res.ok do
-      if params["accord_regles"] == "yes" do res else
-        Map.put(res, :errors, Map.merge(res.errors, %{"accord_regles" => "Il faut approuver les règles"}))
+      if params["accord_regles"] == "yes" do 
+        res 
+      else
+        Html.Form.add_error(res, "accord_regles", "Il faut approuver les règles du label")
       end
     else res end
   end

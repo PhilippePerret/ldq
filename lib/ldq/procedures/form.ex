@@ -82,16 +82,28 @@ defmodule Html.Form do
       if is_nil(data.errors) do 
         fields 
       else
-        Enum.map(dfields fn dfield ->
+        Enum.map(fields, fn dfield ->
           Map.merge(dfield, %{error: Map.get(data.errors, dfield.original_name, nil)})
         end)
       end
 
+    lines = []
+
+    lines = 
+      if is_nil(data.errors) do lines else
+        errors_count = Enum.count(data.errors)
+        err_str = if errors_count > 1 do
+          "les #{errors_count} erreurs rencontrées"
+        else
+          "l’erreur rencontrée"
+        end 
+        lines ++ [~s(<div class="form-error error" style="margin:1em;text-align:right;">Merci de bien vouloir corriger #{err_str}.</div>)]
+      end
     enctype = 
       if has_a_file?(fields) do
         ~s( enctype="multipart/form-data")
       else "" end
-    lines = [~s(<form id="#{data.id}" class="philform" method="#{data.method}" action="#{data.action}"#{enctype}>)]
+    lines = lines ++ [~s(<form id="#{data.id}" class="philform" method="#{data.method}" action="#{data.action}"#{enctype}>)]
     lines = lines ++ [token_field()]
     lines = lines ++ build_fields(fields)
     lines = lines ++ [~s(<div class="buttons">)]
@@ -342,7 +354,7 @@ defmodule Html.Form do
       # Note : le data-field permet aux tests de savoir que le champ
       # est marqué erroné (noter que c'est le nom original qui est 
       # spécifié, pour plus de commodité)
-      ~s(<div class="error" data-field="#{dfield.original_name}"><div>#{dfield.error}</div>#{code}</div>)
+      ~s(<div class="form-error" data-field="#{dfield.original_name}"><div class="error">#{dfield.error}</div>#{code}</div>)
     end
   end
 
@@ -357,7 +369,7 @@ defmodule Html.Form do
       dfield[:id]         -> 
         "#{dfield.prefix}_#{dfield.id}"
       dfield[:strict_id]  -> 
-        "#{dfield.prefix}_#{dfield.strict_id}"
+        dfield.strict_id
       dfield[:name] || dfield[:strict_name] ->
         simple_name = dfield[:name] || dfield[:strict_name]
         if String.match?(simple_name, ~r/\[/) do
