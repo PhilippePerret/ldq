@@ -25,6 +25,7 @@ defmodule LdQWeb.BookSubmissionTestsStep2_2 do
     |> rejoint_la_page("/proc/#{procedure.id}")
     |> pause(1)
     |> et_voit("h3", "Confirmation de la soumission")
+    # |> pause(100)
     |> remplit_le_champ("Sous-titre optionnel") |> avec("Mon sous-titre de livre")
     |> remplit_le_champ("URL de commande") |> avec("https://www.amazon.fr/dp/B09521VMZQ")
     |> remplit_le_champ("Année de publication") |> avec("2024")

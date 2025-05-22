@@ -397,7 +397,7 @@ defmodule LdQ.Procedure.PropositionLivre do
       ]
 
     # Quand on revient ici suite à une erreur de formulaire
-    form_errors = Map.get(procedure, :errors_form, nil)
+    form_errors = Map.get(procedure, :form_errors, nil)
 
     fields = fields ++ (
       if is_nil(form_errors) || form_errors["book_file"] do
@@ -413,6 +413,7 @@ defmodule LdQ.Procedure.PropositionLivre do
       prefix: "book",
       captcha: true,
       errors: form_errors,
+      values: Map.get(procedure, :params, %{}),
       fields: fields,
       buttons: [
         %{type: :submit, name: "Soumettre mon livre"}
@@ -444,7 +445,7 @@ defmodule LdQ.Procedure.PropositionLivre do
   defp check_author_confirm_submission(procedure) do
     book = procedure.book
     params = procedure.params["book"]
-    IO.inspect(params, label: "BOOK PARAMS")
+    # IO.inspect(params, label: "BOOK PARAMS")
     # --- Vérifications ---
     resultat = 
     %{ok: true, errors: %{}, procedure: procedure}
@@ -465,7 +466,7 @@ defmodule LdQ.Procedure.PropositionLivre do
     else
       # On ressoumet le formulaire
       IO.puts "On repropose le formulaire car resultat = #{inspect resultat}"
-      rerun_procedure(Map.put(procedure, :errors_form, resultat.errors), :form_confirmation_soumission_per_auteur)
+      rerun_procedure(Map.put(procedure, :form_errors, resultat.errors), :form_confirmation_soumission_per_auteur)
     end
   end
 

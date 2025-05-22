@@ -250,19 +250,17 @@ defmodule LdQ.ProcedureMethods do
   def run_procedure(module, procedure, current_step) do
     resultat = apply(module, current_step.fun, [procedure])
 
-    cond do
-    is_binary(resultat) ->
+    if is_binary(resultat) do
       # Condition normale, quand la fonction retourne le texte à 
       # écrire dans la page
       plain_title = plain_title(procedure, current_step)
       plain_title <> resultat
-    {:reran, texte_final} = resultat ->
-      # Obtenu lors d'un redirection
-      texte_final
-    {:error, message} = resultat ->
-      # Quand une erreur fatale a été rencontrée
-      message
-    end    
+    else
+      case resultat do
+      {:reran, texte_final}   -> texte_final
+      {:error, error_message} -> error_message
+      end
+    end
   end
 
   defp plain_title(procedure, step) do

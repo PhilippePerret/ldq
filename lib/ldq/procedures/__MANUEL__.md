@@ -202,7 +202,7 @@ Par exemple :
 def une_premiere_etape(procedure) do
   form = %Html.form{
     ...
-    errors: Map.get(procedure, :errors_form, nil)
+    errors: Map.get(procedure, :form_errors, nil)
   }
   ...
 end

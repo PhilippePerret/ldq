@@ -1,3 +1,139 @@
+defmodule Html.Form.Field do
+  defstruct [
+    prefix:         nil,
+    id:             nil,
+    strict_id:      nil,
+    tag:            nil,
+    type:           nil,
+    error:          nil,
+    label:          nil,
+    name:           nil,
+    strict_name:    nil,
+    value:          nil,
+    required:       false,
+    explication:    nil,
+    original_name:  nil,
+    defaultized:    false,
+    wrapper:        "div",
+    checked:        nil,
+    content:        nil,
+    options:        nil,
+    values:         nil,
+    max:            nil,
+    min:            nil
+  ]
+
+  @doc """
+  Initialisation d'un champ
+
+  @param {Map} dfield Les données (incomplètes) transmises pour le 
+  champ
+
+  @return {Html.Form.Field} La structure champ
+  """
+  def defaultize(dfield) do
+    dfield = struct(__MODULE__, dfield)
+
+    dfield = %{dfield | original_name: dfield.strict_name || dfield.name}
+
+    dfield = 
+      if is_nil(dfield.defaultized) do
+        # Il faut calculer l'id avant de pouvoir calculer le name
+        dfield = %{dfield | id: calc_field_id(dfield)}
+        Map.merge(dfield, %{
+          name: calc_field_name(dfield),
+          defaultized: true
+        })
+      else 
+        dfield 
+      end
+
+    # Quand le :type a été envoyé au lieu du :tag
+    tag =
+      if is_nil(dfield.tag) do
+        case dfield.type do
+        nil       -> raise ":tag et :type ne peuvent pas être non définis tous les deux"
+        :raw      -> :raw
+        :hidden   -> :hidden
+        :select   -> :select
+        :date     -> :input
+        :text     -> :input
+        :checkbox -> :input
+        :file     -> :input
+        :number   -> :input
+        _         -> raise ":tag non défini et :type inconnu (#{dfield.type})"
+        end
+      else
+        dfield.tag
+      end
+
+    dfield = %{dfield | tag: tag}
+
+    # Quand type :checkbox sans :checked
+    dfield = 
+      cond do
+      is_nil(dfield.type) -> dfield
+      (dfield.type == :checkbox) and is_nil(dfield.checked) -> Map.put(dfield, :checked, false)
+      true -> dfield
+      end
+
+    # Quand tag :select et :values au lieu d':options
+    dfield =
+      cond do
+      (dfield.tag == :select) and is_nil(dfield.options) ->
+        case dfield.values do
+          nil -> raise "Pour un :select, il faut obligatoirement transmettre :options ou :values"
+          _ -> %{dfield | options: dfield.values}
+        end
+      true -> dfield
+      end
+
+    # Quelques valeurs par défaut
+    [
+      {:options, dfield.values || nil}
+    ] |> Enum.reduce(dfield, fn {prop, defvalue}, coll ->
+      Map.put(coll, prop, defvalue)
+    end)
+  end
+
+
+  def calc_field_id(dfield) do
+    cond do
+      !is_nil(dfield.strict_id)  -> 
+        dfield.strict_id
+      !is_nil(dfield.id)         -> 
+        "#{dfield.prefix}_#{dfield.id}"
+      !is_nil(dfield.name || dfield.strict_name) ->
+        simple_name = dfield.name || dfield.strict_name
+        if String.match?(simple_name, ~r/\[/) do
+          simple_name
+          |> String.replace("][", "_")
+          |> String.replace(~r/[\[\]]/, "")
+        else
+          simple_name
+        end
+        "#{dfield.prefix}_#{simple_name}"
+      true -> 
+        "field_#{Ecto.UUID.generate()}"
+    end
+  end
+
+  def calc_field_name(dfield) do
+    prefix = dfield.prefix
+    cond do
+      !is_nil(dfield.strict_name) -> 
+        dfield.strict_name
+      is_nil(dfield.name) ->
+        "#{prefix}[#{dfield.id}]"
+      String.match?(dfield.name, ~r/\[/) -> 
+        dfield.name
+      true -> 
+        "#{prefix}[#{dfield.name}]"
+    end
+  end
+
+end #/module Html.Form.Field
+
 defmodule Html.Form do
   @moduledoc """
   Gestion des formulaires, quand on n'a pas envie des composants HEX
@@ -7,6 +143,14 @@ defmodule Html.Form do
     prefix: {String} # "f" par défaut
     method: {String} POST par défaut
     action: {String}
+    errors: {Map} Les erreurs rencontrées (avec en clé-string les 
+                  names originaux).
+                  [Optionnel]
+    values: {Map} Les valeurs, mais ici telles qu'elles sont 
+                  transmises, c'est-à-dire que la pluparts se 
+                  trouvent dans values["<prefix>"] et celles avec
+                  strict_name directement dans values["<strict_name>"]
+                  [Optionnel]
     captcha: {Boolean} Si True, on ajoute un champ captcha
     fields: [
       %{tag: , type: , name: , id: , value: , explication: , required: }
@@ -41,6 +185,9 @@ defmodule Html.Form do
   :date
   :select
   """
+  
+  alias Html.Form.Field
+
   defstruct [
     sujet: nil, # Map du sujet dans lequel il faut prendre les données
     id: nil,
@@ -50,6 +197,7 @@ defmodule Html.Form do
     fields: [],
     buttons: [],
     errors: nil, # ou une Map %{field => error}
+    values: %{}, # cf. ci-dessus
     captcha: false
   ]
 
@@ -74,10 +222,33 @@ defmodule Html.Form do
       end
     
     fields = data.fields
-      |> Enum.map(fn dfield -> 
-        defaultize_field(Map.merge(dfield, %{error: nil, prefix: data.prefix, original_name: dfield[:strict_name]||dfield[:name]}))
+      |> Enum.map(fn dfield ->
+        Field.defaultize(Map.put(dfield, :prefix, data.prefix))
       end)
 
+    # On ajoute les valeurs, si elles ont été transmises par
+    # la propriété :values
+    fields = 
+      if is_nil(data.values) || Enum.empty?(data.values) do
+        fields
+      else
+        Enum.map(fields, fn dfield ->
+          # value = if dfield.strict_name do
+          #     data.values[dfield.strict_name]
+          #   else
+          #     data.values[data.prefix][dfield.name]
+          #   end
+          #   Map.put(dfield, :value, value)
+          Map.put(dfield, :value, if is_nil(dfield.strict_name) do
+            data.values[data.prefix][dfield.name]
+          else
+            data.values[dfield.strict_name]
+          end)
+        end)
+      end
+
+    # On ajoute les erreurs, si elles ont été transmises par
+    # la propriété :errors
     fields =
       if is_nil(data.errors) do 
         fields 
@@ -179,8 +350,8 @@ defmodule Html.Form do
     ~s(<input type="text" id="#{dfield.id}" name="#{dfield.name}" value="#{dfield.value}" #{required(dfield)}/>)
   end
   def build_field(:input, %{type: :number} = dfield) do
-    max = if Map.get(dfield, :max), do: ~s( max="#{dfield.max}"), else: ""
-    min = if Map.get(dfield, :min), do: ~s( min="#{dfield.min}"), else: ""
+    max = if is_nil(dfield.max), do: "", else: ~s( max="#{dfield.max}")
+    min = if is_nil(dfield.min), do: "", else: ~s( min="#{dfield.min}")
     ~s(<input type="number" id="#{dfield.id}" name="#{dfield.name}"#{min}#{max} value="#{dfield.value}" #{required(dfield)}/>)
   end
   def build_field(:textarea, dfield) do
@@ -236,7 +407,7 @@ defmodule Html.Form do
 
   def build_field(:captcha, dfield) do
     captcha = random_captcha()
-    dfield = defaultize_field(%{
+    dfield = Field.defaultize(%{
       tag:          :select,
       id:       "#{dfield.prefix}_captcha",
       name:     "#{dfield.prefix}[captcha]",
@@ -364,106 +535,4 @@ defmodule Html.Form do
     ~s(<input type="hidden" name="_csrf_token" value="#{token}">)
   end
 
-  def calc_field_id(dfield) do
-    cond do
-      dfield[:id]         -> 
-        "#{dfield.prefix}_#{dfield.id}"
-      dfield[:strict_id]  -> 
-        dfield.strict_id
-      dfield[:name] || dfield[:strict_name] ->
-        simple_name = dfield[:name] || dfield[:strict_name]
-        if String.match?(simple_name, ~r/\[/) do
-          simple_name
-          |> String.replace("][", "_")
-          |> String.replace(~r/[\[\]]/, "")
-        else
-          simple_name
-        end
-        "#{dfield.prefix}_#{simple_name}"
-      true -> 
-        "field_#{Ecto.UUID.generate()}"
-    end
-  end
-
-  def calc_field_name(dfield) do
-    prefix = dfield[:prefix]
-    cond do
-      Map.get(dfield, :strict_name) -> 
-        dfield.strict_name
-      is_nil(dfield[:name]) ->
-        "#{prefix}[#{dfield[:id]||dfield[:default_id]}]"
-      String.match?(dfield.name, ~r/\[/) -> 
-        dfield.name
-      true -> 
-        "#{prefix}[#{dfield.name}]"
-    end
-  end
-
-  defp defaultize_field(dfield) do
-    dfield = 
-      if is_nil(Map.get(dfield, :defaultized, nil)) do
-        Map.put(dfield, :id, calc_field_id(dfield))
-        |> Map.put(:name, calc_field_name(dfield))
-        |> Map.put(:defaultized, true)
-      else dfield end
-
-    # Quand type: :raw a été employé au lieu de tag: :raw
-    # Ou quand type: :hidden a été employé au lieu de tag: :hidden
-    dfield = 
-      cond do
-      is_nil(Map.get(dfield, :type, nil)) -> dfield
-      dfield.type == :raw -> Map.put(dfield, :tag, :raw)
-      dfield.type == :hidden and is_nil(Map.get(dfield, :tag)) -> Map.put(dfield, :tag, :hidden)
-      true -> dfield
-      end
-
-    # Quand type: :text, :checkbox, :select, :file ou :date sans :tag
-    dfield = 
-      cond do
-      is_nil(Map.get(dfield, :tag)) ->
-        case Map.get(dfield, :type, nil) do
-        nil       -> raise ":tag et :type ne peuvent pas être non définis tous les deux"
-        :select   -> Map.put(dfield, :tag, :select)
-        :date     -> Map.put(dfield, :tag, :input)
-        :text     -> Map.put(dfield, :tag, :input)
-        :checkbox -> Map.put(dfield, :tag, :input)
-        :file     -> Map.put(dfield, :tag, :input)
-        :number   -> Map.put(dfield, :tag, :input)
-        _         -> raise ":tag non défini et :type inconnu (#{Map.get(dfield, :type)})"
-        end
-      true -> dfield
-      end
-
-    # Quand type :checkbox sans :checked
-    dfield = 
-      cond do
-      is_nil(dfield[:type]) -> dfield
-      (dfield.type == :checkbox) and is_nil(dfield[:checked]) -> Map.put(dfield, :checked, false)
-      true -> dfield
-      end
-
-    # Quand tag :select et :values au lieu d':options
-    dfield =
-      cond do
-      (dfield[:tag] == :select) and is_nil(dfield[:options]) ->
-        case dfield[:values] do
-          nil -> raise "Pour un :select, il faut obligatoirement transmettre :options ou :values"
-          _ -> Map.put(dfield, :options, dfield[:values])
-        end
-      true -> dfield
-      end
-
-    [
-      {:tag, nil},
-      {:explication, nil}, {:label, nil}, {:wrapper, "div"},
-      {:type, nil}, {:required, false}, {:options, dfield[:values] || nil},
-      {:value, nil}
-    ] |> Enum.reduce(dfield, fn {prop, defvalue}, coll ->
-      if Map.has_key?(coll, prop) do
-        coll
-      else
-        Map.put(coll, prop, defvalue)
-      end
-    end)
-  end
 end
