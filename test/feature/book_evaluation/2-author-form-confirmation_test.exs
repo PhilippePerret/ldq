@@ -55,9 +55,18 @@ defmodule LdQWeb.BookSubmissionTestsStep2_2 do
     |> pause(1)
     |> et_voit("h3", "Soumission confirmée")
     |> et_voit("Merci d'avoir confirmé la soumission de votre livre")
+    |> pause(5)
 
     # Le fichier doit avoir été transmis
-    assert File.exists?(book_file_dest)
+    assert File.exists?(book_file_dest, "Le manuscrit/livre de l'auteur est introuvable… (#{inspect book_file_dest})")
+  
+    # Mail envoyé aux administrateurs
+    # TODO
+    # Mail envoyé à l'auteur pour confirmer
+    # TODO
+    # Annonce activité
+    # TODO
+  
   end
 
   @tag :skip

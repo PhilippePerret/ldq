@@ -226,6 +226,17 @@ defmodule LdQ.ProcedureMethods do
 
   """
   def rerun_procedure(procedure, step_fun) do
+    # IO.inspect(procedure, label: "\n\nPROCÉDURE DANS RERUN")
+    # Il est peut-être normal ici d'avoir :data sous forme de string…
+    # Ce sera à contrôler quand même (TODO)
+    data = 
+    cond do
+      is_nil(Map.get(procedure, :data, nil)) -> nil
+      is_binary(procedure.data) -> Jason.decode!(procedure.data)
+      true -> procedure.data # logiquement une table
+    end
+    procedure = Map.put(procedure, :data, data)
+    IO.inspect(procedure, label: "\n\nDANS RERUN après transfo :data")
     module = LdQ.Procedure.get_proc_module(procedure.proc_dim)
     step_fun = if is_binary(step_fun), do: step_fun, else: Atom.to_string(step_fun)
     resultat = run_current_procedure(%{procedure | next_step: step_fun}, module)
@@ -690,7 +701,7 @@ defmodule LdQ.ProcedureMethods do
   Fonction qui s'assure que le dossier des livres existe et retourne
   """
   def ensure_books_folder do
-    path = Path.join(~w("priv static uploads books))
+    path = Path.join(~w(priv static uploads books))
     File.mkdir_p!(path)
     path
   end

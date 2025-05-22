@@ -13,7 +13,7 @@ defmodule Html.Form.Field do
     required:       false,
     explication:    nil,
     original_name:  nil,
-    defaultized:    false,
+    defaultized:    nil,
     wrapper:        "div",
     checked:        nil,
     content:        nil,
@@ -22,6 +22,10 @@ defmodule Html.Form.Field do
     max:            nil,
     min:            nil
   ]
+
+  @errors %{
+    options_required: "Pour un :select, il faut obligatoirement transmettre :options ou :values"
+  }
 
   @doc """
   Initialisation d'un champ
@@ -36,6 +40,7 @@ defmodule Html.Form.Field do
 
     dfield = %{dfield | original_name: dfield.strict_name || dfield.name}
 
+    # ID et NAME du champ
     dfield = 
       if is_nil(dfield.defaultized) do
         # Il faut calculer l'id avant de pouvoir calculer le name
@@ -77,23 +82,17 @@ defmodule Html.Form.Field do
       true -> dfield
       end
 
-    # Quand tag :select et :values au lieu d':options
+    # Quand tag :select, :options doit être toujours défini, mais les
+    # valeurs peuvent se trouver dans :values au lieu d':options
     dfield =
-      cond do
-      (dfield.tag == :select) and is_nil(dfield.options) ->
-        case dfield.values do
-          nil -> raise "Pour un :select, il faut obligatoirement transmettre :options ou :values"
-          _ -> %{dfield | options: dfield.values}
-        end
-      true -> dfield
+      if dfield.tag == :select do
+        %{dfield | options: dfield.options || dfield.values || raise(@errors[:options_required])}
+      else 
+        dfield
       end
 
-    # Quelques valeurs par défaut
-    [
-      {:options, dfield.values || nil}
-    ] |> Enum.reduce(dfield, fn {prop, defvalue}, coll ->
-      Map.put(coll, prop, defvalue)
-    end)
+    # On le retourne
+    dfield
   end
 
 
@@ -228,22 +227,19 @@ defmodule Html.Form do
 
     # On ajoute les valeurs, si elles ont été transmises par
     # la propriété :values
+    # Pour la déterminer, c'est :
+    #   - soit la valeur dans <data form>.values (forcées)
+    #     par [prefix][name] ou [strict_name]
+    #   - soit la valeur définie par défaut (donc dans le dfield original)
+    #   - soit nil
     fields = 
       if is_nil(data.values) || Enum.empty?(data.values) do
         fields
       else
         Enum.map(fields, fn dfield ->
-          # value = if dfield.strict_name do
-          #     data.values[dfield.strict_name]
-          #   else
-          #     data.values[data.prefix][dfield.name]
-          #   end
-          #   Map.put(dfield, :value, value)
-          Map.put(dfield, :value, if is_nil(dfield.strict_name) do
-            data.values[data.prefix][dfield.name]
-          else
-            data.values[dfield.strict_name]
-          end)
+          value_per_name = data.values[data.prefix] && data.values[data.prefix][dfield.original_name]
+          value_per_strictname = dfield.strict_name && data.values[dfield.strict_name]
+          %{dfield | value: value_per_name || value_per_strictname || dfield.value}
         end)
       end
 
@@ -408,7 +404,7 @@ defmodule Html.Form do
   def build_field(:captcha, dfield) do
     captcha = random_captcha()
     dfield = Field.defaultize(%{
-      tag:          :select,
+      tag:      :select,
       id:       "#{dfield.prefix}_captcha",
       name:     "#{dfield.prefix}[captcha]",
       defaultized: true, # pour ne pas modifier :id et :name

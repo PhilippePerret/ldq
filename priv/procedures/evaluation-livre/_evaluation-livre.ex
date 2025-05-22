@@ -387,26 +387,40 @@ defmodule LdQ.Procedure.PropositionLivre do
     book = procedure.book
 
     fields = [
-        %{type: :hidden, strict_name: "nstep", value: "author_confirm_submission"},
-        %{type: :text, name: "subtitle", label: "Sous-titre optionnel"},
-        %{type: :text, name: "preversion_id", label: "Pré-version optionnelle", explication: "Si une version précédente du livre a été soumise au label, en l'ayant reçu ou non, indiquer ici son identifiant."},
-        %{type: :number, name: "published_at", label: "Année de publication", min: 1990, max: now().year + 1, value: now().year},
-        %{type: :text, name: "url_command", label: "URL de commande", required: true, explication: "Permet de certifier que l'ouvrage est bien mis en vente. Une fois le label reçu, cet URL permettra aux lectrice et aux lecteurs intéressés d'acheter le livre."},
-        %{type: :checkbox, name: "accord_regles", value: "yes", strict_id: "accord_regles", label: "Je suis d’accord avec les <a href=\"/pg/regles-evaluation\">règles d'évaluation du label</a> et m'engage à les respecter"},
-        %{type: :checkbox, name: "send_by_mail", value: "yes", label: "Mon livre est gros, je préfère l'envoyer par mail"}
-      ]
+      %{type: :hidden, strict_name: "nstep", value: "author_confirm_submission"},
+      %{type: :text, name: "subtitle", label: "Sous-titre optionnel"},
+      %{type: :text, name: "preversion_id", label: "Pré-version optionnelle", explication: "Si une version précédente du livre a été soumise au label, en l'ayant reçu ou non, indiquer ici son identifiant."},
+      %{type: :number, name: "published_at", label: "Année de publication", min: 1990, max: now().year + 1, value: now().year},
+      %{type: :text, name: "url_command", label: "URL de commande", required: true, explication: "Permet de certifier que l'ouvrage est bien mis en vente. Une fois le label reçu, cet URL permettra aux lectrice et aux lecteurs intéressés d'acheter le livre."},
+      %{type: :checkbox, name: "accord_regles", value: "yes", strict_id: "accord_regles", label: "Je suis d’accord avec les <a href=\"/pg/regles-evaluation\">règles d'évaluation du label</a> et m'engage à les respecter"}
+    ]
 
     # Quand on revient ici suite à une erreur de formulaire
     form_errors = Map.get(procedure, :form_errors, nil)
 
+    # Quand c'est une re-présentation du formulaire, et que le 
+    # manuscrit/livre a été envoyé, on ne demande plus de le redonner
+    # on indique simplement son nom.
     fields = fields ++ (
       if is_nil(form_errors) || form_errors["book_file"] do
         # Première visite ou erreur sur le fichier
-        [%{type: :file, name: "book_file", strict_id: "book_file", label: "Manuscrit/livre", explication: "Le manuscrit du livre pour être soumis sous n'importe quelle forme lisible, que ce soit un ePub, un fichier PDF, Word. Il convient simplement de s'assurer qu'il n'est pas protégé en lecture. S'il est trop lourd pour le formulaire, cocher la case ci-dessus et <a href=\"mailto:#{Constantes.get(:mail_admin)}\">transmettez-le par mail</a> (ou upload de gros fichiers)."}]
+        [
+          %{type: :file, name: "book_file", strict_id: "book_file", label: "Manuscrit/livre", explication: "Le manuscrit du livre pour être soumis sous n'importe quelle forme lisible, que ce soit un ePub, un fichier PDF, Word. Il convient simplement de s'assurer qu'il n'est pas protégé en lecture. S'il est trop lourd pour le formulaire, cocher la case ci-dessus et <a href=\"mailto:#{Constantes.get(:mail_admin)}\">transmettez-le par mail</a> (ou upload de gros fichiers)."},
+          %{type: :checkbox, name: "send_by_mail", value: "yes", label: "Mon livre est gros, je préfère l'envoyer par mail"}
+        ]
       else 
         [%{type: :raw, label: "Manuscrit/livre", content: "<div><em>Transmis avec succès</em></div>"}] 
       end
     )
+
+    # Juste pour vérifier si le fichier existe dans uploads
+    man_path = Map.get(procedure.data, "manuscrit_path", nil)
+    if is_nil(man_path) do
+      IO.puts "Pas de manuscrit/livre défini dans procedure.data"
+    else
+      IO.puts "Path du manuscrit : #{man_path}"
+      IO.puts "Existe : #{File.exists?(man_path)}"
+    end
 
     form = Html.Form.formate(%Html.Form{
       id: "confirm-submit-book",
@@ -451,25 +465,21 @@ defmodule LdQ.Procedure.PropositionLivre do
     %{ok: true, errors: %{}, procedure: procedure}
     |> livre_ou_manuscrit_transmit(params)
     |> signature_accord_regles(params)
-    |> IO.inspect(label: "Résultat après signature_accord_regles")
     |> url_commande_valide(params)
-    |> IO.inspect(label: "Résultat après url_commande_valide")
 
     # La procédure a pu être modifiée
     procedure = resultat.procedure
-    |> IO.inspect(label: "PROCÉDURE MODIFIÉE")
+    # |> IO.inspect(label: "PROCÉDURE MODIFIÉE")
 
     if resultat.ok do
       # On poursuit
-      IO.puts "On poursuit car resultat = #{inspect resultat}"
+      # IO.puts "On poursuit car resultat = #{inspect resultat}"
       proceed_author_confirm_submission(procedure)
     else
       # On ressoumet le formulaire
-      IO.puts "On repropose le formulaire car resultat = #{inspect resultat}"
       rerun_procedure(Map.put(procedure, :form_errors, resultat.errors), :form_confirmation_soumission_per_auteur)
     end
   end
-
 
   # Note : On ne passe ici que lorsque tout est OK et certifié
   defp proceed_author_confirm_submission(procedure) do
@@ -659,7 +669,7 @@ defmodule LdQ.Procedure.PropositionLivre do
       else
         # C'est une autre soumission où le manuscrit a été transmit.
         # On doit le trouver dans le dossier des livres
-        man_path = procedure.data.manuscrit_path
+        man_path = procedure.data["manuscrit_path"]
         if File.exists?(man_path) do
           res
         else
@@ -669,7 +679,6 @@ defmodule LdQ.Procedure.PropositionLivre do
     else res end
   end
   defp signature_accord_regles(res, params) do
-    IO.puts "-> signature_accord_regles(res = #{inspect res}, params = #{inspect params})"
     if res.ok do
       if params["accord_regles"] == "yes" do 
         res 
@@ -683,7 +692,7 @@ defmodule LdQ.Procedure.PropositionLivre do
       url = params["url_command"]
       case Book.validate("url_command", nil, url, nil) do
       :ok -> res
-      {:error, erreur} -> Html.Form.add_error(res, "accord_regles", "Il faut entrer une URL valide et qui permet d'acheter le livre.")
+      {:error, _erreur} -> Html.Form.add_error(res, "accord_regles", "Il faut entrer une URL valide et qui permet d'acheter le livre.")
       end
     else res end
   end
