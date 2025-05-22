@@ -18,6 +18,7 @@ defmodule LdQ.Repo.Migrations.CreateBooks do
       add :url_command, :string
       # --- Évaluation ---
       add :transmitted, :boolean, default: false, null: false
+      add :last_phase, :integer
       add :current_phase, :integer
       add :submitted_at, :naive_datetime
       add :evaluated_at, :naive_datetime

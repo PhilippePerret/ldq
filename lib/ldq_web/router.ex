@@ -73,6 +73,7 @@ defmodule LdQWeb.Router do
     pipe_through :browser
   
     get "/", ChantierController, :voie_sans_issue
+    get "/label", ChantierController, :voie_sans_issue # doit conduire à la page permettant de voir et choisir les livres labellisés
     get "/soumettre", ChantierController, :voie_sans_issue
   	get "/choisir", ChantierController, :voie_sans_issue
   	get "/classement", ChantierController, :voie_sans_issue

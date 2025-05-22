@@ -16,6 +16,8 @@ defmodule LdQWeb.BookSubmissionTestsStep2_2 do
     file_book_path = Path.join(["test","assets","files", "book_pour_soumission.pdf"])
     book_file_dest = Path.join(["priv", "static", "uploads", "books", "book-#{procedure.id}.pdf"])
 
+    book_subtitle     = "Mon sous-titre de livre"
+    book_url_command  = "https://www.amazon.fr/dp/B09521VMZQ"
 
     author = get_author(procedure.data["author_id"])
     _author_as_user = start_session(author.user, [])
@@ -26,8 +28,8 @@ defmodule LdQWeb.BookSubmissionTestsStep2_2 do
     |> pause(1)
     |> et_voit("h3", "Confirmation de la soumission")
     # |> pause(100)
-    |> remplit_le_champ("Sous-titre optionnel") |> avec("Mon sous-titre de livre")
-    |> remplit_le_champ("URL de commande") |> avec("https://www.amazon.fr/dp/B09521VMZQ")
+    |> remplit_le_champ("Sous-titre optionnel") |> avec(book_subtitle)
+    |> remplit_le_champ("URL de commande") |> avec(book_url_command)
     |> remplit_le_champ("Année de publication") |> avec("2024")
     # |> coche_la_case("#book_accord_regles")
     # Je fais exprès d'oublier de cocher la case des règles
@@ -53,12 +55,18 @@ defmodule LdQWeb.BookSubmissionTestsStep2_2 do
     # --- Vérification ---
     |> pause(1)
     |> et_voit("h3", "Soumission confirmée")
-    |> et_voit("Merci d'avoir confirmé la soumission de votre livre")
+    |> et_voit(["Merci", "d’avoir confirmé la soumission de votre livre"])
+    |> pause(4)
 
     # Le fichier doit avoir été transmis
     assert( File.exists?(book_file_dest), "Le manuscrit/livre de l'auteur est introuvable… (#{inspect book_file_dest})")
   
     # Les nouvelles données du livre ont été enregistrées
+    book_data = LdQ.Library.Book.get(Map.get(procedure.data, "book_id"))
+    IO.inspect(book_data, label: "\nBOOK DATA dans test")
+    assert(book_data.subtitle == book_subtitle)
+    assert(book_data.url_command == book_url_command)
+    # data Soumission ? TODO
     # TODO
     # Mail envoyé aux administrateurs
     # TODO

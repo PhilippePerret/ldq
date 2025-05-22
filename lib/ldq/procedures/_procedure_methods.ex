@@ -100,6 +100,8 @@ defmodule LdQ.ProcedureMethods do
     params[:query_string] Query string à ajouter ("sans ?")
     params[:title] Le titre du lien
     params[:style] Le style éventuel
+
+  @return {HTMLString} Le string complet <a ...>...</a> à coller.
   """
   def proc_url(procedure, params \\ []) do
     href  = [Constantes.get(:app_url), "proc", procedure.id] |> Enum.join("/")

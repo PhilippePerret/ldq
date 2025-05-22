@@ -23,6 +23,7 @@ defmodule LdQ.Library.Book do
     field :pre_version_id, :binary_id
     # --- Evaluation ---
     field :transmitted, :boolean, default: false
+    field :last_phase,    :integer
     field :current_phase, :integer
     field :submitted_at, :naive_datetime # pour savoir quand l'administrateur a validé la candidature
     field :evaluated_at, :naive_datetime
@@ -53,6 +54,7 @@ defmodule LdQ.Library.Book do
     "label"           => %{type: :boolean},
     "label_grade"     => %{type: :integer},
     "label_year"      => %{type: :year},
+    "last_phase"      => %{type: :integer},
     "pitch"           => %{type: :string},
     "parrain_id"      => %{type: :user},
     "pre_version_id"  => %{type: :string},
@@ -68,6 +70,42 @@ defmodule LdQ.Library.Book do
     "url_command"     => %{type: :string}
   }
   def fields_data, do: @fields_data
+
+  # Les phases d'évaluation du livre
+  # 
+  # Elles doivent obligatoirement aller crescendo
+  @book_phases %{
+    0 => %{name: "Livre simplement proposé"},
+    1 => %{name: "Demande d'informations supplémentaires"},
+    2 => %{name: "Refusé avant soumission"},
+    5 => %{name: "Accepté par l'administration"},
+    10  => %{name: "Demande d'autorisation de l'auteur"},
+    11  => %{name: "Refus de l'autorisation de l'auteur"},
+    15  => %{name: "Acceptation de la soumission par l'auteur"},
+    18  => %{name: "Désignation d'un parrain membre du comité"},
+    20  => %{name: "Mis en évaluation par l'administration"},
+    30  => %{name: "Premier collège de membres atteint"},
+    32  => %{name: "Évaluation premier collège en cours"},
+    35  => %{name: "Fin évaluation premier collège"},
+    37  => %{name: "REJET PREMIER COLLÈGE"},
+    40  => %{name: "ACCEPTATION PREMIER COLLÈGE"},
+    50  => %{name: "Deuxième collège de membres atteint"},
+    52  => %{name: "Évaluation second collège en cours"},
+    55  => %{name: "Fin évaluation second collège"},
+    57  => %{name: "REJET SECOND COLLÈGE"},
+    60  => %{name: "ACCEPTATION SECOND COLLÈGE"},
+    70  => %{name: "Troisième collège de membres atteint"},
+    72  => %{name: "Évaluation troisième collège en cours"},
+    75  => %{name: "Fin évaluation troisième collège"},
+    77  => %{name: "REJET TROISIÈME COLLÈGE"},
+    80  => %{name: "ACCEPTATION TROISIÈME COLLÈGE"},
+    82  => %{name: "label Lecture de qualité attribué"},
+    84  => %{name: "Entrée dans les classements"},
+    86  => %{name: "Mise à l'évaluation pour tout lecteur"},
+    100 => %{name: "Retrait de label pour faute grave"},
+    102 => %{name: "Retrait du label par décision de l'auteur"},
+    104 => %{name: "Retrait du label pour autre raison"}
+  }
 
   # === FONCTIONS DE RÉCUPÉRATION ===
 
@@ -378,10 +416,28 @@ defmodule LdQ.Library.Book do
     end
   end
 
-  def validate("current_phase", ival, nval, _set) do
-    # La nouvelle phase doit obligatoirement être supérieur à 
-    # la précédente
+  def validate("last_phase", ival, nval, set) do
+    # La dernière phase, si elle n'est pas nil, doit obligatoirement :
+    #   - exister
+    #   - supérieure à l'ancienne dernière phase si elle est défini
+    #   - inférieure obligatoirement à la phase courante TODO
     cond do
+      is_nil(nval) -> :ok
+      is_nil(@book_phases[nval]) -> {:error, "La dernière phase (#{nval}) doit obligatoirement exister."}
+      is_nil(ival) -> :ok
+      nval > ival  -> :ok
+      nval < ival   -> {:error, "La nouvelle dernière phrase (#{nval}) doit être supérieure à l'ancienne dernière phase (#{ival})…"}
+    end
+  end
+
+  def validate("current_phase", ival, nval, _set) do
+    # La nouvelle phase, si elle est définie, doit obligatoirement :
+    #   - exister
+    #   - être supérieure à la précédente (vraiment ?)
+    #   - être supérieure à la nouvelle phase précédente TODO
+    cond do
+      is_nil(nval)  -> :ok
+      is_nil(@book_phases[nval]) -> {:error, "La nouvelle phase courante (#{nval}) est inconnue…"}
       is_nil(ival)  -> :ok
       nval > ival   -> :ok
       nval < ival   -> {:error, "La nouvelle phase courante (#{nval}) devrait être supérieure à la phase précédente (#{ival})"}

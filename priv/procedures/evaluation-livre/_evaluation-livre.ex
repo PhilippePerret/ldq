@@ -413,14 +413,14 @@ defmodule LdQ.Procedure.PropositionLivre do
       end
     )
 
-    # Juste pour vérifier si le fichier existe dans uploads
-    man_path = Map.get(procedure.data, "manuscrit_path", nil)
-    if is_nil(man_path) do
-      IO.puts "Pas de manuscrit/livre défini dans procedure.data"
-    else
-      IO.puts "Path du manuscrit : #{man_path}"
-      IO.puts "Existe : #{File.exists?(man_path)}"
-    end
+    # # Juste pour vérifier si le fichier existe dans uploads
+    # man_path = Map.get(procedure.data, "manuscrit_path", nil)
+    # if is_nil(man_path) do
+    #   IO.puts "Pas de manuscrit/livre défini dans procedure.data"
+    # else
+    #   IO.puts "Path du manuscrit : #{man_path}"
+    #   IO.puts "Existe : #{File.exists?(man_path)}"
+    # end
 
     form = Html.Form.formate(%Html.Form{
       id: "confirm-submit-book",
@@ -474,6 +474,14 @@ defmodule LdQ.Procedure.PropositionLivre do
     if resultat.ok do
       # On poursuit
       # IO.puts "On poursuit car resultat = #{inspect resultat}"
+      # --- Enregistrement des nouvelles informations pour le livre ---
+      params = Map.merge(params, %{
+        "transmitted"   => File.exists?(procedure.data["manuscrit_path"]),
+        "last_phase"    => 15,
+        "current_phase" => 18,
+        "submitted_at"  => now()
+      })
+      LdQ.Library.Book.save(book, params)
       proceed_author_confirm_submission(procedure)
     else
       # On ressoumet le formulaire
@@ -505,6 +513,7 @@ defmodule LdQ.Procedure.PropositionLivre do
       %{
         author_name: book.author.name,
         book_title: book.title,
+        proc_url_author: proc_url(procedure, [title: "cette page réservée à votre livre"]) 
       }, 
       Helpers.Feminines.as_map(book.author.sexe, "auth") # => auth_<...>
     )
