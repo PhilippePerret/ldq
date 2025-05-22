@@ -50,16 +50,16 @@ defmodule LdQWeb.BookSubmissionTestsStep2_2 do
     |> coche_la_case("#accord_regles")
     |> choisit_le_bon_captcha("book")
     |> clique_le_bouton("Soumettre mon livre")
-    |> pause(5)
     # --- Vérification ---
     |> pause(1)
     |> et_voit("h3", "Soumission confirmée")
     |> et_voit("Merci d'avoir confirmé la soumission de votre livre")
-    |> pause(5)
 
     # Le fichier doit avoir été transmis
-    assert File.exists?(book_file_dest, "Le manuscrit/livre de l'auteur est introuvable… (#{inspect book_file_dest})")
+    assert( File.exists?(book_file_dest), "Le manuscrit/livre de l'auteur est introuvable… (#{inspect book_file_dest})")
   
+    # Les nouvelles données du livre ont été enregistrées
+    # TODO
     # Mail envoyé aux administrateurs
     # TODO
     # Mail envoyé à l'auteur pour confirmer

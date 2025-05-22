@@ -485,9 +485,11 @@ defmodule LdQ.Procedure.PropositionLivre do
   defp proceed_author_confirm_submission(procedure) do
     book = procedure.book
     book_params = procedure.params["book"]
-    IO.inspect(book_params, label: "BOOK PARAMS")
+
+    # Enregistrer les nouvelles données du livre
+    # TODO
     
-    # Mettre l'étape suivante
+    # Mettre l'étape suivante dans la procédure
     # TODO
 
     # Actualisation de la procédure
@@ -499,10 +501,14 @@ defmodule LdQ.Procedure.PropositionLivre do
     # Lettre de confirmation à l'auteur
     # TODO
 
-
-    """
-    <p>Merci d'avoir confirmé la soumission de votre livre <em>#{book.title}</em></p>
-    """
+    data_template = Map.merge(
+      %{
+        author_name: book.author.name,
+        book_title: book.title,
+      }, 
+      Helpers.Feminines.as_map(book.author.sexe, "auth") # => auth_<...>
+    )
+    load_phil_text(__DIR__, "auteur-quand-auteur-confirme-submit", data_template)
   end
 
   @doc """
@@ -678,6 +684,7 @@ defmodule LdQ.Procedure.PropositionLivre do
       end
     else res end
   end
+
   defp signature_accord_regles(res, params) do
     if res.ok do
       if params["accord_regles"] == "yes" do 

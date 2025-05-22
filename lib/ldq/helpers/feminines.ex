@@ -18,9 +18,10 @@ defmodule Helpers.Feminines do
     variables = Helpers.Feminines.add_to(variables)
   @param {Map} variables La table des variables déjà définies
   @param {String} sexe "H" ou "F" pour homme ou femme
+  @param {String} prefix Le préfix devant les variables (f par défaut)
   """
-  def add_to(variables, sexe) do
-    Map.merge(variables, as_map(sexe))
+  def add_to(variables, sexe, prefix \\ "f") do
+    Map.merge(variables, as_map(sexe, prefix))
   end
 
   @doc """

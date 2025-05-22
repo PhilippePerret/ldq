@@ -39,9 +39,10 @@ defmodule LdQ.ProcedureMethods do
   Note : les helpers sont transmis, à savoir : 
     Helpers.Feminines
     LdQWeb.ViewHelpers
+    et d'autres je crois
 
   @param {String} folder Le dossier de la procédure (__DIR__)
-  @param {String} root_name Le nom racine du fichier
+  @param {String} root_name Le nom racine du fichier (donc sans extension)
   @param {Keyword} vars Liste des variables à utiliser
                     Si :user est renseigné, la fonction ajoute automatiquement les variables user_name, user_mail et user_id
   """

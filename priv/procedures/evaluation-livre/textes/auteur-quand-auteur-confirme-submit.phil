@@ -1,0 +1,9 @@
+Merci #{author_name} d'avoir confirmé la soumission de votre livre <em>#{book_title}</em> !
+
+Il va entamer à présent son processus d'évaluation au sein du comité jusqu'à obtention espérée du label <: ldq_label :>.
+
+Nous n'avons qu'un souhait pour vous : que ce livre dans lequel vous avez mis  tout votre cœur et tout votre talent rencontre l'adhésion des membres attentifs et passionnés du comité de lecture du label.
+
+Vous serez informé<:: auth_e ::> de chaque avancée au cours du long processus d'évaluation jusqu'au label (ne soyez donc pas trop pressé<:: auth_e ::>, et guettez vos mails ! — n'hésitez pas à mettre notre adresse dans votre carnet d'adresses pour éviter que nos messages ne se retrouvent dans vos spams).
+
+Merci de votre confiance et bon courage à vous !
