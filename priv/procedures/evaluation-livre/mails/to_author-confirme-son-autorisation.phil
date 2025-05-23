@@ -1,0 +1,17 @@
+---
+subject = Confirmation de votre validation
+---
+Ch<:: auth_ere ::> <:: author_name ::>,
+
+Vous venez de confirmer la soumission de votre livre *<:: book_title ::>* pour le label « Lecture de Qualité » et nous vous en remercions.
+
+Nous n'avons qu'un souhait pour vous : que ce livre dans lequel vous avez mis tout votre cœur et tout votre talent rencontre l'adhésion des <: pagelink(membres attentifs et passionnés du comité de lecture,membres-comite,comite-lecture) :>
+du label.
+
+Vous serez informé<:: auth_e ::> de chaque avancée au cours du long processus d'évaluation jusqu'au label (ne soyez donc pas trop pressé<:: auth_e ::>, et guettez vos mails ! — n'hésitez pas à mettre notre adresse dans votre carnet d'adresses pour éviter que nos messages ne se retrouvent dans vos spams).
+
+Vous pouvez aussi suivre l'avancée sur <:: proc_url_author ::>.
+
+N'hésitez pas, bien sûr, pendant l'attente, à donner votre avis sur les <a href="<:: app_url ::>/livres/label">livres ayant d'ores et déjà reçus le label</a>.
+
+Merci de votre confiance et bon courage à vous !

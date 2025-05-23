@@ -105,7 +105,7 @@ defmodule LdQ.ProcedureMethods do
   """
   def proc_url(procedure, params \\ []) do
     href  = [Constantes.get(:app_url), "proc", procedure.id] |> Enum.join("/")
-    title = Keyword.get(params, :title, href)
+    title = Keyword.get(params, :title, "Rejoindre la procédure ")
     # - Ajout du query string au besoin (pour nstep par exemple)
     href =
       if params[:query_string] do

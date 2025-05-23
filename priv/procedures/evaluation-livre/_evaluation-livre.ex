@@ -28,6 +28,7 @@ defmodule LdQ.Procedure.PropositionLivre do
     %{name: "Consignation du livre", fun: :consigner_le_livre, admin_required: false, owner_required: true},
     %{name: "Confirmation de la soumission", fun: :form_confirmation_soumission_per_auteur, required: :user_is_author_or_admin?, admin_required: false, owner_required: false},
     %{name: "Soumission confirmée", fun: :author_confirm_submission, required: :user_is_author_or_admin?, admin_required: false, owner_required: false},
+    %{name: "Attribution d'un parrain", fun: :attribution_parrain, admin_required: true, owner_required: false},
     %{name: "Lancement de l'évaluation", fun: :form_admin_debut_evaluation, admin_required: true, owner_required: false},
   
     %{name: "Suppression complète du livre", fun: :complete_book_remove, admin_required: true, owner_required: false}
@@ -472,16 +473,7 @@ defmodule LdQ.Procedure.PropositionLivre do
     # |> IO.inspect(label: "PROCÉDURE MODIFIÉE")
 
     if resultat.ok do
-      # On poursuit
-      # IO.puts "On poursuit car resultat = #{inspect resultat}"
-      # --- Enregistrement des nouvelles informations pour le livre ---
-      params = Map.merge(params, %{
-        "transmitted"   => File.exists?(procedure.data["manuscrit_path"]),
-        "last_phase"    => 15,
-        "current_phase" => 18,
-        "submitted_at"  => now()
-      })
-      LdQ.Library.Book.save(book, params)
+      # On poursuit avec l'enregistrement du livre soumis
       proceed_author_confirm_submission(procedure)
     else
       # On ressoumet le formulaire
@@ -492,31 +484,65 @@ defmodule LdQ.Procedure.PropositionLivre do
   # Note : On ne passe ici que lorsque tout est OK et certifié
   defp proceed_author_confirm_submission(procedure) do
     book = procedure.book
-    book_params = procedure.params["book"]
+
+    mails_variables = %{
+      book_name: book.title,
+      author_name: book.author.name,
+      proc_url: proc_url(procedure),
+      app_url: Constantes.get(:app_url) # pour les url
+    }
+    |> Map.merge(Helpers.Feminines.as_map(book.author.sexe, "auth") # => auth_<...>)
 
     # Enregistrer les nouvelles données du livre
-    # TODO
+    # --- Enregistrement des nouvelles informations pour le livre ---
+    params = Map.merge(procedure.params, %{
+      "transmitted"   => File.exists?(procedure.data["manuscrit_path"]),
+      "last_phase"    => 15,
+      "current_phase" => 18,
+      "submitted_at"  => now()
+    })
+    updated_book = Book.save(book, params)
     
     # Mettre l'étape suivante dans la procédure
-    # TODO
-
+    # (il s'agit de l'étape ou un administrateur va désigner un
+    #  parrain et mettre le livre en évaluation)
+    proc_attrs = %{
+      next_step: "attribution_parrain",
+    }
     # Actualisation de la procédure
-    # TODO
+    update_procedure(procedure, proc_attrs)
 
     # Informer l'administration
-    # TODO
+    send_mail(to: :admin, from: :admin, with: %{
+      mail_id: "to_admin-author-autorise-evaluation",
+      procedure: procedure, 
+      folder: __DIR__,
+      variables: mails_variables
+    })
 
     # Lettre de confirmation à l'auteur
-    # TODO
+    send_mail(to: book.author, from: :admin, with: %{
+      mail_id: "to_author-confirme-son-autorisation",
+      procedure: procedure,
+      folder: __DIR__,
+      variables: mails_variables
+    })
 
-    data_template = Map.merge(
-      %{
-        author_name: book.author.name,
-        book_title: book.title,
-        proc_url_author: proc_url(procedure, [title: "cette page réservée à votre livre"]) 
-      }, 
-      Helpers.Feminines.as_map(book.author.sexe, "auth") # => auth_<...>
-    )
+    # Nouvelle actualité
+    log_activity(%{
+      public: true,
+      owner_type: "author",
+      owner_id: book.author.id,
+      creator: procedure.current_user,
+      text: "<p>Mise en évaluation du livre <em>#{book.title}</em> de #{book.author.name}</p>"
+    })
+
+    data_template = 
+    mails_variables
+    |> Map.merge(%{
+      proc_url_author: proc_url(procedure, [title: "cette page réservée à votre livre"])
+    })
+
     load_phil_text(__DIR__, "auteur-quand-auteur-confirme-submit", data_template)
   end
 

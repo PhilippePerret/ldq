@@ -349,7 +349,11 @@ defmodule LdQ.Library.Book do
       bookset
     end
   end
-  # Actualisation, en fait
+  # Actualisation, en fait, donc en fournissant le livre et les
+  # propriétés à enregistrer
+  # 
+  # @return un {LdQ.Library.Book} si la sauvegarde a pu se faire, ou
+  # {String} l'erreur ou les erreurs dans le cas contraire.
   def save(book, attrs) do
     attrs = Map.put(attrs, "id", {nil, book.id})
     bookset = save(attrs)
@@ -361,7 +365,7 @@ defmodule LdQ.Library.Book do
         %{bk | key => value}
       end)
     else
-      raise bookset.error
+      bookset.error
     end
   end
   
