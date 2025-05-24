@@ -3,7 +3,7 @@ subject = Authorisation d'évaluation par l'auteur
 ---
 Cher administrateur,
 
-Je t'informe que <:: author_name ::> vient d'autoriser l'évaluation de son livre <:: book_name ::>.
+Je t'informe que <:: author_name ::> vient d'autoriser l'évaluation de son livre <:: book_title ::>.
 
 Il te reste maintenant à l'attribuer à un parrain qui acceptera de l'accompagner jusqu'à sa labelisation.
 

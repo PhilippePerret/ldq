@@ -490,10 +490,12 @@ defmodule LdQ.Procedure.PropositionLivre do
     book = procedure.book
 
     mails_variables = %{
-      book_name: book.title,
+      book_title: book.title,
       author_name: book.author.name,
       proc_url: proc_url(procedure),
-      app_url: Constantes.get(:app_url) # pour les url
+      app_url: Constantes.get(:app_url), # pour les url
+      proc_url_author: proc_url(procedure, [title: "cette page réservée à votre livre"])
+
     }
     |> Map.merge(Helpers.Feminines.as_map(book.author.sexe, "auth")) # => auth_<...>)
 
@@ -505,7 +507,6 @@ defmodule LdQ.Procedure.PropositionLivre do
       "current_phase" => 18,
       "submitted_at"  => now()
     })
-    {:ok, updated_book} = Book.save(book, params)
 
     book = 
       case Book.save(book, params) do
@@ -549,9 +550,7 @@ defmodule LdQ.Procedure.PropositionLivre do
 
     data_template = 
     mails_variables
-    |> Map.merge(%{
-      proc_url_author: proc_url(procedure, [title: "cette page réservée à votre livre"])
-    })
+    |> Map.merge(%{})
 
     load_phil_text(__DIR__, "auteur-quand-auteur-confirme-submit", data_template)
   end

@@ -3,7 +3,7 @@ defmodule LdQ.Error do
   defexception [:code, :msg, :data, :file, :line]
 
   def new(err_msg, err_code \\ nil, data \\ nil, file \\ nil, line \\ nil) when is_atom(err_code) and is_binary(err_msg) do
-    %__MODULE__{code: err_code, msg: err_msg, file: file, line: line}
+    %__MODULE__{code: err_code, msg: err_msg, data: data, file: file, line: line}
   end
 
   @doc """
