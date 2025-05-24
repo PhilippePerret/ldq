@@ -238,14 +238,18 @@ defmodule LdQ.Library.Book do
     :unchanged  {Map} Table des non changements
   """
   def setchange(attrs) do
-    Enum.reduce(attrs, %{book_id: nil, changes_map: [], changed: [], invalid: [], unchanged: [], attrs: attrs}, fn {key, dup_or_string}, set ->
+    Enum.reduce(attrs, %{book_id: nil, changes_map: [], changed: [], invalid: [], unchanged: [], attrs: attrs}, fn {key, duplorstr}, set ->
       is_unknown_key = is_nil(@fields_data[key])
       {init_value, new_value} =
         cond do
           is_unknown_key -> {nil, nil}
-          is_binary(dup_or_string) -> {nil, dup_or_string}
-          is_tuple(dup_or_string)  -> dup_or_string
-          true -> raise "La donnée transmise à setchange est mauvaise (#{inspect dup_or_string}). Il faut transmettre soit un string soit un duplet {init-value, new-value}"
+          is_binary(duplorstr) -> {nil, duplorstr}
+          is_tuple(duplorstr)  -> duplorstr
+          is_boolean(duplorstr) -> {nil, "#{duplorstr}"} # "true" au lieu de true
+          is_integer(duplorstr) -> {nil, "#{duplorstr}"} # "12" au lieu de 12
+          is_struct(duplorstr, Date) -> {nil, Date.to_iso8601(duplorstr)}
+          is_struct(duplorstr, NaiveDateTime) -> {nil, NaiveDateTime.to_iso8601(duplorstr)}
+          true -> raise "La donnée transmise à setchange est mauvaise (#{inspect duplorstr}). Il faut transmettre soit un string, soit un entier, une valeur booléenne, soit un duplet {init-value, new-value}"
         end
       # On normalise la valeur dans set.attrs aussi car on en aura
       # besoin dans les validations
@@ -420,7 +424,7 @@ defmodule LdQ.Library.Book do
     end
   end
 
-  def validate("last_phase", ival, nval, set) do
+  def validate("last_phase", ival, nval, _set) do
     # La dernière phase, si elle n'est pas nil, doit obligatoirement :
     #   - exister
     #   - supérieure à l'ancienne dernière phase si elle est défini

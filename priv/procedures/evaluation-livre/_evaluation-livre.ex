@@ -474,7 +474,11 @@ defmodule LdQ.Procedure.PropositionLivre do
 
     if resultat.ok do
       # On poursuit avec l'enregistrement du livre soumis
-      proceed_author_confirm_submission(procedure)
+      try do
+        proceed_author_confirm_submission(procedure)
+      rescue
+        e in LdQ.Error -> LdQ.Error.message(e, %{admin: User.admin?(procedure.current_user)})
+      end
     else
       # On ressoumet le formulaire
       rerun_procedure(Map.put(procedure, :form_errors, resultat.errors), :form_confirmation_soumission_per_auteur)
@@ -491,7 +495,7 @@ defmodule LdQ.Procedure.PropositionLivre do
       proc_url: proc_url(procedure),
       app_url: Constantes.get(:app_url) # pour les url
     }
-    |> Map.merge(Helpers.Feminines.as_map(book.author.sexe, "auth") # => auth_<...>)
+    |> Map.merge(Helpers.Feminines.as_map(book.author.sexe, "auth")) # => auth_<...>)
 
     # Enregistrer les nouvelles données du livre
     # --- Enregistrement des nouvelles informations pour le livre ---
@@ -501,8 +505,14 @@ defmodule LdQ.Procedure.PropositionLivre do
       "current_phase" => 18,
       "submitted_at"  => now()
     })
-    updated_book = Book.save(book, params)
-    
+    {:ok, updated_book} = Book.save(book, params)
+
+    book = 
+      case Book.save(book, params) do
+        %Book{} = updated_book -> updated_book
+        erreur -> raise(LdQ.Error, code: :error_save, msg: "Impossible d'enregistrer le livre : #{erreur}", data: params)
+      end
+
     # Mettre l'étape suivante dans la procédure
     # (il s'agit de l'étape ou un administrateur va désigner un
     #  parrain et mettre le livre en évaluation)
