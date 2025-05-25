@@ -361,7 +361,7 @@ defmodule LdQ.Library.Book do
   def save(book, attrs) do
     attrs = Map.put(attrs, "id", {nil, book.id})
     bookset = save(attrs)
-    if is_nil(bookset.error) do
+    if is_nil(bookset[:error]) do
       # Quand l'actualisation s'est bien passée, on doit mettre les
       # nouvelles valeurs dans le livre
       bookset.changed

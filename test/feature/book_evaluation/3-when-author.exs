@@ -9,7 +9,7 @@ defmodule LdQWeb.BookSubmissionTestsStep3WhenAuthor do
   # @tag :skip 
   test "L'auteur trouve une page d'attente" do
     %{author: author, procedure: procedure} = bddshot("evaluation-book/2-autorisation-auteur")
-    
+    raise "Voir si la procédure a ses data"
     user = 
       LdQ.Comptes.get_user!(author.user_id)
       |> Map.put(:password, "passepartout")

@@ -28,7 +28,7 @@ defmodule LdQ.Procedure.PropositionLivre do
     %{name: "Consignation du livre", fun: :consigner_le_livre, admin_required: false, owner_required: true},
     %{name: "Confirmation de la soumission", fun: :form_confirmation_soumission_per_auteur, required: :user_is_author_or_admin?, admin_required: false, owner_required: false},
     %{name: "Soumission confirmée", fun: :author_confirm_submission, required: :user_is_author_or_admin?, admin_required: false, owner_required: false},
-    %{name: "Attribution d'un parrain", fun: :attribution_parrain, admin_required: true, owner_required: false},
+    %{name: "Attribution d'un parrain", fun: :attribution_parrain, required: :user_is_author_or_admin?, admin_required: false, owner_required: false},
     %{name: "Lancement de l'évaluation", fun: :form_admin_debut_evaluation, admin_required: true, owner_required: false},
   
     %{name: "Suppression complète du livre", fun: :complete_book_remove, admin_required: true, owner_required: false}
@@ -523,8 +523,8 @@ defmodule LdQ.Procedure.PropositionLivre do
     proc_attrs = %{
       next_step: "attribution_parrain"
     }
-    # Actualisation de la procédureù
-    update_procedure(procedure, proc_attrs)
+    # Actualisation de la procédure
+    procedure = update_procedure(procedure, proc_attrs)
 
     # Informer l'administration
     send_mail(to: :admin, from: :admin, with: %{
@@ -551,9 +551,11 @@ defmodule LdQ.Procedure.PropositionLivre do
       text: "<p>Mise en évaluation du livre <em>#{book.title}</em> de #{book.author.name}</p>"
     })
 
-    data_template = 
-    mails_variables
-    |> Map.merge(%{})
+    # Pour le mmoment, les mêmes que pour les mails
+    data_template = mails_variables
+    # |> Map.merge(%{})
+
+
 
     load_phil_text(__DIR__, "auteur-quand-auteur-confirme-submit", data_template)
   end
@@ -567,7 +569,14 @@ defmodule LdQ.Procedure.PropositionLivre do
   Note : seul un administrateur peut passer par ici.
   """
   def attribution_parrain(procedure) do
-
+    IO.inspect(procedure, label: "\nPROCÉDURE AU DÉBUT DE attribution parrain")
+    raise "Pour voir"
+    if User.admin?(procedure.current_user) do
+      "<p>C'est l'administrateur</p>"
+    else
+      # Forcément l'auteur du livre
+      "<p>C'est l'auteur du livre</p>"
+    end
   end
 
 

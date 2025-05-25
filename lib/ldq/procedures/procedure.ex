@@ -35,15 +35,19 @@ defmodule LdQ.Procedure do
   defp data_to_json(%{data: data} = attrs) when is_binary(data), do: attrs
   defp data_to_json(%{"data" => data} = attrs) when is_map(data), do: %{attrs | "data" => Jason.encode!(data)}
   defp data_to_json(%{"data" => data} = attrs) when is_binary(data), do: attrs
+  
   # Quand :data/"data" n'est pas défini
-  defp data_to_json(attrs) do
-    key =
-      cond do
-        is_binary(Map.keys(attrs) |> Enum.at(0)) -> "data"
-        true -> :data
-      end
-    Map.put(attrs, key, "{}")
-  end
+  # SURTOUT PAS ! À chaque actualisation de la procédure sans
+  # changement des :data, :data serait remis à "{}" !!!
+  defp data_to_json(attrs), do: attrs
+  # defp data_to_json(attrs) do
+  #   key =
+  #     cond do
+  #       is_binary(Map.keys(attrs) |> Enum.at(0)) -> "data"
+  #       true -> :data
+  #     end
+  #   Map.put(attrs, key, "{}")
+  # end
 
 
   @doc """
@@ -57,6 +61,7 @@ defmodule LdQ.Procedure do
 
   @doc """
   Retourne la procédure d'identifiant +id+
+
   """
   def get(proc_id) do
     proc = Repo.get!(__MODULE__, proc_id)

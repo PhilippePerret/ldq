@@ -61,7 +61,7 @@ defmodule LdQWeb.BookSubmissionTestsStep2_2 do
     |> pause(1)
     |> et_voit("h3", "Soumission confirmée")
     |> et_voit(["Merci", "d’avoir confirmé la soumission de votre livre"])
-    |> pause(4)
+    |> pause(1)
 
     # --- Vérifications ---
     
@@ -77,6 +77,14 @@ defmodule LdQWeb.BookSubmissionTestsStep2_2 do
     assert(book_data.pitch == book_pitch)
     # data Soumission
     assert(NaiveDateTime.after?(book_data.submitted_at, point_test))
+    
+    # La procédure contient toujours les bonnes données
+    fresh_proc = LdQ.Procedure.get(procedure.id)
+    # IO.inspect(fresh_proc, label: "\nDONNÉES PROCÉDURE RAFRAICHIE")
+    refute(is_nil(fresh_proc.data))
+    refute(is_nil(fresh_proc.data["book_id"]))
+    refute(is_nil(fresh_proc.data["author_id"]))
+    
     # Mail envoyé aux administrateurs
     admin |> recoit_un_mail(after: point_test, mail_id: "to_admin-author-autorise-evaluation")
     # Mail envoyé à l'auteur pour confirmer
