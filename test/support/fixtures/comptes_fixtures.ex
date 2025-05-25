@@ -12,13 +12,15 @@ defmodule LdQ.ComptesFixtures do
     ou save_passwords_of/1 (pour en enregistrer plusieurs)
 
   """
-  alias Random.Methods, as: Rand
+
+  # alias LdQ.Repo
   alias LdQ.Comptes
   import Bitwise
   import LdQ.LibraryFixtures
+  import Random.Methods
 
 
-  def unique_user_email, do: "user#{Rand.uniq_int()}@example.com"
+  def unique_user_email, do: "user#{uniq_int()}@example.com"
   def valid_user_password, do: "hello world!"
 
   def valid_user_attributes(a \\ %{})
@@ -30,7 +32,7 @@ defmodule LdQ.ComptesFixtures do
       if is_nil(Map.get(attrs, prop, nil)) do
         val =
         case prop do
-          :name     -> "Stranger-#{Rand.uniq_int()}"
+          :name     -> "Stranger-#{uniq_int()}"
           :email    -> unique_user_email()
           :sexe     -> "F"
           :password -> valid_user_password()
@@ -48,6 +50,7 @@ defmodule LdQ.ComptesFixtures do
       attrs
       |> valid_user_attributes()
       |> Comptes.register_user()
+
     if attrs[:with_member_card] do
       member_card = Comptes.MemberCard.create_for(user)
       user |> Map.put(:member_card_id, member_card.id)
@@ -90,7 +93,7 @@ defmodule LdQ.ComptesFixtures do
 
   def make_simple_users(nombre, params \\ %{}) do
     (1..nombre)
-    |> Enum.map(fn x -> make_user(params) end)
+    |> Enum.map(fn _x -> make_simple_user(params) end)
   end
 
   @doc """
@@ -105,7 +108,7 @@ defmodule LdQ.ComptesFixtures do
     case get_admin(Map.merge(%{email: email_admin}, params)) do
     {:ok, admin} -> admin
     :unknown ->
-      his_number = Rand.uniq_int()
+      his_number = uniq_int()
       new_attrs = %{
         name:       Map.get(params, :name, "Ben #{his_number} Admin"),
         email:      email_admin,
@@ -131,9 +134,10 @@ defmodule LdQ.ComptesFixtures do
   def make_member(params \\ %{}) do
     sexe = random_sexe()
     prenom = random_prenom(sexe)
+    uniqint = uniq_int()
     new_attrs = %{
-      name:       Map.get(params, :name, "#{prenom}-#{Rand.uniq_int()} Membre"),
-      email:      "membre-comite@lecture-de-qualite.fr",
+      name:       Map.get(params, :name, "#{prenom}-#{uniqint} Membre"),
+      email:      "membre#{uniqint}-comite@lecture-de-qualite.fr",
       password:   Map.get(params, :password, valid_user_password()),
       sexe:       Map.get(params, :sexe, sexe),
       privileges: [:member],
@@ -143,33 +147,32 @@ defmodule LdQ.ComptesFixtures do
       user_fixture(Map.merge(params, new_attrs))
       |> Map.put(:password, new_attrs.password)
 
-    user = if params[:with_credit] do
+    if params[:with_credit] do
       Comptes.MemberCard.update(user.member_card_id, %{credit: Enum.random(10..10000) })
-    else user end
-    user = if params[:credit] do
+    end
+    if params[:credit] do
       Comptes.MemberCard.update(user.member_card_id, %{credit: params[:credit]})
-    else user end
+    end
 
     # A-t-il déjà lu des livres ?
-    user = if params[:with_books] do
+    if params[:with_books] do
       # Si c'est le cas, on a 2 possibilités : 
       # 1- créer un nouveau livre qu'il a lu
       # 2- prendre un livre existant et lui faire lire
       nombre_livres = Enum.random(2..200)
       (1..nombre_livres)
-      |> Enum.each(fn x -> end
+      |> Enum.each(fn _x ->
         book = random_book_or_create(not_read_by: user)
         LdQ.Library.UserBook.assoc_user_and_book(user, book, %{note: Enum.random(0..40)})
-      )
-
-    else user end
+      end)
+    end
 
     user
   end
 
   def make_members(nombre, params \\ %{}) do
     (1..nombre)
-    |> Enum.map(fn x -> make_member(params) end)
+    |> Enum.map(fn _x -> make_member(params) end)
   end
 
   # Cette méthode semble un vieil héritage de l'époque où les auteurs
@@ -177,7 +180,7 @@ defmodule LdQ.ComptesFixtures do
   # livres sont des LdQ.Library.Author (cf. make_author/2)
   def make_writer(params \\ %{}) do
     new_attrs = %{
-      name:       Map.get(params, :name, "Caro#{Rand.uniq_int()} Autrice"),
+      name:       Map.get(params, :name, "Caro#{uniq_int()} Autrice"),
       password:   Map.get(params, :password, valid_user_password()),
       sexe:       Map.get(params, :sexe, "F"),
       privileges: [:writer]

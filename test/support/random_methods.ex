@@ -20,7 +20,7 @@ defmodule Random.Methods do
   end
 
   def random_title do
-    randow_text(rand(60..200))
+    random_text(rand(60..200))
   end
 
   @doc """
@@ -45,6 +45,7 @@ defmodule Random.Methods do
   def random_firstname(sexe \\ "H") do
     Enum.random(Map.get(@firstnames, sexe))
   end
+  def random_prenom(sexe \\ "F"), do: random_firstname(sexe)
 
   def random_lastname do
     Enum.random(@lastnames)

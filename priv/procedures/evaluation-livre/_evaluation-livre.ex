@@ -18,6 +18,7 @@ defmodule LdQ.Procedure.PropositionLivre do
 
   alias LdQ.Library, as: Lib
   alias LdQ.Library.Book
+  alias LdQ.Comptes
 
   def proc_name, do: "Évaluation d’un livre"
 
@@ -28,7 +29,8 @@ defmodule LdQ.Procedure.PropositionLivre do
     %{name: "Consignation du livre", fun: :consigner_le_livre, admin_required: false, owner_required: true},
     %{name: "Confirmation de la soumission", fun: :form_confirmation_soumission_per_auteur, required: :user_is_author_or_admin?, admin_required: false, owner_required: false},
     %{name: "Soumission confirmée", fun: :author_confirm_submission, required: :user_is_author_or_admin?, admin_required: false, owner_required: false},
-    %{name: "Attribution d'un parrain", fun: :attribution_parrain, required: :user_is_author_or_admin?, admin_required: false, owner_required: false},
+    %{name: "Choix du parrain", fun: :attribution_parrain, required: :user_is_author_or_admin?, admin_required: false, owner_required: false},
+    %{name: "Attribution d'un parrain", fun: :proceed_attribute_parrain, required: :user_is_author_or_admin?, admin_required: false, owner_required: false},
     %{name: "Lancement de l'évaluation", fun: :form_admin_debut_evaluation, admin_required: true, owner_required: false},
   
     %{name: "Suppression complète du livre", fun: :complete_book_remove, admin_required: true, owner_required: false}
@@ -585,9 +587,11 @@ defmodule LdQ.Procedure.PropositionLivre do
     # TODO Rappeler qu'un parrainage rapporte des points, quel que soit le livre
     form = Html.Form.formate(%Html.Form{
       id: "choose-book-parrain",
+      action: "/proc/#{procedure.id}",
       prefix: "book",
       captcha: false,
       fields: [
+        %{type: :hidden, strict_name: "nstep", value: "proceed_attribute_parrain"},
         %{type: :select, name: "parrain_id", options: options_parrains, label: "Parrain choisi"}
       ],
       buttons: [
@@ -598,6 +602,12 @@ defmodule LdQ.Procedure.PropositionLivre do
     <p>Merci de choisir un parrain.</p>
     #{form}
     #{detail_membres}
+    """
+  end
+
+  def proceed_attribute_parrain(procedure) do
+    """
+    <p class="error">Je dois apprendre à attribuer le parrain</p>
     """
   end
 

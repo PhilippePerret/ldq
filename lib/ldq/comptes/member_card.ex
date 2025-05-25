@@ -2,6 +2,8 @@ defmodule LdQ.Comptes.MemberCard do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias LdQ.Repo
+
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "member_cards" do

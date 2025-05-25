@@ -274,7 +274,7 @@ defmodule TestHelpers do
     make_simple_users(20) # peu importe qui
     membres = make_members(20, %{with_credit: true, with_books: true})
     passwords = 
-      members
+      membres
       |> Enum.reduce(%{}, fn member, table ->
         Map.put(table, member.email, member.password)
       end)
@@ -307,12 +307,17 @@ defmodule TestHelpers do
   def get_password_of(user) do
     get_password_of(user.email)
   end
-  # Retourne tous les passwords
+  # @return {Map} Retourne tous les passwords
   defp get_passwords do
-    File.read!(passwords_path()) |> :erlang.binary_to_term()
+    path = passwords_path()
+    if File.exists?(path) do
+      File.read!(path) |> :erlang.binary_to_term()
+    else
+      %{}
+    end
   end
   def passwords_path do
-    Path.join("test", "xtmp", "passwords_test")
+    Path.join(~w(test xtmp passwords_test))
   end
 
 end

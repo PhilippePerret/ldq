@@ -2,6 +2,8 @@ defmodule LdQ.Library.UserBook do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias LdQ.Repo
+
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "users_books" do
@@ -29,7 +31,8 @@ defmodule LdQ.Library.UserBook do
   """
   def assoc_user_and_book(user, book, attrs \\ %{}) do
     # On met une barrière si l'user n'est pas un membre
-    LdQ.Comptes.User.member?(user) || raise("Impossible d'associer un livre à quelqu'un qui n'appartient pas au comité de lecture…")
+    LdQ.Comptes.User.membre?(user) || raise("Impossible d'associer un livre à quelqu'un qui n'appartient pas au comité de lecture…")
+    attrs = Map.merge(attrs, %{user_id: user.id, book_id: book.id})
 
     %__MODULE__{}
     |> changeset(attrs)
@@ -40,7 +43,7 @@ defmodule LdQ.Library.UserBook do
   Actualise l'association entre le membre et le livre
   """
   def update!(user, book, attrs) do
-    Repo.get_by!(__MODULE__, [user_id: ^user.id, book_id: ^book.id])
+    Repo.get_by!(__MODULE__, [user_id: user.id, book_id: book.id])
     |> changeset(attrs)
     |> Repo.update!()
   end

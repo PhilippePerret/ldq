@@ -4,7 +4,13 @@ defmodule LdQ.LibraryFixtures do
   entities via the `LdQ.Library` context.
   """
 
+  alias LdQ.Repo
+
+  import Ecto.Query
+
   import Random.Methods
+
+  alias LdQ.Library.{Book, UserBook}
 
 
   @doc """
@@ -69,15 +75,17 @@ defmodule LdQ.LibraryFixtures do
   Retourne un éditeur au hasard
   """
   def random_publisher do
-    publisher_id =
+    publisher_ids =
       from(p in LdQ.Library.Publisher, select: p.id)
       |> Repo.all()
-      |> Enum.random()
-      |> IO.inspect(label: "ID PUBLISHER au hasard")
-    if is_nil(publisher_id) do
+
+    if Enum.empty?(publisher_ids) do
       # Si aucun éditeur n'a été trouvé, on en crée un
       make_publisher()
     else
+      publisher_id = 
+        publisher_ids
+        |> Enum.random()
       Repo.get!(LdQ.Library.Publisher, publisher_id)
     end
   end
@@ -88,24 +96,22 @@ defmodule LdQ.LibraryFixtures do
     query =
       if options[:not_read_by] do
         user = options[:not_read_by]
-        join(query, [b], ub in UserBook, on: ub.book_id == b.id)
-        |> where([ub], ub.user_id != ^user.id)
+        join(query, :inner, [b], ub in UserBook, on: ub.book_id == b.id)
+        |> where([b, ub], ub.user_id != ^user.id)
       else 
         query 
       end
 
-    book_id =
-      query
-      |> Repo.all()
-      |> Enum.random()
-      |> IO.inspect(label: "ID obtenu ?")
+    all_book_ids = Repo.all(query)
 
-    if is_nil(book_id) do
+    if Enum.empty?(all_book_ids) do
       # Aucun livre trouvé, on en fait un nouveau
-
+      make_book()
     else
       # On a trouvé un livre non lu par l'user
-      Book.get!(book_id)
+      all_book_ids
+      |> Enum.random()
+      |> Book.get()
     end
   end
 
