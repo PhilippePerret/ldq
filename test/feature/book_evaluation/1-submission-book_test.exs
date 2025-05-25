@@ -123,7 +123,7 @@ defmodule LdQWeb.BookSubmissionTestsStep1 do
     assert(data_proc["author_id"] == new_book.author.id)
 
     # Photographie de la BDD après enregistrement de la soumission du livre
-    bdd_dump("book-just-submitted", %{
+    bddshot("evaluation-book/1-book-just-submitted", %{
       user: user,
       admin: admin,
       point_test: point_test,

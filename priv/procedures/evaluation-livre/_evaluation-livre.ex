@@ -390,6 +390,7 @@ defmodule LdQ.Procedure.PropositionLivre do
     fields = [
       %{type: :hidden, strict_name: "nstep", value: "author_confirm_submission"},
       %{type: :text, name: "subtitle", label: "Sous-titre optionnel"},
+      %{type: :textarea, name: "pitch", label: "Pitch (résumé court)", required: true},
       %{type: :text, name: "preversion_id", label: "Pré-version optionnelle", explication: "Si une version précédente du livre a été soumise au label, en l'ayant reçu ou non, indiquer ici son identifiant."},
       %{type: :date, name: "published_at", label: "Date de publication"},
       %{type: :text, name: "url_command", label: "URL de commande", required: true, explication: "Permet de certifier que l'ouvrage est bien mis en vente. Une fois le label reçu, cet URL permettra aux lectrice et aux lecteurs intéressés d'acheter le livre."},
@@ -514,7 +515,7 @@ defmodule LdQ.Procedure.PropositionLivre do
         %Book{} = updated_book -> updated_book
         erreur -> raise(LdQ.Error, code: :error_save, msg: "Impossible d'enregistrer le livre : #{erreur}", data: params)
       end
-    IO.inspect(book, label: "\nLIVRE ACTUALISÉ")
+    # IO.inspect(book, label: "\nLIVRE ACTUALISÉ")
 
     # Mettre l'étape suivante dans la procédure
     # (il s'agit de l'étape ou un administrateur va désigner un

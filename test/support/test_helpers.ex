@@ -8,6 +8,26 @@ defmodule TestHelpers do
   alias LdQ.Site.Log
   alias LdQ.ProcedureMethods, as: Proc
 
+  # Cf. La méthode bdd_dump pour le détail
+  def bddshot(name, data) do
+    bdd_dump(name, data)
+  end
+  
+  @doc """
+  Applique à la base de données la photographie exacte qui porte
+  le nom +name+ et retourne les données enregistrées.
+
+  @param {String} name Le nom (chemin relatif) de la photographie de
+  la table dans test/xbddshots
+
+  @return {Map} Les données enregistrées avec la photographie. Cf
+  l'endroit où a été faite la photographie — en cherchant :
+  « bbdshot("<name>", » noter : sans parenthèse fermante, avec une
+  virgule — pour voir quelles sont ces données
+  """
+  def bddshot(name) when is_binary(name) do
+    bdd_load(name)
+  end
   @doc """
   Procède à une copie de la base de test actuelle
   C'est ce que j'appelle les « Photographies de la BdD ». Grâce à 
@@ -33,6 +53,7 @@ defmodule TestHelpers do
     data_path = "#{path}.data"
     File.write!(data_path, :erlang.term_to_binary(data))
   end
+  
 
   @tables [
       LdQ.Procedure,
@@ -112,7 +133,7 @@ defmodule TestHelpers do
     "#{dumps_folder()}/#{name}.dump"
   end
   def dumps_folder do
-    Path.absname(Path.join(["test", "xbdd_dumps"]))
+    Path.absname(Path.join(["test", "x_bddshots"]))
   end
 
   def w(str, color \\ :white) do

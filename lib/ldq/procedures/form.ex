@@ -61,11 +61,12 @@ defmodule Html.Form.Field do
         :raw      -> :raw
         :hidden   -> :hidden
         :select   -> :select
-        :date     -> :input
         :text     -> :input
+        :textarea -> :textarea
         :checkbox -> :input
-        :file     -> :input
         :number   -> :input
+        :date     -> :input
+        :file     -> :input
         _         -> raise ":tag non défini et :type inconnu (#{dfield.type})"
         end
       else

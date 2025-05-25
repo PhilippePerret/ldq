@@ -74,17 +74,36 @@ defmodule LdQ.ComptesFixtures do
     |> Map.put(:password, new_attrs.password)
   end
 
+  @doc """
+  Contrairement aux users et autres authors, il n'y a pour le moment 
+  qu'un seul administrateur, avec le mail :
+  "admin@lecture-de-qualite.fr"
+  S'il est déjà créé, on le retourne, sinon on le crée.
+  """
   def make_admin(params \\ %{}) do
-    new_attrs = %{
-      name:       Map.get(params, :name, "Ben #{Rand.uniq_int()} Admin"),
-      email:      "admin@lecture-de-qualite.fr",
-      password:   Map.get(params, :password, valid_user_password()),
-      privileges: Map.get(params, :privileges, [:admin3])
-    }
-    user_fixture(Map.merge(params, new_attrs))
-    |> Map.put(:password, new_attrs.password)
+    email_admin = "admin@lecture-de-qualite.fr"
+    case get_admin(Map.merge(%{email: email_admin}, params)) do
+    {:ok, admin} -> admin
+    :unknown ->
+      his_number = Rand.uniq_int()
+      new_attrs = %{
+        name:       Map.get(params, :name, "Ben #{his_number} Admin"),
+        email:      email_admin,
+        password:   Map.get(params, :password, valid_user_password()),
+        privileges: Map.get(params, :privileges, [:admin3])
+      }
+      user_fixture(Map.merge(params, new_attrs))
+      |> Map.put(:password, new_attrs.password)
+    end
   end
 
+  def get_admin(params \\ %{email: "admin@lecture-de-qualite.fr"}) do
+    case Comptes.get_user_by_email(params.email) do
+    nil -> :unknown
+    admin -> {:ok, admin}
+    end
+  end
+  
   def make_member(params \\ %{}) do
     new_attrs = %{
       name:       Map.get(params, :name, "Brigitte #{Rand.uniq_int()} Membre"),

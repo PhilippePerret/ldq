@@ -269,17 +269,20 @@ defmodule FeaturePublicMethods do
   def detruire_les_mails, do: Mail.exec_delete_all_mails()
 
  
+
   @doc """
-  @return True si le log défini par les paramètres +params+ est 
-  trouvé, False dans le cas contraire.
+  Assertion de l'existence d'une activité. Raise une erreur si 
+  l'activité n'est pas trouvée. Si l'activité existe, retourne nil
   
   @param {Keyword} params Table des paramètres dont :
     after:      {NaiveDateTime} Le log doit avoir été émis après cette date naïve
     content:    {String|Regex}  Le log doit contenir ce texte
     owner:      {User} Le propriétaire du log
+    public:     {Boolean} True si l'activité doit être publique
   """
   def check_activities(params), do: Log.check_activities(params)
-
+  def assert_activity(params), do: Log.check_activities(params)
+  
   @doc """
   Pour tester le log (activité) dans le pipe des vérifications
 
