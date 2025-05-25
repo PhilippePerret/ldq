@@ -335,7 +335,6 @@ defmodule LdQ.Procedure.PropositionLivre do
 
   def user_is_author_or_admin?(procedure) do
     book    = procedure.book
-    author  = book.author
     user_is_author = book.author.user_id == procedure.current_user.id
     user_is_admin  = current_user_is_admin?(procedure)
     user_is_author || user_is_admin
@@ -808,10 +807,17 @@ defmodule LdQ.Procedure.PropositionLivre do
   
   # Construit un listing des membres du comité de lecture en respec-
   # tant les options +options+
+  # 
+  # @param {Keyword} options
+  #   :sort   Clé de classement
   #
   # @return {HTMLString} Listing au format HTML
   defp build_detail_membres(options) do
     # On relève tous les users qui sont membres du comité de lecture
     Comptes.get_users(options)
+    |> Enum.map(fn u ->
+      "<p>#{u.id}</p>"
+    end)
+    |> Enum.join("")
   end
 end

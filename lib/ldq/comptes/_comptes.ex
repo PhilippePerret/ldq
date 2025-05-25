@@ -10,52 +10,76 @@ defmodule LdQ.Comptes do
 
   ## Database getters
 
-  # @doc """
-  # Retourne les users voulus, en respectant les options +options.
+  @doc """
+  Retourne les users voulus, en respectant les options +options.
 
-  # @parap {Keyword} options
-  #   :sort   On classe d'après cette clé. On peut trouver :
-  #           :credit       Classement descendant par crédit
-  #           :credit_asc   Classement ascendant par crédit
-  #           :books        Nombre de livres évalués (descendant)
-  #           :books_asc    Nombre de livres évalués (ascendant)
+  @parap {Keyword} options
+    :sort   On classe d'après cette clé. On peut trouver :
+            :credit       Classement descendant par crédit
+            :credit_asc   Classement ascendant par crédit
+            :books        Nombre de livres évalués (descendant)
+            :books_asc    Nombre de livres évalués (ascendant)
 
-  # @return {List of User} La liste des utilisateurs voulus, dans
-  # l'ordre voulu
-  # """
-  # def get_users(options) do
-  #   query = from(
-  #     u in User, 
-  #     join: c in MemberCard, on: u.id == c.user_id
-  #   )
-  #   query = 
-  #     if options[:member] || options[:membre] do
-  #       where(query, [u], fragment("(? & ?) != 0", u.privileges, 8))
-  #     else query end
-  #   query = 
-  #     if options[:admin] do
-  #       where(query, [u], fragment("(? & ?) != 0", u.privileges, ^(16 + 32 + 64)))
-  #     else query end
-  #   query =
-  #     if options[:sort] do
-  #       case options[:sort] do
-  #       :credit     -> order_by(query, [c], desc: c.credit)
-  #       :credit_asc -> order_by(query, [c], asc: c.credit)
-  #       :books      -> 
-  #         join(query, [u], ub in UserBook, on: ub.user_id == u.id)
-  #         |> group_by([u], u.id)
-  #         |> order_by([ub], desc: count(ub.book_id))
-  #       :books_asc  -> 
-  #         join(query, [u], ub in UserBook, on: ub.user_id == u.id)
-  #         |> group_by([u], u.id)
-  #         |> order_by([ub], asc: count(ub.book_id))
-  #       _else -> query
-  #       end
-  #     else query end
-  #   query = query
-  #   |> select([u, c, ub], %{u | book_count: count(ub.book_id), credit: c.credit})
-  #   |> Repo.get_all()
-  # end
+  @return {List of User} La liste des utilisateurs voulus, dans
+  l'ordre voulu
+  """
+  def get_users(options) do
+    query = from(
+      u in User, 
+      join: c in MemberCard, on: u.id == c.user_id
+    )
+    # - Les privilèges -
+    query = 
+      if options[:member] || options[:membre] do
+        where(query, [u, _c], fragment("(? & ?) != 0", u.privileges, 8))
+      else 
+        query 
+      end
+    query = 
+      if options[:admin] do
+        where(query, [u, _c], fragment("(? & ?) != 0", u.privileges, ^(16 + 32 + 64)))
+      else 
+        query 
+      end
+
+    res =
+      if options[:sort] do
+        case options[:sort] do
+        :credit     -> 
+          order_by(query, [_u, c], desc: c.credit)
+        :credit_asc -> 
+          order_by(query, [_u, c], asc: c.credit)
+        :books      -> 
+          join(query, :inner, [u, _c], ub in UserBook, on: ub.user_id == u.id)
+          |> group_by([u, _c, _ub], u.id)
+          |> order_by([_u, _c, ub], desc: count(ub.book_id))
+        :books_asc  -> 
+          join(query, :inner, [u, _c], ub in UserBook, on: ub.user_id == u.id)
+          |> group_by([u, _c, _ub], u.id)
+          |> order_by([_u, _c, ub], asc: count(ub.book_id))
+        _else -> 
+          :without_book
+        end
+      else 
+        :without_book
+      end
+
+    case res do
+    :without_book -> query_users_without_books(query)
+    _             -> query_users_with_books(res)
+    end
+  end
+
+  defp query_users_with_books(query) do
+    query 
+    |> select([u, c, ub], %{u | book_count: count(ub.book_id), credit: c.credit})
+    |> Repo.all()
+  end
+  defp query_users_without_books(query) do
+    query
+    |> select([u, c], %{u | credit: c.credit})
+    |> Repo.all()
+  end
 
   @doc """
   Gets a user by email.

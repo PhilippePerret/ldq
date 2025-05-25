@@ -253,7 +253,7 @@ defmodule LdQ.ProcedureMethods do
       true -> procedure.data # logiquement une table
     end
     procedure = Map.put(procedure, :data, data)
-    IO.inspect(procedure, label: "\n\nDANS RERUN après transfo :data")
+    # IO.inspect(procedure, label: "\n\nDANS RERUN après transfo :data")
     module = LdQ.Procedure.get_proc_module(procedure.proc_dim)
     step_fun = if is_binary(step_fun), do: step_fun, else: Atom.to_string(step_fun)
     resultat = run_current_procedure(%{procedure | next_step: step_fun}, module)

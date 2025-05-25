@@ -270,7 +270,7 @@ defmodule TestHelpers do
   Crée plusieurs users, dont certains membres
   Crée plusieurs livres en évaluation
   """
-  def create_users_members_and_books(params \\ %{}) do
+  def create_users_members_and_books(_params \\ %{}) do
     make_simple_users(20) # peu importe qui
     membres = make_members(20, %{with_credit: true, with_books: true})
     passwords = 
