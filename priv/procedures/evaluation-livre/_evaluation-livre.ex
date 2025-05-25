@@ -558,6 +558,20 @@ defmodule LdQ.Procedure.PropositionLivre do
     load_phil_text(__DIR__, "auteur-quand-auteur-confirme-submit", data_template)
   end
 
+
+  @doc """
+  Après autorisation complète de l'évaluation par l'auteur, un 
+  administrateur va choisir un parrain pour le livre et mettre ce 
+  livre en évaluation.
+
+  Note : seul un administrateur peut passer par ici.
+  """
+  def attribution_parrain(procedure) do
+
+  end
+
+
+
   @doc """
   Méthode finale qui permet, le cas échéant, de détruire le livre, 
   quand quelque chose s'est mal passé ou que l'auteur n'a pas respec-

@@ -68,6 +68,33 @@ defmodule FeaturePublicMethods do
 
 
   @doc """
+  Pour rejoindre une page sur le site.
+
+  ## Usage
+
+    user
+    |> rejoint_la_page(url)
+
+  Pour que ça fonctionne, il faut que +suj+ possède sa session. Ça 
+  peut se faire de cette manière avec la session courante :
+  OBSOLÈTE : Maintenant, la session est ajoutée si elle n'est pas
+  définie. Mais pour pouvoir récupérer la session (ou plutôt : pour
+  pouvoir récupérer un user avec session), il faut faire :
+
+      user = user |> rejoint_la_page(url)
+
+  ou avec une nouvelle session
+
+    test "mon test" do
+      user = make_admin()
+      {:ok, sess} = Wallaby.start_session()
+      user = Map.put(user, :session, sess)
+      user |> rejoint_la_page(url)
+    end
+  """
+  def rejoint_la_page(suj, url, msg \\ nil), do: Act.visiter_la_page(suj, url, msg)
+
+  @doc """
   Fonction permet à l'utilisateur de se connecter.
   Soit il se trouve déjà sur la page d'identification (parce qu'il a été
   redirigé) soit il rejoint l'identification)
@@ -90,34 +117,6 @@ defmodule FeaturePublicMethods do
       |> Map.put(:identified, true)
       # |> IO.inspect(label: "VISITEUR APRÈS CONNEXION")
   end
-
-  @doc """
-  Pour rejoindre une page sur le site.
-
-  ## Usage
-
-    user
-    |> rejoint_la_page(url)
-
-  Pour que ça fonctionne, il faut que +suj+ possède sa session. Ça 
-  peut se faire de cette manière avec la session courante :
-
-    test "mon test", {session: session} do
-      user = make_simple_user(%{name: "André"})
-      user = Map.put(user, :session, session)
-      user |> rejoint_la_page(url)
-    end
-
-  ou avec une nouvelle session
-
-    test "mon test" do
-      user = make_admin()
-      {:ok, sess} = Wallaby.start_session!()
-      user = Map.put(user, :session, sess)
-      user |> rejoint_la_page(url)
-    end
-  """
-  def rejoint_la_page(suj, url, msg \\ nil), do: Act.visiter_la_page(suj, url, msg)
 
   @doc """
   Récupère un lien dans un mail (par son titre) et le visite

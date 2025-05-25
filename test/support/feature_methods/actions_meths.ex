@@ -10,6 +10,11 @@ defmodule Feature.ActionTestMethods do
 
 
   def visiter_la_page(sujet, url, _added_to_msg \\ nil) do
+    sujet = if Map.get(sujet, :session) do sujet else      
+      {:ok, sess} = Wallaby.start_session()
+      Map.put(sujet, :session, sess)
+    end
+
     session = session_from(sujet)
     # msg = "-> On rejoint la page #{url} #{added_to_msg}"
     # w msg, :blue
