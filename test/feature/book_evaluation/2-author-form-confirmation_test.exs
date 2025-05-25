@@ -30,9 +30,9 @@ defmodule LdQWeb.BookSubmissionTestsStep2_2 do
     # |> pause(100)
     |> remplit_le_champ("Sous-titre optionnel") |> avec(book_subtitle)
     |> remplit_le_champ("URL de commande") |> avec(book_url_command)
-    |> remplit_le_champ("Année de publication") |> avec("2024")
-    # |> coche_la_case("#book_accord_regles")
+    |> remplit_le_champ("Date de publication") |> avec(~D[2024-09-12])
     # Je fais exprès d'oublier de cocher la case des règles
+    # |> coche_la_case("#book_accord_regles")
     |> et_voit("input[type=file]", %{id: "book_file"})
     |> depose_le_fichier(file_book_path, "#book_file")
     |> choisit_le_bon_captcha("book")
@@ -62,7 +62,7 @@ defmodule LdQWeb.BookSubmissionTestsStep2_2 do
     assert( File.exists?(book_file_dest), "Le manuscrit/livre de l'auteur est introuvable… (#{inspect book_file_dest})")
   
     # Les nouvelles données du livre ont été enregistrées
-    book_data = LdQ.Library.Book.get(Map.get(procedure.data, "book_id"))
+    book_data = LdQ.Library.Book.get(Map.get(procedure.data, "book_id"), :all)
     IO.inspect(book_data, label: "\nBOOK DATA dans test")
     assert(book_data.subtitle == book_subtitle)
     assert(book_data.url_command == book_url_command)

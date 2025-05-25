@@ -391,7 +391,7 @@ defmodule LdQ.Procedure.PropositionLivre do
       %{type: :hidden, strict_name: "nstep", value: "author_confirm_submission"},
       %{type: :text, name: "subtitle", label: "Sous-titre optionnel"},
       %{type: :text, name: "preversion_id", label: "Pré-version optionnelle", explication: "Si une version précédente du livre a été soumise au label, en l'ayant reçu ou non, indiquer ici son identifiant."},
-      %{type: :number, name: "published_at", label: "Année de publication", min: 1990, max: now().year + 1, value: now().year},
+      %{type: :date, name: "published_at", label: "Date de publication"},
       %{type: :text, name: "url_command", label: "URL de commande", required: true, explication: "Permet de certifier que l'ouvrage est bien mis en vente. Une fois le label reçu, cet URL permettra aux lectrice et aux lecteurs intéressés d'acheter le livre."},
       %{type: :checkbox, name: "accord_regles", value: "yes", strict_id: "accord_regles", label: "Je suis d’accord avec les <a href=\"/pg/regles-evaluation\">règles d'évaluation du label</a> et m'engage à les respecter"}
     ]
@@ -501,26 +501,28 @@ defmodule LdQ.Procedure.PropositionLivre do
 
     # Enregistrer les nouvelles données du livre
     # --- Enregistrement des nouvelles informations pour le livre ---
-    params = Map.merge(procedure.params, %{
+    params = Map.merge(procedure.params["book"], %{
       "transmitted"   => File.exists?(procedure.data["manuscrit_path"]),
       "last_phase"    => 15,
       "current_phase" => 18,
       "submitted_at"  => now()
     })
+    # IO.inspect(params, label: "NEW PARAMS BOOK")
 
     book = 
       case Book.save(book, params) do
         %Book{} = updated_book -> updated_book
         erreur -> raise(LdQ.Error, code: :error_save, msg: "Impossible d'enregistrer le livre : #{erreur}", data: params)
       end
+    IO.inspect(book, label: "\nLIVRE ACTUALISÉ")
 
     # Mettre l'étape suivante dans la procédure
     # (il s'agit de l'étape ou un administrateur va désigner un
     #  parrain et mettre le livre en évaluation)
     proc_attrs = %{
-      next_step: "attribution_parrain",
+      next_step: "attribution_parrain"
     }
-    # Actualisation de la procédure
+    # Actualisation de la procédureù
     update_procedure(procedure, proc_attrs)
 
     # Informer l'administration
