@@ -18,4 +18,31 @@ defmodule LdQ.Library.UserBook do
     |> cast(attrs, [:note, :user_id, :book_id])
     |> validate_required([:user_id, :book_id])
   end
+
+
+  @doc """
+  Permet d'associer un user (membre du comité) à un livre, en
+  appliquant les paramètres +attrs+ (qui, pour le moment, ne
+  peut définir que la note de 0 à 40)
+
+  @return L'association créée
+  """
+  def assoc_user_and_book(user, book, attrs \\ %{}) do
+    # On met une barrière si l'user n'est pas un membre
+    LdQ.Comptes.User.member?(user) || raise("Impossible d'associer un livre à quelqu'un qui n'appartient pas au comité de lecture…")
+
+    %__MODULE__{}
+    |> changeset(attrs)
+    |> Repo.insert!()
+  end
+
+  @doc """
+  Actualise l'association entre le membre et le livre
+  """
+  def update!(user, book, attrs) do
+    Repo.get_by!(__MODULE__, [user_id: ^user.id, book_id: ^book.id])
+    |> changeset(attrs)
+    |> Repo.update!()
+  end
+
 end

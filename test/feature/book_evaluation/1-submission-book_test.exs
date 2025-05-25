@@ -27,9 +27,12 @@ defmodule LdQWeb.BookSubmissionTestsStep1 do
   @tag :user
   @tag :author
   test "Un utilisateur identifié peut soumettre un nouveau livre" do
-    # on_exit(fn -> bdd_dump("book-just-submitted") end)
 
-    detruire_les_mails()
+    # Ce test va générer une photographie (bddshot) point de départ de
+    # la procédure. On en profite donc par créer plusieurs users, dont
+    # certains sont membre du comité de lecture, plusieurs livres dont
+    # certains sont déjà lus et évalués.
+    create_users_members_and_books()
 
     user = make_user_with_session(%{name: "Autrice DuLivre", password: "passepartout"})
 

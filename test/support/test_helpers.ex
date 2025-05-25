@@ -2,6 +2,7 @@ defmodule TestHelpers do
 
   alias LdQ.Repo
   alias LdQ.Comptes
+  alias LdQ.Comptes.User
   alias Random.Methods, as: Rand
   import LdQ.ComptesFixtures
   alias LdQ.ProcedureFixture, as: FProc # create_procedure([...])
@@ -265,4 +266,53 @@ defmodule TestHelpers do
     FProc.create_procedure(params)
   end
   
+  @doc """
+  Crée plusieurs users, dont certains membres
+  Crée plusieurs livres en évaluation
+  """
+  def create_users_members_and_books(params \\ %{}) do
+    make_simple_users(20) # peu importe qui
+    membres = make_members(20, %{with_credit: true, with_books: true})
+    passwords = 
+      members
+      |> Enum.reduce(%{}, fn member, table ->
+        Map.put(table, member.email, member.password)
+      end)
+    save_passwords_of(passwords)
+
+  end
+
+  @doc """
+  Consignation d'une table de mots de passe qui pourront être
+  récupérés par get_password_of/1
+  """
+  def save_passwords_of(emails_to_passwords) when is_map(emails_to_passwords) do
+    passwords = Map.merge(get_passwords(), emails_to_passwords)
+    File.write!(passwords_path(), :erlang.term_to_binary(passwords))
+  end
+  @doc """
+  Consignation d'un mot de passe, qui pourra être récupéré par 
+  get_password_of/1
+  """
+  def save_password_of(email, password) do
+    save_passwords_of(%{email => password})
+  end
+  # ATTENTION user ici doit avoir une propriété :password
+  def save_password_of(user) when is_struct(user, User) do
+    user[:password] || raise("L'user doit définir son mot de passe")
+  end
+  def get_password_of(email) when is_binary(email) do
+    Map.get(get_passwords(), email, nil)
+  end
+  def get_password_of(user) do
+    get_password_of(user.email)
+  end
+  # Retourne tous les passwords
+  defp get_passwords do
+    File.read!(passwords_path()) |> :erlang.binary_to_term()
+  end
+  def passwords_path do
+    Path.join("test", "xtmp", "passwords_test")
+  end
+
 end

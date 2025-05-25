@@ -18,4 +18,29 @@ defmodule LdQ.Comptes.MemberCard do
     |> cast(attrs, [:credit, :user_id])
     |> validate_required([:credit, :user_id])
   end
+
+  # ----------------------------------------------------------- #
+
+  def create_for(user) do
+    %__MODULE__{}
+    |> changeset(%{user_id: user.id, credit: 0})
+    |> Repo.insert!()
+  end
+
+  def get!(id) do
+    Repo.get!(__MODULE__, id)
+  end
+
+  def update(member_card, attrs) when is_struct(member_card, __MODULE__) do
+    member_card
+    |> changeset(attrs)
+    |> Repo.update!()
+  end
+
+  def update(id, attrs) when is_binary(id) do
+    member_card = get!(id)
+    update(member_card, attrs)
+  end
+
+
 end

@@ -2,6 +2,15 @@ defmodule LdQ.ComptesFixtures do
   @moduledoc """
   This module defines test helpers for creating
   entities via the `LdQ.Comptes` context.
+
+
+  N001
+
+    Si des users (simples users, membres, admins, etc.) doivent se
+    connecter plus tard, il ne faut pas oublier de consigner leur
+    mot de passe grâce aux méthodes TestHerlpers save_password_of/2
+    ou save_passwords_of/1 (pour en enregistrer plusieurs)
+
   """
   alias Random.Methods, as: Rand
   alias LdQ.Comptes
@@ -39,7 +48,12 @@ defmodule LdQ.ComptesFixtures do
       attrs
       |> valid_user_attributes()
       |> Comptes.register_user()
-    user
+    if attrs[:with_member_card] do
+      member_card = Comptes.MemberCard.create_for(user)
+      user |> Map.put(:member_card_id, member_card.id)
+    else
+      user 
+    end
   end
 
   # Transforme la donnée :privileges en entier si elle est données
@@ -74,6 +88,11 @@ defmodule LdQ.ComptesFixtures do
     |> Map.put(:password, new_attrs.password)
   end
 
+  def make_simple_users(nombre, params \\ %{}) do
+    (1..nombre)
+    |> Enum.map(fn x -> make_user(params) end)
+  end
+
   @doc """
   Contrairement aux users et autres authors, il n'y a pour le moment 
   qu'un seul administrateur, avec le mail :
@@ -104,16 +123,53 @@ defmodule LdQ.ComptesFixtures do
     end
   end
   
+  @doc """
+  Fabrication d'un membre
+
+  ATTENTION : Lire la N001
+  """
   def make_member(params \\ %{}) do
+    sexe = random_sexe()
+    prenom = random_prenom(sexe)
     new_attrs = %{
-      name:       Map.get(params, :name, "Brigitte #{Rand.uniq_int()} Membre"),
+      name:       Map.get(params, :name, "#{prenom}-#{Rand.uniq_int()} Membre"),
       email:      "membre-comite@lecture-de-qualite.fr",
       password:   Map.get(params, :password, valid_user_password()),
-      sexe:       Map.get(params, :sexe, "F"),
-      privileges: [:member]
+      sexe:       Map.get(params, :sexe, sexe),
+      privileges: [:member],
+      with_member_card: true
     }
-    user_fixture(Map.merge(params, new_attrs))
-    |> Map.put(:password, new_attrs.password)
+    user = 
+      user_fixture(Map.merge(params, new_attrs))
+      |> Map.put(:password, new_attrs.password)
+
+    user = if params[:with_credit] do
+      Comptes.MemberCard.update(user.member_card_id, %{credit: Enum.random(10..10000) })
+    else user end
+    user = if params[:credit] do
+      Comptes.MemberCard.update(user.member_card_id, %{credit: params[:credit]})
+    else user end
+
+    # A-t-il déjà lu des livres ?
+    user = if params[:with_books] do
+      # Si c'est le cas, on a 2 possibilités : 
+      # 1- créer un nouveau livre qu'il a lu
+      # 2- prendre un livre existant et lui faire lire
+      nombre_livres = Enum.random(2..200)
+      (1..nombre_livres)
+      |> Enum.each(fn x -> end
+        book = random_book_or_create(not_read_by: user)
+        LdQ.Library.UserBook.assoc_user_and_book(user, book, %{note: Enum.random(0..40)})
+      )
+
+    else user end
+
+    user
+  end
+
+  def make_members(nombre, params \\ %{}) do
+    (1..nombre)
+    |> Enum.map(fn x -> make_member(params) end)
   end
 
   # Cette méthode semble un vieil héritage de l'époque où les auteurs

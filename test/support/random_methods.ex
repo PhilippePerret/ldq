@@ -19,6 +19,10 @@ defmodule Random.Methods do
     Enum.random(@adjectifs)
   end
 
+  def random_title do
+    randow_text(rand(60..200))
+  end
+
   @doc """
   @return %NaiveDateTime{} La date de maintenant
   """
