@@ -22,6 +22,20 @@ defmodule LdQ.ProcedureMethods do
     |> NaiveDateTime.truncate(:second)
   end
 
+  # @doc """
+  # Pour utiliser les féminines dans les messages 
+  
+  # NB : Il est question ici des messages "directs", construits dans
+  # les fonctions. Pour les mails et les textes par fichier, utiliser
+  # l'envoi de variables.
+  # """
+  # def fem(id, sexe) when is_atom(id) and is_binary(sexe) do
+  #   Helpers.Feminines.fem(id, sexe)
+  # end
+  # def fem(id, user) when is_atom(id) and is_struct(user, User) do
+  #   fem(id, user.sexe)
+  # end
+
   @doc """
   @return True si l'user courant est administrateur
   """

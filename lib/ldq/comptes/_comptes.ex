@@ -6,9 +6,56 @@ defmodule LdQ.Comptes do
   import Ecto.Query, warn: false
   alias LdQ.Repo
 
-  alias LdQ.Comptes.{User, UserToken, UserNotifier}
+  alias LdQ.Comptes.{User, UserToken, UserNotifier, MemberCard}
 
   ## Database getters
+
+  # @doc """
+  # Retourne les users voulus, en respectant les options +options.
+
+  # @parap {Keyword} options
+  #   :sort   On classe d'après cette clé. On peut trouver :
+  #           :credit       Classement descendant par crédit
+  #           :credit_asc   Classement ascendant par crédit
+  #           :books        Nombre de livres évalués (descendant)
+  #           :books_asc    Nombre de livres évalués (ascendant)
+
+  # @return {List of User} La liste des utilisateurs voulus, dans
+  # l'ordre voulu
+  # """
+  # def get_users(options) do
+  #   query = from(
+  #     u in User, 
+  #     join: c in MemberCard, on: u.id == c.user_id
+  #   )
+  #   query = 
+  #     if options[:member] || options[:membre] do
+  #       where(query, [u], fragment("(? & ?) != 0", u.privileges, 8))
+  #     else query end
+  #   query = 
+  #     if options[:admin] do
+  #       where(query, [u], fragment("(? & ?) != 0", u.privileges, ^(16 + 32 + 64)))
+  #     else query end
+  #   query =
+  #     if options[:sort] do
+  #       case options[:sort] do
+  #       :credit     -> order_by(query, [c], desc: c.credit)
+  #       :credit_asc -> order_by(query, [c], asc: c.credit)
+  #       :books      -> 
+  #         join(query, [u], ub in UserBook, on: ub.user_id == u.id)
+  #         |> group_by([u], u.id)
+  #         |> order_by([ub], desc: count(ub.book_id))
+  #       :books_asc  -> 
+  #         join(query, [u], ub in UserBook, on: ub.user_id == u.id)
+  #         |> group_by([u], u.id)
+  #         |> order_by([ub], asc: count(ub.book_id))
+  #       _else -> query
+  #       end
+  #     else query end
+  #   query = query
+  #   |> select([u, c, ub], %{u | book_count: count(ub.book_id), credit: c.credit})
+  #   |> Repo.get_all()
+  # end
 
   @doc """
   Gets a user by email.

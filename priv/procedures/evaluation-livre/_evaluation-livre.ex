@@ -569,14 +569,36 @@ defmodule LdQ.Procedure.PropositionLivre do
   Note : seul un administrateur peut passer par ici.
   """
   def attribution_parrain(procedure) do
-    IO.inspect(procedure, label: "\nPROCÉDURE AU DÉBUT DE attribution parrain")
-    raise "Pour voir"
-    if User.admin?(procedure.current_user) do
-      "<p>C'est l'administrateur</p>"
+    curuser = procedure.current_user
+    if User.admin?(curuser) do
+      form_attribution_parrain(procedure)
     else
       # Forcément l'auteur du livre
-      "<p>C'est l'auteur du livre</p>"
+      "<p>Bonjour ch#{fem(:ere, curuser)} #{curuser.name}, comme vous pouvez le deviner par le titre, l'administration est en train de chercher un parrain pour votre livre, c'est-à-dire un membre du comité de lecture qui l'accompagnera pendant tout son processus d'évaluation.</p>"
     end
+  end
+
+  # Pour permettre à l'administrateur de choisir un parrain
+  defp form_attribution_parrain(procedure) do
+    options_parrains = [["id-parrain", "Premier parrain"]]
+    detail_membres = build_detail_membres(sort: :credits)
+    # TODO Rappeler qu'un parrainage rapporte des points, quel que soit le livre
+    form = Html.Form.formate(%Html.Form{
+      id: "choose-book-parrain",
+      prefix: "book",
+      captcha: false,
+      fields: [
+        %{type: :select, name: "parrain_id", options: options_parrains, label: "Parrain choisi"}
+      ],
+      buttons: [
+        %{type: :submit, name: "Attribuer ce parrain"}
+      ]
+    })
+    """
+    <p>Merci de choisir un parrain.</p>
+    #{form}
+    #{detail_membres}
+    """
   end
 
 
@@ -774,4 +796,12 @@ defmodule LdQ.Procedure.PropositionLivre do
     else res end
   end
   
+  # Construit un listing des membres du comité de lecture en respec-
+  # tant les options +options+
+  #
+  # @return {HTMLString} Listing au format HTML
+  defp build_detail_membres(options) do
+    # On relève tous les users qui sont membres du comité de lecture
+    Comptes.get_users(options)
+  end
 end

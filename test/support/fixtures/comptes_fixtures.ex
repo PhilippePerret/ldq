@@ -81,7 +81,8 @@ defmodule LdQ.ComptesFixtures do
   S'il est déjà créé, on le retourne, sinon on le crée.
   """
   def make_admin(params \\ %{}) do
-    email_admin = "admin@lecture-de-qualite.fr"
+    email_admin     = "admin@lecture-de-qualite.fr"
+    password_admin  = "passworddadministrateurpassepartout"
     case get_admin(Map.merge(%{email: email_admin}, params)) do
     {:ok, admin} -> admin
     :unknown ->
@@ -89,12 +90,11 @@ defmodule LdQ.ComptesFixtures do
       new_attrs = %{
         name:       Map.get(params, :name, "Ben #{his_number} Admin"),
         email:      email_admin,
-        password:   Map.get(params, :password, valid_user_password()),
+        password:   Map.get(params, :password, password_admin),
         privileges: Map.get(params, :privileges, [:admin3])
       }
       user_fixture(Map.merge(params, new_attrs))
-      |> Map.put(:password, new_attrs.password)
-    end
+    end |> Map.put(:password, params[:password] || password_admin)
   end
 
   def get_admin(params \\ %{email: "admin@lecture-de-qualite.fr"}) do
