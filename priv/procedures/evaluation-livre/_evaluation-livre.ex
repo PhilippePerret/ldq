@@ -30,8 +30,8 @@ defmodule LdQ.Procedure.PropositionLivre do
     %{name: "Confirmation de la soumission", fun: :form_confirmation_soumission_per_auteur, required: :user_is_author_or_admin?, admin_required: false, owner_required: false},
     %{name: "Soumission confirmée", fun: :author_confirm_submission, required: :user_is_author_or_admin?, admin_required: false, owner_required: false},
     %{name: "Choix du parrain", fun: :attribution_parrain, required: :user_is_author_or_admin?, admin_required: false, owner_required: false},
-    %{name: "Attribution d'un parrain", fun: :proceed_attribute_parrain, required: :user_is_author_or_admin?, admin_required: false, owner_required: false},
-    %{name: "Lancement de l'évaluation", fun: :form_admin_debut_evaluation, admin_required: true, owner_required: false},
+    %{name: "Attribution du parrain", fun: :proceed_attribute_parrain, required: :user_is_author_or_admin?, admin_required: false, owner_required: false},
+    %{name: "Lancement de l'évaluation", fun: :start_evaluation, required: :user_is_author_or_admin?, admin_required: false, owner_required: false},
   
     %{name: "Suppression complète du livre", fun: :complete_book_remove, admin_required: true, owner_required: false}
   ]
@@ -460,7 +460,7 @@ defmodule LdQ.Procedure.PropositionLivre do
   end
 
   defp check_author_confirm_submission(procedure) do
-    book = procedure.book
+    _book = procedure.book
     params = procedure.params["book"]
     # IO.inspect(params, label: "BOOK PARAMS")
     # --- Vérifications ---
@@ -581,8 +581,11 @@ defmodule LdQ.Procedure.PropositionLivre do
 
   # Pour permettre à l'administrateur de choisir un parrain
   defp form_attribution_parrain(procedure) do
-    options_parrains = [["id-parrain", "Premier parrain"]]
-    detail_membres = build_detail_membres(sort: :credits)
+    membres = Comptes.get_users(membre: true, sort: :credit, book_count: true)
+    options_parrains = Enum.map(membres, fn membre ->
+      [membre.name, membre.id]
+    end)
+    detail_membres = build_detail_membres(membres)
     # TODO Rappeler qu'un parrainage rapporte des points, quel que soit le livre
     form = Html.Form.formate(%Html.Form{
       id: "choose-book-parrain",
@@ -605,11 +608,92 @@ defmodule LdQ.Procedure.PropositionLivre do
   end
 
   def proceed_attribute_parrain(procedure) do
+    book = procedure.book
+
+    parrain_id = procedure.params["book"]["parrain_id"]
+    parrain = Comptes.get_user!(parrain_id)
+
+    # Ajout des points de crédit au parrain
+    points_parrain =  LdQ.Evaluation.CreditCalculator.points_for(:parrainage)
+    old_points_parrain = parrain.credit
+    new_points_parrain = old_points_parrain + points_parrain
+    Comptes.update_user(parrain, %{credit: new_points_parrain})
+
+    variables_mail = Map.merge(%{
+      membre_credit:    parrain.credit,
+      points_credit:    points_parrain,
+      points_penalite:  -LdQ.Evaluation.CreditCalculator.points_for(:refus_parrainage),
+      author_name:      book.author.name,
+      book_title:       book.title
+    }, Helpers.Femininies.as_map(member.sexe, "mb"))
+
+    send_mail(to: parrain, from: :admin, with: %{mail_id: "to_membre-demande-parrainage", variables: variables_mail})
+    
+    start_evaluation_form = Html.Form.formate(%Html.Form{
+      id: "start-evaluation",
+      action: "/proc/#{procedure.id}",
+      captcha: false,
+      fields: [
+        %{type: :hidden, strict_name: "nstep", value: "start_evaluation"}
+      ],
+      buttons: [
+        %{type: :submit, name: "Lancer l'évaluation du livre"}
+      ]
+    })
+    
     """
-    <p class="error">Je dois apprendre à attribuer le parrain</p>
+    <p>Le parrainnage du livre #{book.title} (#{book.author.name}) a bien été 
+    attribué à #{parrain.name}. Son crédit est passé de #{old_points_parrain} à 
+    #{new_points_parrain}.</p>
+    <p>Il a tout loisir de refuser ce parrainage bien entendu.</p>
+    <p>Vous pouvez à présent :</p>
+    #{start_evaluation_form}
     """
   end
 
+  defp start_evaluation(procedure) do
+    curuser = procedure.current_user
+    if User.admin?(curuser) do
+      # Forcément un administrateur
+      proceed_start_evaluation(procedure)
+    else
+      # Forcément l'auteur du livre
+      "<p>Bonjour ch#{fem(:ere, curuser)} #{curuser.name}, comme vous pouvez le deviner par le titre, l'administration doit lancer l'évaluation de votre livre.</p>"
+    end
+  end
+
+  @doc """
+  Fonction qui procède à la mise en évaluation du livre
+  """
+  def proceed_start_evaluation(procedure) do
+    book = procedure.book
+
+    mail_variables = Map.merge(%{
+      book_title: book.title,
+      author_name: book.author.name,
+      url_procedure: proc_url(procedure, title: "Suivre la procédure d'évaluation")
+    }, Helpers.Feminines.as_map(book.author.sexe, "auth"))
+
+    # Le livre est marqué pour passer à l'évaluation
+    # TODO
+
+    # Mail d'information à l'auteur
+    send_mail(to: book.author, from: :admin, with: %{
+      mail_id: "to_author-lancement-evaluation", 
+      variables: mail_variables
+    })
+
+    # Les lecteurs du niveau correspondant sont informés
+    # Note : ça se fait par Brevo
+    # TODO
+
+    # Une annonce d'activité est enregistrée
+    # TODO
+
+    """
+    <p class=error>On doit apprendre à lancer l'évaluation du livre.</p>
+    """
+  end
 
 
   @doc """
@@ -812,12 +896,37 @@ defmodule LdQ.Procedure.PropositionLivre do
   #   :sort   Clé de classement
   #
   # @return {HTMLString} Listing au format HTML
-  defp build_detail_membres(options) do
+  defp build_detail_membres(membres, options \\ []) do
     # On relève tous les users qui sont membres du comité de lecture
-    Comptes.get_users(options)
-    |> Enum.map(fn u ->
-      "<p>#{u.id}</p>"
-    end)
-    |> Enum.join("")
+    """
+    <style type="text/css">
+      table#member-list {
+      }
+      table#member-list tr td:nth-child(1) {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis
+      }
+      table#member-list tbody > tr:nth-of-type(even) {
+        background-color: rgb(237 238 242);
+      }
+    </style>
+    <table id="member-list" cellspacing="4">
+      <thead>
+        <tr>
+          <th width="300">Membre du comité</th>
+          <th width="auto">Email</th>
+          <th width="100">Nombre<br/>livres</th>
+          <th width="120">Crédit</th>
+        </tr>
+      </thead>
+      <tbody>
+    """ <> (
+      Enum.map(membres, fn u ->
+        ~s(<tr><td>#{u.name}</td><td>#{Comptes.email_link_for(u, title: "Contacter")}</td><td class="center">#{u.book_count}</td><td class="center">#{u.credit}</td></tr>)
+      end)
+      |> Enum.join("")
+    ) <> "</tbody></table>"
   end
+
 end

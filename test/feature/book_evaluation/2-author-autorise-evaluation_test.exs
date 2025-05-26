@@ -71,7 +71,7 @@ defmodule LdQWeb.BookSubmissionTestsStep2_2 do
     assert( File.exists?(book_file_dest), "Le manuscrit/livre de l'auteur est introuvable… (#{inspect book_file_dest})")
   
     # Les nouvelles données du livre ont été enregistrées
-    book_data = LdQ.Library.Book.get(Map.get(procedure.data, "book_id"), :all)
+    book_data = LdQ.Library.Book.get(procedure.data["book_id"], :all)
     assert(book_data.subtitle == book_subtitle)
     assert(book_data.url_command == book_url_command)
     assert(book_data.pitch == book_pitch)

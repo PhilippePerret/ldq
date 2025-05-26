@@ -1,0 +1,14 @@
+---
+subject = Lancement de l'évaluation de votre livre
+---
+Ch<:: auth_ere ::> <:: author_name ::>,
+
+J'ai le plaisir de vous annoncer que votre livre <:: book_title ::> vient de commencer son évaluation pour l'attribution du label « Lecture de Qualité ».
+
+Vous pouvez suivre cette évaluation en suivant le lien ci-dessous :
+
+<:: url_procedure ::>
+
+Bien à vous,
+
+<: signature_administration :>

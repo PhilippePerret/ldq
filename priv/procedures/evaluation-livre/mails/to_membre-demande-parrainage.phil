@@ -1,0 +1,10 @@
+---
+subject = Attribution d'un parrainage de livre
+---
+Ch<:: mb_ere ::> <:: mb_name ::>,
+
+Vous avez la chance d'avoir été choisi<:: mb_e ::> par l'administration du label pour parrainer le livre <:: book_title ::> écrit par <:: author_name ::>.
+
+Ce parrainage vous rapporte <:: points_credit ::> en plus, ce qui monte votre crédit à <:: membre_credit ::>. Bravo à vous !
+
+Vous pouvez néanmoins refuser ce parrainage sans condition (seuls les points de crédit attribués vous seront retirés, augmentés d'une petite pénalité et <:: points_penalite ::>)

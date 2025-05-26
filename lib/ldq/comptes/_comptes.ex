@@ -7,27 +7,71 @@ defmodule LdQ.Comptes do
   alias LdQ.Repo
 
   alias LdQ.Comptes.{User, UserToken, UserNotifier, MemberCard}
+  alias LdQ.Library.{Book, UserBook}
 
-  ## Database getters
+  
+  # === Helpers ===
+
+  @doc """
+  Retourne un lien pour envoyer un message à l'utilisateur par mail.
+
+  @param {User} user L'utilisateur en question
+  @param {Keyword} options Les options
+    :title    Peut valoir :mail (l'adresse en titre) :name (le nom de l'user en titre) ou le titre explicitement
+  @return {HTMLString} Un lien pour envoyer un email
+  """
+  def email_link_for(user, options \\ []) do
+    title = 
+      case options[:title] do
+        nil     -> user.email
+        :name   -> user.name
+        :email  -> user.email
+        :mail   -> user.email
+        title   -> title
+      end
+    ~s(<a href="mailto:#{user.email}?subject=#{options[:subject]}">#{title}</a>)
+  end
 
   @doc """
   Retourne les users voulus, en respectant les options +options.
 
   @parap {Keyword} options
     :sort   On classe d'après cette clé. On peut trouver :
-            :credit       Classement descendant par crédit
-            :credit_asc   Classement ascendant par crédit
-            :books        Nombre de livres évalués (descendant)
-            :books_asc    Nombre de livres évalués (ascendant)
+            :credit           Classement descendant par crédit
+            :credit_asc       Classement ascendant par crédit
+            :book_count       Nombre de livres évalués (descendant)
+            :book_count_asc   Nombre de livres évalués (ascendant)
+    :book_count   On doit ajouter le nombre de livres lus
 
   @return {List of User} La liste des utilisateurs voulus, dans
   l'ordre voulu
   """
   def get_users(options) do
+
+    classement_par_livre = options[:sort] == :book_count || options[:sort] == :book_count_asc
+    require_books = classement_par_livre || options[:book_count]
+
+    # Pour obtenir le nombre de livres (si requis)
+    user_id_to_book_count =
+      if require_books do
+        query = from(
+          ub in UserBook,
+          group_by: ub.user_id,
+          select: %{uid: ub.user_id, count: count(ub.book_id)}
+        )
+        |> Repo.all()
+        |> Enum.reduce(%{}, fn res, tbl ->
+          Map.put(tbl, res.uid, res.count)
+        end)
+        # |> IO.inspect(label: "TABLE USER ID -> BOOK COUNT")
+      else nil end
+
     query = from(
       u in User, 
-      join: c in MemberCard, on: u.id == c.user_id
+      join: c in MemberCard, on: u.id == c.user_id,
+      select: %{u | credit: c.credit}
     )
+
     # - Les privilèges -
     query = 
       if options[:member] || options[:membre] do
@@ -42,43 +86,42 @@ defmodule LdQ.Comptes do
         query 
       end
 
-    res =
+    query =
       if options[:sort] do
         case options[:sort] do
         :credit     -> 
           order_by(query, [_u, c], desc: c.credit)
         :credit_asc -> 
           order_by(query, [_u, c], asc: c.credit)
-        :books      -> 
-          join(query, :inner, [u, _c], ub in UserBook, on: ub.user_id == u.id)
-          |> group_by([u, _c, _ub], u.id)
-          |> order_by([_u, _c, ub], desc: count(ub.book_id))
-        :books_asc  -> 
-          join(query, :inner, [u, _c], ub in UserBook, on: ub.user_id == u.id)
-          |> group_by([u, _c, _ub], u.id)
-          |> order_by([_u, _c, ub], asc: count(ub.book_id))
         _else -> 
-          :without_book
+          # Note : :books et :books_asc sont traités plus tard
+          query
         end
       else 
-        :without_book
+        query
       end
 
-    case res do
-    :without_book -> query_users_without_books(query)
-    _             -> query_users_with_books(res)
-    end
-  end
+    # On relève tous les utilisateurs correspondants
+    allusers = Repo.all(query)
 
-  defp query_users_with_books(query) do
-    query 
-    |> select([u, c, ub], %{u | book_count: count(ub.book_id), credit: c.credit})
-    |> Repo.all()
-  end
-  defp query_users_without_books(query) do
-    query
-    |> select([u, c], %{u | credit: c.credit})
-    |> Repo.all()
+    # Ajout du nombre de livres si nécessaire
+    allusers = 
+      if require_books do
+        allusers
+        |> Enum.map(fn u -> Map.put(u, :book_count, user_id_to_book_count[u.id]) end)
+      else allusers end
+
+    # Faut-il classer par nombre de livres ?
+    allusers =
+      if options[:sort] == :book_count || options[:sort] == :book_count_asc do
+        if options[:sort] == :book_count do
+          Enum.sort(allusers, &(&2.book_count < &1.book_count))
+        else
+          Enum.sort(allusers, &(&2.book_count > &1.book_count))
+        end
+      else allusers end
+
+    allusers
   end
 
   @doc """

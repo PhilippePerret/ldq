@@ -17,7 +17,8 @@ defmodule LdQ.Comptes.User do
     field :confirmed_at, :utc_datetime
     field :privileges, :integer, default: 0
 
-    field :credit, :integer, virtual: true
+    field :credit,      :integer, virtual: true
+    field :book_count,  :integer, virtual: true
 
     timestamps(type: :utc_datetime)
   end

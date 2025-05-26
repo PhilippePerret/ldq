@@ -110,7 +110,7 @@ defmodule LdQ.ComptesFixtures do
     :unknown ->
       his_number = uniq_int()
       new_attrs = %{
-        name:       Map.get(params, :name, "Ben #{his_number} Admin"),
+        name:       Map.get(params, :name, "Ben#{his_number} #{random_lastname()}"),
         email:      email_admin,
         password:   Map.get(params, :password, password_admin),
         privileges: Map.get(params, :privileges, [:admin3])
@@ -136,7 +136,7 @@ defmodule LdQ.ComptesFixtures do
     prenom = random_prenom(sexe)
     uniqint = uniq_int()
     new_attrs = %{
-      name:       Map.get(params, :name, "#{prenom}-#{uniqint} Membre"),
+      name:       Map.get(params, :name, "#{prenom}-#{uniqint} #{random_lastname()}"),
       email:      "membre#{uniqint}-comite@lecture-de-qualite.fr",
       password:   Map.get(params, :password, valid_user_password()),
       sexe:       Map.get(params, :sexe, sexe),
