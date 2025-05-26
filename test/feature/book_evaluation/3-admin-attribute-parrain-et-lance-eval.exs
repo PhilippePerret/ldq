@@ -24,6 +24,7 @@ defmodule LdQWeb.BookSubmissionTestsStep3_1 do
     # Membre choisi pour être parrain
     membres = LdQ.Comptes.get_users(member: true) 
 
+
     membre = 
       try do
         membres
@@ -47,13 +48,14 @@ defmodule LdQWeb.BookSubmissionTestsStep3_1 do
 
     # --- Vérifications ---
 
-    membre
-    |> recoit_un_mail(after: point_test, mail_id: "to_membre-demande-parrainage")
+    res =
+      membre
+      |> recoit_un_mail(after: point_test, mail_id: "to_membre-demande-parrainage")
 
     # Le membre a augmenté son crédit
     points_parrainage = LdQ.Evaluation.CreditCalculator.points_for(:parrainage)
     old_credit = membre.credit
-    new_credit = Comptes.get_user!(membre.id).credit
+    new_credit = LdQ.Comptes.get_user!(membre.id).credit
     err_msg = 
       cond do
       new_credit == old_credit ->
@@ -66,10 +68,14 @@ defmodule LdQWeb.BookSubmissionTestsStep3_1 do
     assert(new_credit == old_credit + points_parrainage, err_msg)
 
     # Le livre a son parrain
-    book = LdQ.Library.get(book_id, [:parrain_id])
+    book = LdQ.Library.Book.get(book_id, [:title, :parrain_id, :last_phase, :current_phase])
     refute(is_nil(book.parrain_id))
     assert(book.parrain_id == membre.id, "Le livre devrait avoir maintenant comme parrain le membre choisi. Or son parrain est #{book.parrain_id} tandis que le membre a l'identifiant #{membre.id}…")
+    # La phase du livre est la bonne
+    assert(book.current_phase == 18)
+    assert(book.last_phase == 15)
 
+    # Photographie de la base de donnée
     bddshot("evaluation-book/3-attribution-parrain", %{
       procedure: procedure,
       book_id: book_id,

@@ -359,6 +359,12 @@ defmodule LdQ.Library.Book do
   # @return un {LdQ.Library.Book} si la sauvegarde a pu se faire, ou
   # {String} l'erreur ou les erreurs dans le cas contraire.
   def save(book, attrs) do
+    # S'assurer que les clés soient en string
+    attrs = 
+      Enum.reduce(attrs, %{}, fn {k, v}, coll ->
+        realk = if is_atom(k), do: Atom.to_string(k), else: k
+        Map.put(coll, realk, v)
+      end)
     attrs = Map.put(attrs, "id", {nil, book.id})
     bookset = save(attrs)
     if is_nil(bookset[:error]) do

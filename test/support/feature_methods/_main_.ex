@@ -265,6 +265,11 @@ defmodule FeaturePublicMethods do
   def recoit_un_mail(who, params), do: Mail.user_recoit_un_mail(who, params)
   def recois_un_mail(who, params), do: Mail.user_recoit_un_mail(who, params)
   def recoivent_un_mail(who, params), do: Mail.user_recoit_un_mail(who, params)
+  @doc """
+  Détruit tous les mails. Maintenant qu'ils sont consignés dans la
+  base de données, ils sont détruits automatiquement à chaque nouveau
+  test.
+  """
   def detruire_les_mails, do: Mail.exec_delete_all_mails()
 
  

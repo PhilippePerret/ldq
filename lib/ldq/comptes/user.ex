@@ -5,6 +5,21 @@ defmodule LdQ.Comptes.User do
 
   alias LdQ.Comptes
 
+
+  # ==== A P I ===== #
+  
+  @doc """
+  @api
+  Permet d'actualiser le crédit de l'utilisation (note : c'est dans
+  la table MemberCard qu'est consigné ce crédit)
+  """
+  def update_credit(user, new_value) do
+    Comptes.MemberCard.update(user.member_card_id, %{credit: new_value})
+    %{user | credit: new_value}
+  end
+  
+  # ==== S C H É M A ===== #
+
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "users" do
@@ -17,8 +32,9 @@ defmodule LdQ.Comptes.User do
     field :confirmed_at, :utc_datetime
     field :privileges, :integer, default: 0
 
-    field :credit,      :integer, virtual: true
-    field :book_count,  :integer, virtual: true
+    field :member_card_id,  :binary, virtual: true
+    field :credit,          :integer, virtual: true
+    field :book_count,      :integer, virtual: true
 
     timestamps(type: :utc_datetime)
   end

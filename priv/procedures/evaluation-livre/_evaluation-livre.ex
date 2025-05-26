@@ -19,6 +19,7 @@ defmodule LdQ.Procedure.PropositionLivre do
   alias LdQ.Library, as: Lib
   alias LdQ.Library.Book
   alias LdQ.Comptes
+  alias LdQ.Comptes.User
 
   def proc_name, do: "Évaluation d’un livre"
 
@@ -612,22 +613,31 @@ defmodule LdQ.Procedure.PropositionLivre do
 
     parrain_id = procedure.params["book"]["parrain_id"]
     parrain = Comptes.get_user!(parrain_id)
+    
+    # On renseigne le parrain et la phase du livre
+    Book.save(book, %{parrain_id: parrain_id, last_phase: "15", current_phase: "18"})
 
     # Ajout des points de crédit au parrain
     points_parrain =  LdQ.Evaluation.CreditCalculator.points_for(:parrainage)
-    old_points_parrain = parrain.credit
+    old_points_parrain = (parrain.credit || 0)
     new_points_parrain = old_points_parrain + points_parrain
-    Comptes.update_user(parrain, %{credit: new_points_parrain})
+    User.update_credit(parrain, new_points_parrain)
 
     variables_mail = Map.merge(%{
-      membre_credit:    parrain.credit,
-      points_credit:    points_parrain,
-      points_penalite:  -LdQ.Evaluation.CreditCalculator.points_for(:refus_parrainage),
+      mb_name:          parrain.name,
+      membre_credit:    "#{new_points_parrain}",
+      points_credit:    "#{points_parrain}",
+      points_penalite:  "#{-LdQ.Evaluation.CreditCalculator.points_for(:refus_parrainage)}",
       author_name:      book.author.name,
       book_title:       book.title
-    }, Helpers.Femininies.as_map(member.sexe, "mb"))
+    }, Helpers.Feminines.as_map(parrain.sexe, "mb"))
 
-    send_mail(to: parrain, from: :admin, with: %{mail_id: "to_membre-demande-parrainage", variables: variables_mail})
+    send_mail(to: parrain, from: :admin, with: %{
+      procedure: procedure,
+      folder: __DIR__, 
+      mail_id: "to_membre-demande-parrainage", 
+      variables: variables_mail
+    })
     
     start_evaluation_form = Html.Form.formate(%Html.Form{
       id: "start-evaluation",
@@ -675,7 +685,7 @@ defmodule LdQ.Procedure.PropositionLivre do
     }, Helpers.Feminines.as_map(book.author.sexe, "auth"))
 
     # Le livre est marqué pour passer à l'évaluation
-    # TODO
+    Book.save(book, %{last_phase: "18", current_phase: "20"})
 
     # Mail d'information à l'auteur
     send_mail(to: book.author, from: :admin, with: %{

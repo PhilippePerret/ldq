@@ -171,14 +171,30 @@ defmodule LdQ.Comptes do
       iex> get_user!(456)
       ** (Ecto.NoResultsError)
 
+  ATTENTION : AVEC CETTE FORMULE (PAS TRÈS CLAIRE…) IL FAUT 
+  IMPÉRATIVEMENT QUE TOUTES LES PROPRIÉTÉS AJOUTÉES AU DONNÉES
+  DE L'USER SOIENT DES PROPRIÉTÉS VIRTUELLES (comme credit et
+  :book_count)
   """
-  def get_user!(id), do: Repo.get!(User, id)
+  def get_user!(id) do
+    data_user =
+    query = from(u in User)
+    |> join(:left, [u], c in MemberCard, on: c.user_id == u.id)
+    |> where([u, _c], u.id == ^id)
+    |> select([u, _c], map(u, [:id, :name, :email, :sexe, :privileges]))
+    |> select_merge([_u, c], %{member_card_id: c.id, credit: c.credit})
+    |> Repo.all()
+    |> Enum.at(0)
+    
+    Map.merge(%User{}, data_user)
+  end
 
   def update_user(user, attrs) do
     user 
     |> User.changeset(attrs)
-    |> Repo.update()
+    |> Repo.update!()
   end
+
   ## User registration
 
   @doc """

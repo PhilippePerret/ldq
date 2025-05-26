@@ -12,6 +12,13 @@ defmodule LdQ.Evaluation.CreditCalculator do
     refus_parrainage:     -10,
     fiche_lecture_qcm:    15,
     real_fiche_lecture:   10, # par milliers de caractères
+
+    # Nombre de crédit minimum pour appartenir au collège deux
+    # TODO Ces valeurs doivent bouger, au début, jusqu'à ce 
+    # qu'on atteigne un nombre de lecteur suffisant dans chaque
+    # niveau
+    seuil_college_two:    200,
+    seuil_college_trhee:  500
   }
 
 
