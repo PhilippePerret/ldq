@@ -289,7 +289,7 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
     # puisqu'il n'y a pas de sessions ici).
 
     admin   = make_admin_with_session()
-    member  = make_member()
+    member  = make_membre()
 
     admin
     |> recoit_un_mail(after: point_test, subject: "Soumission d'une candidature", content: [~r/Ch(er|ère) administrat(eur|rice),/, "Name", "#{user.name}", ~s(<a href="mailto:#{user.email}">#{user.email}</a>), "acceptée, refusée ou soumise à un test"], strict: false)

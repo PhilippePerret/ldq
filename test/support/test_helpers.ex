@@ -272,7 +272,7 @@ defmodule TestHelpers do
   """
   def create_users_members_and_books(_params \\ %{}) do
     make_simple_users(20) # peu importe qui
-    membres = make_members(20, %{with_credit: true, with_books: true})
+    membres = make_membres(20, %{with_credit: true, with_books: true})
     passwords = 
       membres
       |> Enum.reduce(%{}, fn member, table ->
@@ -280,6 +280,15 @@ defmodule TestHelpers do
       end)
     save_passwords_of(passwords)
 
+  end
+
+  @doc """
+  Ajoute le mot de passe à la table de l'user +user+
+  Raise une erreur si le mot de passe ne peut pas être trouvé
+  """
+  def add_password_to!(user) do
+    password = get_password_of(user.email) || raise("Aucun mot de passe consigné pour #{user.name} (#{user.email})")
+    Map.put(user, :password, password)
   end
 
   @doc """

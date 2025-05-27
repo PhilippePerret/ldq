@@ -130,7 +130,7 @@ defmodule LdQ.BookTests do
     # --- Préparation ---
     preversion = Book.save(%{"title" => "La version précédente."})
     publisher = make_publisher()
-    parrain   = make_member()
+    parrain   = make_membre()
     author    = make_author()
     book = Book.save(%{
       "author_id"       => author.id,

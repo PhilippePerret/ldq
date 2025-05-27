@@ -13,8 +13,9 @@ defmodule LdQ.ComptesFixtures do
 
   """
 
-  # alias LdQ.Repo
-  alias LdQ.Comptes
+  alias LdQ.Repo
+  import Ecto.Query
+  alias LdQ.{Comptes, Library}
   import Bitwise
   import LdQ.LibraryFixtures
   import Random.Methods
@@ -119,6 +120,9 @@ defmodule LdQ.ComptesFixtures do
     end |> Map.put(:password, params[:password] || password_admin)
   end
 
+  @doc """
+  Retourne un administrateur correspondant aux paramètres +params+
+  """
   def get_admin(params \\ %{email: "admin@lecture-de-qualite.fr"}) do
     case Comptes.get_user_by_email(params.email) do
     nil -> :unknown
@@ -131,7 +135,7 @@ defmodule LdQ.ComptesFixtures do
 
   ATTENTION : Lire la N001
   """
-  def make_member(params \\ %{}) do
+  def make_membre(params \\ %{}) do
     sexe = random_sexe()
     prenom = random_prenom(sexe)
     uniqint = uniq_int()
@@ -163,16 +167,64 @@ defmodule LdQ.ComptesFixtures do
       (1..nombre_livres)
       |> Enum.each(fn _x ->
         book = random_book_or_create(not_read_by: user)
-        LdQ.Library.UserBook.assoc_user_and_book(user, book, %{note: Enum.random(0..40)})
+        Library.UserBook.assoc_user_and_book(user, book, %{note: Enum.random(0..40)})
       end)
     end
 
     user
   end
 
-  def make_members(nombre, params \\ %{}) do
+  @doc """
+  Pour faire +nombre+ membres avec les paramètres +params+
+  """
+  def make_membres(nombre, params \\ %{}) do
     (1..nombre)
-    |> Enum.map(fn _x -> make_member(params) end)
+    |> Enum.map(fn _x -> make_membre(params) end)
+  end
+
+  @doc """
+  """
+  def get_membre(params \\ %{}) do
+    user =
+      if params[:id] do
+        Comptes.get_user!(params[:id])
+      else
+        query = from(u in Comptes.User, 
+          join: c in Comptes.MemberCard, on: c.user_id == u.id)
+        
+        query =
+          if params[:not] do
+            where(query, [u, c], u.id != ^params[:not])
+          else query end
+
+        query =
+          if params[:min_credit] do
+            where(query, [u, c], c.credit >= ^params[:min_credit])
+          else query end
+        query = 
+          if params[:max_credit] do
+            where(query, [u, c], c.credit <= ^params[:max_credit])
+          else query end
+
+        Repo.all(query)
+        |> Enum.at(0)
+      end
+    if is_nil(user) do
+      attrs = %{}
+      attrs = if params[:min_credit] do
+        Map.put(attrs, :credit, params[:min_credit] + 10)
+      else attrs end
+      attrs = if params[:max_credit] do
+        Map.put(attrs, :credit, params[:max_credit] - 10)
+      else attrs end
+      # On fait le membre
+      make_membre(attrs)
+    else 
+      # Quand le membre a pu être récupéré dans des membres 
+      # existant
+      # (note : on lui ajoute son mot de passe)
+      TestHelpers.add_password_to!(user)
+    end
   end
 
   # Cette méthode semble un vieil héritage de l'époque où les auteurs
@@ -180,7 +232,7 @@ defmodule LdQ.ComptesFixtures do
   # livres sont des LdQ.Library.Author (cf. make_author/2)
   def make_writer(params \\ %{}) do
     new_attrs = %{
-      name:       Map.get(params, :name, "Caro#{uniq_int()} Autrice"),
+      name:       Map.get(params, :name, "Caro#{uniq_int()}  #{random_lastname()}"),
       password:   Map.get(params, :password, valid_user_password()),
       sexe:       Map.get(params, :sexe, "F"),
       privileges: [:writer]

@@ -17,8 +17,14 @@ defmodule FeaturePublicMethods do
   def make_admin_with_session(attrs \\ %{}) do
     start_session(make_admin(attrs), [])
   end
-  def make_member_with_session(attrs \\ %{}) do
-    start_session(make_member(attrs), [])
+  def get_admin_with_session(options \\ %{}) do
+    raise "À implémenter"
+  end
+  def make_membre_with_session(attrs \\ %{}) do
+    start_session(make_membre(attrs), [])
+  end
+  def get_membre_with_session(params \\ %{}) do
+    start_session(get_membre(params), [])
   end
   def make_writer_with_session(attrs \\ %{}) do
     start_session(make_writer(attrs), [])
@@ -39,11 +45,21 @@ defmodule FeaturePublicMethods do
     LdQ.Library.get_author!(author_id)
   end
 
+  @doc """
+  @param {Map} attrs Le données transmise
+    :not    Un identifiant pour ne pas prendre ce membre-là
+    :id     Prendre ce membre là
+    :min_credit   Le crédit minimum que doit avoir le membre
+    :max_credit   Le crédit maximum que doit avoir le membre
+  @return un membre (et le crée si nécessaire)
+  """
+  def get_membre(params \\ %{}), do: Compt.get_membre(params)
+
   def make_simple_user(attrs \\ %{}), do: Compt.make_simple_user(attrs)
   def make_admin(attrs \\ %{}), do: Compt.make_admin(attrs)
   def make_writer(attrs \\ %{}), do: Compt.make_writer(attrs)
   def make_author(attrs \\ %{}), do: Compt.make_author(attrs)
-  def make_member(attrs \\ %{}), do: Compt.make_member(attrs)
+  def make_membre(attrs \\ %{}), do: Compt.make_membre(attrs)
   def make_publisher(attrs \\ %{}), do: LdQ.LibraryFixtures.make_publisher(attrs)
 
   def start_session(sujet, params), do: Sess.start_session(sujet, params)
@@ -51,6 +67,7 @@ defmodule FeaturePublicMethods do
   def start_session(), do: Sess.start_session([])
   
   def end_session(sujet), do: Sess.end_session(sujet)
+  def se_deconnecte(sujet), do: Sess.end_session(sujet)
 
   @doc """
   Pour déplacer la fenêtre

@@ -172,9 +172,9 @@ defmodule LdQ.Comptes do
       ** (Ecto.NoResultsError)
 
   ATTENTION : AVEC CETTE FORMULE (PAS TRÈS CLAIRE…) IL FAUT 
-  IMPÉRATIVEMENT QUE TOUTES LES PROPRIÉTÉS AJOUTÉES AU DONNÉES
-  DE L'USER SOIENT DES PROPRIÉTÉS VIRTUELLES (comme credit et
-  :book_count)
+  IMPÉRATIVEMENT QUE TOUTES LES PROPRIÉTÉS AJOUTÉES AUX DONNÉES
+  DE L'USER SOIENT DES PROPRIÉTÉS VIRTUELLES (comme :credit — qui
+  appartient à une autre table — et :book_count)
   """
   def get_user!(id) do
     data_user =

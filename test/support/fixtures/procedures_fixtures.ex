@@ -5,7 +5,7 @@ defmodule LdQ.ProcedureFixture do
   def create_procedure(params \\ []) do
     params = get_or_put(params, :owner, FCompt.make_simple_user())
     params = get_or_put(params, :submitter, FCompt.make_simple_user())
-    params = get_or_put(params, :submitter, FCompt.make_member())
+    params = get_or_put(params, :submitter, FCompt.make_membre())
     params = get_or_put(params, :submitter, FCompt.make_writer())
     params = get_or_put(params, :current_step, params[:current]||params[:step])
     params = get_or_put(params, :next_step, params[:next]||params[:step])

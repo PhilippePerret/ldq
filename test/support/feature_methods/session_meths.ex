@@ -27,7 +27,7 @@ defmodule Feature.SessionMethods do
 
   def end_session(sujet) do
     session = session_from(sujet)
-    Wallaby.end_session(session) 
+    Wallaby.end_session(session)
     sujet
   end
 
