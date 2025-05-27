@@ -39,6 +39,12 @@ defmodule LdQWeb.Router do
     resources "/pages", PageController
     resources "/page_locales", PageLocaleController
   end
+
+  scope "/membre", LdQWeb do
+    pipe_through [:browser, :require_authenticated_user]
+  
+    get "/:membre_id", MembreController, :home
+  end
   
   scope "/proc", LdQWeb do
     pipe_through [:browser, :require_authenticated_user]

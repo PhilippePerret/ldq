@@ -23,7 +23,7 @@ defmodule LdQWeb.BookSubmissionTestsChoixLivrePerMembre1 do
 
     membre 
     |> rejoint_la_page("/membre/#{membre.id}") # sa page d'accueil personnelle
-    |> pause(4)
+    |> pause(10)
     |> se_deconnecte()
 
   end
