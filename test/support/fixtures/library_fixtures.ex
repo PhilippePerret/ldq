@@ -10,6 +10,7 @@ defmodule LdQ.LibraryFixtures do
 
   import Random.Methods
 
+  alias LdQ.Comptes
   alias LdQ.Library.{Book, UserBook}
 
 
@@ -22,14 +23,27 @@ defmodule LdQ.LibraryFixtures do
     attrs = if is_list(attrs) do
       Enum.reduce(attrs, %{}, fn {k,v}, coll -> Map.put(coll, k, v) end)
     else attrs end
-    sexe = random_sexe()
+
+    user = if attrs[:user] || attrs[:user_id] do
+      if attrs[:user], do: attrs[:user], else: Comptes.get_user!(attrs[:user_id])
+    else 
+      nil 
+    end
+
+    sexe = cond do
+      attrs[:sexe]  -> attrs[:sexe]
+      is_nil(user)  -> random_sexe()
+      true          -> user.sexe
+    end
+
     {:ok, author} =
       Map.merge(%{
         firstname:  random_firstname(sexe),
         lastname:   random_lastname(),
         sexe:       sexe,
         email:      "author#{uniq_int()}@example.com",
-        birthyear:  Enum.random((1960..2010))
+        birthyear:  Enum.random((1960..2010)),
+        user_id:    user && user.id
       }, attrs)
       |> LdQ.Library.create_author()
 

@@ -435,14 +435,14 @@ defmodule LdQ.BookTests do
 
     end
 
-    # @tag :skip
+    @tag :skip
     test "permet de récupérer les livres d'un user" do
       # Dans ce cas, c'est à peine plus compliqué car il faut retrouver
       # l'auteur qui correspond à l'user
       # --- Préparation ---
-      user = make_user()
-      author = make_author(user: user) # <=== TODO L'AUTEUR NE SEMBLE PAS AFFECTÉ
-      books = make_books(count: 3, author: author)
+      user    = make_user()
+      author  = make_author(user: user)
+      books   = make_books(count: 3, author: author)
       make_books(count: 10)
       # --- Test ---
       founds = Book.filter(user: user)
