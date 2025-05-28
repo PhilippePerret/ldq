@@ -133,7 +133,7 @@ defmodule LdQ.BookTests do
     assert booked.publisher.name == publisher.name
   end
 
-  @tag :skip
+  # @tag :skip
   test "get(id, :all) permet de relever toutes les propriétés du livre" do
     # --- Préparation ---
     preversion = Book.save(%{"title" => "La version précédente."})
@@ -142,7 +142,8 @@ defmodule LdQ.BookTests do
     author    = make_author()
     book = Book.save(%{
       "author_id"       => author.id,
-      "current_phase"   => "12",
+      "last_phase"      => "80",
+      "current_phase"   => "82",
       "evaluated_at"    => "2025-08-02 10:21:23",
       "isbn"            => Rand.random_isbn(),
       "label"           => "true",
@@ -263,7 +264,7 @@ defmodule LdQ.BookTests do
     contains_book_error(badbook, "url_command", "n'est pas une URL valide")
     badbook = Book.save(%{
       "title" => "Livre avec une URL bien formatée mais inexistante",
-      "url_command" => "https://www.amazon.fr/dpdp/B09521VMZQ"
+      "url_command" => "h t t p s ://www.amazon.fr/dpdp/B09521VMZQ"
     })
     refute(is_struct(badbook, Book), "Le livre avec un URL de commande morte ne devrait pas être un Book")
     contains_book_error(badbook, "url_command", "est une URL qui ne conduit nulle part")
@@ -367,11 +368,11 @@ defmodule LdQ.BookTests do
 
   describe "La méthode Book.filter" do
 
-    # @tag :skip
+    @tag :skip
     test "permet de récupérer les livres d'un auteur" do
       # --- Préparation ---
       author = make_author()
-      books = make_books(count: 10, author: author)
+      books_author = make_books(count: 10, author: author)
       autre_aut = make_author()
       books = make_books(count: 30, author: autre_aut)
       # --- Test ---
@@ -380,7 +381,7 @@ defmodule LdQ.BookTests do
       # --- Vérification ---
       assert(Enum.count(founds) == 10, "On devrait avoir trouvé 10 livres par l'auteur, on en a trouvé #{Enum.count(founds)}")
       assert(Enum.count(founds2) == 10, "On devrait avoir trouvé 10 livres par l'ID de l'auteur, on en a trouvé #{Enum.count(founds2)}")
-      author_book_ids = books |> Enum.reduce(%{}, fn b, coll -> Map.put(coll, b.id, true) end)
+      author_book_ids = books_author |> Enum.reduce(%{}, fn b, coll -> Map.put(coll, b.id, true) end)
       (0..9)
       |> Enum.each(fn x ->
         bk = Enum.at(founds, x)
@@ -390,9 +391,68 @@ defmodule LdQ.BookTests do
       end)
     end
 
+    @tag :skip
+    test "permet de récupérer les livres qui ont le label" do
+      # --- Préparation ---
+      books_ok = make_books(count: 4, label: true)
+      autresbooks = make_books(count: 5, label: false)
+      # --- Test ---
+      founds = Book.filter(label: true)
+      # --- Vérification ---
+      nb = Enum.count(founds)
+      assert(nb == 4, "On devrait avoir trouvé 4 livres, on en a trouvé #{nb}…")
+      goods_ids = Enum.reduce(books_ok, %{}, fn bk, coll -> Map.put(coll, bk.id, true) end)
+      founds |> Enum.each(fn bk ->
+        assert(goods_ids[bk.id], "Le livre #{inspect bk} ne fait pas partie des livres avec label…")
+      end)
+    end
+
+    @tag :skip
+    test "permet de récupérer des livres par la phase courante (exacte, min ou max)" do
+      books_ok = make_books(count: 5, current_phase: 20)
+      make_books(count: 4, current_phase: 30)
+      make_books(count: 4, current_phase: 50)
+      make_books(count: 4, current_phase: 10)
+      # --- Test ---
+      founds = Book.filter(current_phase: 20)
+      nb = Enum.count(founds)
+      assert(nb == 5, "On devrait avoir trouvé 5 livres, on en a trouvé #{nb}…")
+      goods_ids = Enum.reduce(books_ok, %{}, fn bk, coll -> Map.put(coll, bk.id, true) end)
+      founds |> Enum.each(fn bk ->
+        assert(goods_ids[bk.id], "Le livre #{inspect bk} ne fait pas partie des livres avec label…")
+      end)
+      # --- Test ---
+      founds = Book.filter(current_phase_min: 30)
+      # --- Vérification ---
+      nb = Enum.count(founds)
+      assert(nb == 8, "On devrait avoir trouvé 8 livres avec une phase >= à 30. On en a trouvé #{nb}…")
+
+      # --- Test ---
+      founds = Book.filter(current_phase_max: 40)
+      # --- Vérification ---
+      nb = Enum.count(founds)
+      assert(nb == 13, "On devrait avoir trouvé 13 livres avec une phase <= à 40. On en a trouvé #{nb}…")
+
+    end
+
     # @tag :skip
     test "permet de récupérer les livres d'un user" do
-      # TODO
+      # Dans ce cas, c'est à peine plus compliqué car il faut retrouver
+      # l'auteur qui correspond à l'user
+      # --- Préparation ---
+      user = make_user()
+      author = make_author(user: user) # <=== TODO L'AUTEUR NE SEMBLE PAS AFFECTÉ
+      books = make_books(count: 3, author: author)
+      make_books(count: 10)
+      # --- Test ---
+      founds = Book.filter(user: user)
+      # --- Vérifications --
+      nb = Enum.count(founds)
+      assert(nb == 3, "On devrait avoir trouvé 3 livres du user, on en a trouvé #{nb}…")
+      goodids = Enum.reduce(books, %{}, fn book, coll -> Map.put(coll, book.id, true) end)
+      Enum.each(founds, fn book ->
+        assert(goodids[book.id], "On aurait dû trouver le livre d'identifiant #{book.id}…")
+      end)
     end
 
   end #/describe "Book.filter"

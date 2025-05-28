@@ -20,7 +20,7 @@ defmodule Random.Methods do
   end
 
   def random_title do
-    random_text(rand(60..200))
+    random_text(rand(20..40))
   end
 
   @doc """

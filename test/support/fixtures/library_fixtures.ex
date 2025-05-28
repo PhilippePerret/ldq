@@ -17,6 +17,11 @@ defmodule LdQ.LibraryFixtures do
   Generate a author.
   """
   def author_fixture(attrs \\ %{}) do
+    # On s'assure d'avoir une Map (ou, pour le dire autrement, on 
+    # permet de transmettre les données par Keyword)
+    attrs = if is_list(attrs) do
+      Enum.reduce(attrs, %{}, fn {k,v}, coll -> Map.put(coll, k, v) end)
+    else attrs end
     sexe = random_sexe()
     {:ok, author} =
       Map.merge(%{
@@ -43,6 +48,9 @@ defmodule LdQ.LibraryFixtures do
     :publisher      {Publisher} Éditeur
     :publisher_id   {Binary}    ID de l'éditeur
     :url_command    {String}    URL de commande
+    :label          {Boolean}   Pour savoir si le label est affecté ou non
+                                Note : si c'est True et qu'aucune valeur de phase n'est précisée, on met une valeur >= 82
+                                si c'est False et qu'aucune valeur de phase n'est précisée, on met une valeur >= 37
     :author         {Author}    Auteur du livre
     :author_id      {Binary}    ID de l'auteur du livre
     :current_phase  {Integer}   Phase courante exacte du livre
@@ -63,6 +71,25 @@ defmodule LdQ.LibraryFixtures do
       make_author().id
     end
     attrs = Keyword.delete(attrs, :author)
+
+    attrs = case attrs[:label] do
+      nil -> attrs
+      true ->
+        if attrs[:current_phase] || attrs[:current_phase_min] do
+          (attrs[:current_phase] || attrs[:current_phase_min]) >= 82 || raise("phase minimale mal définie si le livre doit avoir le label") 
+          attrs
+        else
+          attrs ++ [current_phase_min: 82]
+        end
+      false ->
+        if attrs[:current_phase] || attrs[:current_phase_min] do
+          (attrs[:current_phase] || attrs[:current_phase_min]) >= 37 || raise("phase minimale mal définie si label doit avoir été refusé au livre") 
+          attrs
+        else
+          attrs ++ [current_phase_min: 37]
+        end
+      end
+
 
     current_phase = cond do
       attrs[:current_phase] -> 
@@ -97,14 +124,6 @@ defmodule LdQ.LibraryFixtures do
     end
     attrs = Keyword.delete(attrs, :publisher)
 
-    label = if current_phase >= 82 do # phase de l'attribution ou non du label
-      if attrs[:label] === true || attrs[:label] === false do
-        attrs[:label]
-      else
-        Enum.random([true, false])
-      end
-    else false end
-
     label_year = if attrs[:label] do
       current_year = NaiveDateTime.utc_now().year
       attrs[:label_year] || Enum.random((2000..current_year))
@@ -119,7 +138,7 @@ defmodule LdQ.LibraryFixtures do
       parrain_id:     parrain_id,
       publisher_id:   publisher_id,
       current_phase:  current_phase,
-      label:          label,
+      label:          attrs[:label],
       label_year:     label_year,
       url_command:    url_command,
       transmitted:    attrs[:transmitted] === false || attrs[:transmitted] || true, 
@@ -135,7 +154,11 @@ defmodule LdQ.LibraryFixtures do
       attrs = Map.merge(default_attrs, attrs)
     end
     
-    LdQ.Library.Book.save(attrs)
+    book = LdQ.Library.Book.save(attrs)
+    unless is_struct(book, LdQ.Library.Book) do
+      raise "Une erreur est survenue à la construction du livre : #{inspect book}"
+    end
+    book
   end
   def make_book(attrs \\ []), do: book_fixture(attrs)
 

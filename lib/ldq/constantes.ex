@@ -9,8 +9,11 @@ defmodule LdQ.Constantes do
   #     ...
   def env, do: @env
   def env_test?,  do:  @env == :test
+  def mode_test?, do:  @env == :test
   def env_prod?,  do:  @env == :prod
+  def mode_prod?, do:  @env == :prod
   def env_dev?,   do: @env == :dev
+  def mod_dev?,   do: @env == :dev
 
   def get(constant_id) do
     case constant_id do

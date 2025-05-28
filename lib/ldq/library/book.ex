@@ -23,6 +23,7 @@ defmodule LdQ.Library.Book do
   @param {Integer} college (1, 2 ou 3)
   """
   @phase_per_college %{1 => [min: 20, max: 29], 2=> [min: 40]}
+  
   def get_not_evaluated(college, fields \\ nil) do
     phase_min = college * 20
     phase_max = phase_min + 9
@@ -124,7 +125,7 @@ defmodule LdQ.Library.Book do
     75  => %{name: "Fin évaluation troisième collège"},
     77  => %{name: "REJET TROISIÈME COLLÈGE"},
     80  => %{name: "ACCEPTATION TROISIÈME COLLÈGE"},
-    82  => %{name: "label Lecture de qualité attribué"},
+    82  => %{name: "LABEL LECTURE DE QUALITÉ ATTRIBUÉ"},
     84  => %{name: "Entrée dans les classements"},
     86  => %{name: "Mise à l'évaluation pour tout lecteur"},
     100 => %{name: "Retrait de label pour faute grave"},
@@ -135,20 +136,40 @@ defmodule LdQ.Library.Book do
 
   # === FONCTIONS DE RÉCUPÉRATION ===
 
-  @min_fields [:title, :author, :isbn]
+  @min_fields [:id, :title, :author, :isbn]
 
 
   @doc """
   Filtre les livres et les renvoie
 
-  @param {Map} filtre Le filtre à appliquer
+  @param {Map|Keyword} filtre Le filtre à appliquer
     :author             {Author}  L'auteur du livre
     :author_id          {Binary}  ID de l'auteur du livre
+    :label              {Boolean} Label attribué ou non
     :current_phase_min  {Integer} La phase minium (comprise)
     :current_phase_max  {Integer} La phase maximum (comprise)
     :current_phase      {Integer} La phase exacte
+    :user               {User} L'user qui est l'auteur du livre
   """
   def filter(filtre, fields \\ @min_fields) do
+
+    # Dans un premier temps, si fields[:user] a été fourni, il faut
+    # retrouver l'auteur qu'il est (en considérant qu'un user peut
+    # avoir plusieurs author (pseudo))
+    filtre = if filtre[:user] || filtre[:user_id] do
+      uid = filtre[:user_id] || filtre[:user].id
+      author_ids = 
+        from(w in Lib.Author, where: w.user_id == ^uid, select: w)
+        |> Repo.all()
+        |> Enum.map(fn author -> author.id end)
+      if Enum.empty?(author_ids) do
+        LdQ.Constantes.env_test? && raise("On devrait avoir trouvé des auteurs pour l'user donné (#{uid}) !")
+        filtre
+      else
+        filtre ++ [author_id: author_ids]
+      end
+    else filtre end
+
     query = from(b in __MODULE__,
      join: w in Lib.Author, on: b.author_id == w.id
     #  left_join: p in Lib.Publisher, on: b.publisher_id == p.id,    
@@ -158,8 +179,34 @@ defmodule LdQ.Library.Book do
 
     query = if filtre[:author] || filtre[:author_id] do
       author_id = filtre[:author_id] || filtre[:author].id
-      where(query, [_b, w], w.id == ^author_id)
+      if is_binary(author_id) do
+        where(query, [_b, w], w.id == ^author_id)
+      else
+        where(query, [_b, w], w.id in ^author_id)
+      end
     else query end
+
+    # - Avec label ou non -
+    # (note : si le label est true, ça impose une condition sur la 
+    #  phase courante si elle n'est pas définie)
+    {query, filtre} = if filtre[:label] === true || filtre[:label] === false do
+      query = where(query, [b, _w], b.label == ^filtre[:label])
+      filtre = if filtre[:current_phase_min] do
+        if filtre[:label] === true do
+          filtre[:current_phase_min] >= 82 || raise("Mauvais filtre de la phase courante. Pour que le label soit attribué, il faut au moins la phase 82.")
+        else
+          filtre[:current_phase_min] >= 37 || raise("Mauvais filtre de la phase courante. Pour que le label soit refusé, il faut au moins la phase 37.")
+        end
+        filtre
+      else
+        if filtre[:label] === true do
+          filtre ++ [current_phase_min: 82]
+        else
+          filtre ++ [current_phase_min: 37]
+        end
+      end
+      {query, filtre}
+    else {query, filtre} end
 
     # - La phase courante (exacte, min ou max) -
 
@@ -181,11 +228,16 @@ defmodule LdQ.Library.Book do
       List.delete(fields, :author)
     else fields end
 
+    direct_fields = Enum.uniq([:id] ++ direct_fields)
+
     query = query |> select([b, _w], map(b, ^direct_fields))
 
     query = if require_author do
       select_merge(query, [_b, w], %{author_name: w.name, author_sexe: w.sexe})
     else query end
+
+    # IO.inspect(query, label: "\nQUERY FINALE")
+    # raise "pour voir"
 
     Repo.all(query)
   end
@@ -221,6 +273,7 @@ defmodule LdQ.Library.Book do
     Repo.get!(__MODULE__, book_id)
     |> Repo.preload([:author, :publisher, :parrain])
   end
+
   # Récupère seulement les valeurs des champs +fields+
   # @param {Binary} book_id Identifiant du livre
   # @param {List of Atoms} fields List des champs à relevér. 
@@ -303,7 +356,7 @@ defmodule LdQ.Library.Book do
 
   @doc """
 
-  @param {Map} attrs  Paramètres pour enregistrer le livre
+  @param {Map|Keyword} attrs  Paramètres pour enregistrer le livre
     Les clés sont impérativement des {String} comme on peut en recevoir d'un formulaire
     Les valeurs sont obligatoirement des duplets (tuplets de 2) dont le premier et la
     valeur existante (relevée) et la seconde est la valeur nouvelle/modifiée
@@ -317,6 +370,19 @@ defmodule LdQ.Library.Book do
     :unchanged  {Map} Table des non changements
   """
   def setchange(attrs) do
+    # On normalise +attrs+ qui peut :
+    #   - être un Keyword au lieu d'une Map
+    #   - avoir des clés atomique au lieu de String
+    #   - avoir des valeurs nil (à supprimer)
+    attrs = if is_map(attrs) do attrs else
+      Enum.reduce(attrs, %{}, fn {key, v}, coll -> Map.put(coll, key, v) end)
+    end
+    attrs = attrs 
+    |> Enum.reject(fn {k, v} -> is_nil(v) end)
+    |> Enum.reduce(%{}, fn {k, v}, coll ->
+      k = if is_atom(k), do: Atom.to_string(k), else: k
+      Map.put(coll, k, v)
+    end)
     Enum.reduce(attrs, %{book_id: nil, changes_map: [], changed: [], invalid: [], unchanged: [], attrs: attrs}, fn {key, duplorstr}, set ->
       is_unknown_key = is_nil(@fields_data[key])
       {init_value, new_value} =
@@ -422,7 +488,7 @@ defmodule LdQ.Library.Book do
     if Enum.empty?(bookset.invalid) do    
       case bookset.book_id do
       nil -> 
-        {_nb, books} = create(bookset) 
+        {_nb, books} = create(bookset)
         books |> Enum.at(0)
       _   -> 
         {_nb, error} = update(bookset)
@@ -627,7 +693,7 @@ defmodule LdQ.Library.Book do
   # gère l'évaluation des livres. Dans ce cas, +i_val+ et +set+ ne
   # valent rien.
   def validate("url_command", _ival, newv, _set) do
-    if Constantes.env_test? do
+    if LdQ.Constantes.env_test? do
       # En mode test, on ne vérifie pas que ce soit une URL existante
       # et qui contient le titre du livre
       cond do

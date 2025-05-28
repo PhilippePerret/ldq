@@ -63,6 +63,7 @@ defmodule FeaturePublicMethods do
   def get_membre(params \\ %{}), do: Compt.get_membre(params)
 
   def make_simple_user(attrs \\ %{}), do: Compt.make_simple_user(attrs)
+  def make_user(attrs \\ %{}), do: Compt.make_simple_user(attrs)
   def make_admin(attrs \\ %{}), do: Compt.make_admin(attrs)
   def make_writer(attrs \\ %{}), do: Compt.make_writer(attrs)
   def make_author(attrs \\ %{}), do: Compt.make_author(attrs)
