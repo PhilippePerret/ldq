@@ -1,5 +1,17 @@
 defmodule LdQ.Constantes do
 
+  @env Application.get_env(:ldq, :env)
+
+  # Pour utiliser :
+  #   if Constantes.env == :test
+  # ou 
+  #   if Constantes.env_test? do
+  #     ...
+  def env, do: @env
+  def env_test?,  do:  @env == :test
+  def env_prod?,  do:  @env == :prod
+  def env_dev?,   do: @env == :dev
+
   def get(constant_id) do
     case constant_id do
       :app_url ->

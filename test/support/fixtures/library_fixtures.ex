@@ -32,25 +32,127 @@ defmodule LdQ.LibraryFixtures do
   end
   def make_author(attrs \\ %{}), do: author_fixture(attrs)
 
-  def book_fixture(attrs \\ %{}) do
-    author = make_author()
-    publisher = 
-      if Enum.random((1..40)) > 20 do
+
+  @doc """
+  Produit un livre au hasard
+
+  @param {Map|Keyword} attrs  Attributs à employer (note : on la transforme tout de suite en Keyword)
+    :title          {String}    Titre du livre
+    :pitch          {String}    Pitch du livre
+    :isbn           {String}    ISBN
+    :publisher      {Publisher} Éditeur
+    :publisher_id   {Binary}    ID de l'éditeur
+    :url_command    {String}    URL de commande
+    :author         {Author}    Auteur du livre
+    :author_id      {Binary}    ID de l'auteur du livre
+    :current_phase  {Integer}   Phase courante exacte du livre
+    :cur_phase_min  {Integer}   Phase courante minimale (comprise)
+    :cur_phase_max  {Integer}   Phase courante maximale (comprise)
+    :parrain_id     {Binary}    Le parrain du livre
+
+  """
+  def book_fixture(attrs \\ []) do
+    
+    attrs = if is_map(attrs) do
+      Map.to_list(attrs)
+    else attrs end
+
+    author_id = if attrs[:author] || attrs[:author_id] do
+      attrs[:author_id] || attrs[:author].id
+    else
+      make_author().id
+    end
+    attrs = Keyword.delete(attrs, :author)
+
+    current_phase = cond do
+      attrs[:current_phase] -> 
+        attrs[:current_phase]
+      attrs[:current_phase_min] ->
+        random_book_phase({:min, attrs[:current_phase_min]})
+      attrs[:current_phase_max] ->
+        random_book_phase({:min, attrs[:current_phase_max]})
+      true ->
+        random_book_phase()
+    end
+
+    parrain_id = cond do
+      attrs[:parrain] -> attrs[:parrain].id
+      attrs[:parrain_id] -> attrs[:parrain_id]
+      current_phase >= 18 ->
+        LdQ.ComptesFixtures.get_membre().id
+      true -> nil
+    end
+    attrs = Keyword.delete(attrs, :parrain)
+    attrs = Keyword.delete(attrs, :parrain_id)
+
+    publisher_id = if attrs[:publisher_id] || attrs[:publisher] do
+      attrs[:publisher_id] || attrs[:publisher].id
+    else
+      publisher = if Enum.random((1..40)) > 20 do
         make_publisher()
       else
         random_publisher()
       end
-    attrs = Map.merge(%{
-      title: random_title(),
-      isbn: random_isbn(),
-      author_id: author.id, 
-      publisher_id: publisher.id,
-      transmitted: true, 
-      submitted_at: random_time(:before, Enum.random(1000..100000))
-    }, attrs)
+      publisher.id
+    end
+    attrs = Keyword.delete(attrs, :publisher)
+
+    label = if current_phase >= 82 do # phase de l'attribution ou non du label
+      if attrs[:label] === true || attrs[:label] === false do
+        attrs[:label]
+      else
+        Enum.random([true, false])
+      end
+    else false end
+
+    label_year = if attrs[:label] do
+      current_year = NaiveDateTime.utc_now().year
+      attrs[:label_year] || Enum.random((2000..current_year))
+    else attrs[:label_year] end
+
+    url_command = attrs[:url_command] || random_url_command()
+
+    default_attrs = %{
+      title:          attrs[:title] || random_title(),
+      isbn:           attrs[:isbn] || random_isbn(),
+      author_id:      author_id,
+      parrain_id:     parrain_id,
+      publisher_id:   publisher_id,
+      current_phase:  current_phase,
+      label:          label,
+      label_year:     label_year,
+      url_command:    url_command,
+      transmitted:    attrs[:transmitted] === false || attrs[:transmitted] || true, 
+      submitted_at:   attrs[:submitted_at] || random_time(:before, Enum.random(1000..100000))
+    }
+
+    # Si les attrs ont été fournis par Keyword, on les transforme en
+    # Map pour pouvoir merger
+    attrs = if is_list(attrs) do
+      # attrs |> Enum.reduce(%{}, fn {k, v}, coll -> Map.put(coll, k, v) end)
+      Map.to_list(default_attrs) ++ attrs
+    else 
+      attrs = Map.merge(default_attrs, attrs)
+    end
+    
     LdQ.Library.Book.save(attrs)
   end
-  def make_book(attrs \\ %{}), do: book_fixture(attrs)
+  def make_book(attrs \\ []), do: book_fixture(attrs)
+
+  @doc """
+  Pour faire plusieurs livres (10 par défaut)
+
+  @param {Keyword|Map} attrs Les attributs à prendre en compte
+    :count          {Integer}   Nombre de livres à faire
+    Pour les autres propriétés, voir book_fixture
+  
+  @return {List of Book} Liste des livres créés
+  """
+  def make_books(attrs \\ []) do
+    count = attrs[:count] || 10
+    (1..count)
+    |> Enum.map(fn x -> make_book(attrs) end)
+  end
 
 
   def make_publisher(attrs \\ %{}) do
@@ -113,6 +215,37 @@ defmodule LdQ.LibraryFixtures do
       |> Enum.random()
       |> Book.get()
     end
+  end
+
+  @doc """
+  Retourne une phase au hasard
+
+  @param {Duplet|nil} condition
+    {:max, <valeur max comprise>}
+    {:min, <valeur min comprise>}
+    nil => toutes les phases possibles
+  """
+  def random_book_phase(condition \\ nil) do
+    Book.book_phases() 
+    |> Map.keys() 
+    |> Enum.filter(fn bp ->
+      case condition do
+        nil -> true
+        {:max, value} -> bp <= value
+        {:min, value} -> bp >= value
+      end
+    end)
+    |> Enum.random()
+  end
+
+
+  @doc """
+  Retourne une URL de commande
+  Noter qu'il faut qu'elle soit valide seulement en mode production
+  et en mode développement.
+  """
+  def random_url_command(base \\ "modules") do
+    "https://www.atelier-icare.net/"
   end
 
 end

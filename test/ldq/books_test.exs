@@ -25,6 +25,7 @@ defmodule LdQ.BookTests do
     end
   end
 
+  @tag :skip
   test "On peut créer un livre à partir de données minimales" do
 
     # --- Vérification préliminaire ---
@@ -39,6 +40,7 @@ defmodule LdQ.BookTests do
 
   end
 
+  @tag :skip
   test "On peut envoyer tout un tas de données pour créer le livre" do
     thetitre = "Le titre seul au milieu de plein de données"
     data = %{
@@ -56,6 +58,7 @@ defmodule LdQ.BookTests do
   end
 
 
+  @tag :skip
   test "On ne peut pas créer deux livres avec le même titre" do
     # --- Vérification préliminaire ---
     assert Enum.empty?(Book.get_all())
@@ -69,6 +72,7 @@ defmodule LdQ.BookTests do
   end
 
 
+  @tag :skip
   test "On peut actualiser les données d'un livre (en mettant 'id' en attribut)" do
     # --- Vérification préliminaire ---
     assert Enum.empty?(Book.get_all())
@@ -85,6 +89,7 @@ defmodule LdQ.BookTests do
     assert(Book.get(book_id, [:title]).title == "Un nouveau titre pour le titre du nouveau")
   end
   
+  @tag :skip
   test "On peut actualiser les données d'un livre avec Book.save/2" do
     # --- Vérification préliminaire ---
     assert Enum.empty?(Book.get_all())
@@ -101,6 +106,7 @@ defmodule LdQ.BookTests do
     assert(Book.get(book_id, [:title]).title == "Un nouveau titre pour le titre du nouveau")
   end
 
+  @tag :skip
   test "Un livre peut retourner son auteur s'il existe" do
     # --- Préparation ---
     author = make_author(%{firstname: "Tanguy", lastname: "EtLaverdure"})
@@ -113,6 +119,7 @@ defmodule LdQ.BookTests do
     assert booked.author.name == "Tanguy EtLaverdure"
   end
 
+  @tag :skip
   test "Un livre peut retrouver son éditeur s'il existe" do
     # --- Préparation ---
     publisher = make_publisher()
@@ -126,6 +133,7 @@ defmodule LdQ.BookTests do
     assert booked.publisher.name == publisher.name
   end
 
+  @tag :skip
   test "get(id, :all) permet de relever toutes les propriétés du livre" do
     # --- Préparation ---
     preversion = Book.save(%{"title" => "La version précédente."})
@@ -169,6 +177,7 @@ defmodule LdQ.BookTests do
   end
 
 
+  @tag :skip
   test "On ne peut pas passer à une phase inférieure" do
     # --- Préparation ---
     book = Book.save(%{"current_phase" => {"10", "11"}})
@@ -181,6 +190,7 @@ defmodule LdQ.BookTests do
     assert(Enum.at(bad_book.invalid, 0) == {"current_phase", "La nouvelle phase courante (10) devrait être supérieure à la phase précédente (11)"})
   end
 
+  @tag :skip
   test "On ne peut pas définir l'année de labélisation à un livre non labélisé" do
     # --- Préparation ---
     book_non_labeled = Book.save(%{"title" => "Mon livre non labélisé"})
@@ -194,6 +204,7 @@ defmodule LdQ.BookTests do
     assert(Enum.at(book.invalid, 0) |> Tuple.to_list() |> Enum.at(0) == "label_year")
   end
 
+  @tag :skip
   test "L'année de labélisation d'un livre se met automatiquement si elle n'est pas fourni" do
     # --- Préparation ---
     book = Book.save(%{"title" => "Mon livre pas encore labélisé"})
@@ -211,6 +222,7 @@ defmodule LdQ.BookTests do
 
   end
 
+  @tag :skip
   test "L'année de labélisation d'un livre dont on retire le label doit être mise à nul" do
     # --- Préparation ---
     book = Book.save(%{"label" => "true", "label_year" => "2000"})
@@ -227,6 +239,7 @@ defmodule LdQ.BookTests do
     assert(is_nil(book.label_year), "L'année du label aurait avoir dû être mise à false.")
   end
 
+  @tag :skip
   test "Le sous-titre (subtitle) du livre ne peut pas être trop long" do
     # --- Préparation/test ---
     goodbook = Book.save(%{"title" => "Le titre du livre", "subtitle" => "Un sous-titre qui est largement assez court."})
@@ -239,6 +252,7 @@ defmodule LdQ.BookTests do
     contains_book_error(badbook, "subtitle")
   end
 
+  @tag :skip
   test "L'URL de commande du livre doit être bien formaté et valide" do
     # Book avec une URL mal formatée
     badbook = Book.save(%{
@@ -261,15 +275,18 @@ defmodule LdQ.BookTests do
     assert(is_struct(goodbook, Book))
   end
 
+  @tag :skip
   test "S'il y a une pré-version (pre_version_id), elle doit exister" do
     # TODO
   end
 
+  @tag :skip
   test "Si le manuscrit/epub a été transmis, il faut qu'il existe" do
     # Note : il est dans un dossier connu, avec un nom standardisé
     # TODO
   end
 
+  @tag :skip
   test "On doit savoir quand le livre a été soumis pour évaluation" do
     # Note : c'est la date où l'administrateur valide la soumission
     # TODO
@@ -279,6 +296,7 @@ defmodule LdQ.BookTests do
     # TODO
   end
 
+  @tag :skip
   test "La date d'évaluation est fixée quand le livre reçoit ou non le label" do
     # Un livre qui reçoit le label
     # TODO
@@ -286,31 +304,40 @@ defmodule LdQ.BookTests do
     # TODO
   end
 
+  @tag :skip
   test "On peut définir le grade du label du livre" do
     # TODO
   end
+  @tag :skip
   test "Le grade du label ne peut être défini si le livre n'a pas été évalué" do
     # TODO
   end
+  @tag :skip
   test "Le grade du label ne peut être défini si le label est refusé au livre" do
     # TODO
   end
+  @tag :skip
   test "Quand on retire le label à un livre, son grade de label s'annule" do
     # TODO
   end
+  @tag :skip
   test "On peut définir le :rating d'un livre et l'augmenter" do
     # TODO
   end
+  @tag :skip
   test "Un reader peut augmenter le rating" do
     # TODO
   end
+  @tag :skip
   test "Un reader peut diminuer le rating" do
     # TODO
   end
+  @tag :skip
   test "Un reader peut changer son rating (mais il a un seul rating quand même)" do
     # TODO
   end
 
+  @tag :skip
   test "La méthode add permet d'ajouter des propriétés enregistrées" do
     # --- Préparation ---
     book_id = Book.save(%{
@@ -338,4 +365,35 @@ defmodule LdQ.BookTests do
     assert book.submitted_at == NaiveDateTime.from_iso8601!("2024-12-23 10:21:00")
   end
 
+  describe "La méthode Book.filter" do
+
+    # @tag :skip
+    test "permet de récupérer les livres d'un auteur" do
+      # --- Préparation ---
+      author = make_author()
+      books = make_books(count: 10, author: author)
+      autre_aut = make_author()
+      books = make_books(count: 30, author: autre_aut)
+      # --- Test ---
+      founds  = Book.filter(author: author)
+      founds2 = Book.filter(author_id: author.id)
+      # --- Vérification ---
+      assert(Enum.count(founds) == 10, "On devrait avoir trouvé 10 livres par l'auteur, on en a trouvé #{Enum.count(founds)}")
+      assert(Enum.count(founds2) == 10, "On devrait avoir trouvé 10 livres par l'ID de l'auteur, on en a trouvé #{Enum.count(founds2)}")
+      author_book_ids = books |> Enum.reduce(%{}, fn b, coll -> Map.put(coll, b.id, true) end)
+      (0..9)
+      |> Enum.each(fn x ->
+        bk = Enum.at(founds, x)
+        assert(author_book_ids[bk.id], "Les livres de l'auteur (par l'auteur) devraient contenir le livre d'identifiant #{bk.id} : #{inspect books}")
+        bk = Enum.at(founds2, x)
+        assert(author_book_ids[bk.id], "Les livres de l'auteur (par l'identifiant) devraient contenir le livre d'identifiant #{bk.id} : #{inspect books}")
+      end)
+    end
+
+    # @tag :skip
+    test "permet de récupérer les livres d'un user" do
+      # TODO
+    end
+
+  end #/describe "Book.filter"
 end

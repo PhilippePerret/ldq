@@ -285,9 +285,11 @@ defmodule TestHelpers do
   @doc """
   Ajoute le mot de passe à la table de l'user +user+
   Raise une erreur si le mot de passe ne peut pas être trouvé
+  NON, car il y a plein de cas où la non définition du mot de passe 
+  ne pose pas de problème.
   """
   def add_password_to!(user) do
-    password = get_password_of(user.email) || raise("Aucun mot de passe consigné pour #{user.name} (#{user.email})")
+    password = get_password_of(user.email) # || raise("Aucun mot de passe consigné pour #{user.name} (#{user.email})")
     Map.put(user, :password, password)
   end
 

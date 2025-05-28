@@ -14,6 +14,13 @@ defmodule FeaturePublicMethods do
   alias Feature.BookTestMeths     , as: Book
   alias LdQ.ComptesFixtures       , as: Compt
 
+  def now(type \\ :naive) do
+    case type do
+      :naive -> NaiveDateTime.utc_now()
+      :date  -> Date.utc_now()
+    end
+  end
+
   def make_admin_with_session(attrs \\ %{}) do
     start_session(make_admin(attrs), [])
   end
@@ -60,6 +67,8 @@ defmodule FeaturePublicMethods do
   def make_writer(attrs \\ %{}), do: Compt.make_writer(attrs)
   def make_author(attrs \\ %{}), do: Compt.make_author(attrs)
   def make_membre(attrs \\ %{}), do: Compt.make_membre(attrs)
+
+  def make_books(params \\ []), do: Book.make_books(params)
   def make_publisher(attrs \\ %{}), do: LdQ.LibraryFixtures.make_publisher(attrs)
 
   def start_session(sujet, params), do: Sess.start_session(sujet, params)

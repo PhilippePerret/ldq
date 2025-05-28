@@ -371,7 +371,7 @@ defmodule LdQ.Procedure.CandidatureComite do
     }
 
     # En mode test, on enregistre les données questions choisies
-    if Mix.env() == :test do
+    if Constantes.env_test? do
       path = Path.join(["test","xtmp","test-comite-#{procedure.user.id}"])
       File.write!(path, :erlang.term_to_binary(data_questions))
     end

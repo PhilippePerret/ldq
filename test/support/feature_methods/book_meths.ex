@@ -60,4 +60,9 @@ defmodule Feature.BookTestMeths do
     end
   end
 
+  @doc """
+  Fixture des livres avec les paramètres +params+
+  """
+  def make_books(params \\ []), do: LdQ.LibraryFixtures.make_books(params)
+
 end

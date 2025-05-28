@@ -8,6 +8,31 @@ defmodule LdQ.Library.Book do
   alias LdQ.Comptes.User
   alias LdQ.Library, as: Lib
 
+
+  @doc """
+  Établit et retourne la liste des livres non évalués, pour un collè-
+  ge donné.
+  On les reconnait simplement à leur phase courante. Entre 20 (mise
+  en évaluation par l'administrateur) et 30 (collège 1 atteint) pour
+  le premier collège etc.
+    PREMIER COLLÈGE:    entre 20 et 29
+    SECOND COLLÈGE:     entre 40 et 49
+    TROISIÈME COLLÈGE:  entre 60 et 69
+    (ce sont les valeurs que le livre peut avoir)
+
+  @param {Integer} college (1, 2 ou 3)
+  """
+  @phase_per_college %{1 => [min: 20, max: 29], 2=> [min: 40]}
+  def get_not_evaluated(college, fields \\ nil) do
+    phase_min = college * 20
+    phase_max = phase_min + 9
+    fields = fields || [:title, :author, :year, :subtitle, :inserted_at]
+    filter([current_phase_min: phase_min, current_phase_max: phase_max], fields)
+  end
+
+
+  # =============== /FIN MÉTHODES API ==================== #
+
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "books" do
@@ -106,10 +131,64 @@ defmodule LdQ.Library.Book do
     102 => %{name: "Retrait du label par décision de l'auteur"},
     104 => %{name: "Retrait du label pour autre raison"}
   }
+  def book_phases, do: @book_phases
 
   # === FONCTIONS DE RÉCUPÉRATION ===
 
   @min_fields [:title, :author, :isbn]
+
+
+  @doc """
+  Filtre les livres et les renvoie
+
+  @param {Map} filtre Le filtre à appliquer
+    :author             {Author}  L'auteur du livre
+    :author_id          {Binary}  ID de l'auteur du livre
+    :current_phase_min  {Integer} La phase minium (comprise)
+    :current_phase_max  {Integer} La phase maximum (comprise)
+    :current_phase      {Integer} La phase exacte
+  """
+  def filter(filtre, fields \\ @min_fields) do
+    query = from(b in __MODULE__,
+     join: w in Lib.Author, on: b.author_id == w.id
+    #  left_join: p in Lib.Publisher, on: b.publisher_id == p.id,    
+    )
+
+    # - L'auteur du livre - 
+
+    query = if filtre[:author] || filtre[:author_id] do
+      author_id = filtre[:author_id] || filtre[:author].id
+      where(query, [_b, w], w.id == ^author_id)
+    else query end
+
+    # - La phase courante (exacte, min ou max) -
+
+    query = if filtre[:current_phase] do
+      where(query, [b, _w], b.current_phase == ^filtre[:current_phase])
+    else query end
+
+    query = if filtre[:current_phase_min] do
+      where(query, [b, _w], b.current_phase >= ^filtre[:current_phase_min])
+    else query end
+
+    query = if filtre[:current_phase_max] do
+      where(query, [b, _w], b.current_phase <= ^filtre[:current_phase_max])
+    else query end
+
+    require_author = Enum.member?(fields, :author)
+
+    direct_fields = if require_author do
+      List.delete(fields, :author)
+    else fields end
+
+    query = query |> select([b, _w], map(b, ^direct_fields))
+
+    query = if require_author do
+      select_merge(query, [_b, w], %{author_name: w.name, author_sexe: w.sexe})
+    else query end
+
+    Repo.all(query)
+  end
 
   def get_all(_fields) do
     raise "Il faut que j'apprenne"
@@ -548,18 +627,31 @@ defmodule LdQ.Library.Book do
   # gère l'évaluation des livres. Dans ce cas, +i_val+ et +set+ ne
   # valent rien.
   def validate("url_command", _ival, newv, _set) do
-    cond do
-      String.replace(newv, " ", "") != newv -> {:error, "Une URL (de commande) ne devrait pas contenir d'espaces"}
-      !String.match?(newv, ~r/^https?\:\/\//) -> {:error, "L'URL de commande #{inspect newv} n'est pas une URL valide (elle devrait commencer par http(s)://)"}
-      true ->
-        # {retour, 0} = System.cmd("cUrl", [newv])
-        {http_code, 0} = System.cmd("curl", ["-s", "-o", "/dev/null", "-w", "%{http_code}", newv])
-        http_code = String.to_integer(http_code)
-        cond do
-          http_code > 400   -> {:error, "L'URL de commande est une URL qui ne conduit nulle part" }
-          http_code == 200 -> :ok
-          http_code >= 300 && http_code <= 310 -> :ok
-        end
+    if Constantes.env_test? do
+      # En mode test, on ne vérifie pas que ce soit une URL existante
+      # et qui contient le titre du livre
+      cond do
+        String.replace(newv, " ", "") != newv -> {:error, "Une URL (de commande) ne devrait pas contenir d'espaces"}
+        !String.match?(newv, ~r/^https?\:\/\//) -> {:error, "L'URL de commande #{inspect newv} n'est pas une URL valide (elle devrait commencer par http(s)://)"}
+        true -> :ok
+      end
+    else
+      cond do
+        String.replace(newv, " ", "") != newv -> {:error, "Une URL (de commande) ne devrait pas contenir d'espaces"}
+        !String.match?(newv, ~r/^https?\:\/\//) -> {:error, "L'URL de commande #{inspect newv} n'est pas une URL valide (elle devrait commencer par http(s)://)"}
+        true ->
+          # {retour, 0} = System.cmd("cUrl", [newv])
+          {http_code, 0} = System.cmd("curl", ["-s", "-o", "/dev/null", "-w", "%{http_code}", newv])
+          http_code = String.to_integer(http_code)
+          cond do
+            http_code > 400   -> {:error, "L'URL de commande est une URL qui ne conduit nulle part" }
+            http_code == 200 -> 
+              # TODO Il faudrait vérifier aussi que la page contienne le titre du
+              # livre, ou/et l'ISBN, et/ou le nom de l'auteur
+              :ok
+            http_code >= 300 && http_code <= 310 -> :ok
+          end
+      end
     end
   end
   def validate(_unvalidated_key, _i, _n, _s), do: :ok

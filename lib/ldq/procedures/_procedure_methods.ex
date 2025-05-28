@@ -555,7 +555,7 @@ defmodule LdQ.ProcedureMethods do
       |> Swoosh.Email.subject(subject)
       |> Swoosh.Email.html_body(html_body)
 
-      if Mix.env() == :test do
+      if Constantes.env_test? do
         # Mode test : consigner les données du mail
 
         data_mail = Map.merge(data_mail, %{
