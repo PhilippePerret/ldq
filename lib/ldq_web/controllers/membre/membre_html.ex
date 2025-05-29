@@ -36,7 +36,7 @@ defmodule LdQWeb.MembreHTML do
   def module_nouveaux_livres(membre) do
     # Relever la liste des nouveaux livres correspondant au niveau
     # du membre
-    # new_books = Book.require_evaluation()
+    new_books = Book.get_not_evaluated(membre.college)
 
     """
     <h4>Liste des nouveaux livres</h4>

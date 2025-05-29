@@ -2,11 +2,11 @@ defmodule LdQ.LibraryTest do
   use LdQ.DataCase
 
   alias LdQ.Library
+  alias LdQ.Library.Author
+
+  import LdQ.LibraryFixtures
 
   describe "authors" do
-    alias LdQ.Library.Author
-
-    import LdQ.LibraryFixtures
 
     @invalid_attrs %{}
 

@@ -47,33 +47,53 @@ defmodule LdQ.ComptesFixtures do
 
   def user_fixture(attrs \\ %{}) do
     attrs = rationnalize_user_attributes(attrs)
+    # IO.inspect(attrs, label: "ATTRS pour user_fixture")
     {:ok, user} =
       attrs
       |> valid_user_attributes()
       |> Comptes.register_user()
 
-    if attrs[:with_member_card] do
-      member_card = Comptes.MemberCard.create_for(user)
-      user |> Map.put(:member_card_id, member_card.id)
-    else
-      user 
-    end
+    user =
+      if attrs[:with_member_card] do
+        member_card = Comptes.MemberCard.create_for(user)
+        %{user | member_card_id: member_card.id}
+      else
+        user 
+      end
+
+    # IO.inspect(user, label: "\nUSER après membre-card")
+
+    user = 
+      unless is_nil(attrs[:credit]) do
+        Comptes.User.update_credit(user, attrs[:credit])
+      else user end
+
+    user
   end
 
-  # Transforme la donnée :privileges en entier si elle est données
-  # une liste de privilèges
+  # Transforme la donnée :privileges en entier si elle est donnée
+  # par une liste de privilèges
   defp rationnalize_user_attributes(attrs) do
     attrs = 
-      if Map.has_key?(attrs, :privileges) and is_list(attrs.privileges) do
+      if !is_nil(attrs[:privileges]) and is_list(attrs.privileges) do
         bit_liste   = Comptes.User.table_bit_privileges
         priv_int = 
-        Enum.reduce(attrs.privileges, 0, fn priv, val ->
-          bor(val, bit_liste[priv])
-        end)
+          Enum.reduce(attrs.privileges, 0, fn priv, val ->
+            val_for_priv = bit_liste[priv] || raise("Le privilège #{inspect priv} est inconnu…")
+            bor(val, val_for_priv)
+          end)
         %{attrs | privileges: priv_int}
       else
         attrs        
       end
+
+    # Si du crédit doit être ajouté à l'user, il faut qu'il ait une
+    # carte de membre (MemberCard)
+    attrs =
+      unless is_nil(attrs[:credit]) do
+        Map.put(attrs, :with_member_card, true)
+      else attrs end
+
     attrs
   end
 
@@ -83,13 +103,18 @@ defmodule LdQ.ComptesFixtures do
     token
   end
 
+  @doc """
+  Fait et retourne une simple user
+  @param {Keyword|Map} params Les paramètres voulus dans l'user
+  """
   def make_simple_user(params \\ %{}) do
-    new_attrs = %{
+    params = Phil.Map.ensure_map(params)
+    attrs = Map.merge(%{
       password: Map.get(params, :password, valid_user_password()),
       privileges: 0
-    }
-    user_fixture(Map.merge(params, new_attrs))
-    |> Map.put(:password, new_attrs.password)
+    }, params)
+    user_fixture(attrs)
+    |> Map.put(:password, attrs.password)
   end
 
   def make_simple_users(nombre, params \\ %{}) do

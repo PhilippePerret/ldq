@@ -18,7 +18,7 @@ defmodule LdQ.Evaluation.CreditCalculator do
     # qu'on atteigne un nombre de lecteur suffisant dans chaque
     # niveau
     seuil_college_two:    200,
-    seuil_college_trhee:  500
+    seuil_college_three:  500
   }
 
 

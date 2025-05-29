@@ -14,6 +14,7 @@ defmodule LdQ.Comptes.User do
   la table MemberCard qu'est consigné ce crédit)
   """
   def update_credit(user, new_value) do
+    user.member_card_id || raise("Impossible d'ajouter du crédit à un membre qui n'a pas de carte de membre…")
     Comptes.MemberCard.update(user.member_card_id, %{credit: new_value})
     %{user | credit: new_value}
   end
@@ -32,9 +33,12 @@ defmodule LdQ.Comptes.User do
     field :confirmed_at, :utc_datetime
     field :privileges, :integer, default: 0
 
-    field :member_card_id,  :binary, virtual: true
-    field :credit,          :integer, virtual: true
-    field :book_count,      :integer, virtual: true
+    field :member_card_id , :binary   , virtual: true
+    field :member_card    , :binary   , virtual: true
+    field :credit         , :integer  , virtual: true
+    field :book_count     , :integer  , virtual: true
+    # Si des propriétés sont ajoutées, elles doivent être aussi 
+    # ajoutées à la structure Membre
 
     timestamps(type: :utc_datetime)
   end
@@ -208,6 +212,7 @@ defmodule LdQ.Comptes.User do
   @bit_reader 2
   @bit_writer 4
   @bit_membre 8
+  @bit_admin  16
   @bit_admin1 16
   @bit_admin2 32
   @bit_admin3 64
@@ -215,7 +220,9 @@ defmodule LdQ.Comptes.User do
   @table_bit_privileges %{
     reader: @bit_reader,
     writer: @bit_writer,
+    membre: @bit_membre,
     member: @bit_membre,
+    admin:  @bit_admin,
     admin1: @bit_admin1,
     admin2: @bit_admin2,
     admin3: @bit_admin3

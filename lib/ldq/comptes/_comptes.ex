@@ -6,7 +6,7 @@ defmodule LdQ.Comptes do
   import Ecto.Query, warn: false
   alias LdQ.Repo
 
-  alias LdQ.Comptes.{User, UserToken, UserNotifier, MemberCard}
+  alias LdQ.Comptes.{User, Membre, MemberCard, UserToken, UserNotifier}
   alias LdQ.Library.{Book, UserBook}
 
   
@@ -185,8 +185,21 @@ defmodule LdQ.Comptes do
     |> select_merge([_u, c], %{member_card_id: c.id, credit: c.credit})
     |> Repo.all()
     |> Enum.at(0)
+
+    data_user || raise(LdQ.Error, [msg: "NotAUser"])
     
     Map.merge(%User{}, data_user)
+  end
+
+  def get_user_as_membre!(id) when is_binary(id) do
+    user = get_user!(id) || raise(LdQ.Error, [msg: "NotAMember"])
+    get_user_as_membre!(user)
+  end
+  def get_user_as_membre!(user) when is_struct(user, User) do
+    User.membre?(user) || raise(LdQ.Error, [msg: "NotAMember"])
+    membre = struct(Membre, Map.from_struct(user))
+    # On ajoute les propriétés propres au membre
+    Membre.add_props(membre)
   end
 
   def update_user(user, attrs) do
