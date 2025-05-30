@@ -2,6 +2,8 @@ defmodule LdQWeb.MembreHTML do
   use LdQWeb, :html
 
   alias LdQ.Comptes.User
+  alias LdQ.Library.Book
+  alias LdQ.Evaluation.CreditCalculator, as: Calc
 
   embed_templates "membre_html/*"
 
@@ -36,11 +38,32 @@ defmodule LdQWeb.MembreHTML do
   def module_nouveaux_livres(membre) do
     # Relever la liste des nouveaux livres correspondant au niveau
     # du membre
+    key_points = String.to_atom("book_evaluation_college#{membre.college}")
+    pts_evaluation = Calc.points_for(key_points)
     new_books = Book.get_not_evaluated(membre.college)
 
+    section_new_books = 
+    if Enum.count(new_books) > 0 do
+      new_books
+      |> Enum.map(fn book ->
+        """
+        <div class="book">
+          <div class="title">#{book.title} <span class="author">(#{book.author_name})</span></div>
+          <div class="buttons"><a id="btn-eval-#{book.id}" class"btn small" href="?id=#{book.id}&type=book&op=choose-for-eval">évaluer (#{pts_evaluation} crédits)</a></div>
+        </div>
+        """
+      end)
+      |> Enum.join("")
+    else
+      "<p class=\"italic\">Aucun nouveau livre à évaluer.</p>"
+    end
+
     """
-    <h4>Liste des nouveaux livres</h4>
+    <h4>Nouveaux livres à évaluer</h4>
     <p class="explication">Trouvez ci-dessous la liste des nouveaux livres à choisir</p>
+    <section class="new-books">
+    #{section_new_books}
+    </section>
     """
   end
 

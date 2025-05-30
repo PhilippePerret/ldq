@@ -1,5 +1,5 @@
 defmodule LdQ.Comptes.Membre do
-  defstruct [:name, :sexe, :email, :privileges, :member_card, :member_card_id, :book_count, :credit, :college]
+  defstruct [:id, :name, :sexe, :email, :privileges, :member_card, :member_card_id, :book_count, :credit, :college]
 
   alias LdQ.Evaluation.CreditCalculator, as: Calc
 

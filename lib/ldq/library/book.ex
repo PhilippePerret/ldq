@@ -8,6 +8,26 @@ defmodule LdQ.Library.Book do
   alias LdQ.Comptes.User
   alias LdQ.Library, as: Lib
 
+  @min_fields [:id, :title, :author, :isbn]
+
+  @doc """
+  @api
+  Permet de récupérer les valeurs voulues du livre.
+  Note : Si on appelle sans l'argument, on retourne les valeurs minimales.
+
+  @params {List} fields Liste des propriétés qu'on doit remonter. Note : :id est toujours implicite, inutile de le mettre.
+
+  @return {LdQ.Library.Book} Le livre avec seulement les propriétés voulues
+  """
+  def get(b, d \\ @min_fields)
+  # Récupère toutes les valeurs d'un coup
+  def get(book_id, :all) do
+    Repo.get!(__MODULE__, book_id)
+    |> Repo.preload([:author, :publisher, :parrain])
+  end
+  def get(book_id, fields) when is_list(fields) do
+    get_book_with_fields(book_id, fields)
+  end
 
   @doc """
   Établit et retourne la liste des livres non évalués, pour un collè-
@@ -22,12 +42,12 @@ defmodule LdQ.Library.Book do
 
   @param {Integer} college (1, 2 ou 3)
   """
-  @phase_per_college %{1 => [min: 20, max: 29], 2=> [min: 40]}
+  @phase_per_college %{1 => [min: 20, max: 29], 2 => [min: 40], 3 => [min: 60]}
   
   def get_not_evaluated(college, fields \\ nil) do
     phase_min = college * 20
     phase_max = phase_min + 9
-    fields = fields || [:title, :author, :year, :subtitle, :inserted_at]
+    fields = fields || [:title, :author, :subtitle, :inserted_at]
     filter([current_phase_min: phase_min, current_phase_max: phase_max], fields)
   end
 
@@ -110,6 +130,7 @@ defmodule LdQ.Library.Book do
     15  => %{name: "Acceptation de la soumission par l'auteur"},
     18  => %{name: "Désignation d'un parrain membre du comité"},
     20  => %{name: "Mis en évaluation par l'administration"},
+    21  => %{name: "Premier membre du premier collège prend le livre"},
     30  => %{name: "Premier collège de membres atteint"},
     32  => %{name: "Évaluation premier collège en cours"},
     35  => %{name: "Fin évaluation premier collège"},
@@ -135,9 +156,6 @@ defmodule LdQ.Library.Book do
   def book_phases, do: @book_phases
 
   # === FONCTIONS DE RÉCUPÉRATION ===
-
-  @min_fields [:id, :title, :author, :isbn]
-
 
   @doc """
   Filtre les livres et les renvoie
@@ -259,27 +277,12 @@ defmodule LdQ.Library.Book do
     |> Repo.all()
   end
 
-  @doc """
-  Permet de récupérer les valeurs voulues du livre.
-  Note : Si on appelle sans l'argument, on retourne les valeurs minimales.
-
-  @params {List} fields Liste des propriétés qu'on doit remonter. Note : :id est toujours implicite, inutile de le mettre.
-
-  @return {LdQ.Library.Book} Le livre avec seulement les propriétés voulues
-  """
-  def get(b, d \\ @min_fields)
-  # Récupère toutes les valeurs d'un coup
-  def get(book_id, :all) do
-    Repo.get!(__MODULE__, book_id)
-    |> Repo.preload([:author, :publisher, :parrain])
-  end
-
   # Récupère seulement les valeurs des champs +fields+
   # @param {Binary} book_id Identifiant du livre
   # @param {List of Atoms} fields List des champs à relevér. 
   #   Note 1 : le champ :id sera toujours ajouté
   #   Note 2 : Si +fields+ contient :author, :publisher ou :parrain, ces structures seront aussi ajoutées.
-  def get(book_id, fields) do
+  def get_book_with_fields(book_id, fields) do
     # IO.inspect(book_id, label: "BOOK_ID")
     # IO.inspect(fields, label: "FIELDS")
 

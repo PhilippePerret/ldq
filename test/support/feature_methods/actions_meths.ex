@@ -32,9 +32,9 @@ defmodule Feature.ActionTestMethods do
     sujet
   end
 
-  def cliquer_le_lien(sujet, link_title) do
+  def cliquer_le_lien(sujet, link_title, params \\ []) do
     session = session_from(sujet)
-    click(session, WQ.link(link_title))
+    click(session, WQ.link(link_title, params))
     sujet
   end
 

@@ -43,7 +43,7 @@ defmodule LdQWeb.Router do
   scope "/membre", LdQWeb do
     pipe_through [:browser, :require_authenticated_user]
   
-    get "/:membre_id", MembreController, :home
+    get "/:membre_id", MembreController, :dashboard
   end
   
   scope "/proc", LdQWeb do

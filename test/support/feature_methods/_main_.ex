@@ -234,7 +234,7 @@ defmodule FeaturePublicMethods do
 
   @return {Wallaby.Session}
   """
-  def clique_le_lien(suj, tit), do: Act.cliquer_le_lien(suj, tit)
+  def clique_le_lien(suj, tit, params \\ []), do: Act.cliquer_le_lien(suj, tit, params)
 
   @doc """
   Pour choisir un item (option) dans un menu (select)

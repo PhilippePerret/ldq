@@ -14,6 +14,14 @@ textarea {
   color:rgb(41, 156, 41);
 }
 
+.btn.small {
+  font-size: 0.8em;
+}
+
+.buttons {
+  text-align: right;
+}
+
 form.philform {
   display:block;
   width: 100%;

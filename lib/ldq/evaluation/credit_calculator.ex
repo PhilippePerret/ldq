@@ -8,10 +8,17 @@ defmodule LdQ.Evaluation.CreditCalculator do
   # On peut obtenir une valeur de l'extérieur grâce à la fonction
   # api points_for/1 qui doit recevoir la clé
   @points_per_operation %{
-    parrainage:           15,
-    refus_parrainage:     -10,
-    fiche_lecture_qcm:    15,
-    real_fiche_lecture:   10, # par milliers de caractères
+    parrainage:                 15,
+    refus_parrainage:           -10,
+
+    # Évaluations
+    book_evaluation_college1:   10,
+    book_evaluation_college2:   10,
+    book_evaluation_college3:   10,
+
+    # Fiches de lecture
+    fiche_lecture_qcm:          15,
+    real_fiche_lecture:         10, # par milliers de caractères
 
     # Nombre de crédit minimum pour appartenir au collège deux
     # TODO Ces valeurs doivent bouger, au début, jusqu'à ce 

@@ -1,4 +1,4 @@
-defmodule LdQ.Library.UserBook do
+defmodule LdQ.Evaluation.UserBook do
   use Ecto.Schema
   import Ecto.Changeset
 

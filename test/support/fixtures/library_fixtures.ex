@@ -106,15 +106,22 @@ defmodule LdQ.LibraryFixtures do
 
 
     current_phase = cond do
-      attrs[:current_phase] -> 
-        attrs[:current_phase]
+      attrs[:current_phase] ->
+        cond do
+          is_integer(attrs[:current_phase]) -> attrs[:current_phase]
+          is_struct(attrs[:current_phase], Range) ->
+            Enum.random(attrs[:current_phase])
+          is_list(attrs[:current_phase]) ->
+            Enum.random(attrs[:current_phase])
+        end
       attrs[:current_phase_min] ->
         random_book_phase({:min, attrs[:current_phase_min]})
       attrs[:current_phase_max] ->
         random_book_phase({:min, attrs[:current_phase_max]})
       true ->
         random_book_phase()
-    end
+      end
+    attrs = Keyword.delete(attrs, :current_phase)
 
     parrain_id = cond do
       attrs[:parrain] -> attrs[:parrain].id
