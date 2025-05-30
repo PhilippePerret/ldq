@@ -7,7 +7,7 @@ defmodule LdQ.Evaluation.UserBook do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "users_books" do
-    field :note, :integer # la note attribuée par le membre lecteur du livre
+    field :note, :integer, default: nil # la note attribuée par le membre lecteur du livre
     belongs_to :user, LdQ.Comptes.User
     belongs_to :book, LdQ.Library.Book
 

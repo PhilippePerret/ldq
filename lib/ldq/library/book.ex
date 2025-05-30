@@ -1,11 +1,11 @@
 defmodule LdQ.Library.Book do
   use Ecto.Schema
   import Ecto.Query
-  # import Ecto.Changeset
   alias LdQ.Repo
 
   alias LdQ.Comptes
-  alias LdQ.Comptes.User
+  alias LdQ.Comptes.{User, Membre}
+  alias LdQ.Evaluation.UserBook
   alias LdQ.Library, as: Lib
 
   @min_fields [:id, :title, :author, :isbn]
@@ -41,14 +41,63 @@ defmodule LdQ.Library.Book do
     (ce sont les valeurs que le livre peut avoir)
 
   @param {Integer} college (1, 2 ou 3)
+  @param {Keyword} options Permet de préciser la recherche :
+    :fields   Les champs à retourner
+    :by       {Membre} Il ne faut pas prendre les livres déjà évalués (en cours d'évaluation) par ce membre
   """
   @phase_per_college %{1 => [min: 20, max: 29], 2 => [min: 40], 3 => [min: 60]}
   
-  def get_not_evaluated(college, fields \\ nil) do
+  def get_not_evaluated(college, options \\ nil) do
     phase_min = college * 20
     phase_max = phase_min + 9
-    fields = fields || [:title, :author, :subtitle, :inserted_at]
-    filter([current_phase_min: phase_min, current_phase_max: phase_max], fields)
+    fields = options[:fields] || [:title, :author, :subtitle, :inserted_at]
+    filter([current_phase_min: phase_min, current_phase_max: phase_max, not_evaluated_by: options[:by]], fields)
+  end
+
+  @doc """
+  @api 
+  Établit et retourne la liste des livres évalués par le +membre+ 
+  avec les options +options
+
+  TODO Pouvoir relever aussi le nombre de membres qui évaluent le 
+  livre (ou fonction séparée ?)
+
+  @param {Membre} membre Le membre du comité de lecture
+  @param {Keyword} options Liste des options, donc :
+    :type    Si :current, on s'intéresse seulement aux livres en cours d'évaluation, i.e. sans note
+              Si :all (défaut) tous les livres
+  """
+  def get_books_evaluated_by(membre, options \\ [type: :all]) when is_struct(membre, Membre) do
+    query = from(b in __MODULE__, 
+      join: ub in UserBook, on: b.id == ub.book_id, 
+      where: ub.user_id == ^membre.id
+      )
+
+    query = if options[:type] == :current do
+      where(query, [_b, ub], is_nil(ub.note))
+    else query end
+
+    fields = options[:fields] || @min_fields
+    # Séparer les préloads des champs réels
+    %{fields: fields, preloads: preloads} = 
+      [:author, :publisher, :parrain]
+      |> Enum.reduce(%{fields: fields, preloads: []}, fn prop, coll -> 
+        if Enum.member?(fields, prop) do
+          coll = %{coll | preloads: coll.preloads ++ [prop]}
+          coll = %{coll | fields: List.delete(coll.fields, prop)}
+          %{coll | fields: coll.fields ++ [String.to_atom("#{prop}_id")]}
+          |> IO.inspect(label: "Collector")
+        else coll end
+      end)
+    query = select(query, [b], struct(b, ^fields))
+
+    books = Repo.all(query)
+    # |> IO.inspect(label: "Livre récupérés")
+    if Enum.any?(preloads) do
+      books |> Repo.preload(preloads) #|> IO.inspect(label: "LIVRES AVEC PRELOAD")
+    else 
+      books 
+    end
   end
 
 
@@ -168,6 +217,7 @@ defmodule LdQ.Library.Book do
     :current_phase_max  {Integer} La phase maximum (comprise)
     :current_phase      {Integer} La phase exacte
     :user               {User} L'user qui est l'auteur du livre
+    :not_evaluated_by   {Member} Le livre ne doit pas avoir été évalué par ce membre
   """
   def filter(filtre, fields \\ @min_fields) do
 
@@ -189,7 +239,9 @@ defmodule LdQ.Library.Book do
     else filtre end
 
     query = from(b in __MODULE__,
-     join: w in Lib.Author, on: b.author_id == w.id
+     join: w in Lib.Author, on: b.author_id == w.id,
+     left_join: ub in UserBook, on: b.id == ub.book_id
+
     #  left_join: p in Lib.Publisher, on: b.publisher_id == p.id,    
     )
 
@@ -198,9 +250,9 @@ defmodule LdQ.Library.Book do
     query = if filtre[:author] || filtre[:author_id] do
       author_id = filtre[:author_id] || filtre[:author].id
       if is_binary(author_id) do
-        where(query, [_b, w], w.id == ^author_id)
+        where(query, [_b, w, _ub], w.id == ^author_id)
       else
-        where(query, [_b, w], w.id in ^author_id)
+        where(query, [_b, w, _ub], w.id in ^author_id)
       end
     else query end
 
@@ -208,7 +260,7 @@ defmodule LdQ.Library.Book do
     # (note : si le label est true, ça impose une condition sur la 
     #  phase courante si elle n'est pas définie)
     {query, filtre} = if filtre[:label] === true || filtre[:label] === false do
-      query = where(query, [b, _w], b.label == ^filtre[:label])
+      query = where(query, [b, _w, _ub], b.label == ^filtre[:label])
       filtre = if filtre[:current_phase_min] do
         if filtre[:label] === true do
           filtre[:current_phase_min] >= 82 || raise("Mauvais filtre de la phase courante. Pour que le label soit attribué, il faut au moins la phase 82.")
@@ -229,15 +281,22 @@ defmodule LdQ.Library.Book do
     # - La phase courante (exacte, min ou max) -
 
     query = if filtre[:current_phase] do
-      where(query, [b, _w], b.current_phase == ^filtre[:current_phase])
+      where(query, [b, _w, _ub], b.current_phase == ^filtre[:current_phase])
     else query end
 
     query = if filtre[:current_phase_min] do
-      where(query, [b, _w], b.current_phase >= ^filtre[:current_phase_min])
+      where(query, [b, _w, _ub], b.current_phase >= ^filtre[:current_phase_min])
     else query end
 
     query = if filtre[:current_phase_max] do
-      where(query, [b, _w], b.current_phase <= ^filtre[:current_phase_max])
+      where(query, [b, _w, _ub], b.current_phase <= ^filtre[:current_phase_max])
+    else query end
+
+    query = if filtre[:not_evaluated_by] do
+      membre_id = filtre[:not_evaluated_by]
+      membre_id = if is_binary(membre_id), do: membre_id, else: membre_id.id
+      where(query, [_b, _w, ub], ub.user_id != ^membre_id)
+      |> IO.inspect(label: "\nQUERY ICI")
     else query end
 
     require_author = Enum.member?(fields, :author)
@@ -248,10 +307,10 @@ defmodule LdQ.Library.Book do
 
     direct_fields = Enum.uniq([:id] ++ direct_fields)
 
-    query = query |> select([b, _w], map(b, ^direct_fields))
+    query = query |> select([b, _w, _ub], map(b, ^direct_fields))
 
     query = if require_author do
-      select_merge(query, [_b, w], %{author_name: w.name, author_sexe: w.sexe})
+      select_merge(query, [_b, w, _ub], %{author_name: w.name, author_sexe: w.sexe})
     else query end
 
     # IO.inspect(query, label: "\nQUERY FINALE")
