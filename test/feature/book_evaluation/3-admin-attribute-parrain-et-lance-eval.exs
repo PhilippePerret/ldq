@@ -1,7 +1,7 @@
 defmodule LdQWeb.BookSubmissionTestsStep3_1 do
   use LdQWeb.FeatureCase, async: false
 
-  import TestHelpers
+  import TestHelpers, except: [now: 0]
   import FeaturePublicMethods
 
   # @tag :skip 
@@ -11,6 +11,7 @@ defmodule LdQWeb.BookSubmissionTestsStep3_1 do
     #     "evaluation-book/3-attribution-parrain"
 
     %{procedure: procedure} = bddshot("evaluation-book/2-autorisation-auteur")
+
     book_id = procedure.data["book_id"]
     book = LdQ.Library.Book.get(book_id, [:parrain_id])
 
@@ -74,6 +75,10 @@ defmodule LdQWeb.BookSubmissionTestsStep3_1 do
     # La phase du livre est la bonne
     assert(book.current_phase == 18)
     assert(book.last_phase == 15)
+
+    # Un trigger a été implémanté pour se déclencher que le livre
+    # reste trop longtemps en attente de lecteurs pour le lire
+    # TODO
 
     # Photographie de la base de donnée
     bddshot("evaluation-book/3-attribution-parrain", %{

@@ -35,10 +35,10 @@ defmodule LdQWeb.MembreHTML do
       |> Enum.map(fn book -> 
         """
         <div class="book">
-          <span class=picto-book>📕</span>
           <div class="title">
-            #{book.title} 
-            <span class=author>(#{book.author.name})</span>
+            <span class=picto-book>📕</span>
+              #{book.title} 
+              <span class=author>(#{book.author.name})</span>
           </div>
           <div class=buttons>
             <a href="">Attribuer une note</a>

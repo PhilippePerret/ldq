@@ -7,7 +7,8 @@ defmodule LdQ.Comptes do
   alias LdQ.Repo
 
   alias LdQ.Comptes.{User, Membre, MemberCard, UserToken, UserNotifier}
-  alias LdQ.Library.{Book, UserBook}
+  alias LdQ.Library.Book
+  alias LdQ.Evaluation.UserBook
 
   
   # === Helpers ===

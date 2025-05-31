@@ -11,7 +11,8 @@ defmodule LdQ.LibraryFixtures do
   import Random.Methods
 
   alias LdQ.Comptes
-  alias LdQ.Library.{Book, UserBook}
+  alias LdQ.Library.Book
+  alias LdQ.Evaluation.UserBook
 
 
   @doc """

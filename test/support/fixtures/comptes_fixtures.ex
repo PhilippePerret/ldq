@@ -15,11 +15,12 @@ defmodule LdQ.ComptesFixtures do
 
   alias LdQ.Repo
   import Ecto.Query
-  alias LdQ.{Comptes, Library}
   import Bitwise
   import LdQ.LibraryFixtures
   import Random.Methods
-
+  
+  alias LdQ.{Comptes, Library}
+  alias LdQ.Evaluation.UserBook
 
   def unique_user_email, do: "user#{uniq_int()}@example.com"
   def valid_user_password, do: "hello world!"
@@ -192,7 +193,7 @@ defmodule LdQ.ComptesFixtures do
       (1..nombre_livres)
       |> Enum.each(fn _x ->
         book = random_book_or_create(not_read_by: user)
-        Library.UserBook.assoc_user_and_book(user, book, %{note: Enum.random(0..40)})
+        UserBook.assoc_user_and_book(user, book, %{note: Enum.random(0..40)})
       end)
     end
 

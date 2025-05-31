@@ -238,10 +238,11 @@ defmodule LdQ.Library.Book do
       end
     else filtre end
 
+    # === DÉBUT DE LA REQUÊTE ===
+
     query = from(b in __MODULE__,
      join: w in Lib.Author, on: b.author_id == w.id,
      left_join: ub in UserBook, on: b.id == ub.book_id
-
     #  left_join: p in Lib.Publisher, on: b.publisher_id == p.id,    
     )
 
@@ -292,13 +293,6 @@ defmodule LdQ.Library.Book do
       where(query, [b, _w, _ub], b.current_phase <= ^filtre[:current_phase_max])
     else query end
 
-    query = if filtre[:not_evaluated_by] do
-      membre_id = filtre[:not_evaluated_by]
-      membre_id = if is_binary(membre_id), do: membre_id, else: membre_id.id
-      where(query, [_b, _w, ub], ub.user_id != ^membre_id)
-      |> IO.inspect(label: "\nQUERY ICI")
-    else query end
-
     require_author = Enum.member?(fields, :author)
 
     direct_fields = if require_author do
@@ -311,6 +305,14 @@ defmodule LdQ.Library.Book do
 
     query = if require_author do
       select_merge(query, [_b, w, _ub], %{author_name: w.name, author_sexe: w.sexe})
+    else query end
+
+    # Sauf les livres déjà évaluées par le membre précisé
+    query = if filtre[:not_evaluated_by] do
+      membre_id = filtre[:not_evaluated_by]
+      membre_id = if is_binary(membre_id), do: membre_id, else: membre_id.id
+      where(query, [_b, _w, ub], is_nil(ub.user_id) or ub.user_id != ^membre_id)
+      |> IO.inspect(label: "\nQUERY ICI")
     else query end
 
     # IO.inspect(query, label: "\nQUERY FINALE")
