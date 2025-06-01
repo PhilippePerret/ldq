@@ -3,6 +3,16 @@ defmodule Phil do
   defmodule Map do
 
     @doc """
+    S'assure de retourne une map avec seulement des clés string
+    """
+    def ensure_keys_string(map) when is_map(map) do
+      map |> Elixir.Enum.reduce(%{}, fn {k,v}, c ->
+        k = if is_binary(k), do: k, else: Elixir.Atom.to_string(k)
+        Elixir.Map.put(c, k, v)
+      end)
+    end
+
+    @doc """
     S'assure de retourner une map si c'est possible
 
     ## Examples

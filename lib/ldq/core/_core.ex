@@ -11,10 +11,15 @@ defmodule LdQ.Core do
 
   alias LdQ.Core.Trigger
 
-  def create_trigger!(%attrs \\ %{}) do
+  def create_trigger!(attrs \\ %{}) do
     %Trigger{}
     |> Trigger.changeset(attrs)
     |> Repo.insert!()
+  end
+
+  def get_trigger(trigger_id) do
+    trigger = Repo.get!(Trigger, trigger_id)
+    %{trigger | data: Jason.decode!(trigger.data, keys: :atoms)}
   end
 
   

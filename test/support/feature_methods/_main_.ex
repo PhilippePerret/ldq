@@ -13,12 +13,19 @@ defmodule FeaturePublicMethods do
   alias Feature.ProcedureTestMeths, as: Proc
   alias Feature.BookTestMeths     , as: Book
   alias LdQ.ComptesFixtures       , as: Compt
+  alias LdQ.LibraryFixtures       , as: Lib
+  alias LdQ.TriggerTestMethods    , as: Trig
+  alias LdQ.ProcedureFixture      , as: FProc
 
   def now(type \\ :naive) do
     case type do
       :naive -> NaiveDateTime.utc_now()
       :date  -> Date.utc_now()
     end
+  end
+
+  def ilya(quantity, unity) do
+    NaiveDateTime.add(now(), -quantity, unity)
   end
 
   def make_admin_with_session(attrs \\ %{}) do
@@ -48,9 +55,7 @@ defmodule FeaturePublicMethods do
   def get_user_with_session(%LdQ.Comptes.User{} = user) do
     start_session(user, [])
   end
-  def get_author(author_id) do
-    LdQ.Library.get_author!(author_id)
-  end
+
 
   @doc """
   @param {Map} attrs Le données transmise
@@ -61,6 +66,8 @@ defmodule FeaturePublicMethods do
   @return un membre (et le crée si nécessaire)
   """
   def get_membre(params \\ %{}), do: Compt.get_membre(params)
+  def get_admin(params \\ %{email: "admin@lecture-de-qualite.fr"}), do: Compt.get_admin(params)
+  def get_author(author_id), do: LdQ.Library.get_author!(author_id)
 
   def make_simple_user(attrs \\ %{}), do: Compt.make_simple_user(attrs)
   def make_user(attrs \\ %{}), do: Compt.make_simple_user(attrs)
@@ -69,8 +76,9 @@ defmodule FeaturePublicMethods do
   def make_author(attrs \\ %{}), do: Compt.make_author(attrs)
   def make_membre(attrs \\ %{}), do: Compt.make_membre(attrs)
 
+  def make_book(params \\ []), do: Lib.make_book(params)
   def make_books(params \\ []), do: Book.make_books(params)
-  def make_publisher(attrs \\ %{}), do: LdQ.LibraryFixtures.make_publisher(attrs)
+  def make_publisher(attrs \\ %{}), do: Lib.make_publisher(attrs)
 
   def start_session(sujet, params), do: Sess.start_session(sujet, params)
   def start_session(params), do: Sess.start_session(params)
@@ -192,6 +200,16 @@ defmodule FeaturePublicMethods do
   def et_ne_voit_pas(suj, tag, content), do: Page.la_page_ne_contient_pas(suj, tag, content)
   def et_ne_voit_pas(suj, str_or_reg), do: Page.la_page_ne_contient_pas(suj, str_or_reg)
   
+  @doc """
+  Pour créer une procédure dans la base et la retourner
+  @param {String}  params Ça peut être seulement le type de la procédure (nom du dossier)
+         {Keyword} params Ou une liste des propriétés
+                    :proc_dim     Le nom de la procédure
+                    :owner_type   {String} Le type du possesseur (p.e. "book")
+                    :owner_id     {Binary} L'ID du possesseur
+  """
+  def make_procedure(params), do: FProc.create_procedure(params)
+
   @doc """
   Pour vérifier que l'user +suj+ n'a plus la procédure d'identifiant
   +pi+, qu'elle est détruite, en fait.
@@ -348,6 +366,9 @@ defmodule FeaturePublicMethods do
   """
   def assert_author_exists(params), do: U.assert_author_exists(params)
 
+
+  def assert_trigger(params), do: Trig.assert_exists(params)
+  def refute_trigger(params), do: Trig.assert_exists(Keyword.put(params, count: 0))
 
   # ========= POUR LES FICHIERS =========
   def depose_les_fichiers(suj, files, field) when is_list(files) do

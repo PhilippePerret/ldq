@@ -151,7 +151,7 @@ defmodule LdQ.ComptesFixtures do
   """
   def get_admin(params \\ %{email: "admin@lecture-de-qualite.fr"}) do
     case Comptes.get_user_by_email(params.email) do
-    nil -> :unknown
+    nil   -> :unknown
     admin -> {:ok, admin}
     end
   end

@@ -9,7 +9,7 @@ defmodule LdQ.Repo.Migrations.CreateTriggers do
       add :uniq_scope, :string
       add :trigger_at, :naive_datetime
       add :priority, :integer
-      add :marked_by, references(:users, on_delete: :nothing, type: :binary_id)
+      add :marked_by, references(:users, on_delete: :delete_all, type: :binary_id)
 
       timestamps(type: :utc_datetime)
     end

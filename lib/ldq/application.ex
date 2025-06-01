@@ -26,6 +26,12 @@ defmodule LdQ.Application do
       # Start to serve requests, typically the last entry
       LdQWeb.Endpoint
     ]
+    
+    # Sauf en mode test, on lance le démon des triggers qui va les
+    # vérifier toutes les heures.
+    children = unless Mix.env() == :test do
+      [{LdQ.Core.TriggerDaemon, []} | children]
+    else children end
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
