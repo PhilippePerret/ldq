@@ -62,7 +62,7 @@ defmodule LdQ.TriggerTestMethods do
   def assert_log(params) do
     {:ok, last_lines} = Phil.PFile.last_lines(logpath(), 10)
 
-    params = Map.put(params, :trig_type, params[:trig_type] || params[:type])
+    params = Keyword.put(params, :trig_type, params[:trig_type] || params[:type])
 
     resultat =
       last_lines

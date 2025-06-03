@@ -129,7 +129,7 @@ defmodule LdQWeb.BookSubmissionTestsStep1 do
     #  - dans la base
     assert_trigger(after: point_test, type: "evaluation-book", data: %{book_id: new_book.id})
     #  - dans le log
-    assert_trigger_log(after: point_test, type: "evaluation-book", content: "#{new_book.id}")
+    assert_trigger_log(after: point_test, typeop: "CREATRIGGER", type: "evaluation-book", content: "#{new_book.id}")
 
     # Photographie de la BDD après enregistrement de la soumission du livre
     bddshot("evaluation-book/1-book-just-submitted", %{
