@@ -569,7 +569,6 @@ defmodule LdQ.ProcedureMethods do
 
       if Constantes.env_test? do
         # Mode test : consigner les données du mail
-
         data_mail = Map.merge(data_mail, %{
           receiver: receiver,
           subject:  subject,
@@ -589,8 +588,59 @@ defmodule LdQ.ProcedureMethods do
     # |> IO.inspect(label: "Résultat de l'envoi")
   end
 
+  @destinataires_mailing %{
+    admins: %{
+      name: "Groupe des administrateurs"
+    },
+    college1: %{
+      name: "Premier collège de lecteurs du comité"
+    },
+    college2: %{
+      name: "Second collège de lecteurs du comité"
+    },
+    college3: %{
+      name: "Troisième collège de lecteurs du comité"
+    },
+    membres: %{
+      name: "Groupe de tous les membres des trois collèges confondus"
+    },
+    authors: %{
+      name: "Groupe de tous les auteurs de livres évalués"
+    },
+  }
+  @doc """
+  Permet d'envoyer un mailing (par le biais de brevo pour le moment) 
+  à un groupe identifié par +dest_id+ à partir du message d'identi-
+  fiant +mail_id+ qui correspond au nom du fichier dans le dossier 
+  params[:folder]
+  """
+  def send_mailing(dest_id, mail_id, params) do
+    params[:folder] || raise("Il faut fournir le dossier de la procédure en troisième argument ([folder: __DIR__])")
+    group_data = @destinataires_mailing[dest_id] || raise("Le groupe #{inspect dest_id} est inconnu des mailing-lists…")
+    
+    params = Phil.Map.ensure_map(params)
+    params = Map.put(params, :mail_id, mail_id)
+    {phildata, params} = get_and_formate_mail(params)
 
-  defp compose_mail(sender, receiver, params) do
+
+    if Constantes.env_test? do
+      # En mode test, on enregistre simplement un mail dans la base
+      data_mail = %{
+        mail_id:  mail_id,
+        email:    %{from: {"Administration", "admin@mailing.com"}},
+        receiver: %{email: "Groupe mailing #{inspect dest_id}"},
+        subject:  phildata.subject,
+        html_body: phildata.html
+      }
+      consigne_mail_for_test(data_mail)
+    else
+      raise "Je dois apprendre à vraiment envoyer un mailing."
+    end
+  end
+
+  # Fonction qui récupère et formate le message
+  # @return {phildata, params} Avec params qui a été "augmenté"
+  defp get_and_formate_mail(params) do
     mail_path = 
       [params.folder, "mails", "#{params.mail_id}.phil"] 
       |> Path.join 
@@ -609,6 +659,16 @@ defmodule LdQ.ProcedureMethods do
     # |> IO.inspect(label: "\n\n+++ PHILDATA DU MAIL À ENVOYER")
 
     subject = @prefix_mail_subject <> (phil_data.options[:variables].subject || "(Sans objet)")
+
+    phil_data = Map.merge(phil_data, %{
+      subject: subject
+    })
+    {phil_data, params}
+  end
+
+  # Fonction privée qui compose le mail à envoyer
+  defp compose_mail(sender, receiver, params) do
+    {phil_data, params} = get_and_formate_mail(params)
 
     # Fichier joint (chemin absolu valide ou NIL) 
     attached_file = params.attached_file
@@ -649,7 +709,7 @@ defmodule LdQ.ProcedureMethods do
       procedure:  params.procedure,
       mail_id:    params.mail_id,
       receivers:  receivers,
-      subject:    subject,
+      subject:    phil_data.subject,
       heex_body:  phil_data.heex,
       philhtml:   phil_data
     }

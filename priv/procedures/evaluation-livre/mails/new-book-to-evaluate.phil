@@ -1,0 +1,16 @@
+---
+# note : Ce mail convient pour les 3 collèges.
+
+subject = Un nouveau livre à évaluer
+---
+Bonjour chères membres et chers membres du comité de lecture,
+
+Je vous annonce qu'un nouveau livre vient d'être mis à l'évaluation dans votre collège.
+
+Il s'agit du livre <: book_title :> de <: author_name :>.
+
+Vous pouvez choisir de l'évaluer en rejoignant votre bureau.
+
+Merci de votre attention,
+
+<: signature_administration :>

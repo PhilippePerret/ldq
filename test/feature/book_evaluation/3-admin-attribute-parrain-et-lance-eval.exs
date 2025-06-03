@@ -6,9 +6,12 @@ defmodule LdQWeb.BookSubmissionTestsStep3_1 do
 
   # @tag :skip 
   test "Un administrateur peut attribuer un parrain" do
-
-    # Ce test produit la photographie de BdD :
-    #     "evaluation-book/3-attribution-parrain"
+    # 
+    # -PHOTOGRAPHIE-
+    # Ce test produit la photographie "evaluation-book/3-parrain-et-start-eval"
+    # qui permettra aux membres du comité du premier collège de choisir le
+    # livre pour l'évaluer.
+    # 
 
     %{procedure: procedure} = bddshot("evaluation-book/2-autorisation-auteur")
 
@@ -38,7 +41,7 @@ defmodule LdQWeb.BookSubmissionTestsStep3_1 do
           Enum.random(membres)
       end
 
-    admin
+    admin = admin
     |> rejoint_la_page("/proc/#{procedure.id}")
     |> et_voit("h3", "Choix du parrain")
     |> choisit_option(membre.id, "book_parrain_id")
@@ -47,13 +50,14 @@ defmodule LdQWeb.BookSubmissionTestsStep3_1 do
     |> et_voit("h3", "Attribution du parrain")
     |> pause(1)
 
+
     # --- Vérifications ---
 
     res =
       membre
       |> recoit_un_mail(after: point_test, mail_id: "to_membre-demande-parrainage")
 
-    # Le membre a augmenté son crédit
+    # Le membre parrain augmente son crédit
     points_parrainage = LdQ.Evaluation.CreditCalculator.points_for(:parrainage)
     old_credit = membre.credit
     new_credit = LdQ.Comptes.get_user!(membre.id).credit
@@ -76,12 +80,25 @@ defmodule LdQWeb.BookSubmissionTestsStep3_1 do
     assert(book.current_phase == 18)
     assert(book.last_phase == 15)
 
+    # ==== IL LANCE ENSUITE L'ÉVALUATION ====
+
+    admin # avec session
+    |> clique_le_bouton("Lancer l'évaluation du livre")
+    |> pause(10)
+
     # Un trigger a été implémanté pour se déclencher que le livre
     # reste trop longtemps en attente de lecteurs pour le lire
-    # TODO
+    assert_trigger(after: point_test, type: "deadline-quorum-college-1", content: [book.id])
+    assert_trigger_log(after: point_test, typeop: "CREATRIGGER", type: "deadline-quorum-college-1", content: [book.id])
+
+    # Les lecteurs du premier collège ont été informés
+    assert_mailing_sent(:college1, "new-book-to-evaluate", after: point_test)
+
+    # Une annonce a été produite
+    assert_activity(after: point_test, public: true, content: "Mise en évaluation du livre “{book.title}”")
 
     # Photographie de la base de donnée
-    bddshot("evaluation-book/3-attribution-parrain", %{
+    bddshot("evaluation-book/3-parrain-et-start-eval", %{
       procedure: procedure,
       book_id: book_id,
       parrain_id: membre.id

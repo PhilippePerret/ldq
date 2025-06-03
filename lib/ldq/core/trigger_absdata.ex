@@ -39,7 +39,7 @@ defmodule LdQ.Core.TriggerAbsdata do
       "deadline-quorum-college-1" => %__MODULE__{
         name: "Quand l'administrateur valide un livre pour évaluation",
         duration: {:day, 30},
-        required_data: %{book_id: "Identifiant du livre"},
+        required_data: %{book_id: "Identifiant du livre", procedure_id: "Identifiant de la procédure"},
         error_msg: "Le quorum de ${nombre_membres_college1} membres du premier collège du comité de lecture devrait avoir été atteint",
         success_msg: "Le quorum de membres du collège 1 a été atteint",
         uniq_scope: "quorumcoll1:${book_id}"

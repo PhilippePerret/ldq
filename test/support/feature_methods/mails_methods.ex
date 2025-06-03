@@ -57,6 +57,21 @@ defmodule Feature.MailTestMethods do
     user_recoit_un_mail(%{name: "Administration", email: Constantes.get(:mail_admins)}, params)
   end
 
+
+  @doc """
+  S'assure qu'un mailing a bien été envoyé
+
+  @param {Atom} dest_id   Le groupe des destinataires (:admins, :college1, etc.)
+  @param {String} mail_id ID du mail dans le dossier
+  @param {Keyword} options Table des options éventuelles (non utilisé pour le moment)
+  """
+  def assert_mailing_sent(dest_id, mail_id, options \\ []) do
+    receiver = "Groupe mailing #{inspect dest_id}"
+    options = Keyword.put(options, :mail_id, mail_id)
+    mails = get_mails_to(receiver, options)
+    assert(Enum.count(mails) == 1, "On aurait dû trouver un mailing pour le groupe #{inspect dest_id} d'identifiant #{inspect mail_id}…")
+  end
+
   @doc """
   Récupère tous les mails au +destinataire+ qui répondent aux
   paramètres +params+ et retourne une table de résultat détaillée.
@@ -69,6 +84,7 @@ defmodule Feature.MailTestMethods do
   @return {Map} Une table avec les résultats complets (cf. get_mails_against_params/1 pour le détail)
   """
   def get_mails_to(destinataire, params \\ %{}) do
+    params = Phil.Map.ensure_map(params)
     destin =
       cond do
         is_binary(destinataire) -> destinataire

@@ -317,7 +317,14 @@ defmodule FeaturePublicMethods do
   """
   def detruire_les_mails, do: Mail.exec_delete_all_mails()
 
- 
+  @doc """
+  S'assure que le mailing a été envoyé
+
+  @param {Atom}     d Le goupe auquel les mails sont envoyés (:college1, :admins, etc.)
+  @param {String}   m ID du mail envoyé (son nom dans le dossier)
+  @param {Keyword}  o Table d'options supplémentaires (non utilisé pour le moment)
+  """
+  def assert_mailing_sent(d, m, o \\ []), do: Mail.assert_mailing_sent(d,m,o)
 
   @doc """
   Assertion de l'existence d'une activité. Raise une erreur si 

@@ -3,7 +3,7 @@ defmodule LdQWeb.BookSubmissionTestsStep2_3 do
 
   # alias Helpers.Feminines, as: Fem
 
-  import TestHelpers
+  import TestHelpers, except: [now: 0]
   import FeaturePublicMethods
 
   # @tag :skip 

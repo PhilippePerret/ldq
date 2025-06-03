@@ -620,6 +620,10 @@ defmodule LdQ.Procedure.PropositionLivre do
     """
   end
 
+  @doc """
+  Fonction qui procède à la définition du parrain du livre. On l'alerte
+  et on lui donne des points en plus.
+  """
   def proceed_attribute_parrain(procedure) do
     book = procedure.book
 
@@ -673,7 +677,7 @@ defmodule LdQ.Procedure.PropositionLivre do
     """
   end
 
-  defp start_evaluation(procedure) do
+  def start_evaluation(procedure) do
     curuser = procedure.current_user
     if User.admin?(curuser) do
       # Forcément un administrateur
@@ -684,11 +688,12 @@ defmodule LdQ.Procedure.PropositionLivre do
     end
   end
 
-  @doc """
-  Fonction qui procède à la mise en évaluation du livre
-  """
-  def proceed_start_evaluation(procedure) do
-    book = procedure.book
+  # Fonction qui procède à la mise en évaluation du livre. C'est le 
+  # déclenchement effectif de son évaluation.
+  defp proceed_start_evaluation(procedure) do
+    book  = procedure.book
+    admin = procedure.current_user
+    User.admin?(admin) || raise("On essaie de forcer cette fonction…")
 
     mail_variables = Map.merge(%{
       book_title: book.title,
@@ -699,21 +704,37 @@ defmodule LdQ.Procedure.PropositionLivre do
     # Le livre est marqué pour passer à l'évaluation
     Book.save(book, %{last_phase: "18", current_phase: "20"})
 
+    # Un trigger est lancé, pour s'assure que le quorum du premier 
+    # collège sera atteint dans les temps
+    add_trigger("deadline-quorum-college-1", %{book_id: book.id, procedure_id: procedure.id}, admin.id)
+
     # Mail d'information à l'auteur
     send_mail(to: book.author, from: :admin, with: %{
+      procedure: procedure,
+      folder: __DIR__,
       mail_id: "to_author-lancement-evaluation", 
       variables: mail_variables
     })
 
     # Les lecteurs du niveau correspondant sont informés
     # Note : ça se fait par Brevo
-    # TODO
+    send_mailing(:college1, "new-book-to-evaluate", [
+      procedure: procedure,
+      folder:   __DIR__,
+      variable: mail_variables
+    ])
 
     # Une annonce d'activité est enregistrée
-    # TODO
+    log_activity(%{
+      public: true,
+      owner_type: "author",
+      owner_id:   book.author.id,
+      creator:    admin,
+      text: "Mise en évaluation du livre “#{book.title}” de #{book.author.name}"
+    })
 
     """
-    <p class=error>On doit apprendre à lancer l'évaluation du livre.</p>
+    <p class=success>La livre #{book.title} de #{book.author.name} a été mis en évaluation.</p>
     """
   end
 

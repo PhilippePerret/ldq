@@ -14,7 +14,7 @@ defmodule LdQWeb.BookSubmissionTestsChoixLivrePerMembre1 do
     # Si c'est le cas, on pourra renommmer ce test :
     #   "4-membres-choisissent-livre.ex"
     # 
-    %{parrain_id: _parrain_id, procedure: _procedure} = bddshot("evaluation-book/3-attribution-parrain")
+    %{parrain_id: _parrain_id, procedure: _procedure} = bddshot("evaluation-book/3-parrain-et-start-eval")
   
     books = make_books(count: 10, current_phase: [20, 21])
     membre = get_membre_with_session(max_credit: LdQ.Evaluation.CreditCalculator.points_for(:seuil_college_two) - 1)
