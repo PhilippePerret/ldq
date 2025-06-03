@@ -9,6 +9,13 @@ defmodule LdQWeb.BookSubmissionTestsStep2_2 do
   # @tag :skip
   @tag :author
   test "Après soumission, l'auteur du livre peut venir confirmer la soumission" do
+    # 
+    # -PHOTOGRAPHIE-
+    # Ce test crée la photographie "evaluation-book/2-autorisation-auteur" qui
+    # permettra de poursuivre le test de l'évaluation.
+    # 
+    
+    
     %{user: user, procedure: procedure} = bddshot("evaluation-book/1-book-just-submitted")
     # IO.inspect(test_data, label: "Données du test")
     # |> IO.inspect(label: "La procédure")
