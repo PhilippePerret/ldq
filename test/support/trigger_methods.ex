@@ -60,4 +60,37 @@ defmodule LdQ.TriggerTestMethods do
   end
 
 
+  def assert_log(params) do
+    last_lines = Phil.PFile.last_lines(logpath(), 10)
+    IO.inspect(last_lines, label: "")
+    resultat =
+      last_lines
+      |> Enum.reduce(%{ok: false, nombre: 0}, fn line, res ->
+        # On décompose la ligne de log
+        [time, content] = Enum.split(line, "\t", [trim: true, parts: 2])
+        time = NaiveDateTime.from_iso8601!(time)
+        res = 
+          if params[:after] && NaiveDateTime.after?(params[:after], time) do
+            %{ok: false, nombre: res.nombre}
+          else res end
+
+        res
+      end)
+    count = params[:count] || 1
+
+    assert(resultat.nombre == count, "On aurait dû trouver #{count} log(s) correspondant aux paramètres, on en a trouvé #{resultat.nombre}. Paramètres : #{inspect params}")
+  end
+  def logpath do
+    Path.join(["priv/log/trigger-test.log"])
+  end
+
+  def read_x_last_lines(path, x, max_len \\ 1000) do
+    {:ok, fd} = :file.open(path, [:read, :binary])
+    {:ok, size} = :file.read_file_info(path) |> then(&{:ok, &1.size})
+    start = max(size - (x + 10) * max_len, 0)
+    start = if start < 0, do: 0, else: start
+    :file.position(fd, start)
+    {:ok, data} = :file.read(fd, size - start)
+    data |> to_string() |> String.split("\n") |> Enum.take(-x)
+  end
 end

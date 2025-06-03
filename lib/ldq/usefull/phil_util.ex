@@ -51,4 +51,43 @@ defmodule Phil do
 
   end #/module Keyword
 
+
+
+  defmodule PFile do
+    @moduledoc """
+    Module de méthodes pratiques pour les fichiers
+    """
+
+    @doc """
+    Pour lire les +x+ dernières lignes d'un fichier sans le lire 
+    complètement, pas même en streaming.
+
+    @param {String}  path Chemin d'accès au fichier, qui doit exister
+    @param {Integer} x Le nombre de lignes à retourner
+    @param {Keyword} options Les options. Peut définir :
+      :line_length    {Integer} La longueur d'une ligne (moyenne) (défaut : 500)
+
+    """
+    def last_lines!(path, x, options \\ [line_length: 500]) do
+      line_length = options[:line_length] || 500
+      {:ok, fd} = :file.open(path, [:read, :binary])
+      {:ok, fileinfo} = :file.read_file_info(fd)
+      size = elem(fileinfo, 1)
+      start = max(size - (x + 10) * line_length, 0)
+      # start = if start < 0, do: 0, else: start
+      :file.position(fd, start)
+      {:ok, data} = :file.read(fd, size - start)
+      data |> to_string() |> String.trim() |> String.split("\n") |> Enum.take(-x)
+    end
+
+    def last_lines(path, x, options \\ []) do
+      try do
+        {:ok, last_lines!(path, x, options)}
+      rescue
+        error -> {:error, error}
+      end
+    end
+
+  end #/module PFile
+
 end

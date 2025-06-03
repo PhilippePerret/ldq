@@ -370,6 +370,18 @@ defmodule FeaturePublicMethods do
   def assert_trigger(params), do: Trig.assert_exists(params)
   def refute_trigger(params), do: Trig.assert_exists(Keyword.put(params, count: 0))
 
+  @doc """
+  S'assure qu'une ligne de journal a été enregistrée pour le trigger 
+  (ou pas)
+
+  @param {Keyword} params Paramètres spécifiant le log
+    :after    {NaiveDateTime} Date après laquelle le log doit avoir été émis
+    :type     {String} Le type du trigger (pourrait être aussi dans :content)
+    :content  {List} Liste des textes à trouver
+  """
+  def assert_trigger_log(params), do: Trig.assert_log(params)
+  def refute_trigger_log(params), do: Trig.assert_log(Keyword.put(params, count: 0))
+
   # ========= POUR LES FICHIERS =========
   def depose_les_fichiers(suj, files, field) when is_list(files) do
     files = Enum.map(files, fn file -> {:path, file} end)

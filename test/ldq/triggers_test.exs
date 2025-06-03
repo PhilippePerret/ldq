@@ -18,6 +18,8 @@ defmodule LdQ.TriggerTest do
       Trigger.pose_trigger("evaluation-book", %{book_id: book.id, procedure_id: procedure.id}, [marked_by: admin.id])
       # --- Vérification ---
       assert_trigger(after: test_point, type: "evaluation-book", data: %{book_id: book.id}, debug: true)
+      # Une ligne de journal a été enregistrée
+      assert_trigger_log(after: test_point, content: ["evaluation-book", book.id])
     end
 
     test "raise une erreur si le type de trigger n'existe pas" do
@@ -50,6 +52,9 @@ defmodule LdQ.TriggerTest do
       assert_raise(ArgumentError, fn ->
         Trigger.pose_trigger("evaluation-book", %{book_id: book.id, procedure_id: procedure.id})
       end)
+      # --- Vérification ---
+      # N'ajoute pas de ligne de log
+      # TODO
     end
 
     test "raise si un trigger de même scope a déjà été enregistré" do

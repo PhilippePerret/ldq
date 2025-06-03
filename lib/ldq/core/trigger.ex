@@ -25,6 +25,13 @@ defmodule LdQ.Core.Trigger do
   alias LdQ.Core
   alias LdQ.Core.TriggerAbsdata, as: AbsData
 
+
+  defp log(message) do
+    File.write(logpath(), message, [:append])
+  end
+  def logpath do
+    Path.join(["priv/log/trigger-#{LdQ.Constantes.env}.log"])
+  end
   
   @doc """
   @api
