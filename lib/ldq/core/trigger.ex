@@ -25,12 +25,26 @@ defmodule LdQ.Core.Trigger do
   alias LdQ.Core
   alias LdQ.Core.TriggerAbsdata, as: AbsData
 
+  @types_op ["CREATRIGGER"]
 
-  defp log(message) do
-    File.write(logpath(), message, [:append])
+
+  defp log(message, checked) when is_binary(message) do
+    if checked do
+      File.write!(logpath(), "#{message}\n", [:append])
+    else
+      log(String.split(message, "\t"))
+    end
+  end
+  def log(message) when is_binary(message), do: log(message, false)
+  def log(segments) when is_list(segments) do
+    # On s'assure que le début du log soit bien formé
+    [_date, typeop, typetrig | _rest] = segments
+    Enum.member?(@types_op, typeop) || raise(ArgumentError, "Log trigger Error: Le deuxième élément du log (#{inspect typeop}) devrait être un type d'opération défini dans @types_op")
+    AbsData.triggers_data[typetrig] || raise(ArgumentError, "Log Trigger Error: Le 3e élément du log (#{inspect typetrig}) devrait être un type de trigger défini dans TriggerAbsdata.triggers_data")
+    log(Enum.join(segments, "\t"), true)
   end
   def logpath do
-    Path.join(["priv/log/trigger-#{LdQ.Constantes.env}.log"])
+    Path.join(["priv/logs/trigger-#{LdQ.Constantes.env}.log"])
   end
   
   @doc """
@@ -52,7 +66,14 @@ defmodule LdQ.Core.Trigger do
         data[key] || raise(ArgumentError, "Data manquante : #{key} (#{msg})")
       end)
     end
-    options[:marked_by] || raise(ArgumentError, "Il faut donner l'ID du marqueur de ce trigger, en options (options[marked_by: <...>])")
+    options[:marked_by] || raise(ArgumentError, "Il faut donner l'ID du « marqueur » de ce trigger (celui qui le crée), en options (options[marked_by: <...>])")
+
+    # Le scope unique pour s'assurer de l'unicité du trigger
+    uniq_scope = absdata.uniq_scope
+    uniq_scope = Enum.reduce(data, uniq_scope, fn {k, v}, us ->
+      search = "${#{k}}"
+      String.replace(us, search, v) # p.e. remplacement "${book_id} par l'id du livre"
+    end)
 
     # On compose les données du trigger
     reldata = %{
@@ -60,11 +81,13 @@ defmodule LdQ.Core.Trigger do
       trigger_at:   date_dans(absdata.duration),
       data:         data,
       priority:     absdata.priority,
-      uniq_scope:   "evalbook:#{data.book_id}",
+      uniq_scope:   uniq_scope,
       marked_by:    options[:marked_by]
     }
     # On crée véritablement le trigger
     Core.create_trigger!(reldata)
+    # On enregistre un log pour cette création de trigger
+    log(["#{NaiveDateTime.utc_now()}", "CREATRIGGER", trigger_type, uniq_scope, options[:marked_by], Jason.encode!(data)])
   end
 
   @doc """

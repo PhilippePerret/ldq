@@ -66,7 +66,8 @@ defmodule TestHelpers do
       LdQ.Comptes.User,
       LdQ.Library.Author,
       LdQ.Library.Publisher,
-      LdQ.Tests.Mails
+      LdQ.Tests.Mails,
+      LdQ.Core.Trigger
     ]
 
   @doc """
@@ -86,6 +87,9 @@ defmodule TestHelpers do
     uploads_folder = Path.join(["priv","static","uploads"])
     File.rm_rf!(uploads_folder)
     File.mkdir!(uploads_folder)
+    # Vider le fichier des logs de triggers
+    pth = Path.join(["priv/logs/trigger-test.log"])
+    File.exists?(pth) && File.rm(pth)
   end
 
   @doc """

@@ -59,38 +59,52 @@ defmodule LdQ.TriggerTestMethods do
 
   end
 
-
   def assert_log(params) do
-    last_lines = Phil.PFile.last_lines(logpath(), 10)
-    IO.inspect(last_lines, label: "")
+    {:ok, last_lines} = Phil.PFile.last_lines(logpath(), 10)
+
+    params = Map.put(params, :trig_type, params[:trig_type] || params[:type])
+
     resultat =
       last_lines
-      |> Enum.reduce(%{ok: false, nombre: 0}, fn line, res ->
+      |> Enum.reduce(%{ok: false, nombre: 0, errors: []}, fn line, res ->
         # On décompose la ligne de log
-        [time, content] = Enum.split(line, "\t", [trim: true, parts: 2])
+        [time, typeop, typetrig, content] = String.split(line, "\t", [trim: true, parts: 4])
         time = NaiveDateTime.from_iso8601!(time)
-        res = 
-          if params[:after] && NaiveDateTime.after?(params[:after], time) do
-            %{ok: false, nombre: res.nombre}
-          else res end
-
-        res
+        cond do 
+        params[:after] && not NaiveDateTime.after?(time, params[:after]) ->
+          %{ok: false, nombre: res.nombre, errors: res.errors ++ ["Log avant la date limite"]}
+        params[:type_op] && (typeop != params[:type_op]) ->
+          %{ok: false, nombre: res.nombre, errors: res.errors ++ ["Le type d'opération ne correspond pas (attendu: #{params[:type_op]}, trouvé: #{typeop})"]}
+        params[:trig_type] && (typetrig != params[:trig_type]) ->
+          %{ok: false, nombre: res.nombre, errors: res.errors ++ ["Le type de trigger ne correspond pas (attendu: #{params[:trig_type]}, trouvé: #{typetrig})"]}
+        params[:content] && log_not_contains(content, params[:content]) ->
+          %{ok: false, nombre: res.nombre, errors: res.errors ++ ["Le log du trigger ne contient pas le texte recherché"]}
+        true ->
+          # ok
+          %{ok: true, nombre: res.nombre + 1, errors: res.errors}
+        end
       end)
     count = params[:count] || 1
 
     assert(resultat.nombre == count, "On aurait dû trouver #{count} log(s) correspondant aux paramètres, on en a trouvé #{resultat.nombre}. Paramètres : #{inspect params}")
   end
   def logpath do
-    Path.join(["priv/log/trigger-test.log"])
+    Path.join(["priv/logs/trigger-test.log"])
   end
 
-  def read_x_last_lines(path, x, max_len \\ 1000) do
-    {:ok, fd} = :file.open(path, [:read, :binary])
-    {:ok, size} = :file.read_file_info(path) |> then(&{:ok, &1.size})
-    start = max(size - (x + 10) * max_len, 0)
-    start = if start < 0, do: 0, else: start
-    :file.position(fd, start)
-    {:ok, data} = :file.read(fd, size - start)
-    data |> to_string() |> String.split("\n") |> Enum.take(-x)
+  defp log_not_contains(contenu, search) when is_binary(search), do: log_not_contains(contenu, [search])
+  defp log_not_contains(contenu, searchs) when is_list(searchs) do
+    contain = 
+      Enum.reduce(searchs, true, fn search, found ->
+        search = Regex.escape(search)
+        search = ~r/#{search}/
+        if contenu =~ search do
+          found
+        else 
+          false 
+        end
+      end)
+    !contain
   end
+
 end

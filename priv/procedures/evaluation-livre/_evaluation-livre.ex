@@ -232,6 +232,9 @@ defmodule LdQ.Procedure.PropositionLivre do
     """
   end
 
+  @doc """
+  Préconsignation du livre pour évaluation.
+  """
   def consigner_le_livre(procedure) do
     user = procedure.user
     book_data = procedure.params["book"]
@@ -261,6 +264,10 @@ defmodule LdQ.Procedure.PropositionLivre do
     end
   end
 
+  @doc """
+  Fonction qui procède vraiment à l'enregistrement du livre pour
+  évaluation.
+  """
   def proceed_consigner_le_livre(procedure, book_data) do
     user = procedure.user
     is_author = book_data["is_author"]
@@ -281,6 +288,12 @@ defmodule LdQ.Procedure.PropositionLivre do
 
     # IO.inspect(procedure, label: "\nPROCÉDURE FINALE de l'étape proceed_consigner_le_livre")
 
+    # Placement d'un trigger qui doit se déclencher quelques mois
+    # plus tard pour vérifier si le livre a bien été évalué
+    # (note : d'autres triggers seront insérés aussi dans des sous-
+    #  étapes)
+    add_trigger("evaluation-book", %{book_id: book.id, procedure_id: procedure.id}, user.id)
+
     # Les données propres aux mails
     mail_data = %{
       mail_id: "user-confirmation-submission-book",
@@ -292,7 +305,6 @@ defmodule LdQ.Procedure.PropositionLivre do
       folder: __DIR__,
       procedure: procedure
     }
-
 
     # Mail pour l'user soumettant le livre
     send_mail(to: user, from: :admin, with: mail_data)

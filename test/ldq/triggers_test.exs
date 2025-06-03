@@ -72,4 +72,18 @@ defmodule LdQ.TriggerTest do
     end
 
   end #/describe #pose_trigger
+
+
+  describe "Log trigger" do
+
+    test "on peut enregistrer un log avec des informations valides" do
+      test_point = ilya(1, :hour)
+      # --- Test ---
+      Trigger.log("#{now()}\tCREATRIGGER\tevaluation-book\tpour-voir-ensuite")
+      # --- Vérification ---
+      assert_trigger_log(after: test_point, type: "evaluation-book", content: "pour-voir-ensuite")
+    end
+
+
+  end #/describe Log trigger
 end

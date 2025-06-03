@@ -87,6 +87,18 @@ defmodule LdQ.ProcedureMethods do
   end
 
   @doc """
+  Pour ajouter un trigger (cf. dans le fichier trigger.ex à quoi ils
+  servent)
+
+  @param {String} type Le type, qui doit être défini dans les données absolues des triggers (fichier trigger_absdata.ex)
+  @param {Map} data Les données à enregistrer avec le trigger, à commencer par les :required_data des définitions absolues des triggers
+  @param {Binary} marker_id Identifiant du "marqueur" (celui qui génère le marqueur)
+  """
+  def add_trigger(type, data, marker_id) do
+    LdQ.Core.Trigger.pose_trigger(type, data, [marked_by: marker_id])
+  end
+
+  @doc """
   Pour enregistrer une activité
   -----------------------------
   @param {Map} params Les paramètres requis par %LdQ.Site.Log{}. Cf. lib/site/log.ex

@@ -1,9 +1,10 @@
 defmodule LdQ.Core.TriggerAbsdata do
   @moduledoc """
   DATA ABSOLUES DES TRIGGERS
+  :uniq_scope       {String} Pour composer le scope unique du trigger qui empêchera d'en enregistrer deux identiques. On peut le composer en se servant des données qui seront consignées dans :data. Par exemple, si on a la clé :book_id dans :data, on peut utiliser : "${book_id}" dans le uniq_scope. Par exemple : evalbook:${book_id}. Le ${book_id} sera alors remplacer par la valeur :book_id de :data, donc l'identifiant du livre.
+  :required_data    {Map} Les données requises pour pouvoir évaluer le trigger. Il est impératif de les fournir à la création du trigger, sinon l'application raise.
   :duration         {Duplet {unité, quantité}} La durée après laquelle le trigger se déclenche.
   :recond_duration  {idem} La durée de reconduction SEULEMENT SI elle n'est pas la moitié du :duration
-  :required_data    {Map} Les données requises pour pouvoir évaluer le trigger. Il est impératif de les fournir à la création du trigger, sinon l'application raise.
   :error_msg        {String} Le message en cas d'erreur, c'est-à-dire lorsque le résultat/action/opération attendu n'a pas été exécuté ou atteint.
                     Ce message est envoyé en notification à l'administration.
                     Ce message peut contenir des variables (TODO voir comment)
@@ -17,6 +18,7 @@ defmodule LdQ.Core.TriggerAbsdata do
     required_data:      %{},
     error_msg:          nil,
     success_msg:        nil,
+    uniq_scope:         nil,
     priority:           0
   ]
 
@@ -29,7 +31,8 @@ defmodule LdQ.Core.TriggerAbsdata do
         duration: {:month, 6},
         required_data: %{book_id: "Identifiant du livre", procedure_id: "Identifiant de la procédure gérant l'évaluation du livre"},
         error_msg: "Le livre ${book_ref} devait être évalué.",
-        success_msg: "Le livre ${book_ref} a été évalué dans les temps."
+        success_msg: "Le livre ${book_ref} a été évalué dans les temps.",
+        uniq_scope: "evalbook:${book_id}"
       },
       # TRIGGER qui s'assure que le quorum du premier collège est
       # atteint dans les temps.
@@ -38,23 +41,28 @@ defmodule LdQ.Core.TriggerAbsdata do
         duration: {:day, 30},
         required_data: %{book_id: "Identifiant du livre"},
         error_msg: "Le quorum de ${nombre_membres_college1} membres du premier collège du comité de lecture devrait avoir été atteint",
-        success_msg: "Le quorum de N membres du collège 1 a été atteint", 
+        success_msg: "Le quorum de membres du collège 1 a été atteint",
+        uniq_scope: "quorumcoll1:${book_id}"
       },
       # TRIGGER qui s'assure que le quorum du second collège est
       # atteint dans les temps.
       "deadline-quorum-college-2" => %__MODULE__{
         name: "Quand le livre passe au second collège",
         duration: {:day, 30},
+        required_data: %{book_id: "Identifiant du livre"},
         error_msg: "Le quorum de ${nombre_membres_college2} membres du second collège du comité de lecture devrait avoir été atteint",
-        required_data: %{book_id: "Identifiant du livre"}
+        success_msg: "Le quorum de membres du collège 2 a été atteint",
+        uniq_scope: "quorumcoll2:${book_id}"
       },
       # TRIGGER qui s'assure que le quorum du troisième collège est
       # atteint dans les temps.
       "deadline-quorum-college-3" => %__MODULE__{
         name: "Quand le livre passe au troisième collège",
         duration: {:day, 30},
+        required_data: %{book_id: "Identifiant du livre"},
         error_msg: "Le quorum de ${nombre_membres_college3} membres du troisième collège du comité de lecture devrait avoir été atteint",
-        required_data: %{book_id: "Identifiant du livre"}
+        success_msg: "Le quorum de membres du collège 3 a été atteint",
+        uniq_scope: "quorumcoll3:${book_id}"
       },
     }
   end

@@ -375,9 +375,11 @@ defmodule FeaturePublicMethods do
   (ou pas)
 
   @param {Keyword} params Paramètres spécifiant le log
-    :after    {NaiveDateTime} Date après laquelle le log doit avoir été émis
-    :type     {String} Le type du trigger (pourrait être aussi dans :content)
-    :content  {List} Liste des textes à trouver
+    :after      {NaiveDateTime} Date après laquelle le log doit avoir été émis
+    :type       {String} Le type du trigger (pourrait être aussi dans :content)
+    :type_trig  {String} idem que précédent
+    :type_op    {String} Le type de l'opération (pour savoir si c'est un enregistrement de trigger, un check, une suppression, etc.)
+    :content    {String|List} Liste des textes à trouver (ou texte à trouver)
   """
   def assert_trigger_log(params), do: Trig.assert_log(params)
   def refute_trigger_log(params), do: Trig.assert_log(Keyword.put(params, count: 0))

@@ -19,7 +19,7 @@ defmodule LdQWeb.BookSubmissionTestsStep1 do
 
   # alias Helpers.Feminines, as: Fem
 
-  import TestHelpers
+  import TestHelpers, except: [now: 0]
   import FeaturePublicMethods
 
   # @tag :skip
@@ -124,6 +124,12 @@ defmodule LdQWeb.BookSubmissionTestsStep1 do
     assert Map.has_key?(data_proc, "book_id")
     assert(data_proc["book_id"] == new_book.id)
     assert(data_proc["author_id"] == new_book.author.id)
+
+    # La procédure a généré un trigger qu'on trouve :
+    #  - dans la base
+    assert_trigger(after: point_test, type: "evaluation-book", data: %{book_id: new_book.id})
+    #  - dans le log
+    assert_trigger_log(after: point_test, type: "evaluation-book", content: "#{new_book.id}")
 
     # Photographie de la BDD après enregistrement de la soumission du livre
     bddshot("evaluation-book/1-book-just-submitted", %{
