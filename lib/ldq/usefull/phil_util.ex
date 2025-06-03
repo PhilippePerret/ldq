@@ -74,7 +74,6 @@ defmodule Phil do
       {:ok, fileinfo} = :file.read_file_info(fd)
       size = elem(fileinfo, 1)
       start = max(size - (x + 10) * line_length, 0)
-      # start = if start < 0, do: 0, else: start
       :file.position(fd, start)
       {:ok, data} = :file.read(fd, size - start)
       data |> to_string() |> String.trim() |> String.split("\n") |> Enum.take(-x)
