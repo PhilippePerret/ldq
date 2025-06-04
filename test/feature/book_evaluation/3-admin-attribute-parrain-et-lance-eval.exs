@@ -84,7 +84,7 @@ defmodule LdQWeb.BookSubmissionTestsStep3_1 do
 
     admin # avec session
     |> clique_le_bouton("Lancer l'évaluation du livre")
-    |> pause(10)
+    |> pause(1)
 
     # Un trigger a été implémanté pour se déclencher que le livre
     # reste trop longtemps en attente de lecteurs pour le lire
@@ -95,7 +95,12 @@ defmodule LdQWeb.BookSubmissionTestsStep3_1 do
     assert_mailing_sent(:college1, "new-book-to-evaluate", after: point_test)
 
     # Une annonce a été produite
-    assert_activity(after: point_test, public: true, content: "Mise en évaluation du livre “{book.title}”")
+    assert_activity(after: point_test, public: true, content: "Mise en évaluation du livre “#{book.title}”")
+
+    # La phase du livre est la bonne
+    book = LdQ.Library.Book.get(book_id, [:last_phase, :current_phase])
+    assert(book.current_phase == 20)
+    assert(book.last_phase == 18)
 
     # Photographie de la base de donnée
     bddshot("evaluation-book/3-parrain-et-start-eval", %{

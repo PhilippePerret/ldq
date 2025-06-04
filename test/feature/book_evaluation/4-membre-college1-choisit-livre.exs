@@ -36,7 +36,7 @@ defmodule LdQWeb.BookSubmissionTestsChoixLivrePerMembre1 do
     |> et_ne_voit_pas("section#new-books div.title", book.title)
     # Le livre se retrouve dans sa section de livre à évaluer
     |> et_voit("section#evalued-books", book.title)
-    |> pause(1)
+    |> pause(30)
     |> se_deconnecte()
 
   end

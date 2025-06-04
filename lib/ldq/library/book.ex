@@ -223,7 +223,7 @@ defmodule LdQ.Library.Book do
 
     # Dans un premier temps, si fields[:user] a été fourni, il faut
     # retrouver l'auteur qu'il est (en considérant qu'un user peut
-    # avoir plusieurs author (pseudo))
+    # avoir plusieurs authors (pseudo))
     filtre = if filtre[:user] || filtre[:user_id] do
       uid = filtre[:user_id] || filtre[:user].id
       author_ids = 
@@ -241,9 +241,10 @@ defmodule LdQ.Library.Book do
     # === DÉBUT DE LA REQUÊTE ===
 
     query = from(b in __MODULE__,
-     join: w in Lib.Author, on: b.author_id == w.id,
-     left_join: ub in UserBook, on: b.id == ub.book_id
-    #  left_join: p in Lib.Publisher, on: b.publisher_id == p.id,    
+      distinct: b.id,
+      join: w in Lib.Author, on: b.author_id == w.id
+      # left_join: ub in UserBook, on: b.id == ub.book_id
+      #  left_join: p in Lib.Publisher, on: b.publisher_id == p.id,    
     )
 
     # - L'auteur du livre - 
@@ -251,9 +252,9 @@ defmodule LdQ.Library.Book do
     query = if filtre[:author] || filtre[:author_id] do
       author_id = filtre[:author_id] || filtre[:author].id
       if is_binary(author_id) do
-        where(query, [_b, w, _ub], w.id == ^author_id)
+        where(query, [_b, w], w.id == ^author_id)
       else
-        where(query, [_b, w, _ub], w.id in ^author_id)
+        where(query, [_b, w], w.id in ^author_id)
       end
     else query end
 
@@ -261,7 +262,7 @@ defmodule LdQ.Library.Book do
     # (note : si le label est true, ça impose une condition sur la 
     #  phase courante si elle n'est pas définie)
     {query, filtre} = if filtre[:label] === true || filtre[:label] === false do
-      query = where(query, [b, _w, _ub], b.label == ^filtre[:label])
+      query = where(query, [b, _w], b.label == ^filtre[:label])
       filtre = if filtre[:current_phase_min] do
         if filtre[:label] === true do
           filtre[:current_phase_min] >= 82 || raise("Mauvais filtre de la phase courante. Pour que le label soit attribué, il faut au moins la phase 82.")
@@ -282,15 +283,15 @@ defmodule LdQ.Library.Book do
     # - La phase courante (exacte, min ou max) -
 
     query = if filtre[:current_phase] do
-      where(query, [b, _w, _ub], b.current_phase == ^filtre[:current_phase])
+      where(query, [b, _w], b.current_phase == ^filtre[:current_phase])
     else query end
 
     query = if filtre[:current_phase_min] do
-      where(query, [b, _w, _ub], b.current_phase >= ^filtre[:current_phase_min])
+      where(query, [b, _w], b.current_phase >= ^filtre[:current_phase_min])
     else query end
 
     query = if filtre[:current_phase_max] do
-      where(query, [b, _w, _ub], b.current_phase <= ^filtre[:current_phase_max])
+      where(query, [b, _w], b.current_phase <= ^filtre[:current_phase_max])
     else query end
 
     require_author = Enum.member?(fields, :author)
@@ -301,24 +302,45 @@ defmodule LdQ.Library.Book do
 
     direct_fields = Enum.uniq([:id] ++ direct_fields)
 
-    query = query |> select([b, _w, _ub], map(b, ^direct_fields))
+    query = query |> select([b, _w], map(b, ^direct_fields))
 
     query = if require_author do
-      select_merge(query, [_b, w, _ub], %{author_name: w.name, author_sexe: w.sexe})
+      select_merge(query, [_b, w], %{author_name: w.name, author_sexe: w.sexe})
     else query end
 
-    # Sauf les livres déjà évaluées par le membre précisé
-    query = if filtre[:not_evaluated_by] do
-      membre_id = filtre[:not_evaluated_by]
-      membre_id = if is_binary(membre_id), do: membre_id, else: membre_id.id
-      where(query, [_b, _w, ub], is_nil(ub.user_id) or ub.user_id != ^membre_id)
-      |> IO.inspect(label: "\nQUERY ICI")
-    else query end
-
-    # IO.inspect(query, label: "\nQUERY FINALE")
+    IO.inspect(query, label: "\nQUERY FINALE")
     # raise "pour voir"
 
-    Repo.all(query)
+    first_recolte = Repo.all(query)
+    
+    IO.inspect(first_recolte, label: "\nPREMIÈRE RÉCOLTE")
+
+    # Quand on doit retirer les livres évalués par un lecteur
+    seconde_recolte = 
+      if filtre[:not_evaluated_by] do
+        # On relève les livres évalués par le membre
+        membre_id = if is_binary(filtre[:not_evaluated_by]), do: filtre[:not_evaluated_by], else: filtre[:not_evaluated_by].id
+        lus_par_user = 
+          from(b in __MODULE__, distinct: b.id,
+          join: ub in UserBook, on: ub.book_id == b.id and ub.user_id == ^membre_id)
+          |> Repo.all()
+          |> Enum.reduce(%{}, fn book, coll -> 
+            Map.put(coll, book.id, true)
+          end)
+          # |> IO.inspect(label: "\nLUS PAR USER")
+        # On retire de la première récolte les livres lu par le
+        # membre
+        if Enum.any?(lus_par_user) do
+          first_recolte
+          |> Enum.reject(fn book -> lus_par_user[book.id] end)
+        else
+          first_recolte
+        end
+      else 
+        first_recolte
+      end
+
+
   end
 
   def get_all(_fields) do

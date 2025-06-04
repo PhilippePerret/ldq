@@ -721,7 +721,7 @@ defmodule LdQ.Procedure.PropositionLivre do
     send_mailing(:college1, "new-book-to-evaluate", [
       procedure: procedure,
       folder:   __DIR__,
-      variable: mail_variables
+      variables: mail_variables
     ])
 
     # Une annonce d'activité est enregistrée
@@ -734,9 +734,11 @@ defmodule LdQ.Procedure.PropositionLivre do
     })
 
     """
-    <p class=success>La livre #{book.title} de #{book.author.name} a été mis en évaluation.</p>
+    <p class="success bold">Le livre #{book.title} de #{book.author.name} a été mis en évaluation ! Les membres du premier collège ont été avertis et vont pouvoir le choisir.</p>
     """
   end
+
+  
 
 
   @doc """
