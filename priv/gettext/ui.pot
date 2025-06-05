@@ -16,7 +16,7 @@ msgstr ""
 msgid "Log out"
 msgstr ""
 
-#: lib/ldq_web/components/layouts/root.html.heex:92
+#: lib/ldq_web/components/layouts/root.html.heex:100
 #, elixir-autogen, elixir-format
 msgid "Register"
 msgstr ""
@@ -26,7 +26,7 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: lib/ldq_web/components/layouts/root.html.heex:99
+#: lib/ldq_web/components/layouts/root.html.heex:107
 #, elixir-autogen, elixir-format
 msgid "Sign in"
 msgstr ""

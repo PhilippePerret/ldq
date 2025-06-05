@@ -73,6 +73,14 @@
           <%= dgettext("ui", "Log out") %>
           </.link>
 
+            <%= if LdQ.Comptes.User.membre?(@current_user) do %>
+              <.link 
+                href={~p"/membre/#{@current_user.id}"}
+                method="get"
+                tabindex="-1"
+              ><%= gettext("Your Dashboard") %></.link>
+            <% end %>
+
             <%= if LdQ.Comptes.User.admin?(@current_user) do %>
               <.link
                 href={~p"/admin-section"}

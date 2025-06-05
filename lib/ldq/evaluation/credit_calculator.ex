@@ -33,6 +33,11 @@ defmodule LdQ.Evaluation.CreditCalculator do
   Retourne le nombre de points accordés pour l'opération 
   d'identifiant +op_id+
 
+  ## Examples
+
+    iex> LdQ.Evaluation.CreditCalculator.points_for(:fiche_lecture_qcm)
+    @points_per_operation[:fiche_lecture_qcm]
+
   @param {Atom} op_id Identifiant de l'opération dans @points_per_operation
 
   @return {Integer} Le nombre de points
