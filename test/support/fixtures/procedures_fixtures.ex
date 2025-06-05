@@ -2,7 +2,8 @@ defmodule LdQ.ProcedureFixture do
 
   alias LdQ.ComptesFixtures, as: FCompt
 
-  def create_procedure(params \\ []) when is_list(params) do
+  def create_procedure(p \\ [])
+  def create_procedure(params) when is_list(params) do
     params = get_or_put(params, :owner, FCompt.make_simple_user())
     params = get_or_put(params, :submitter, FCompt.make_simple_user())
     params = get_or_put(params, :submitter, FCompt.make_membre())

@@ -9,7 +9,7 @@ defmodule LdQWeb.MembreController do
   Tableau de bord du membre du comité de lecture.
   """
   # Quand on arrive dans le tableau de bord avec une opération
-  def dashboard(conn, %{"membre_id" => membre_id, "op" => op} = params) do
+  def dashboard(conn, %{"membre_id" => _membre_id, "op" => op} = params) do
     conn = conn |> put_flash(:info, "Opération choisie : #{inspect op}")
     membre = get_membre_from(params)
     res = exec_op(op, membre, params)
@@ -19,7 +19,7 @@ defmodule LdQWeb.MembreController do
     common_render(conn, membre)
   end
   # Quand on arrive sur le tableau de bord sans rien
-  def dashboard(conn, %{"membre_id" => membre_id } = params) do
+  def dashboard(conn, %{"membre_id" => _membre_id } = params) do
     common_render(conn, get_membre_from(params))
   end
 
@@ -29,7 +29,7 @@ defmodule LdQWeb.MembreController do
   end
 
   defp get_membre_from(%{"membre_id" => membre_id} = _params) do
-    membre = Comptes.get_user_as_membre!(membre_id) || raise("Intrusion inopinée.")
+    Comptes.get_user_as_membre!(membre_id) || raise("Intrusion inopinée.")
   end
 
   # === Toutes les méthodes d'opération ===

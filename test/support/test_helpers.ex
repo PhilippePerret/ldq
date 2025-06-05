@@ -111,7 +111,7 @@ defmodule TestHelpers do
   @return {Map} Une table des données enregistrées avec l'état de la
   base.
   """
-  def bdd_load(dump_name) do
+  def bdd_load(dump_name, for_task \\ false) do
     dump_path = dump_path(dump_name)
     if File.exists?(dump_path) do
       System.cmd("pg_restore", ["--clean", "--no-owner", "-dldq_test", dump_path])
@@ -123,11 +123,15 @@ defmodule TestHelpers do
     if File.exists?(data_path) do
       data = :erlang.binary_to_term(File.read!(data_path))
       # On ajoute l'instance de la procédure si son identifiant
-      # est défini
+      # est défini (seulement quand on est en mode de test normal,
+      # pas quand on remet l'état de la BdD avec la mix-task)
       data =
-        if Map.get(data, :procedure_id) do
-          Map.put(data, :procedure, LdQ.Procedure.get( Map.get(data, :procedure_id)))
-        else data end
+        if for_task do data else
+          # En test
+          if Map.get(data, :procedure_id) do
+            Map.put(data, :procedure, LdQ.Procedure.get( Map.get(data, :procedure_id)))
+          else data end
+        end
       data
     else
       raise "Data du dump #{dump_name} introuvable (#{data_path})"

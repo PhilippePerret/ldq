@@ -20,6 +20,9 @@ defmodule LdQ.MixProject do
     [
       mod: {LdQ.Application, []},
       extra_applications: [:logger, :runtime_tools],
+      # ChatGPT m'a fait ajouter LdQ.Repo ci-dessous pour pouvoir utiliser
+      # LdQ.Repo dans les tâches Mix
+      # extra_applications: [:logger, :runtime_tools, :ldq],
     ]
   end
 

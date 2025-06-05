@@ -6,7 +6,7 @@ defmodule LdQ.TriggerTestMethods do
   alias LdQ.Repo
   import Ecto.Query
 
-  alias LdQ.Core.{Trigger, TriggerAbsdata}
+  alias LdQ.Core.{Trigger} # , TriggerAbsdata
 
   @doc """
   S'assure qu'un trigger existe, avec les paramètres +params+

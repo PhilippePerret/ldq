@@ -173,7 +173,7 @@ defmodule LdQ.LibraryFixtures do
       # attrs |> Enum.reduce(%{}, fn {k, v}, coll -> Map.put(coll, k, v) end)
       Map.to_list(default_attrs) ++ attrs
     else 
-      attrs = Map.merge(default_attrs, attrs)
+      Map.merge(default_attrs, attrs)
     end
     
     book = LdQ.Library.Book.save(attrs)
@@ -196,7 +196,7 @@ defmodule LdQ.LibraryFixtures do
   def make_books(attrs \\ []) do
     count = attrs[:count] || 10
     (1..count)
-    |> Enum.map(fn x -> make_book(attrs) end)
+    |> Enum.map(fn _x -> make_book(attrs) end)
   end
 
 
@@ -289,7 +289,7 @@ defmodule LdQ.LibraryFixtures do
   Noter qu'il faut qu'elle soit valide seulement en mode production
   et en mode développement.
   """
-  def random_url_command(base \\ "modules") do
+  def random_url_command(_base \\ "modules") do
     "https://www.atelier-icare.net/"
   end
 

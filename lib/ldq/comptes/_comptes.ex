@@ -7,7 +7,7 @@ defmodule LdQ.Comptes do
   alias LdQ.Repo
 
   alias LdQ.Comptes.{User, Membre, MemberCard, UserToken, UserNotifier}
-  alias LdQ.Library.Book
+  # alias LdQ.Library.Book
   alias LdQ.Evaluation.UserBook
 
   
@@ -55,7 +55,7 @@ defmodule LdQ.Comptes do
     # Pour obtenir le nombre de livres (si requis)
     user_id_to_book_count =
       if require_books do
-        query = from(
+        from(
           ub in UserBook,
           group_by: ub.user_id,
           select: %{uid: ub.user_id, count: count(ub.book_id)}
@@ -179,13 +179,13 @@ defmodule LdQ.Comptes do
   """
   def get_user!(id) do
     data_user =
-    query = from(u in User)
-    |> join(:left, [u], c in MemberCard, on: c.user_id == u.id)
-    |> where([u, _c], u.id == ^id)
-    |> select([u, _c], map(u, [:id, :name, :email, :sexe, :privileges]))
-    |> select_merge([_u, c], %{member_card_id: c.id, credit: c.credit})
-    |> Repo.all()
-    |> Enum.at(0)
+      from(u in User)
+      |> join(:left, [u], c in MemberCard, on: c.user_id == u.id)
+      |> where([u, _c], u.id == ^id)
+      |> select([u, _c], map(u, [:id, :name, :email, :sexe, :privileges]))
+      |> select_merge([_u, c], %{member_card_id: c.id, credit: c.credit})
+      |> Repo.all()
+      |> Enum.at(0)
 
     data_user || raise(LdQ.Error, [msg: "NotAUser"])
     

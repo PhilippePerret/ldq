@@ -22,6 +22,8 @@ defmodule LdQ.Core.Trigger do
   import Ecto.Query
   import Ecto.Changeset
 
+  alias LdQ.Repo
+
   alias LdQ.Core
   alias LdQ.Core.TriggerAbsdata, as: AbsData
 
@@ -101,14 +103,14 @@ defmodule LdQ.Core.Trigger do
   def eval_trigger(trigger) do
     # On commence par ajouter au trigger ses propriétés particulière
     # (le livre book, la procédure, l'user, etc.)
-    trigger = add_own_properties(trigger)
+    _trigger = add_own_properties(trigger)
     |> IO.inspect(label: "TRIGGER")
   end
 
   def check_trigger("evaluation-book", trigger) do
-    book = trigger.book
+    trigger.book
   end
-  def check_trigger(trig_type, trigger) do
+  def check_trigger(trig_type, _trigger) do
     raise "Le type #{inspect trig_type} est inconnu"
   end
 
@@ -116,11 +118,11 @@ defmodule LdQ.Core.Trigger do
     absdata = AbsData.data(trigger)
     absdata =
       if absdata.required_data[:book_id] do
-        LdQ.Library.Book.get!(trigger.data.book_id)
+        LdQ.Library.Book.get(trigger.data.book_id)
       else absdata end
     absdata =
       if absdata.required_data[:procedure_id] do
-        LdQ.Procedure.get!(trigger.data.procedure_id)
+        LdQ.Procedure.get(trigger.data.procedure_id)
       else absdata end
 
     absdata
@@ -135,7 +137,7 @@ defmodule LdQ.Core.Trigger do
   aient ou non produits un succès (ils sont remplacés, en cas
   d'échec, par un trigger actualisé)
   """
-  def remove_trigger(params) do
+  def remove_trigger(_params) do
   end
 
   @doc """
@@ -147,7 +149,7 @@ defmodule LdQ.Core.Trigger do
   """
   def reconduit_trigger(trigger) do
     absdata = AbsData.data(trigger)
-    trigger = Map.merge(trigger, %{
+    _trigger = Map.merge(trigger, %{
       priority:   trigger.priority + 1,
       trigger_at: date_dans(absdata.recond_duration)
     })
@@ -248,12 +250,8 @@ defmodule LdQ.Core.Trigger do
     reconduit_trigger(trigger)
   end
 
-  def notify(trigger) do
-    # TODO
-  end
-
   # Type de trigger inconnu
-  defp execute_trigger(unknown_type, trigger) do
+  defp execute_trigger(unknown_type, _trigger) do
     raise """
       Le type de trigger #{inspect unknown_type} est inconnu.
       Pour pallier le problème, il faut créer la fonction :
@@ -266,6 +264,10 @@ defmodule LdQ.Core.Trigger do
     """
   end
 
+
+  def notify(_trigger) do
+    # TODO
+  end
 
 
 

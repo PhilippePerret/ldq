@@ -73,20 +73,20 @@ defmodule LdQ.Core.TriggerAbsdata do
   """
   def data(trigger_type) when is_binary(trigger_type) do
     absdata = triggers_data()[trigger_type] || raise(ArgumentError, "Le trigger de type #{inspect trigger_type} est inconnu.")
-    absdata = %{absdata | recond_duration: calc_recond_duration_if_neccessary(absdata)}
+    %{absdata | recond_duration: calc_recond_duration_if_neccessary(absdata)}
   end
   def data(%{type: type} = _trigger), do: data(type)
 
 
-  @data_messages %{
-    book_ref: nil, # référence du livre (book_id doit avoir été défini)
-    nombre_membres_college1: nil,
-    nombre_membres_college2: nil,
-    nombre_membres_college3: nil
-  }
+  # @data_messages %{
+  #   book_ref: nil, # référence du livre (book_id doit avoir été défini)
+  #   nombre_membres_college1: nil,
+  #   nombre_membres_college2: nil,
+  #   nombre_membres_college3: nil
+  # }
   def data_message(trigger) do
-    data = trigger.data
-    absdata = triggers_data()[trigger.type]
+    # data = trigger.data
+    triggers_data()[trigger.type]
   end
 
 

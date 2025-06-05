@@ -1,6 +1,7 @@
 defmodule LdQ.Constantes do
 
-  @env Application.get_env(:ldq, :env)
+  # @env Application.get_env(:ldq, :env)
+  @env Application.compile_env(:ldq, :env)
 
   # Pour utiliser :
   #   if Constantes.env == :test

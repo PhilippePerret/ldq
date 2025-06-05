@@ -45,7 +45,6 @@ defmodule LdQ.Library.Book do
     :fields   Les champs à retourner
     :by       {Membre} Il ne faut pas prendre les livres déjà évalués (en cours d'évaluation) par ce membre
   """
-  @phase_per_college %{1 => [min: 20, max: 29], 2 => [min: 40], 3 => [min: 60]}
   
   def get_not_evaluated(college, options \\ nil) do
     phase_min = college * 20
@@ -316,7 +315,7 @@ defmodule LdQ.Library.Book do
     IO.inspect(first_recolte, label: "\nPREMIÈRE RÉCOLTE")
 
     # Quand on doit retirer les livres évalués par un lecteur
-    seconde_recolte = 
+    _seconde_recolte = 
       if filtre[:not_evaluated_by] do
         # On relève les livres évalués par le membre
         membre_id = if is_binary(filtre[:not_evaluated_by]), do: filtre[:not_evaluated_by], else: filtre[:not_evaluated_by].id
@@ -464,7 +463,7 @@ defmodule LdQ.Library.Book do
       Enum.reduce(attrs, %{}, fn {key, v}, coll -> Map.put(coll, key, v) end)
     end
     attrs = attrs 
-    |> Enum.reject(fn {k, v} -> is_nil(v) end)
+    |> Enum.reject(fn {_k, v} -> is_nil(v) end)
     |> Enum.reduce(%{}, fn {k, v}, coll ->
       k = if is_atom(k), do: Atom.to_string(k), else: k
       Map.put(coll, k, v)

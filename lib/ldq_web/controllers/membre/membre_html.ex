@@ -1,19 +1,18 @@
 defmodule LdQWeb.MembreHTML do
   use LdQWeb, :html
 
-  alias LdQ.Comptes.User
+  # alias LdQ.Comptes.User
   alias LdQ.Library.Book
   alias LdQ.Evaluation.CreditCalculator, as: Calc
 
   embed_templates "membre_html/*"
 
   def modules(membre) do
-    modules = 
     [
       nouveaux_livres: "C1",
       membre_en_chiffres: "C3",
       evaluations: "C2"
-    ] |> Enum.map(fn {module_id, position} -> 
+    ] |> Enum.map(fn {module_id, _position} -> 
       # IO.puts "Construction du module #{module_id}"
       methode = String.to_atom("module_#{module_id}")
       apply(__MODULE__, methode, [membre])

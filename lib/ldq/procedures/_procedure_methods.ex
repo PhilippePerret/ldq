@@ -616,11 +616,11 @@ defmodule LdQ.ProcedureMethods do
   """
   def send_mailing(dest_id, mail_id, params) do
     params[:folder] || raise("Il faut fournir le dossier de la procédure en troisième argument ([folder: __DIR__])")
-    group_data = @destinataires_mailing[dest_id] || raise("Le groupe #{inspect dest_id} est inconnu des mailing-lists…")
+    _group_data = @destinataires_mailing[dest_id] || raise("Le groupe #{inspect dest_id} est inconnu des mailing-lists…")
     
     params = Phil.Map.ensure_map(params)
     params = Map.put(params, :mail_id, mail_id)
-    {phildata, params} = get_and_formate_mail(params)
+    {phildata, _params} = get_and_formate_mail(params)
 
 
     if Constantes.env_test? do

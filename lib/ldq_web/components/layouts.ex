@@ -18,7 +18,7 @@ defmodule LdQWeb.Layouts do
       <a class="main" href={~p"/"}>MANIFESTE</a>
       <a class="main" href={~p"/livres/choisir"}>Trouver un bon livre à lire</a>
       <a class="main" href={~p"/livres/classement"}>Classement des livres</a>
-      <a class="main" href={~p"/livres/new"}>Proposer un livre</a>
+      <a class="main" href={~p"/proc/new/evaluation-livre"}>Proposer un livre</a>
       <a class="main" href={~p"/pg/faq"}>F.A.Q.</a>
     </div>
     """

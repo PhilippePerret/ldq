@@ -18,12 +18,14 @@ defmodule LdQ.ComptesFixtures do
   import Bitwise
   import LdQ.LibraryFixtures
   import Random.Methods
+
+  alias LdQ.Comptes
   
-  alias LdQ.{Comptes, Library}
+  # alias LdQ.{Comptes, Library}
   alias LdQ.Evaluation.UserBook
 
   def unique_user_email, do: "user#{uniq_int()}@example.com"
-  def valid_user_password, do: "hello world!"
+  def valid_user_password, do: "motdepasse"
 
   def valid_user_attributes(a \\ %{})
   def valid_user_attributes(nil), do: valid_user_attributes(%{})
@@ -102,6 +104,18 @@ defmodule LdQ.ComptesFixtures do
     {:ok, captured_email} = fun.(&"[TOKEN]#{&1}[TOKEN]")
     [_, token | _] = String.split(captured_email.text_body, "[TOKEN]")
     token
+  end
+
+  @doc """
+  Récupère un simple user avec les paramètres +params+
+
+  @param {Keyword} params Paramètres de choix (non utilisés pour le moment)
+  """
+  def get_simple_user(_params \\ []) do
+    from(u in Comptes.User)
+    |> where([u], u.privileges == 0)
+    |> Repo.all()
+    |> Enum.at(0)
   end
 
   @doc """
@@ -209,8 +223,15 @@ defmodule LdQ.ComptesFixtures do
   end
 
   @doc """
+
+  @param {Keyword} params Les paramètres pour sélectionner le membre
+    :id   {Binary} Par son identifiant
+    :not  {Binary} Pas ce membre-là
+    :min_credit {Integer} Le membre doit au minimum avoir ce crédit
+    :max_credit {Integer} Le membre doit au maximum avoir ce crédit
+    :do_not_create  Si True, on ne crée pas un nouveau membre quand on n'en trouve pas (la fonction retourne alors Nil)
   """
-  def get_membre(params \\ %{}) do
+  def get_membre(params \\ []) do
     user =
       if params[:id] do
         Comptes.get_user!(params[:id])
@@ -236,15 +257,17 @@ defmodule LdQ.ComptesFixtures do
         |> Enum.at(0)
       end
     if is_nil(user) do
-      attrs = %{}
-      attrs = if params[:min_credit] do
-        Map.put(attrs, :credit, params[:min_credit] + 10)
-      else attrs end
-      attrs = if params[:max_credit] do
-        Map.put(attrs, :credit, params[:max_credit] - 10)
-      else attrs end
-      # On fait le membre
-      make_membre(attrs)
+      if params[:do_not_create] do nil else
+        attrs = %{}
+        attrs = if params[:min_credit] do
+          Map.put(attrs, :credit, params[:min_credit] + 10)
+        else attrs end
+        attrs = if params[:max_credit] do
+          Map.put(attrs, :credit, params[:max_credit] - 10)
+        else attrs end
+        # On fait le membre
+        make_membre(attrs)
+      end
     else 
       # Quand le membre a pu être récupéré dans des membres 
       # existant

@@ -19,7 +19,7 @@ defmodule LdQ.ComptesTest do
 
   describe "get_user_by_email_and_password/2" do
     test "does not return the user if the email does not exist" do
-      refute Comptes.get_user_by_email_and_password("unknown@example.com", "hello world!")
+      refute Comptes.get_user_by_email_and_password("unknown@example.com", "motdepasse")
     end
 
     test "does not return the user if the password is not valid" do

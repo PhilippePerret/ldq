@@ -19,8 +19,9 @@ defmodule FeaturePublicMethods do
 
   def now(type \\ :naive) do
     case type do
-      :naive -> NaiveDateTime.utc_now()
-      :date  -> Date.utc_now()
+      :naive      -> NaiveDateTime.utc_now()
+      :date_time  -> DateTime.utc_now()
+      :date       -> Date.utc_today()
     end
   end
 
@@ -31,7 +32,7 @@ defmodule FeaturePublicMethods do
   def make_admin_with_session(attrs \\ %{}) do
     start_session(make_admin(attrs), [])
   end
-  def get_admin_with_session(options \\ %{}) do
+  def get_admin_with_session(_options \\ %{}) do
     raise "À implémenter"
   end
   def make_membre_with_session(attrs \\ %{}) do
@@ -375,7 +376,7 @@ defmodule FeaturePublicMethods do
 
 
   def assert_trigger(params), do: Trig.assert_exists(params)
-  def refute_trigger(params), do: Trig.assert_exists(Keyword.put(params, count: 0))
+  def refute_trigger(params), do: Trig.assert_exists(Keyword.put(params, :count, 0))
 
   @doc """
   S'assure qu'une ligne de journal a été enregistrée pour le trigger 
@@ -389,7 +390,7 @@ defmodule FeaturePublicMethods do
     :content    {String|List} Liste des textes à trouver (ou texte à trouver)
   """
   def assert_trigger_log(params), do: Trig.assert_log(params)
-  def refute_trigger_log(params), do: Trig.assert_log(Keyword.put(params, count: 0))
+  def refute_trigger_log(params), do: Trig.assert_log(Keyword.put(params, :count, 0))
 
   # ========= POUR LES FICHIERS =========
   def depose_les_fichiers(suj, files, field) when is_list(files) do
