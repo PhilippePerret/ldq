@@ -410,7 +410,7 @@ defmodule Html.Form do
       name:     "#{dfield.prefix}[captcha]",
       defaultized: true, # pour ne pas modifier :id et :name
       label:    captcha.question,
-      options:  Enum.shuffle(captcha.options),
+      options:  ["Choisir…"] ++ Enum.shuffle(captcha.options),
       prefix:   dfield.prefix
     })
     select_field = build_field(:select, dfield)
