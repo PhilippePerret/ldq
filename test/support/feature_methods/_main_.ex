@@ -48,10 +48,14 @@ defmodule FeaturePublicMethods do
     start_session(make_simple_user(attrs), [])
   end
   def get_user_with_session(user_id) when is_binary(user_id) do
-    start_session(get_user(user_id), [])
+    get_user(user_id) 
+    |> add_password_if_required()
+    |> start_session([])
   end
   def get_user_with_session(%LdQ.Comptes.User{} = user) do
-    start_session(user, [])
+    user
+    |> add_password_if_required()
+    |> start_session([])
   end
   # @param {Keyword} data
   def get_user_with_session(data) when is_list(data) do
@@ -61,6 +65,11 @@ defmodule FeaturePublicMethods do
     Compt.get_simple_user() |> start_session([])
   end
 
+  def add_password_if_required(user) do
+    if Map.get(user, :password) do user else
+      TestHelpers.add_password_to!(user)
+    end
+  end
 
 
   @doc """
@@ -150,6 +159,8 @@ defmodule FeaturePublicMethods do
   """
   def se_connecte(visiteur) when is_map(visiteur) or is_struct(visiteur, User) do
     if Page.on_login_page?(visiteur) do
+      visiteur.password || raise("Il faut impérativement définir le mot de passe du visiteur (:password) pour pouvoir utiliser la méthode se_connecte/1")
+      
       visiteur
       |> et_voit("input", %{type: "email", id: "user_email", name: "user[email]"})
       |> remplit_le_champ("Mail") |> avec(visiteur.email)
@@ -199,7 +210,9 @@ defmodule FeaturePublicMethods do
 
   """
   def la_page_contient(session, balise, attrs), do: Page.la_page_contient(session, balise, attrs)
+  def la_page_contient(session, balise, attrs, err_msg) when is_binary(err_msg), do: Page.la_page_contient(session, balise, attrs, err_msg)
   def et_voit(suj, balise, attrs), do: Page.la_page_contient(suj, balise, attrs)
+  def et_voit(suj, balise, attrs, err_msg), do: Page.la_page_contient(suj, balise, attrs, err_msg)
   def la_page_contient(session, string), do: Page.la_page_contient(session, string)
   def et_voit(suj, string), do: Page.la_page_contient(suj, string)
   def la_page_contient_le_bouton(session, bouton, params \\ %{}), do: Page.la_page_contient(session, "button", bouton, params)

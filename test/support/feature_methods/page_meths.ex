@@ -65,6 +65,13 @@ defmodule Feature.PageTestMethods do
     end)
     sujet
   end
+  def la_page_contient(sujet, balise, searched, err_msg) when is_binary(balise) and is_binary(searched) and is_binary(err_msg) do
+    session = session_from(sujet)
+    assert Enum.any?(WB.all(session, css(balise)), fn el -> 
+      WE.text(el) =~ searched 
+    end), err_msg
+    sujet
+  end
   # Quand on recherche une liste de string/balise/regex
   def la_page_contient(sujet, liste, _params) when is_list(liste) do
     liste |> Enum.each(fn searched -> 
@@ -121,23 +128,26 @@ defmodule Feature.PageTestMethods do
   """
   # Il faut abolument mettre cette fonction avant la suivante car une
   # expression régulière est aussi une Map…
-  def la_page_ne_contient_pas(sujet, tag, searched) when is_struct(searched, Regex) do
+  def la_page_ne_contient_pas(s, t, se, err_msg \\ nil)
+  def la_page_ne_contient_pas(sujet, tag, searched, err_msg) when is_struct(searched, Regex) do
     session = session_from(sujet)
     founds = 
       WB.all(session, css(tag))
       |> Enum.filter(fn el -> 
         Regex.match?(searched, WE.text(el))
       end)
-    assert(Enum.empty?(founds), "Aucune balise #{tag} contenant #{inspect searched} n'aurait dû être trouvée.")
+    err_msg = err_msg || "Aucune balise #{tag} contenant #{inspect searched} n'aurait dû être trouvée."
+    assert(Enum.empty?(founds), err_msg)
     sujet
   end
-  def la_page_ne_contient_pas(sujet, tag, attrs) when is_map(attrs) do
+  def la_page_ne_contient_pas(sujet, tag, attrs, err_msg) when is_map(attrs) do
     session = session_from(sujet)
-    refute(seek_in_page(session, tag, attrs, :negatif), "La page ne devrait pas contenir de balise #{tag} répondant aux attributs #{inspect attrs}.")
+    err_msg = err_msg || "La page ne devrait pas contenir de balise #{tag} répondant aux attributs #{inspect attrs}."
+    refute(seek_in_page(session, tag, attrs, :negatif), err_msg)
     sujet
   end
-  def la_page_ne_contient_pas(sujet, balise, string) when is_binary(string) do
-    la_page_ne_contient_pas(sujet, balise, ~r/#{Regex.escape(string)}/)
+  def la_page_ne_contient_pas(sujet, balise, string, err_msg) when is_binary(string) do
+    la_page_ne_contient_pas(sujet, balise, ~r/#{Regex.escape(string)}/, err_msg)
   end
   def la_page_ne_contient_pas(sujet, searched) when is_struct(searched, Regex) do
     session = session_from(sujet)

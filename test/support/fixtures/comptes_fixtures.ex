@@ -25,6 +25,7 @@ defmodule LdQ.ComptesFixtures do
   alias LdQ.Evaluation.UserBook
 
   @universal_password "motdepasse"
+  def universal_password, do: @universal_password
 
   def unique_user_email, do: "user#{uniq_int()}@example.com"
   def valid_user_password, do: @universal_password

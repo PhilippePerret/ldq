@@ -31,12 +31,14 @@ defmodule LdQWeb.BookSubmissionTestsChoixLivrePerMembre1 do
     # Il clique sur le 4e livre
     |> et_voit("section#new-books div.title", book.title)
     |> clique_le_lien("btn-eval-#{book.id}")
-    |> pause(10)
+    |> pause(1)
     # Le livre ne se trouve plus dans sa section de livre à choisir
     |> et_ne_voit_pas("section#new-books div.title", book.title)
     # Le livre se retrouve dans sa section de livre à évaluer
     |> et_voit("section#evalued-books", book.title)
-    |> pause(30)
+    |> pause(1)
+    # Un membre du collège 1 ne doit pas pouvoir voir sa section parrainage
+    |> et_ne_voit_pas("h4", "Vos parrainages", "Un membre du premier collège NE devrait PAS voir de section Parrainages")
     |> se_deconnecte()
 
   end

@@ -47,7 +47,7 @@ defmodule LdQWeb.MembreHTML do
       end)
       |> Enum.join("")
     """
-    <h4>Évaluations en cours</h4>
+    <h4>Vos évaluations en cours</h4>
     <p class="error">[Le membre trouvera ici la liste des livres qu'il a en évaluation]</p>
     <section id="evalued-books">
     #{evaluated_books}
