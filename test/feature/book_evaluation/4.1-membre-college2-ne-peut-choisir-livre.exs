@@ -22,6 +22,8 @@ defmodule LdQWeb.BookSubmissionTestsChoixLivrePerMembre2 do
     |> pause(1)
     |> et_voit("h4", "Nouveaux livres à évaluer")
     |> et_ne_voit_pas("div", book.title)
+    # Un membre du collège 2 ne doit pas pouvoir voir sa section parrainage
+    |> et_ne_voit_pas("h4", "Vos parrainages", "Un membre du second collège NE devrait PAS voir de section Parrainages")
     |> se_deconnecte()
 
 

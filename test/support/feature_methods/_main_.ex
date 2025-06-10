@@ -224,6 +224,7 @@ defmodule FeaturePublicMethods do
   NB : Pour ajouter des attributs, utiliser plutôt tag.<class>#<id> etc.
   """
   def et_ne_voit_pas(suj, tag, content), do: Page.la_page_ne_contient_pas(suj, tag, content)
+  def et_ne_voit_pas(suj, tag, content, err_msg), do: Page.la_page_ne_contient_pas(suj, tag, content, err_msg)
   def et_ne_voit_pas(suj, str_or_reg), do: Page.la_page_ne_contient_pas(suj, str_or_reg)
   
   @doc """
