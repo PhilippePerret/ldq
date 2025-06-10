@@ -9,7 +9,7 @@ defmodule LdQWeb.BookSubmissionTestsChoixLivrePerMembre2 do
   # @tag :skip
   test "Un membre de collège 2 ne peut pas choisir le livre" do
     %{parrain_id: parrain_id, procedure: procedure} = bddshot("evaluation-book/3-parrain-et-start-eval")
-    membre = get_membre_with_session(not: parrain_id, min_credit: LdQ.Evaluation.CreditCalculator.points_for(:seuil_college_two))
+    membre = get_membre_with_session(not: parrain_id, min_credit: LdQ.Evaluation.CreditCalculator.points_for(:seuil_college_two) + 1, max_credit: LdQ.Evaluation.CreditCalculator.points_for(:seuil_college_three) - 1)
 
     membre 
     |> se_connecte()

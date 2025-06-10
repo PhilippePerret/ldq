@@ -149,20 +149,21 @@ defmodule FeaturePublicMethods do
   @return Le visiteur (avec :identified à true)
   """
   def se_connecte(visiteur) when is_map(visiteur) or is_struct(visiteur, User) do
-    if not Page.on_login_page?(visiteur) do
+    if Page.on_login_page?(visiteur) do
       visiteur
-      |> rejoint_la_page("/users/log_in")
-      # |> pause(1)
-    end
-    visiteur
       |> et_voit("input", %{type: "email", id: "user_email", name: "user[email]"})
       |> remplit_le_champ("Mail") |> avec(visiteur.email)
       |> remplit_le_champ("Mot de passe") |> avec(visiteur.password)
       |> pause(1)
       |> clique_le_bouton("Se connecter")
       |> pause(1)
-      |> Map.put(:identified, true)
+      |> Map.put(:identified, true) # mais si on ne récupère pas le retour, identified ne sera pas à true
       # |> IO.inspect(label: "VISITEUR APRÈS CONNEXION")
+    else
+      visiteur
+      |> rejoint_la_page("/users/log_in") # rappellera cette méthode, pour se connecter
+      # |> pause(1)
+    end
   end
 
   @doc """

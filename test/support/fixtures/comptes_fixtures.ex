@@ -38,7 +38,7 @@ defmodule LdQ.ComptesFixtures do
       if is_nil(Map.get(attrs, prop, nil)) do
         val =
         case prop do
-          :name     -> "Stranger-#{uniq_int()}"
+          :name     -> "SUser-#{uniq_int()}"
           :email    -> unique_user_email()
           :sexe     -> "F"
           :password -> valid_user_password()
@@ -120,7 +120,9 @@ defmodule LdQ.ComptesFixtures do
       |> Repo.all()
       |> Enum.at(0)
 
-    IO.inspect(user, label: "USER")
+    # IO.inspect(user, label: "USER")
+    # Il faut ajouter le mot de passe, s'il est différent du mot 
+    # normal
     Map.put(user, :password, TestHelpers.get_password_of(user.email) || @universal_password)
   end
 
