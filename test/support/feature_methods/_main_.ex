@@ -47,15 +47,20 @@ defmodule FeaturePublicMethods do
   def make_user_with_session(attrs \\ %{}) do
     start_session(make_simple_user(attrs), [])
   end
-  def get_user(user_id) do
-    LdQ.Comptes.get_user!(user_id)
-  end
   def get_user_with_session(user_id) when is_binary(user_id) do
     start_session(get_user(user_id), [])
   end
   def get_user_with_session(%LdQ.Comptes.User{} = user) do
     start_session(user, [])
   end
+  # @param {Keyword} data
+  def get_user_with_session(data) when is_list(data) do
+    Compt.get_simple_user(data) |> start_session([])
+  end
+  def get_user_with_session do
+    Compt.get_simple_user() |> start_session([])
+  end
+
 
 
   @doc """
@@ -66,6 +71,12 @@ defmodule FeaturePublicMethods do
     :max_credit   Le crédit maximum que doit avoir le membre
   @return un membre (et le crée si nécessaire)
   """
+  def get_user(i \\ [])
+  def get_user(user_id) when is_binary(user_id) do
+    LdQ.Comptes.get_user!(user_id)
+  end
+  # @param {Keyword} params Paramètres à prendre en compte
+  def get_user(params) when is_list(params), do: Compt.get_simple_user(params)
   def get_membre(params \\ %{}), do: Compt.get_membre(params)
   def get_admin(params \\ %{email: "admin@lecture-de-qualite.fr"}), do: Compt.get_admin(params)
   def get_author(author_id), do: LdQ.Library.get_author!(author_id)

@@ -941,7 +941,7 @@ defmodule LdQ.Procedure.PropositionLivre do
   #   :sort   Clé de classement
   #
   # @return {HTMLString} Listing au format HTML
-  defp build_detail_membres(membres, options \\ []) do
+  defp build_detail_membres(membres, _options \\ []) do
     # On relève tous les users qui sont membres du comité de lecture
     """
     <style type="text/css">

@@ -24,8 +24,10 @@ defmodule LdQ.ComptesFixtures do
   # alias LdQ.{Comptes, Library}
   alias LdQ.Evaluation.UserBook
 
+  @universal_password "motdepasse"
+
   def unique_user_email, do: "user#{uniq_int()}@example.com"
-  def valid_user_password, do: "motdepasse"
+  def valid_user_password, do: @universal_password
 
   def valid_user_attributes(a \\ %{})
   def valid_user_attributes(nil), do: valid_user_attributes(%{})
@@ -112,10 +114,14 @@ defmodule LdQ.ComptesFixtures do
   @param {Keyword} params Paramètres de choix (non utilisés pour le moment)
   """
   def get_simple_user(_params \\ []) do
-    from(u in Comptes.User)
-    |> where([u], u.privileges == 0)
-    |> Repo.all()
-    |> Enum.at(0)
+    user = 
+      from(u in Comptes.User)
+      |> where([u], u.privileges == 0)
+      |> Repo.all()
+      |> Enum.at(0)
+
+    IO.inspect(user, label: "USER")
+    Map.put(user, :password, TestHelpers.get_password_of(user.email) || @universal_password)
   end
 
   @doc """

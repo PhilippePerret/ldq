@@ -331,6 +331,7 @@ defmodule TestHelpers do
     path = passwords_path()
     if File.exists?(path) do
       File.read!(path) |> :erlang.binary_to_term()
+      |> IO.inspect(label: "PASSWORDS")
     else
       %{}
     end

@@ -11,7 +11,7 @@ defmodule LdQWeb.BookSubmissionTestsStep2_3 do
   test "Un user quelconque, même inscrit, ne peut pas rejoindre cette procédure" do
     %{procedure: procedure} = bddshot("evaluation-book/1-book-just-submitted")
 
-    user = make_user_with_session(%{password: "monpassepartout"})
+    user = get_user_with_session()
 
     user
     |> rejoint_la_page("/proc/#{procedure.id}")

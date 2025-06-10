@@ -15,7 +15,7 @@ defmodule LdQWeb.BookSubmissionTestsStep3WhenAuthor do
 
     user
     |> rejoint_la_page("/proc/#{procedure.id}")
-    |> pause(30)
+    |> pause(1)
   end
   
 end
