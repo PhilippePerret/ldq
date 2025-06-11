@@ -210,13 +210,15 @@ defmodule LdQ.Library.Book do
 
   @param {Map|Keyword} filtre Le filtre à appliquer
     :author             {Author}  L'auteur du livre
-    :author_id          {Binary}  ID de l'auteur du livre
+    OU :author_id       {Binary}  ID de l'auteur du livre
     :label              {Boolean} Label attribué ou non
     :current_phase_min  {Integer} La phase minium (comprise)
     :current_phase_max  {Integer} La phase maximum (comprise)
     :current_phase      {Integer} La phase exacte
     :user               {User} L'user qui est l'auteur du livre
     :not_evaluated_by   {Member} Le livre ne doit pas avoir été évalué par ce membre
+    :parrain_id         {Binary} Le livre doit être parrainé par ce parrain
+    OU :parrain         {User} Le parrain du livre (membre du collège 3 qui s'en occupe)
   """
   def filter(filtre, fields \\ @min_fields) do
 
@@ -255,6 +257,13 @@ defmodule LdQ.Library.Book do
       else
         where(query, [_b, w], w.id in ^author_id)
       end
+    else query end
+
+    # - Le parrain du livre -
+
+    query = if filtre[:parrain_id] || filtre[:parrain] do
+      parrain_id = filtre[:parrain_id] || filtre[:parrain].id
+      where(query, [b, _w], b.parrain_id == ^parrain_id)
     else query end
 
     # - Avec label ou non -
@@ -307,12 +316,12 @@ defmodule LdQ.Library.Book do
       select_merge(query, [_b, w], %{author_name: w.name, author_sexe: w.sexe})
     else query end
 
-    IO.inspect(query, label: "\nQUERY FINALE")
+    # IO.inspect(query, label: "\nQUERY FINALE")
     # raise "pour voir"
 
     first_recolte = Repo.all(query)
     
-    IO.inspect(first_recolte, label: "\nPREMIÈRE RÉCOLTE")
+    # IO.inspect(first_recolte, label: "\nPREMIÈRE RÉCOLTE")
 
     # Quand on doit retirer les livres évalués par un lecteur
     _seconde_recolte = 

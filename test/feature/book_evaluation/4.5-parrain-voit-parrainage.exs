@@ -26,8 +26,8 @@ defmodule LdQWeb.BookSubmissionTestsRefusParrainage do
     |> et_voit("h4", "Vos évaluations en cours")
     |> et_ne_voit_pas("section#evalued-books div.book", book.title, "Un membre du 3e collège NE devrait PAS voir un livre qu'il parraine, mais soumis au 1er collège, dans sa liste de livres évalués.")
     # Le livre se trouve dans sa section parrainage
-    |> et_voit("h4", "Vos parrainages", "Un membre du troisième collège DOIT voir sa section Parrainages")
-    |> et_voit("section#parrainages div.book", book.title)
+    |> et_voit("h4", "Vos parrainages", "Un membre du troisième collège DEVRAIT voir sa section Parrainages")
+    |> et_voit("section#parrainages div.book", book.title, "Le membre du 3e collège DEVRAIT voir le livre testé, qu'il parraine.")
   
   end
   
