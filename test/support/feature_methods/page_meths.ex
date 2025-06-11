@@ -160,6 +160,7 @@ defmodule Feature.PageTestMethods do
   end
 
   defp seek_in_page(session, balise, attrs, positif) do
+    debugit = false # pour le moment
     positif = positif == :positif
     Enum.any?(WB.all(session, css(balise)), fn el ->
       resultat  =
@@ -177,7 +178,7 @@ defmodule Feature.PageTestMethods do
             })
           end
         end)
-      if resultat.ok != positif do
+      if debugit and (resultat.ok != positif) do
         IO.puts [
           IO.ANSI.red(),
           """

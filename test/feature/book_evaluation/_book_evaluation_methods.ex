@@ -13,7 +13,7 @@ defmodule BookEvaluationMethods do
 
   def get_book_of_proc(procedure) do
     procedure.data["book_id"]
-    |> LdQ.Library.Book.get()
+    |> LdQ.Library.Book.get(:all)
   end
 
   def get_user_of_proc(procedure) do

@@ -87,7 +87,7 @@ defmodule FeaturePublicMethods do
   # @param {Keyword} params Paramètres à prendre en compte
   def get_user(params) when is_list(params), do: Compt.get_simple_user(params)
   def get_membre(params \\ %{}), do: Compt.get_membre(params)
-  def get_admin(params \\ %{email: "admin@lecture-de-qualite.fr"}), do: Compt.get_admin(params)
+  def get_admin(params \\ %{email: "admin@lecture-de-qualite.fr"}), do: Compt.get_admin!(params)
   def get_author(author_id), do: LdQ.Library.get_author!(author_id)
 
   def make_simple_user(attrs \\ %{}), do: Compt.make_simple_user(attrs)

@@ -569,6 +569,7 @@ defmodule LdQ.Library.Book do
   @doc """
   @api
   Pour enregistrer le livre, aussi bien à la création qu'à l'update
+  (mais pour l'update, voir la seconde fonction)
 
   @param {Map} attrs Une table d'attributs quelconques dont les clés 
   sont toutes string (venant d'un formulaire)
@@ -594,6 +595,12 @@ defmodule LdQ.Library.Book do
   end
   # Actualisation, en fait, donc en fournissant le livre et les
   # propriétés à enregistrer
+  # 
+  # @param {Book} book Le livre à actualiser
+  # @param {Map} attrs Les nouvelles valeurs. Attention, c'est une table avec clé et valeur, mais
+  #               pour assurer la transformation, les valeurs doivent se trouver sous la forme :
+  #               {<valeur actuelle>, <nouvelle valeur>}. C'est particulièrement vrai si la nouvelle
+  #               valeur est Nil : %{maprop: {ancienne_valeur, nil}}
   # 
   # @return un {LdQ.Library.Book} si la sauvegarde a pu se faire, ou
   # {String} l'erreur ou les erreurs dans le cas contraire.

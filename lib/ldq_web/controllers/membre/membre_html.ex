@@ -101,10 +101,9 @@ defmodule LdQWeb.MembreHTML do
     else "" end
   end
   defp build_module_parrainage(membre) do
-    # TODO relever les livres qu'il parraine
     parrainages = 
     Book.filter(%{parrain: membre}, [:title, :author, :id])
-    |> Enum.map(&book_card(&1, []))
+    |> Enum.map(&book_card(&1, [parrainage: true]))
     |> Enum.join("")
     """
     <h4>Vos parrainages</h4>
@@ -146,6 +145,13 @@ defmodule LdQWeb.MembreHTML do
         picto:    "📙"
       })
     else dbook end
+    dbook = if options[:parrainage] do
+      boutons = [btn_book("refus", dbook)]
+      Map.merge(dbook, %{
+        buttons:  dbook.buttons ++ boutons,
+        picto:    "📘"
+      })
+    else dbook end
 
     """
     <div class="book">
@@ -181,9 +187,21 @@ defmodule LdQWeb.MembreHTML do
       title: "noter"
     )
   end
+  # Bouton pour refuser un parrainage
+  defp btn_book("refus", dbook) do
+    small_button(
+      id: "btn-refus-parrainage-#{dbook.id}",
+      href: "?id=#{dbook.id}&type=book&op=refus-parrainage",
+      title: "refuser",
+      class: "warning"
+    )
+  end
 
   defp small_button(params) do
-    ~s[<a class="btn small" id="#{params[:id]}" href="#{params[:href]}">#{params[:title]}</a>]
+    cls = params[:class] || []
+    cls = if is_binary(cls), do: [cls], else: cls
+    cls = ["btn", "small"] ++ cls
+    ~s[<a class="#{Enum.join(cls, " ")}" id="#{params[:id]}" href="#{params[:href]}">#{params[:title]}</a>]
   end
 
 end

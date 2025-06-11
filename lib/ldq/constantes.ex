@@ -18,6 +18,7 @@ defmodule LdQ.Constantes do
 
   def get(constant_id) do
     case constant_id do
+      :lang -> "fr" # pour le moment
       :app_url ->
         case Application.get_env(:ldq, :env) do
           :dev  -> "http://localhost"
@@ -28,6 +29,8 @@ defmodule LdQ.Constantes do
         "admin@lecture-de-qualite.fr"
       :mail_admins -> 
         "admin@lecture-de-qualite.fr"
+      :mail_subject_prefix ->
+        "[📚 LdQ] "
       :pays_pour_menu ->
         [
           ["France", "fr"],

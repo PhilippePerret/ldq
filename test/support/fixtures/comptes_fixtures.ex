@@ -171,12 +171,17 @@ defmodule LdQ.ComptesFixtures do
 
   @doc """
   Retourne un administrateur correspondant aux paramètres +params+
+  @return {:ok, admin}
   """
   def get_admin(params \\ %{email: "admin@lecture-de-qualite.fr"}) do
     case Comptes.get_user_by_email(params.email) do
     nil   -> :unknown
     admin -> {:ok, admin}
     end
+  end
+  def get_admin!(params \\ %{email: "admin@lecture-de-qualite.fr"}) do
+    {:ok, admin} = get_admin(params)
+    admin
   end
   
   @doc """

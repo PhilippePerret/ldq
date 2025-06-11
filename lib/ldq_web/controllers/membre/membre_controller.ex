@@ -2,6 +2,7 @@ defmodule LdQWeb.MembreController do
   use LdQWeb, :controller
 
   alias LdQ.Comptes
+  alias LdQ.Comptes.User
   alias LdQ.Evaluation.UserBook
   alias LdQ.Library.Book
 
@@ -35,14 +36,49 @@ defmodule LdQWeb.MembreController do
   # === Toutes les méthodes d'opération ===
 
   # Choix d'un livre à évaluer
+  # À quoi correspond le fait d'évaluer un livre ? C'est en fait la
+  # création d'une fiche d'évaluation association le membre au livre
   defp exec_op("choose-for-eval", membre, %{"id" => book_id, "type" => type} = _params) do
-    # Bien sûr, il doit s'agir d'un livre
-    type == "book" || raise("Il devrait s'agir d'un livre !")
-    # À quoi correspond le fait d'évaluer un livre ? C'est en fait la
-    # création d'une fiche d'évaluation association le membre au livre
-    book = Book.get(book_id) || raise("Le livre d'identifiant #{book_id} est inconnu…")
+    type == "book" || raise(@errors[:book_required])
+    book = Book.get(book_id) || raise(eval_error(:unknown_book, [book_id: book_id]))
     UserBook.assoc_user_and_book(membre, book)
     [msg: "#{membre.name}, vous pouvez à présent évaluer le livre #{book.title}"]
+  end
+
+
+  # Refus d'un parrainage par le membre courant
+  defp exec_op("refus-parrainage", membre, %{"id" => book_id, "type" => type} = _params) do
+    type == "book" || raise(@errors[:book_required])
+    book = Book.get(book_id, [:parrain, :id, :title, :author]) || raise(eval_error(:unknown_book, [book_id: book_id]))
+    parrain = book.parrain
+    # Retirer le parrain au livre
+    newbook = Book.save(book, %{parrain_id: {book.parrain.id, nil}})
+    cond do
+    is_binary(newbook) -> 
+      [msg: "#{membre.name}, je n'ai pas réussi à vous “déparrainer”. Merci d'en informer l'administrateur."]
+    true ->
+      # Retirer les points au parrain
+      points_parrain =  LdQ.Evaluation.CreditCalculator.points_for(:parrainage)
+      User.update_credit(membre, membre.credit - points_parrain)
+      # Prévenir l'administration
+      LdQ.Mailer.send_phil_mail(to: :admin, from: parrain.email, with: %{
+        mail_id:    "refus-parrainage",
+        variables:  [book_url: ~s(<a href="/livre/#{book_id}">Fiche du livre</a>)]
+      })
+      [msg: "#{membre.name}, vous ne parrainez plus le livre #{book.title}."]
+    end
+  end
+
+
+  @errors %{
+    book_required: "Il devrait être question d'un livre",
+    unknown_book:  "Le livre d'identifiant \#{book_id} est inconnu…"
+  }
+
+  defp eval_error(err_id, data) do
+    err_msg = @errors[err_id]
+    {erreur, binding} = Code.eval_string(~s("#{err_msg}"), data)
+    erreur
   end
 
 end

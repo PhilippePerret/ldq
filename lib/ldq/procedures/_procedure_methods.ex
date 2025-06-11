@@ -9,9 +9,6 @@ defmodule LdQ.ProcedureMethods do
 
   # import Html.Helpers
 
-  @prefix_mail_subject "[📚 LdQ] "
-
-
   def __run__(module, procedure) do
     # IO.inspect(procedure, label: "\nJOUER LA PROCÉDURE")
     run_current_procedure(procedure, module, module.steps())
@@ -524,68 +521,67 @@ defmodule LdQ.ProcedureMethods do
                 la procédure est transmise
   """
   def send_mail([to: receiver, from: sender, with: params] = _attrs) do
-    send_mail(receiver, sender, params)
+    LdQ.Mailer.send_phil_mail(receiver, sender, params)
   end
   def send_mail(receiver, sender, params) do
+    LdQ.Mailer.send_phil_mail(receiver, sender, params)
+    # data_mail = compose_mail(sender, receiver, params)
 
-    data_mail = compose_mail(sender, receiver, params)
+    # # Il faut modifier les propriétés de data_mail.philhtml pour que
+    # # l'évaluation soit demandée
+    # philhtml = data_mail.philhtml
+    # philhtml = %{philhtml | options: Keyword.put(philhtml.options, :evaluation, true)}
+    # data_mail = %{data_mail | philhtml: philhtml}
 
-    # Il faut modifier les propriétés de data_mail.philhtml pour que
-    # l'évaluation soit demandée
-    philhtml = data_mail.philhtml
-    philhtml = %{philhtml | options: Keyword.put(philhtml.options, :evaluation, true)}
-    data_mail = %{data_mail | philhtml: philhtml}
+    # data_mail.receivers 
+    # |> Enum.reduce(%{errors: [], sent: []}, fn receiver, coll ->
 
-    data_mail.receivers 
-    |> Enum.reduce(%{errors: [], sent: []}, fn receiver, coll ->
+    #   receiver = case is_binary(receiver) do
+    #     true  -> %{name: "", email: receiver, sexe: "H"}
+    #     false -> receiver
+    #   end
 
-      receiver = case is_binary(receiver) do
-        true  -> %{name: "", email: receiver, sexe: "H"}
-        false -> receiver
-      end
-
-      # Sujet propre
-      subject = PhilHtml.Evaluator.customize!(data_mail.subject, data_mail.philhtml)
-      # Contenu propre
-      # --------------
-      # Il faut ajouter les variables féminines pour le receveur 
-      # courant. Le problème actuel est que :receiver, ici, contient
-      # au mieux :name et :mail.
-      opts = data_mail.philhtml.options
-      opts = 
-        opts
-        |> Keyword.put(:variables, Helpers.Feminines.add_to(opts[:variables], receiver.sexe) )
-      philhtml = %{data_mail.philhtml | options: opts}
-      html_body = PhilHtml.Evaluator.customize!(data_mail.heex_body, philhtml)
+    #   # Sujet propre
+    #   subject = PhilHtml.Evaluator.customize!(data_mail.subject, data_mail.philhtml)
+    #   # Contenu propre
+    #   # --------------
+    #   # Il faut ajouter les variables féminines pour le receveur 
+    #   # courant.
+    #   opts = data_mail.philhtml.options
+    #   opts = 
+    #     opts
+    #     |> Keyword.put(:variables, Helpers.Feminines.add_to(opts[:variables], receiver.sexe) )
+    #   philhtml = %{data_mail.philhtml | options: opts}
+    #   html_body = PhilHtml.Evaluator.customize!(data_mail.heex_body, philhtml)
       
-      # IO.inspect(subject, label: "\n+++ SUJET PROPRE")
-      # IO.inspect(html_body, label: "\n+++ CONTENU PROPRE")
+    #   # IO.inspect(subject, label: "\n+++ SUJET PROPRE")
+    #   # IO.inspect(html_body, label: "\n+++ CONTENU PROPRE")
 
 
-      email = data_mail.email 
-      |> Swoosh.Email.to({receiver.name, receiver.email})
-      |> Swoosh.Email.subject(subject)
-      |> Swoosh.Email.html_body(html_body)
+    #   email = data_mail.email 
+    #   |> Swoosh.Email.to({receiver.name, receiver.email})
+    #   |> Swoosh.Email.subject(subject)
+    #   |> Swoosh.Email.html_body(html_body)
 
-      if Constantes.env_test? do
-        # Mode test : consigner les données du mail
-        data_mail = Map.merge(data_mail, %{
-          receiver: receiver,
-          subject:  subject,
-          html_body: html_body
-        })
-        consigne_mail_for_test(data_mail)
-      else
-        # Envoi de l'email
-        case LdQ.Mailer.deliver(email) do
-          {:ok, _} -> 
-            %{coll | sent: coll.sent ++ [email]}
-          {:error, reason} -> 
-            %{coll | errors: coll.errors ++ [reason]}
-        end
-      end
-    end)
-    # |> IO.inspect(label: "Résultat de l'envoi")
+    #   if Constantes.env_test? do
+    #     # Mode test : consigner les données du mail
+    #     data_mail = Map.merge(data_mail, %{
+    #       receiver: receiver,
+    #       subject:  subject,
+    #       html_body: html_body
+    #     })
+    #     consigne_mail_for_test(data_mail)
+    #   else
+    #     # Envoi de l'email
+    #     case LdQ.Mailer.deliver(email) do
+    #       {:ok, _} -> 
+    #         %{coll | sent: coll.sent ++ [email]}
+    #       {:error, reason} -> 
+    #         %{coll | errors: coll.errors ++ [reason]}
+    #     end
+    #   end
+    # end)
+    # # |> IO.inspect(label: "Résultat de l'envoi")
   end
 
   @destinataires_mailing %{
@@ -658,61 +654,12 @@ defmodule LdQ.ProcedureMethods do
       ])
     # |> IO.inspect(label: "\n\n+++ PHILDATA DU MAIL À ENVOYER")
 
-    subject = @prefix_mail_subject <> (phil_data.options[:variables].subject || "(Sans objet)")
+    subject = Constantes.get(:mail_subject_prefix) <> (phil_data.options[:variables].subject || "(Sans objet)")
 
     phil_data = Map.merge(phil_data, %{
       subject: subject
     })
     {phil_data, params}
-  end
-
-  # Fonction privée qui compose le mail à envoyer
-  defp compose_mail(sender, receiver, params) do
-    {phil_data, params} = get_and_formate_mail(params)
-
-    # Fichier joint (chemin absolu valide ou NIL) 
-    attached_file = params.attached_file
-
-    sender = case sender do
-      :admin    -> %{name: "Administrateur", email: "admin@lecture-de-qualite.fr", sexe: "H"}
-      :member   -> %{name: "Membre du comité", email: "membre-comite@lecture-de-qualite.fr", sexe: "H"}
-      :membre   -> %{name: "Membre du comité", email: "membre-comite@lecture-de-qualite.fr", sexe: "H"}
-      :members  -> %{name: "Membre du comité", email: "membre-comite@lecture-de-qualite.fr", sexe: "H"}
-      :membres  -> %{name: "Membre du comité", email: "membre-comite@lecture-de-qualite.fr", sexe: "H"}
-      _ -> 
-        case is_binary(sender) do
-        true -> %{name: "", email: sender, sexe: "H"}
-        false -> sender
-        end
-    end
-
-    receivers = 
-      case receiver do
-        :admins   -> [%{name: "Administrateurs", email: "admin@lecture-de-qualite.fr", sexe: "H"}]
-        :admin    -> [%{name: "Administrateur", email: "admin@lecture-de-qualite.fr", sexe: "H"}]
-        :readers  -> [%{name: "Lecteurs", email: "readers@lecture-de-qualite.fr", sexe: "H"}]
-        :members  -> [%{name: "Membres du comité", email: "membre-comite@lecture-de-qualite.fr", sexe: "H"}]
-        :membres  -> [%{name: "Membres du comité", email: "membre-comite@lecture-de-qualite.fr", sexe: "H"}]
-        _ -> [receiver]
-      end
-      # |> IO.inspect(label: "Receivers")
-
-    email = Swoosh.Email.new()
-    |> Swoosh.Email.from({sender.name, sender.email})
-    email =
-    if attached_file do
-      email |> Swoosh.Email.attachment(attached_file)
-    else email end
-
-    %{
-      email:      email,
-      procedure:  params.procedure,
-      mail_id:    params.mail_id,
-      receivers:  receivers,
-      subject:    phil_data.subject,
-      heex_body:  phil_data.heex,
-      philhtml:   phil_data
-    }
   end
 
   defp defaultize_mail_params(params) do
