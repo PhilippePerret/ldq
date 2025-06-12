@@ -3,8 +3,6 @@ Code.require_file(Path.join(__DIR__, "_book_evaluation_methods.ex"))
 defmodule LdQWeb.BookSubmissionTestsRefusParrainage do
   use LdQWeb.FeatureCase, async: false
 
-  # alias Helpers.Feminines, as: Fem
-
   import TestHelpers, only: [bddshot: 1, bddshot: 2, pause: 2]
   import FeaturePublicMethods #, except: [now: 0]
 

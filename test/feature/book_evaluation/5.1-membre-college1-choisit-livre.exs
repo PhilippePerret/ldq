@@ -1,33 +1,37 @@
+Code.require_file(Path.join(__DIR__, "_book_evaluation_methods.ex"))
+
 defmodule LdQWeb.BookSubmissionTestsChoixLivrePerMembre1 do
   use LdQWeb.FeatureCase, async: false
 
-  # alias Helpers.Feminines, as: Fem
-
-  import TestHelpers
+  import TestHelpers, only: [bddshot: 1, bddshot: 2, pause: 2]
   import FeaturePublicMethods
+  import BookEvaluationMethods
 
   # @tag :skip
-  test "Un membre collège 1 voit les livres et peut en choisir" do
-    # TODO Voir si ça pose encore problème comme avant, avec deux
-    # session. Voir si la fermeture explicite des sessions est 
-    # efficace.,
-    # Si c'est le cas, on pourra renommmer ce test :
-    #   "4-membres-choisissent-livre.ex"
+  test "Un membre du collège 1 voit les livres et peut choisir le nouveau livre" do
+    #
+    # - PHOTOGRAPHIE -
+    # Ce test produit la photographie "evaluation-book/5-membre-college1-choisit-livre"
+    # Dans ce test, un membre du collège 1 choisit le nouveau livre à évaluer
+    # 10 autres livres à évaluer sont également créés.
+    # Note : dans ce test, le livre n'a pas de parrain.
     # 
-    %{parrain_id: _parrain_id, procedure: _procedure} = bddshot("evaluation-book/3-parrain-et-start-eval")
-  
+    %{procedure: procedure} = bddshot("evaluation-book/4-parrain-a-refuse-parrainage")
+
+    # On fait des livres à évaluer pour qu'il y en ait d'autres
     books = make_books(count: 10, current_phase: [20, 21])
+    
+    # On prend un membre du collège 1
     membre = get_membre_with_session(max_credit: LdQ.Evaluation.CreditCalculator.points_for(:seuil_college_two) - 1)
   
-    # Son crédit augmente automatiquement
-    # TODO
-
-    book = Enum.at(books, 3)
+    # book = Enum.at(books, 3)
+    book = get_book_of_proc(procedure)
 
     membre 
     |> rejoint_la_page("/membre/#{membre.id}") # sa page d'accueil personnelle
     |> et_voit("h4", "Nouveaux livres à évaluer")
-    |> et_voit("div", Enum.at(books, 0).title)
+    |> et_voit("div.book", Enum.at(books, 0).title)
+    |> et_voit("div.book", book.title)
     # Il clique sur le 4e livre
     |> et_voit("section#new-books div.title", book.title)
     |> clique_le_lien("btn-eval-#{book.id}")
@@ -41,6 +45,19 @@ defmodule LdQWeb.BookSubmissionTestsChoixLivrePerMembre1 do
     |> et_ne_voit_pas("h4", "Vos parrainages", "Un membre du premier collège NE devrait PAS voir de section Parrainages")
     |> se_deconnecte()
 
+    # - Vérifications -
+
+    # Son crédit augmente automatiquement
+    # TODO
+
+    # Le parrain (ancien) ne doit pas avoir été averti et aucun
+    # parrain ne doit avoir été prévenu
+    # TODO
+
+    bddshot("evaluation-book/5-membre-college1-choisit-livre", %{
+      procedure_id: procedure.id,
+      membre_id: membre.id
+    })
   end
 
   @tag :skip
