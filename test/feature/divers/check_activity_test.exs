@@ -7,7 +7,7 @@ defmodule LdQWeb.CheckActivityTest do
   # use LdQWeb.FeatureCase, async: false
   use LdQ.DataCase, async: false
 
-  import TestHelpers
+  import TestHelpers, only: [create_log: 1]
   import FeaturePublicMethods # Méthodes rejoint_la_page, etc.
   # alias LdQ.Comptes.User
 
@@ -27,7 +27,6 @@ defmodule LdQWeb.CheckActivityTest do
     end
 
     test "retourne un message d'erreur si on ne trouve pas le nombre d'activités voulues" do
-      create_log()
       res = check_activities(count: 2)
       refute(is_nil(res))
       assert( res == "Bad activity count: expected: 2, actual: 1\n")

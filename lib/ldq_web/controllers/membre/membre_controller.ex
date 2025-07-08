@@ -77,7 +77,7 @@ defmodule LdQWeb.MembreController do
 
   defp eval_error(err_id, data) do
     err_msg = @errors[err_id]
-    {erreur, binding} = Code.eval_string(~s("#{err_msg}"), data)
+    {erreur, _binding} = Code.eval_string(~s("#{err_msg}"), data)
     erreur
   end
 

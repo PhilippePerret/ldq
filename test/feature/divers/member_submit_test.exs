@@ -8,8 +8,8 @@ defmodule LdQWeb.MemberSubmitFeatureTest do
   """
   use LdQWeb.FeatureCase, async: false
 
-  import TestHelpers
-  import FeaturePublicMethods # Méthodes rejoint_la_page, etc.
+  import TestHelpers #, only: [w: 2, pause: 2, create_procedure: 1, refresh_user: 1]
+  import FeaturePublicMethods, except: [now: 0] # Méthodes rejoint_la_page, etc.
 
   # alias LdQ.Comptes.User
   # alias Wallaby.Browser,  as: WB

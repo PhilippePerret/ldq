@@ -9,9 +9,11 @@ defmodule TestHelpers do
   alias LdQ.Site.Log
   alias LdQ.ProcedureMethods, as: Proc
 
+  # Enregistre une photographie de l'état actuel de l'application
   # Cf. La méthode bdd_dump pour le détail
   def bddshot(name, data) do
     bdd_dump(name, data)
+    IO.puts [IO.ANSI.blue(), "\n 📸 Photographie “#{name}” effectuée", IO.ANSI.reset()]
   end
   
   @doc """

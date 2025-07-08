@@ -130,7 +130,7 @@ defmodule LdQWeb.MembreHTML do
       points_per_eval: options[:points_per_eval]
     })
     # Définition des boutons, picto et autres données pour le livre
-    boutons = []
+    _boutons = []
     dbook = if options[:evaluate] do
       boutons = [btn_book("eval", dbook)]
       Map.merge(dbook, %{
