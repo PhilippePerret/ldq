@@ -1,17 +1,17 @@
 =begin
 Pour lancer ce script :
 
-   ruby test/feature/__test_runner__.rb [options] [dossier]
+   ruby test/feature/__test_runner__.rb [params] [dossier]
 
 OPTIONS
 -------
-  --all   (par défaut) tous les scripts de tous les dossiers
-          ou du dossier donné en dernier argument
-  --one   Un seul script à choisir
-  --dir   Un dossier de test à choisir
-  --from  À partir du script…
-  --to    Jusqu'au script…
-  --same  La même chose que la dernière fois
+  --all/-a  (par défaut) tous les scripts de tous les dossiers
+            ou du dossier donné en dernier argument
+  --one/-o  Un seul script à choisir
+  --dir/-d  Un dossier de test à choisir
+  --from/-f À partir du script…
+  --to/-t   Jusqu'au script…
+  --same/-s La même chose que la dernière fois
 
 TODO
 ----
@@ -22,98 +22,156 @@ require 'open3'
 require 'clir'
 APP_FOLDER = File.dirname(File.dirname(__dir__))
 FEATURE_FOLDER = File.join(APP_FOLDER, 'test', 'feature')
+TEST_SAME_PARAMS_FILE = File.join(FEATURE_FOLDER, '.same_params.msh')
+SHORT_OPT_TO_LONG = {'-o' => :one, '-d' => :dir, '-a' => :all, '-f' => :from, '-t' => :to, '-s' => :same}
 
+# Peut-être que le dossier choisi a été mis en dernier argument
 maybe_folder = ARGV.pop.dup
-if maybe_folder && maybe_folder.start_with?('--')
+if maybe_folder && maybe_folder.start_with?('-')
   # Ce n'est pas un dossier, on remet en option
   ARGV << maybe_folder
   test_folder = nil
 else
   test_folder = maybe_folder
 end
-options = {}
+
+params = {}
 ARGV.each do |option|
   if option.start_with?('--')
-    options.store(option[2..-1].to_sym, true)
+    params.store(option[2..-1].to_sym, true)
+  elsif option.start_with?('-')
+    params.store(SHORT_OPT_TO_LONG[option], true)
+  end
+end
+
+tests_choices = [
+  {name: "Jouer un seul test [option: --one/-o]", value: :one},
+  {name: "Jouer les tests d'un dossier [option: --dir/-d]", value: :dir},
+  {name: "Jouer les tests d'un dossier de tel test à tel test [option: --from --to/-f -t]", value: :fromto},
+  {name: "Jouer les tests d'un dossier à partir d'un test [option: --from/-f]", value: :from},
+  {name: "Jouer les tests d'un dossier jusqu'à un test [option: --to/-t]", value: :to},
+  {name: "Jouer tous les tests de tous les dossiers", value: :all},
+  {name: "Jouer les mêmes que la dernière fois", value: :same}
+]
+
+if params.empty?
+  case (choix = Q.select("Que veux-tu faire ?".jaune, tests_choices))
+  when :fromto then params.merge({from: true, to: true})
+  else params.store(choix, true)
   end
 end
 
 # LISTE DES DOSSIERS
-test_folders = Dir["#{FEATURE_FOLDER}/*"].select do |path|
+TEST_FOLDERS = Dir["#{FEATURE_FOLDER}/*"].select do |path|
   File.directory?(path)
 end.map do |path|
   File.basename(path)
 end
 
-# Choisir si nécessaire le dossier
-if test_folder.nil? || options[:dir]
-  # On doit choisir le dossier
-  test_folder = Q.select("Dossier des tests à jouer".jaune, test_folders)
-end
-path_test_folder = File.join(FEATURE_FOLDER, test_folder)
 
-# Choisir le fichier ou le premier ou le dernier
-if options[:from] || options[:to] || options[:one]
-  test_list = Dir["#{path_test_folder}/*_test.exs"]
-  .sort
-  .map do |path|
-    nfile = File.basename(path, File.extname(path))
-    nfile[0..-6] # sans le _test
+if params[:same] && File.exist?(TEST_SAME_PARAMS_FILE)
+  
+  # <= Option :same choisi (et fichier dernier test existant)
+  # => On reprend les mêmes données
+  
+  params = Marshal.load(IO.read(TEST_SAME_PARAMS_FILE))
+  params.store(:same, true)
+  ALL_TESTS = params[:all] == true
+  
+else
+  
+  # <= Pas d'option :same
+  # => On doit demander les tests à jouer
+  
+  ALL_TESTS = params[:all] == true
+
+  unless ALL_TESTS
+    # Choisir si nécessaire le dossier
+    if test_folder.nil? || params[:dir]
+      # On doit choisir le dossier
+      test_folder = Q.select("Dossier des tests à jouer".jaune, TEST_FOLDERS)
+    end
+    params.store(:folder, test_folder)
+
+    # Choisir le fichier ou le premier ou le dernier
+    path_test_folder = File.join(FEATURE_FOLDER, test_folder)
+    if params[:from] || params[:to] || params[:one]
+      test_list = Dir["#{path_test_folder}/*_test.exs"]
+      .sort
+      .map do |path|
+        nfile = File.basename(path, File.extname(path))
+        nfile[0..-6] # sans le _test
+      end
+      if params[:one]
+        nfile = Q.select("Fichier à jouer : ".jaune, test_list)
+        params.store(:one, nfile)
+      elsif params[:from]
+        nfile = Q.select("À partir du fichier…".jaune, test_list)
+        params.store(:from, nfile)
+      end 
+      if params[:to]
+        # Retirer jusqu'au :from s'il est défini
+        test_list =
+          if params[:from]
+            idtest = test_list.index(params[:from]) + 1
+            test_list[idtest..-1]
+          else test_list end
+        nfile = Q.select("Jusqu'au fichier…".jaune, test_list)
+        params.store(:to, nfile)
+      end
+    end
   end
-  if options[:one]
-    nfile = Q.select("Fichier à jouer : ".jaune, test_list)
-    options.store(:one, nfile)
-  elsif options[:from]
-    nfile = Q.select("À partir du fichier…".jaune, test_list)
-    options.store(:from, nfile)
-  end 
-  if options[:to]
-    # Retirer jusqu'au :from s'il est défini
-    test_list =
-      if options[:from]
-        idtest = test_list.index(options[:from]) + 1
-        test_list[idtest..-1]
-      else test_list end
-    nfile = Q.select("Jusqu'au fichier…".jaune, test_list)
-    options.store(:to, nfile)
-  end
-end
 
-FEATURES_FOLDER = test_folder
-ONE_TEST        = options[:one]
-FROM_TEST       = options[:from]  # sinon le nom du premier test à jouer
-TO_TEST         = options[:to]    # sinon le nom du dernier test à jouer
+  File.write(TEST_SAME_PARAMS_FILE, Marshal.dump(params))
+
+end #/si (else) option :same
+
+FEATURES_FOLDER = params[:folder]
+ONE_TEST        = params[:one]
+FROM_TEST       = params[:from]  # sinon le nom du premier test à jouer
+TO_TEST         = params[:to]    # sinon le nom du dernier test à jouer
 
 
+# === Message de début ===
 puts "LANCEMENT DES TESTS DE : #{FEATURES_FOLDER}".bleu
-puts "RÉUSSITES".vert + " ET " + "ÉCHECS".rouge
-if ONE_TEST
-  puts "LE TEST : #{ONE_TEST}".bleu
-end
-if TO_TEST
-  puts "JUSQU'AU TEST : #{TO_TEST}".bleu
-  flux_ouvert = true # sera mis à faux si FROM_TEST
-end
-if FROM_TEST
-  puts "DEPUIS LE TEST : #{FROM_TEST}".bleu
-  flux_ouvert = false
+if ALL_TESTS
+  puts "TOUS LES TESTS".bleu
+else
+  if ONE_TEST
+    puts "LE TEST : #{ONE_TEST}".bleu
+  end
+  if TO_TEST
+    puts "JUSQU'AU TEST : #{TO_TEST}".bleu
+  end
+  if FROM_TEST
+    puts "DEPUIS LE TEST : #{FROM_TEST}".bleu
+  end
 end
 
 TEMP_COMMAND = 'mix test test/feature/%s/%s_test.exs'
-Dir.chdir(APP_FOLDER) do
-  tests_folder = "test/feature/#{FEATURES_FOLDER}"
+
+def run_tests_in_folder(folder_name)
+  if TO_TEST
+    flux_ouvert = true # sera mis à faux si FROM_TEST
+  end
+  if FROM_TEST
+    flux_ouvert = false
+  end
+  tests_folder = "test/feature/#{folder_name}"
   Dir["#{tests_folder}/*_test.exs"]
   .sort
   .map { |path| File.basename(path, File.extname(path))[0..-6] }
   .each_with_index do |test_name, itest|
-    if ONE_TEST 
-      next if test_name != ONE_TEST
-    elsif flux_ouvert == false && test_name == FROM_TEST
-      flux_ouvert = true # et on poursuit
-    elsif test_name == TO_TEST
-      flux_ouvert = false # et on finit avec celui-là
-    elsif flux_ouvert == false
-      next
+    unless ALL_TESTS
+      if ONE_TEST 
+        next if test_name != ONE_TEST
+      elsif flux_ouvert == false && test_name == FROM_TEST
+        flux_ouvert = true # et on poursuit
+      elsif test_name == TO_TEST
+        flux_ouvert = false # et on finit avec celui-là
+      elsif flux_ouvert == false
+        next
+      end
     end
 
     # puts "Le test #{test_name.inspect} passe".bleu
@@ -158,9 +216,20 @@ Dir.chdir(APP_FOLDER) do
       # <= Le code de sortie n'est pas 0
       # => Il s'est passé quelque chose
       # puts "status: #{status}"
-      puts "Code de sortie #{status.exit}".rouge
+      puts "Code de sortie #{status.exitstatus}".rouge
       puts "STDERR: #{stderr}".rouge
       break
     end
+  end
+
+end
+
+Dir.chdir(APP_FOLDER) do
+  if ALL_TESTS
+    TEST_FOLDERS.each do |folder_name|
+      run_tests_in_folder(folder_name)
+    end
+  else
+    run_tests_in_folder(FEATURES_FOLDER)
   end
 end

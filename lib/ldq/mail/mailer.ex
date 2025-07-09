@@ -2,6 +2,7 @@ defmodule LdQ.Mailer do
   use Swoosh.Mailer, otp_app: :ldq
 
   alias LdQ.Constantes
+  alias LdQ.Comptes
 
   import Swoosh.Email
 

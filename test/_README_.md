@@ -10,17 +10,17 @@ Pour le moment, les tests d'intégration doivent se lancer un par un… Mais j'a
 
 Des options permettent de préciser ce qu'on veut faire : 
 
-~~~
-(rien)  (par défaut) On demande le dossier à jouer
---one    On peut choisir un seul script à jouer (on peut indiquer le dossier en dernier argument)
---from  On pourra indiquer le test de départ
---to      On pourra indiquer le dernier test à jouer
---same  Même choix que le dernier choix
---all       Tous les tests de tous les dossiers
-~~~
+| Option | abr. | Effet |
+| --- | --- | --- |
+|     |       |  On demande le dossier à jouer (ou il est précisé en dernier argument par son nom) |
+| --all | -a | Jouer tous les tests  de tous les dossiers |
+| --dir | -d | Jouer tous les tests du dossier choisi (ou précisé en dernier argument) |
+| --one | -o | On peut choisir un seul script à jouer (le dossier peut être indiqué en dernier argument) |
+| --from | -f | Le test à partir duquel commencer |
+| --to | -t | Le dernier test à jouer |
+| --same | -s | Les mêmes tests que ceux qui viennent d'être effectués |
 
-
-Pour lancer un test d'intégration (un de ceux qui se trouvent dans le dossier `feature`), utiliser la commande :
+Sinon, on peut bien sûr lancer le test que l'on veut de façon traditionnelle :
 
 ~~~
 mix test test/feature/<dossier>/<fichier exact>
