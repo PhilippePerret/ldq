@@ -122,7 +122,7 @@ defmodule LdQWeb.MembreHTML do
   #   :evaluate   Mis à True pour pouvoir choisir un livre à évaluer
   #   :set_note   Mis à True pour pouvoir évaluer un livre (lui donner une note)
   #   :points_per_eval  {Integer} Nombre de points que vaut une évaluation du livre
-  defp book_card(book, options \\ []) do
+  defp book_card(book, options) do
     # La nouvelle table pour définir les données propres au livre.
     dbook = Map.merge(book, %{
       buttons: [btn_book("voir", book)],
@@ -130,7 +130,6 @@ defmodule LdQWeb.MembreHTML do
       points_per_eval: options[:points_per_eval]
     })
     # Définition des boutons, picto et autres données pour le livre
-    _boutons = []
     dbook = if options[:evaluate] do
       boutons = [btn_book("eval", dbook)]
       Map.merge(dbook, %{

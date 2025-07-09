@@ -150,7 +150,40 @@ end
 
 TEMP_COMMAND = 'mix test test/feature/%s/%s_test.exs'
 
-def run_tests_in_folder(folder_name)
+# Utilisé par la méthode suivante pour vérifier le retour du test
+# Note : parfois, le test peut renvoyer un code autre que 0 mais
+# que ce soit une fin normale, avec un test qui a échoué.
+def check_fin_test_normale(stdout, test_name)
+  # puts "stdout" + stdout
+  # Normalement, la dernière ligne contient le résultat et
+  # l'avant dernière ligne les infos sur le temps
+  linesout = stdout.strip.split("\n")
+  resultat_line  = linesout.pop
+  info_time_line = linesout.pop
+  if info_time_line.start_with?("Finished in")
+    # <= La sortie se termine bien avec la fin du test
+    # => Tout s'est bien passé, même les erreurs
+    # On analyse le résultat
+    res = resultat_line.strip.scan(/([0-9]+) test.+([0-9]+) failures?/)
+    res = res[0]
+    nombre_tests, nombre_failures = res.map{|n|n.to_i}
+    is_succes = nombre_failures == 0
+    is_echec  = !is_succes
+    couleur = is_succes ? :vert : :rouge
+    entete  = is_succes ? 'Succès' : 'Échec (cf. ci-dessus)'
+    puts stdout.rouge if is_echec # Pour écrire l'échec
+    puts "#{entete} de ‘#{test_name}’ : Tests: #{nombre_tests} #{" / Failures : #{nombre_failures}" if is_echec}".send(couleur)
+
+    return true
+  else
+    return false
+  end
+end
+
+# Joue les tests voulus du dossier +folder_name+ avec les
+# paramètres +params+ (qui dit par exemple qu'il faut s'arrêter à la
+# première erreur)
+def run_tests_in_folder(folder_name, params)
   if TO_TEST
     flux_ouvert = true # sera mis à faux si FROM_TEST
   end
@@ -186,25 +219,7 @@ def run_tests_in_folder(folder_name)
 
 
     if status.exitstatus == 0
-      # puts "stdout" + stdout
-      # Normalement, la dernière ligne contient le résultat et
-      # l'avant dernière ligne les infos sur le temps
-      linesout = stdout.strip.split("\n")
-      resultat_line   = linesout.pop#.tap{|v| puts "resultat_line: #{v.inspect}"}
-      info_time_line  = linesout.pop#.tap{|v| puts "info_time_line: #{v.inspect}"}
-      if info_time_line.start_with?("Finished in")
-        # <= La sortie se termine bien avec la fin du test
-        # => Tout s'est bien passé, même les erreurs
-        # On analyse le résultat
-        res = resultat_line.strip.scan(/([0-9]+) test.+([0-9]+) failures?/)
-        res = res[0]
-        nombre_tests, nombre_failures = res.map{|n|n.to_i}
-        is_succes = nombre_failures == 0
-        is_echec  = !is_succes
-        couleur = is_succes ? :vert : :rouge
-        entete  = is_succes ? 'Succès' : 'Échec'
-        puts "#{entete} de ‘#{test_name}’ : Tests: #{nombre_tests} #{" / Failures : #{nombre_failures}" if is_echec}".send(couleur)
-      else
+      unless check_fin_test_normale(stdout, test_name)
         # <= La sortie n'est pas conforme
         # => on le signale
         puts "Sortie non conforme :".orange
@@ -214,11 +229,15 @@ def run_tests_in_folder(folder_name)
       end
     else
       # <= Le code de sortie n'est pas 0
-      # => Il s'est passé quelque chose
+      # => Il s'est peut-être passé quelque chose. Mais ça n'est pas
+      #    toujours le cas, donc il faut vérifier le résultat
       # puts "status: #{status}"
-      puts "Code de sortie #{status.exitstatus}".rouge
-      puts "STDERR: #{stderr}".rouge
-      break
+      unless check_fin_test_normale(stdout, test_name)
+        puts "Code de sortie #{status.exitstatus}".rouge
+        puts "STDERR\n------\n#{stderr}".rouge
+        puts "STDOUT\n------\n#{stdout}".gris
+        break
+      end
     end
   end
 
@@ -227,9 +246,9 @@ end
 Dir.chdir(APP_FOLDER) do
   if ALL_TESTS
     TEST_FOLDERS.each do |folder_name|
-      run_tests_in_folder(folder_name)
+      run_tests_in_folder(folder_name, params)
     end
   else
-    run_tests_in_folder(FEATURES_FOLDER)
+    run_tests_in_folder(FEATURES_FOLDER, params)
   end
 end

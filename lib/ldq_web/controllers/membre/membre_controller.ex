@@ -6,6 +6,11 @@ defmodule LdQWeb.MembreController do
   alias LdQ.Evaluation.UserBook
   alias LdQ.Library.Book
 
+  @errors %{
+    book_required: "Il devrait être question d'un livre",
+    unknown_book:  "Le livre d'identifiant \#{book_id} est inconnu…"
+  }
+
   @doc """
   Tableau de bord du membre du comité de lecture.
   """
@@ -68,12 +73,6 @@ defmodule LdQWeb.MembreController do
       [msg: "#{membre.name}, vous ne parrainez plus le livre #{book.title}."]
     end
   end
-
-
-  @errors %{
-    book_required: "Il devrait être question d'un livre",
-    unknown_book:  "Le livre d'identifiant \#{book_id} est inconnu…"
-  }
 
   defp eval_error(err_id, data) do
     err_msg = @errors[err_id]

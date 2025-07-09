@@ -57,19 +57,19 @@ defmodule Feature.PageTestMethods do
     assert(ok)
     sujet
   end
+  def la_page_contient(sujet, balise, searched, err_msg) when is_binary(balise) and is_binary(searched) and is_binary(err_msg) do
+    session = session_from(sujet)
+    assert Enum.any?(WB.all(session, css(balise)), fn el -> 
+      WE.text(el) =~ searched 
+    end), err_msg
+    sujet
+  end
   # Quand on cherche une balise et un texte contenu
   def la_page_contient(sujet, balise, searched) when is_binary(balise) and is_binary(searched) do
     session = session_from(sujet)
     assert Enum.any?(WB.all(session, css(balise)), fn el -> 
       WE.text(el) =~ searched 
     end)
-    sujet
-  end
-  def la_page_contient(sujet, balise, searched, err_msg) when is_binary(balise) and is_binary(searched) and is_binary(err_msg) do
-    session = session_from(sujet)
-    assert Enum.any?(WB.all(session, css(balise)), fn el -> 
-      WE.text(el) =~ searched 
-    end), err_msg
     sujet
   end
   # Quand on recherche une liste de string/balise/regex
@@ -159,8 +159,9 @@ defmodule Feature.PageTestMethods do
     la_page_ne_contient_pas(sujet, ~r/#{Regex.escape(string)}/)
   end
 
+  @debugit false
+
   defp seek_in_page(session, balise, attrs, positif) do
-    debugit = false # pour le moment
     positif = positif == :positif
     Enum.any?(WB.all(session, css(balise)), fn el ->
       resultat  =
@@ -178,7 +179,7 @@ defmodule Feature.PageTestMethods do
             })
           end
         end)
-      if debugit and (resultat.ok != positif) do
+      if @debugit and (resultat.ok != positif) do
         IO.puts [
           IO.ANSI.red(),
           """
