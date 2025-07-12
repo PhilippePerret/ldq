@@ -1,4 +1,7 @@
 defmodule LdQ.Comptes.Membre do
+  @moduledoc """
+  Module du membre de comité de lecture LdQ
+  """
   defstruct [:id, :name, :sexe, :email, :privileges, :member_card, :member_card_id, :book_count, :credit, :college]
 
   alias LdQ.Evaluation.Numbers, as: Calc

@@ -109,16 +109,19 @@ defmodule LdQ.Library.Book do
   Pour savoir si un livre est noteable, il doit avoir atteint le
   nombre de lecteur défini par LdQ.Evaluation.Number@
   """
-  def noteable?(book = %_MODULE_) do
+  def noteable?(book = %_MODULE_{}) do
     # Déterminer le nombre requis de lecteur pour le collège courant
     # du livre
     quorum_readers_reached?(book)
   end
-  def quorum_readers_reached?(book = %_MODULE_) do
+  def quorum_readers_reached?(book = %_MODULE_{}) do
     quota_readers = "nombre_evaluators_college#{book.college}" 
     |> String.to_atom |> LdQ.Evaluation.Number.nombre_for()
-    nombre_readers = count_readers(book)
-    nombre_readers >= quota_readers
+    count_readers(book) >= quota_readers
+  end
+
+  def count_readers(book = %_MODULE_{}) do
+    12 # TODO
   end
 
   # =============== /FIN MÉTHODES API ==================== #

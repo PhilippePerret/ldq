@@ -30,7 +30,7 @@ defmodule LdQ.Evaluation.Numbers do
     seuil_college_three:  500
   }
 
-  @nombre_per_situation {
+  @nombre_per_situation %{
     nombre_evaluators_college1: 10,
     nombre_evaluators_college2: 10,
     nombre_evaluators_college3: 10

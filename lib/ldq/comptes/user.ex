@@ -1,4 +1,9 @@
 defmodule LdQ.Comptes.User do
+  @moduledoc """
+  Module d'un User quelconque.
+
+  Note : un membre est un User aussi.
+  """
   use Ecto.Schema
   import Ecto.Changeset
   import Bitwise

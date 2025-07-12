@@ -9,7 +9,16 @@ defmodule LdQ.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      docs: [
+        output: "doc/mix_doc/",
+        filter_modules: fn module, _config ->
+          # IO.inspect(module)
+          # String.starts_with?(Atom.to_string(module), "LdQ.Comptes")
+          Atom.to_string(module) =~ ~r/^LdQ\.Comptes/
+
+        end
+      ]
     ]
   end
 
@@ -67,6 +76,7 @@ defmodule LdQ.MixProject do
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
+      {:ex_doc, "~> 0.30", only: :dev, runtime: false},
       {:bandit, "~> 1.5"}
     ]
   end

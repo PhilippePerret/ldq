@@ -1,4 +1,7 @@
 defmodule LdQ.Comptes.MemberCard do
+  @moduledoc """
+  Carte de membre d'un membre du comité de lecture.
+  """
   use Ecto.Schema
   import Ecto.Changeset
 

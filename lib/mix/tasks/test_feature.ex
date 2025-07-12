@@ -8,7 +8,7 @@ defmodule Mix.Tasks.Test.Feature do
     "Cette commande ne lance que les derniers tests\n",
     "demandés. Pour les choir, copier-coller et jouer\n",
     " la commande : \n", IO.ANSI.yellow(), "ruby ./test/feature/__test_runner__.rb",
-    "\n"
+    "\n",
     IO.ANSI.reset()]
 
     System.shell("ruby ./test/feature/__test_runner__.rb -s", into: IO.stream())
