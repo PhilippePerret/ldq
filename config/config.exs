@@ -48,20 +48,20 @@ config :esbuild,
   ]
 
 # Configure tailwind (the version is required)
-config :tailwind,
-  version: "3.4.3",
-  ldq: [
-    args: ~w(
-      --config=tailwind.config.js
-      --output=../priv/static/assets/app.css
-    ),
-    # args: ~w(
-    #   --config=tailwind.config.js
-    #   --input=css/app.css
-    #   --output=../priv/static/assets/app.css
-    # ),
-    cd: Path.expand("../assets", __DIR__)
-  ]
+# config :tailwind,
+#   version: "3.4.3",
+#   ldq: [
+#     # args: ~w(
+#     #   --config=tailwind.config.js
+#     #   --output=../priv/static/assets/app.css
+#     # ),
+#     # args: ~w(
+#     #   --config=tailwind.config.js
+#     #   --input=css/app.css
+#     #   --output=../priv/static/assets/app.css
+#     # ),
+#     cd: Path.expand("../assets", __DIR__)
+#   ]
 
 # Configures Elixir's Logger
 config :logger, :console,

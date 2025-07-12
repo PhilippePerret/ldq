@@ -25,11 +25,11 @@ config :ldq, LdQWeb.Endpoint,
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
-  secret_key_base: "WM9/MEmIzxvQTMUahoou/PgQMKb7ifDIlmuvypBXzeuswWqzleSxectdtoRBzaZv",
-  watchers: [
-    esbuild: {Esbuild, :install_and_run, [:ldq, ~w(--sourcemap=inline --watch)]},
-    tailwind: {Tailwind, :install_and_run, [:ldq, ~w(--watch)]}
-  ]
+  secret_key_base: "WM9/MEmIzxvQTMUahoou/PgQMKb7ifDIlmuvypBXzeuswWqzleSxectdtoRBzaZv"#,
+  # watchers: [
+  #   esbuild: {Esbuild, :install_and_run, [:ldq, ~w(--sourcemap=inline --watch)]},
+  #   tailwind: {Tailwind, :install_and_run, [:ldq, ~w(--watch)]}
+  # ]
 
 
 # ## SSL Support

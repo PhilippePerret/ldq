@@ -1,4 +1,4 @@
-# LdQ
+## LdQ
 
 To start your Phoenix server:
 

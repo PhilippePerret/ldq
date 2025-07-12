@@ -1,2 +1,1 @@
-Pages à faire : 
-
+Jouer la commande `gh issue list` pour obtenir la liste des choses à faire.

@@ -12,12 +12,19 @@ defmodule LdQ.MixProject do
       deps: deps(),
       docs: [
         output: "doc/mix_doc/",
-        filter_modules: fn module, _config ->
-          # IO.inspect(module)
-          # String.starts_with?(Atom.to_string(module), "LdQ.Comptes")
-          Atom.to_string(module) =~ ~r/^LdQ\.Comptes/
+        main: "LdQ",
+        extra_section: "GUIDES",
+        api_reference: false,
+        groups_for_modules: [
+          Comptes: [LdQ.Comptes]
+        ],
+        extras: ["README.md", "TODO.md"],
+        # filter_modules: fn module, _config ->
+        #   # IO.inspect(module)
+        #   # String.starts_with?(Atom.to_string(module), "LdQ.Comptes")
+        #   Atom.to_string(module) =~ ~r/^LdQ\.Comptes/
 
-        end
+        # end
       ]
     ]
   end
@@ -58,7 +65,7 @@ defmodule LdQ.MixProject do
       {:floki, ">= 0.30.0", only: :test},
       {:phoenix_live_dashboard, "~> 0.8.3"},
       {:esbuild, "~> 0.8", runtime: Mix.env() == :dev},
-      {:tailwind, "~> 0.2", runtime: Mix.env() == :dev},
+      # {:tailwind, "~> 0.2", runtime: Mix.env() == :dev},
       {:heroicons,
        github: "tailwindlabs/heroicons",
        tag: "v2.1.1",
@@ -77,6 +84,8 @@ defmodule LdQ.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
       {:ex_doc, "~> 0.30", only: :dev, runtime: false},
+      # POUR LIVEBOOK
+      {:kino, "~> 0.16.0"},
       {:bandit, "~> 1.5"}
     ]
   end

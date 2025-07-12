@@ -160,7 +160,7 @@ defmodule LdQ.Comptes do
   end
 
   @doc """
-  Get a single user.
+  Pour obtenir un simple utilisateur (User).
 
   Raises `Ecto.NoResultsError` if the User does not exist.
 
