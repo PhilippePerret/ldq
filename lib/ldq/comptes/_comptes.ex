@@ -160,7 +160,7 @@ defmodule LdQ.Comptes do
   end
 
   @doc """
-  Gets a single user.
+  Get a single user.
 
   Raises `Ecto.NoResultsError` if the User does not exist.
 
@@ -172,7 +172,7 @@ defmodule LdQ.Comptes do
       iex> get_user!(456)
       ** (Ecto.NoResultsError)
 
-  ATTENTION : AVEC CETTE FORMULE (PAS TRÈS CLAIRE…) IL FAUT 
+  ATTENTION : AVEC CETTE FORMULE IL FAUT 
   IMPÉRATIVEMENT QUE TOUTES LES PROPRIÉTÉS AJOUTÉES AUX DONNÉES
   DE L'USER SOIENT DES PROPRIÉTÉS VIRTUELLES (comme :credit — qui
   appartient à une autre table — et :book_count)
@@ -188,6 +188,10 @@ defmodule LdQ.Comptes do
       |> Enum.at(0)
 
     data_user || raise(LdQ.Error, [msg: "NotAUser"])
+
+    # On lui ajoute les propriétés volatiles qui peuvent être
+    # utiles n'importe quand.
+    data_user = add_user_volatile_properties(data_user)
     
     Map.merge(%User{}, data_user)
   end
@@ -208,6 +212,24 @@ defmodule LdQ.Comptes do
     |> User.changeset(attrs)
     |> Repo.update!()
   end
+
+  # Fonction qui ajoute à l'user (qu'il soit membre, administrateur
+  # ou n'importe quoi) des propriétés utiles (à commencer par celle
+  # qui permet d'obtenir ses 'refs', l'écriture de son patronyme avec
+  # son identifiant entre parenthèse, ou 'linked_refs', la même chose
+  # mais comme un lien pour rejoindre ton profil)
+  defp add_user_volatile_properties(data) do
+    refs = "#{data.name} (#{data.id})"
+    Map.put(data, :refs, refs)
+    |> Map.put(:linked_refs, ~s(<a href="membre/#{data.id}">#{refs}</a>))
+  end
+
+
+  # =========== FONCTIONS REGISTRATION & MAIL ==================== #
+  #
+  # (ci-dessous se trouvent seulement les fonctions qui gèrent 
+  #  l'inscription de l'user, son changement de mail, etc.)
+  # ============================================================== #
 
   ## User registration
 

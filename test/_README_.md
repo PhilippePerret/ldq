@@ -2,7 +2,13 @@
 
 ## Tests d'intégration
 
-Pour le moment, les tests d'intégration doivent se lancer un par un… Mais j'ai fait un script qui permet de simuler ce lancement un par un. Il suffit de jouer dans la console (à la racine de l'application) : 
+Pour le moment, les tests d'intégration doivent se lancer un par un… Mais j'ai fait un script qui permet de simuler ce lancement un par un. Il suffit de jouer dans la console (à la racine de l'application) :
+
+~~~
+mix test.feature
+~~~
+
+Mais en fait, ça ne fait que donner la commande ci-dessous :
 
 ~~~
 > ruby test/feature/__test_runner__.rb

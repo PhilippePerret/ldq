@@ -17,7 +17,7 @@ defmodule LdQWeb.BookSubmissionTestsAffecteAutreParrainage do
     admin = get_admin()
 
     # On prend un membre du collège 3 pour le désigner comme parrain
-    membre = get_membre_with_session(min_credit: LdQ.Evaluation.CreditCalculator.points_for(:seuil_college_three) + 1)
+    membre = get_membre_with_session(min_credit: LdQ.Evaluation.Numbers.points_for(:seuil_college_three) + 1)
     credit_before = membre.credit
 
     # - Test -
@@ -36,7 +36,7 @@ defmodule LdQWeb.BookSubmissionTestsAffecteAutreParrainage do
     
     # Le parrain doit avoir le bon nombre de crédit
     membre = get_user(membre.id)
-    points_per_parrainage = LdQ.Evaluation.CreditCalculator.points_for(:parrainage)
+    points_per_parrainage = LdQ.Evaluation.Numbers.points_for(:parrainage)
     new_credit = credit_before + points_per_parrainage
     assert(membre.credit == new_credit, "Le parrain #{membre.id} devrait avoir un nouveau crédit de #{new_credit}. Il a #{membre.credit} (avant affectation livre : #{credit_before}).")
 

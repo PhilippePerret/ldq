@@ -39,7 +39,7 @@ defmodule LdQWeb.BookSubmissionTestsRefusParrainage do
   
     # Les points ont été retirés au membre parrain
     parrain = get_user(parrain_id)
-    nouveau_credit = ancien_credit - LdQ.Evaluation.CreditCalculator.points_for(:parrainage)
+    nouveau_credit = ancien_credit - LdQ.Evaluation.Numbers.points_for(:parrainage)
     assert(parrain.credit == nouveau_credit, "Le parrain devrait avoir perdu les points de son parrainage.")
 
     # L'administrateur a reçu un mail pour l'avertir

@@ -3,7 +3,7 @@ defmodule LdQWeb.MembreHTML do
 
   # alias LdQ.Comptes.User
   alias LdQ.Library.Book
-  alias LdQ.Evaluation.CreditCalculator, as: Calc
+  alias LdQ.Evaluation.Numbers, as: Calc
 
   embed_templates "membre_html/*"
 
@@ -27,12 +27,14 @@ defmodule LdQWeb.MembreHTML do
   # Retourne le module qui permet au membre de trouver les livres 
   # qu'il a en lecture (en évaluation)
   def module_evaluations(membre) do
+    key_points = String.to_atom("book_evaluation_college#{membre.college}")
+    pts_evaluation = Calc.points_for(key_points)
     # Les livres en évaluation. Ce sont :
     #   - les livres pour lesquels le membre possède une fiche BookUser
     #   - dont la note n'a pas encore été affectée (donc valeur nil)
     evaluated_books = 
       Book.get_books_evaluated_by(membre, type: :current)
-      |> Enum.map(&book_card(&1, evaluate: true))
+      |> Enum.map(&book_card(&1, set_note: true, points_per_eval: pts_evaluation))
       |> Enum.join("")
     """
     <h4>Vos évaluations en cours</h4>
@@ -56,7 +58,7 @@ defmodule LdQWeb.MembreHTML do
     section_new_books = 
     if Enum.count(new_books) > 0 do
       new_books
-      |> Enum.map(&book_card(&1, set_note: true, points_per_eval: pts_evaluation))
+      |> Enum.map(&book_card(&1, evaluate: true, points_per_eval: pts_evaluation))
       |> Enum.join("")
     else
       "<p class=\"italic\">Aucun nouveau livre à évaluer.</p>"
@@ -152,12 +154,19 @@ defmodule LdQWeb.MembreHTML do
       })
     else dbook end
 
+    author_name =
+      if Map.has_key?(book, :author_name) do
+        book.author_name
+      else
+        book.author.name
+      end
+
     """
     <div class="book">
       <div class="title">
         <span class=picto-book>#{dbook.picto}</span>
           #{book.title} 
-          <span class=author>(#{book.author_name})</span>
+          <span class=author>(#{author_name})</span>
       </div>
       <div class=buttons>
         #{Enum.join(dbook.buttons, "")}

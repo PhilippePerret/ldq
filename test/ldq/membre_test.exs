@@ -4,7 +4,7 @@ defmodule LdQ.MembreTest do
   import FeaturePublicMethods
 
   alias LdQ.Comptes
-  alias LdQ.Evaluation.CreditCalculator, as: Calc
+  alias LdQ.Evaluation.Numbers, as: Calc
 
   setup do
     TestHelpers.reset_all()

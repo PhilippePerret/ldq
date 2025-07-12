@@ -58,7 +58,7 @@ defmodule LdQWeb.BookSubmissionTestsStep3_1 do
       |> recoit_un_mail(after: point_test, mail_id: "to_membre-demande-parrainage")
 
     # Le membre parrain augmente son crédit
-    points_parrainage = LdQ.Evaluation.CreditCalculator.points_for(:parrainage)
+    points_parrainage = LdQ.Evaluation.Numbers.points_for(:parrainage)
     old_credit = membre.credit
     new_credit = LdQ.Comptes.get_user!(membre.id).credit
     err_msg = 

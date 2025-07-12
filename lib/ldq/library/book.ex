@@ -99,6 +99,27 @@ defmodule LdQ.Library.Book do
     end
   end
 
+  @doc """
+  @return True si le livre +book+ peut être noté par le collège. 
+  L'expression "noté par le collège" signifie que le quota de lecteur
+  a été atteint et qu'on peut donc affecter une note au livre pour
+  savoir s'il va passer au collège suivant (ou recevoir le label de
+  lecture de qualité).
+
+  Pour savoir si un livre est noteable, il doit avoir atteint le
+  nombre de lecteur défini par LdQ.Evaluation.Number@
+  """
+  def noteable?(book = %_MODULE_) do
+    # Déterminer le nombre requis de lecteur pour le collège courant
+    # du livre
+    quorum_readers_reached?(book)
+  end
+  def quorum_readers_reached?(book = %_MODULE_) do
+    quota_readers = "nombre_evaluators_college#{book.college}" 
+    |> String.to_atom |> LdQ.Evaluation.Number.nombre_for()
+    nombre_readers = count_readers(book)
+    nombre_readers >= quota_readers
+  end
 
   # =============== /FIN MÉTHODES API ==================== #
 

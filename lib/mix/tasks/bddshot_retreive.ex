@@ -119,7 +119,7 @@ defmodule Mix.Tasks.Bddshot.Retreive do
   end
 
   defp credit_for(id) do
-    LdQ.Evaluation.CreditCalculator.points_for(id)
+    LdQ.Evaluation.Numbers.points_for(id)
   end
 
   defp bddshots_folder do

@@ -1,8 +1,14 @@
 defmodule LdQ.Comptes.Membre do
   defstruct [:id, :name, :sexe, :email, :privileges, :member_card, :member_card_id, :book_count, :credit, :college]
 
-  alias LdQ.Evaluation.CreditCalculator, as: Calc
+  alias LdQ.Evaluation.Numbers, as: Calc
 
+  @doc """
+  Fonction qui permet d'ajouter des propriétés au membre pour le
+  manipuler plus facilement.
+  Elle est appelée automatiquement par la fonction : 
+    get_user_as_membre!(id|user)
+  """
   def add_props(membre) do
     # Le collège
     college = 

@@ -160,7 +160,7 @@ def check_fin_test_normale(stdout, test_name)
   linesout = stdout.strip.split("\n")
   resultat_line  = linesout.pop
   info_time_line = linesout.pop
-  if info_time_line.start_with?("Finished in")
+  if (info_time_line||'').start_with?("Finished in")
     # <= La sortie se termine bien avec la fin du test
     # => Tout s'est bien passé, même les erreurs
     # On analyse le résultat

@@ -33,6 +33,7 @@ defmodule LdQ.Procedure.PropositionLivre do
     %{name: "Choix du parrain", fun: :attribution_parrain, required: :user_is_author_or_admin?, admin_required: false, owner_required: false},
     %{name: "Attribution du parrain", fun: :proceed_attribute_parrain, required: :user_is_author_or_admin?, admin_required: false, owner_required: false},
     %{name: "Lancement de l'évaluation", fun: :start_evaluation, required: :user_is_author_or_admin?, admin_required: false, owner_required: false},
+    %{name: "Prise en main du livre par un membre", fun: :membre_choisit_livre, required: :user_is_membre_college?(1)}
   
     %{name: "Suppression complète du livre", fun: :complete_book_remove, admin_required: true, owner_required: false}
   ]
@@ -354,6 +355,14 @@ defmodule LdQ.Procedure.PropositionLivre do
   end
 
   @doc """
+  @return true si le visiteur courant est bien du collège +icollege+
+  """
+  def user_is_membre_college?(icollege, procedure) do
+    user = procedure.current_user
+    User.is_membre_college?(user, icollege)
+  end
+
+  @doc """
   Après la soumission du livre, l'auteur doit la confirmer pour que 
   le livre soit vraiment inscrit au label.
   (mais un administrateur devra encore confirmer que le livre est bon
@@ -634,7 +643,7 @@ defmodule LdQ.Procedure.PropositionLivre do
     Book.save(book, %{parrain_id: parrain_id, last_phase: "15", current_phase: "18"})
 
     # Ajout des points de crédit au parrain
-    points_parrain =  LdQ.Evaluation.CreditCalculator.points_for(:parrainage)
+    points_parrain =  LdQ.Evaluation.Numbers.points_for(:parrainage)
     old_points_parrain = (parrain.credit || 0)
     new_points_parrain = old_points_parrain + points_parrain
     User.update_credit(parrain, new_points_parrain)
@@ -643,7 +652,7 @@ defmodule LdQ.Procedure.PropositionLivre do
       mb_name:          parrain.name,
       membre_credit:    "#{new_points_parrain}",
       points_credit:    "#{points_parrain}",
-      points_penalite:  "#{-LdQ.Evaluation.CreditCalculator.points_for(:refus_parrainage)}",
+      points_penalite:  "#{-LdQ.Evaluation.Numbers.points_for(:refus_parrainage)}",
       author_name:      book.author.name,
       book_title:       book.title
     }, Helpers.Feminines.as_map(parrain.sexe, "mb"))
@@ -738,7 +747,16 @@ defmodule LdQ.Procedure.PropositionLivre do
     """
   end
 
-  
+  @doc """
+  Méthode qui doit être appelée quand un membre du collège 1 choisit 
+  de prendre en main un livre de son collège
+  QUESTION: EST-CE QUE LA MÉTHODE POURRAIT SERVIR POUR D'AUTRES 
+  COLLÈGES AUSSI
+  """
+  def membre_choisit_livre(procedure) do
+    raise "Je dois apprendre à attribuer le livre"
+  end
+
 
 
   @doc """

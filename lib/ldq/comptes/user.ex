@@ -18,6 +18,13 @@ defmodule LdQ.Comptes.User do
     Comptes.MemberCard.update(user.member_card_id, %{credit: new_value})
     %{user | credit: new_value}
   end
+  @doc """
+  Méthode spéciale pour les chainages
+  """
+  def add_credit(points, user) do
+    update_credit(user, user.credit + points
+    )
+  end
   
   # ==== S C H É M A ===== #
 
@@ -37,6 +44,8 @@ defmodule LdQ.Comptes.User do
     field :member_card    , :binary   , virtual: true
     field :credit         , :integer  , virtual: true
     field :book_count     , :integer  , virtual: true
+    field :refs           , :string   , virtual: true
+    field :linked_refs    , :string   , virtual: true
     # Si des propriétés sont ajoutées, elles doivent être aussi 
     # ajoutées à la structure Membre
 
@@ -244,6 +253,10 @@ defmodule LdQ.Comptes.User do
   end
   def admin?(u) do
     Flag.has?(u.privileges, 16) or Flag.has?(u.privileges, 32) or Flag.has?(u.privileges, 64)
+  end
+
+  def is_membre_college?(u, icollege) do
+    membre?(u) && u.college == icollege
   end
 
   def has_bit?(user, bit) do

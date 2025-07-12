@@ -16,7 +16,7 @@ defmodule LdQWeb.BookSubmissionTestsChoixLivrePerAutreMembreCollege1 do
     %{procedure: procedure, membre_id: membre_id} = bddshot("evaluation-book/4-parrain-a-refuse-parrainage")
 
     # On prend un membre du collège 1
-    membre2 = get_membre_with_session(max_credit: LdQ.Evaluation.CreditCalculator.points_for(:seuil_college_two) - 1)
+    membre2 = get_membre_with_session(max_credit: LdQ.Evaluation.Numbers.points_for(:seuil_college_two) - 1)
   
     book = get_book_of_proc(procedure)
 

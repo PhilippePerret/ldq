@@ -1,4 +1,16 @@
 defmodule LdQ.Evaluation.UserBook do
+  @moduledoc """
+  Table d'association entre un livre et un lecteur (spécialement
+  membre du comité de lecture, dans un collège)
+
+  TODO
+    IL FAUT ABSOLUMENT ASSOCIER LA FICHE À UN COLLÈGE, SINON, ON
+    NE SAURA PLUS À QUELLE ÉVALUATION CORRESPOND LA FICHE
+    - REMONTER DE DEUX MIGRATIONS
+    - AJOUTER LA PROPRIÉTÉ COLLEGE
+    - RESETTER PARTOUT (MODE TEST AUSSI)
+    - RELANCER TOUS LES TESTS POUR REFAIRE LES PHOTOGRAPHIES
+  """
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -8,6 +20,7 @@ defmodule LdQ.Evaluation.UserBook do
   @foreign_key_type :binary_id
   schema "users_books" do
     field :note, :integer, default: nil # la note attribuée par le membre lecteur du livre
+    # field :college, :integer # <============ TODO TRAITER (MIGRATION ETC.)
     belongs_to :user, LdQ.Comptes.User
     belongs_to :book, LdQ.Library.Book
 

@@ -18,14 +18,19 @@ defmodule LdQWeb.BookSubmissionTestsChoixLivrePerMembre1 do
     # 
     %{procedure: procedure} = bddshot("evaluation-book/4-parrain-a-refuse-parrainage")
 
+    point_test = now()
+
     # On fait des livres à évaluer pour qu'il y en ait d'autres
     books = make_books(count: 10, current_phase: [20, 21])
     
     # On prend un membre du collège 1
-    membre = get_membre_with_session(max_credit: LdQ.Evaluation.CreditCalculator.points_for(:seuil_college_two) - 1)
-  
+    membre = get_membre_with_session(max_credit: LdQ.Evaluation.Numbers.points_for(:seuil_college_two) - 1)
+    ancien_credit = membre.credit
+
     # book = Enum.at(books, 3)
+    # Le livre de la procédure
     book = get_book_of_proc(procedure)
+    # IO.puts "BOOK: #{inspect book}"
 
     membre 
     |> rejoint_la_page("/membre/#{membre.id}") # sa page d'accueil personnelle
@@ -34,8 +39,9 @@ defmodule LdQWeb.BookSubmissionTestsChoixLivrePerMembre1 do
     |> et_voit("div.book", book.title)
     # Il clique sur le 4e livre
     |> et_voit("section#new-books div.title", book.title)
+    # |> pause(120) # pour voir
     |> clique_le_lien("btn-eval-#{book.id}")
-    |> pause(1)
+    |> pause(2)
     # Le livre ne se trouve plus dans sa section de livre à choisir
     |> et_ne_voit_pas("section#new-books div.title", book.title)
     # Le livre se retrouve dans sa section de livre à évaluer
@@ -47,11 +53,34 @@ defmodule LdQWeb.BookSubmissionTestsChoixLivrePerMembre1 do
 
     # - Vérifications -
 
-    # Son crédit augmente automatiquement
-    # TODO
+    # Le crédit du membre a augmenté du nombre de points défini
+    # TODO (1 comment connaitre ce nombre de points ? 2) comment
+    # le définir
+    membre = get_user(membre.id) # pour actualiser ses données
+    nouveau_credit = ancien_credit + LdQ.Evaluation.Numbers.points_for(:book_evaluation_college1)
+    assert(membre.credit == nouveau_credit, "Le membre devrait avoir gagné les points pour la nouvelle prise en main de livre (son crédit devait être de #{nouveau_credit}, or il vaut #{membre.credit}).")
+
+    # Un mail lui est envoyé pour lui confirmer son choix et lui
+    # rappeler la liste des livres qu'il a en évaluation 
+    membre
+    |> recoit_un_mail(after: point_test, mail_id: "confirm-evaluation-livre")
+
+    # Le livre possède un nouvel évaluateur, mais il n'a pas
+    # encore atteint le quota d'évaluateurs requis
+    assert(Book.noteable?(book) == false)
+
+    # Une annonce de page avertit l'utilisateur qu'il peut maintenant
+    # évaluer le livre
+    # TODO "vous pouvez évaluer le livre “#{book.title}”"
+
+    # L'historique de traitement a mémorisé cette prise en main qui
+    # est une annonce privée
+    assert_activity(after: point_test, public: false, content: "Prise en main du livre <em>#{book.title}</em> par #{membre.refs}.")
+
 
     # Le parrain (ancien) ne doit pas avoir été averti et aucun
-    # parrain ne doit avoir été prévenu
+    # parrain ne doit avoir été prévenu puisqu'il n'y en a pas
+    # pour ce test
     # TODO
 
     bddshot("evaluation-book/5-membre-college1-choisit-livre", %{
