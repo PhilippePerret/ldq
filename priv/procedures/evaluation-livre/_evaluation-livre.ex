@@ -603,7 +603,7 @@ defmodule LdQ.Procedure.PropositionLivre do
 
   # Pour permettre à l'administrateur de choisir un parrain
   defp form_attribution_parrain(procedure) do
-    membres = Comptes.get_users(membre: true, sort: :credit, book_count: true)
+    membres = Comptes.Getter.get_users(membre: true, sort: :credit, book_count: true)
     options_parrains = Enum.map(membres, fn membre ->
       [membre.name, membre.id]
     end)

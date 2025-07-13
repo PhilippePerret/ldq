@@ -26,7 +26,7 @@ defmodule LdQWeb.BookSubmissionTestsStep3_1 do
     admin = make_admin() # ou renvoie celui qui existe
 
     # Membre choisi pour être parrain
-    membres = LdQ.Comptes.get_users(member: true) 
+    membres = LdQ.Comptes.Getter.get_users(member: true) 
 
 
     membre = 

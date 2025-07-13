@@ -10,22 +10,93 @@ defmodule LdQ.MixProject do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
-      docs: [
-        output: "doc/mix_doc/",
-        main: "LdQ",
-        extra_section: "GUIDES",
-        api_reference: false,
-        groups_for_modules: [
-          Comptes: [LdQ.Comptes]
-        ],
-        extras: ["README.md", "TODO.md"],
-        # filter_modules: fn module, _config ->
-        #   # IO.inspect(module)
-        #   # String.starts_with?(Atom.to_string(module), "LdQ.Comptes")
-        #   Atom.to_string(module) =~ ~r/^LdQ\.Comptes/
+      docs: docs()
+    ]
+  end
 
-        # end
-      ]
+  def docs do
+    [
+      output: "doc/mix_doc/",
+      main: "LdQ",
+      extra_section: "GUIDES",
+      api_reference: false,
+      groups_for_modules: [
+        Comptes: [
+          LdQ.Comptes,
+          LdQ.Comptes.Getters,
+          LdQ.Comptes.Helpers,
+          LdQ.Comptes.Membre,
+          LdQ.Comptes.MemberCard,
+          LdQ.Comptes.User,
+          LdQ.Comptes.UserNotifier,
+          LdQ.Comptes.UserToken
+        ],
+        Librairie: [
+          LdQ.Library,
+          LdQ.Library.Author,
+          LdQ.Library.Book,
+          LdQ.SubmittedBook,
+          LdQ.Library.Publisher,
+          LdQ.Library.Genre
+        ],
+        SiteWeb: [
+          LdQ.Site,
+          LdQ.Site.Page,
+          LdQ.Site.PageHelpers,
+          LdQ.Site.PageLocale,
+          LdQ.Site.Log
+        ],
+        "Évaluation": [
+          LdQ.Evaluation.Numbers,
+          LdQ.Evaluation.UserBook
+        ],
+        "Procédures": [
+          LdQ.Procedure,
+          LdQ.ProcedureMethods
+        ],
+        "Cœur": [
+          LdQ.Constantes,
+          LdQ.Core,
+          LdQ.Core.Trigger,
+          LdQ.Core.TriggerAbsdata,
+          LdQ.Core.TriggerDaemon
+        ],
+        Mails: [
+          LdQ.Mailer,
+          LdQ.Mailing,
+          LdQ.MyMailer,
+          LdQ.Mails.Helpers
+        ],
+        Helpers: [
+          Html.Helpers,
+          Helpers.Feminines,
+          LdQ.LinkHelpers,
+          LdQ.Mails.Helpers,
+          Html.Form,
+          Html.Form.Field
+        ],
+        Divers: [
+          Phil,
+          Phil.File,
+          Phil.Keyword,
+          Phil.Map,
+          Phil.PFile,
+          LdQ.PhilHtml,
+          Flag
+        ],
+        Fonctionnel: [
+          LdQWeb,
+          LdQ.Release,
+          LdQ.Repo
+        ]
+      ],
+      extras: ["README.md", "TODO.md"],
+      # filter_modules: fn module, _config ->
+      #   # IO.inspect(module)
+      #   # String.starts_with?(Atom.to_string(module), "LdQ.Comptes")
+      #   Atom.to_string(module) =~ ~r/^LdQ\.Comptes/
+
+      # end
     ]
   end
 

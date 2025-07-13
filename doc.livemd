@@ -2,7 +2,7 @@
 
 # Documentation dynamique
 
-## Introduction
+## Préambule
 
 Démarrer l'application avec un nom précis (dans le dossier de l'application) en copiant-collant le code ci-dessous (on ne peut pas l'évaluer).
 
@@ -16,7 +16,7 @@ Une fois l'application lancée, tu peux ouvrir l'onglet `Runtime settings` ci-co
 
 ## Présentation de l'application
 
-Cette application doit permettre de gérer entièrement le label "Lecture de Qualité" qui doit révolutionner, en quelques années, le monde de l'autoédition.
+Cette application doit permettre de gérer entièrement le label "Lecture de Qualité" qui doit révolutionner, en quelques années, le monde de l'autoédition (rien de moins…).
 
 Cette révolution se fera en offrant une sélection des ouvrages à lire en toute confiance par les lectrices et lecteurs de tous bords.
 
@@ -48,4 +48,4 @@ end |> IO.inspect(label: "USER ID")
 LdQ.Comptes.get_user!(user_id)
 ```
 
-<!-- livebook:{"offset":1792,"stamp":{"token":"XCP.AH5DyuFbQnLDoXXLAxNuGiUraIlFQw453GaWnIetc6IBypSoKc1qdyJxK0SMgKAXFwUqPak4N2chHv3oQfbAfR5nGevQ0T7lShcG_GcSt5qJRPe2br78Lz7eweH7VVyKGsSkisDTgNCQv2M0H060B9vOeVmzS0C14czsSjGO8xV0","version":2}} -->
+<!-- livebook:{"offset":1809,"stamp":{"token":"XCP.8NlH-zLtmBv_rlZwl-MvdUhgkHrqq5qSiT1dz7kRpRvYWF7YoGTlJDNQ31lOg8Z7KbkpsNnUoomV4yC9dV80vgn3ny8hJnKkRbsDfqNDcF_TWj3VoWAIlLLrg7u0jJat7YTQIfwn7vTZMw5BUveZLzo-WChqRdVM3qzTRL6nF-EZ","version":2}} -->
