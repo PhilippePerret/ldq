@@ -1,9 +1,6 @@
 defmodule LdQ do
   @moduledoc """
-  LdQ keeps the contexts that define your domain
-  and business logic.
-
-  Contexts are also responsible for managing your data, regardless
-  if it comes from the database, an external API or others.
+  LdQ, pour "Lecture de Qualité", est le site qui gère entièrement le label de même nom destiné à sortir l'autoédition de son marasme actuel.
+ 
   """
 end

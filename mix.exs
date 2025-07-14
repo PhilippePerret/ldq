@@ -17,9 +17,10 @@ defmodule LdQ.MixProject do
   def docs do
     [
       output: "doc/mix_doc/",
-      main: "Lecture de Qualité",
+      main: "LdQ",
       extra_section: "GUIDES",
       api_reference: false,
+      extras: ["README.md", "TODO.md", "doc/ARCHITECTURE.md", "doc/TESTS.md", "doc/doc.livemd"],
       groups_for_modules: [
         Comptes: [
           LdQ.Comptes,
@@ -144,14 +145,7 @@ defmodule LdQ.MixProject do
           LdQWeb.Endpoint,
           LdQWeb.Telemetry
         ]
-      ],
-      extras: ["README.md", "TODO.md", "doc/TESTS.md", "doc/doc.livemd"],
-      # filter_modules: fn module, _config ->
-      #   # IO.inspect(module)
-      #   # String.starts_with?(Atom.to_string(module), "LdQ.Comptes")
-      #   Atom.to_string(module) =~ ~r/^LdQ\.Comptes/
-
-      # end
+      ]
     ]
   end
 
