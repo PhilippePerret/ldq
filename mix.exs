@@ -17,7 +17,7 @@ defmodule LdQ.MixProject do
   def docs do
     [
       output: "doc/mix_doc/",
-      main: "LdQ",
+      main: "Lecture de Qualité",
       extra_section: "GUIDES",
       api_reference: false,
       groups_for_modules: [
@@ -39,20 +39,46 @@ defmodule LdQ.MixProject do
           LdQ.Library.Publisher,
           LdQ.Library.Genre
         ],
-        SiteWeb: [
+        "Site Web": [
+          LdQWeb.Router,
           LdQ.Site,
+          LdQWeb.Layouts,
+          LdQWeb.Layouts.App,
           LdQ.Site.Page,
+          LdQWeb.PageController,
+          LdQWeb.PageHTML,
           LdQ.Site.PageHelpers,
           LdQ.Site.PageLocale,
-          LdQ.Site.Log
+          Site.PageLocale.Locale,
+          Site.PageLocale.Status,
+          LdQWeb.PageLocaleController,
+          LdQWeb.PageLocaleHTML,
+          LdQWeb.SpecPageController,
+          LdQWeb.SpecPageHTML,
+          LdQ.Site.Log,
+          LdQWeb.ChantierController,
+          LdQWeb.ChantierHTML
+        ],
+        "Comité": [
+          LdQWeb.ComiteController,
+          LdQWeb.ComiteHTML,
+          LdQWeb.MembreController,
+          LdQWeb.MembreHTML
         ],
         "Évaluation": [
           LdQ.Evaluation.Numbers,
           LdQ.Evaluation.UserBook
         ],
+        Administration: [
+          LdQWeb.AdminController,
+          LdQWeb.AdminHTML,
+        ],
         "Procédures": [
           LdQ.Procedure,
-          LdQ.ProcedureMethods
+          LdQ.ProcedureMethods,
+          LdQWeb.Procedure,
+          LdQWeb.ProcedureController,
+          LdQWeb.ProcedureHTML
         ],
         "Cœur": [
           LdQ.Constantes,
@@ -61,19 +87,45 @@ defmodule LdQ.MixProject do
           LdQ.Core.TriggerAbsdata,
           LdQ.Core.TriggerDaemon
         ],
-        Mails: [
+        Communication: [
+          LdQ.Notification,
           LdQ.Mailer,
           LdQ.Mailing,
           LdQ.MyMailer,
           LdQ.Mails.Helpers
         ],
         Helpers: [
+          LdQWeb.Gettext,
           Html.Helpers,
           Helpers.Feminines,
           LdQ.LinkHelpers,
           LdQ.Mails.Helpers,
+          LdQWeb.ViewHelpers,
           Html.Form,
           Html.Form.Field
+        ],
+        "User actions": [
+          LdQWeb.UserSessionController,
+          LdQWeb.UserSettingsLive,
+          LdQWeb.UserAuth,
+          LdQWeb.UserLoginLive,
+          LdQWeb.UserConfirmationInstructionsLive,
+          LdQWeb.UserConfirmationLive,
+          LdQWeb.UserForgotPasswordLive,
+          LdQWeb.UserRegistrationLive,
+          LdQWeb.UserResetPasswordLive,
+          LdQWeb.InscritController,
+          LdQWeb.InscritHTML
+        ],
+        Erreurs: [
+          LdQWeb.ErrorHTML,
+          LdQWeb.ErrorJSON
+        ],
+        Tests: [
+          LdQ.Tests.Mails
+        ],
+        Tools: [
+          Mix.LdQMethods
         ],
         Divers: [
           Phil,
@@ -87,10 +139,13 @@ defmodule LdQ.MixProject do
         Fonctionnel: [
           LdQWeb,
           LdQ.Release,
-          LdQ.Repo
+          LdQ.Repo,
+          LdQWeb.CoreComponents,
+          LdQWeb.Endpoint,
+          LdQWeb.Telemetry
         ]
       ],
-      extras: ["README.md", "TODO.md"],
+      extras: ["README.md", "TODO.md", "doc/TESTS.md", "doc/doc.livemd"],
       # filter_modules: fn module, _config ->
       #   # IO.inspect(module)
       #   # String.starts_with?(Atom.to_string(module), "LdQ.Comptes")
