@@ -54,7 +54,7 @@ defmodule LdQWeb.MembreHTML do
     key_points = String.to_atom("book_evaluation_college#{membre.college}")
     pts_evaluation = Calc.points_for(key_points)
     new_books = Book.get_not_evaluated(membre.college, by: membre)
-
+    IO.inspect(new_books, label: "Nouveaux livres") # <=== POUR VOIR
     section_new_books = 
     if Enum.count(new_books) > 0 do
       new_books
@@ -124,6 +124,7 @@ defmodule LdQWeb.MembreHTML do
   #   :evaluate   Mis à True pour pouvoir choisir un livre à évaluer
   #   :set_note   Mis à True pour pouvoir évaluer un livre (lui donner une note)
   #   :points_per_eval  {Integer} Nombre de points que vaut une évaluation du livre
+  # 
   defp book_card(book, options) do
     # La nouvelle table pour définir les données propres au livre.
     dbook = Map.merge(book, %{
@@ -181,10 +182,14 @@ defmodule LdQWeb.MembreHTML do
       href: "/livre/#{book.id}", 
       title: "voir")
   end
+
+  # Le bouton pour choisir d'évaluer le livre
   defp btn_book("eval", dbook) do
+    IO.inspect(dbook, label: "Dbook")
     small_button(
       id: "btn-eval-#{dbook.id}", 
-      href: "?id=#{dbook.id}&type=book&op=choose-for-eval", 
+      # href: "?id=#{dbook.id}&type=book&op=choose-for-eval", # MAUVAIS, PAR LE membre_controller
+      href: "proc/#{dbook.procedure_id}?nstep=on_membre_choisit_livre&book_id=#{dbook.id}",
       title: "évaluer (#{dbook.points_per_eval} crédits)"
     )
   end

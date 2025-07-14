@@ -248,7 +248,7 @@ defmodule LdQ.ComptesFixtures do
   def get_membre(params \\ []) do
     user =
       if params[:id] do
-        Comptes.get_user!(params[:id])
+        Comptes.Getters.get_user!(params[:id])
       else
         query = from(u in Comptes.User, 
           join: c in Comptes.MemberCard, on: c.user_id == u.id)

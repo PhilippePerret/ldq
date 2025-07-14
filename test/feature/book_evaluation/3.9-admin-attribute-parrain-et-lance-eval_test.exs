@@ -60,7 +60,7 @@ defmodule LdQWeb.BookSubmissionTestsStep3_1 do
     # Le membre parrain augmente son crédit
     points_parrainage = LdQ.Evaluation.Numbers.points_for(:parrainage)
     old_credit = membre.credit
-    new_credit = LdQ.Comptes.get_user!(membre.id).credit
+    new_credit = LdQ.Comptes.Getters.get_user!(membre.id).credit
     err_msg = 
       cond do
       new_credit == old_credit ->

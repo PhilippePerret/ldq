@@ -1,0 +1,17 @@
+<%
+  form = %Html.Form{
+    id: "confirmation-#{@proc_dim}",
+    action: "/prop/create/#{@proc_dim}",
+    captcha: true,
+    fields: [
+      %{tag: :hidden, name: "proc_dim", value: @proc_dim},
+      %{tag: :checkbox, name: "cgu", label: "J’ai lu et j’accepte les Conditions Générales d’Utilisation"}
+    ],
+    buttons: [
+      %{type: :submit, name: "Soumettre"}
+    ]
+  }
+%>
+<p><%= @user.name %>, merci de confirmer que vous voulez accomplir la procédure :</p> 
+<p><strong><%= raw @procedure %></strong></p>
+<%= raw Html.Form.formate(form) %>

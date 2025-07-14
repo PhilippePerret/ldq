@@ -1,14 +1,38 @@
 defmodule LdQWeb.ProcedureController do
+  @moduledoc ~S"""
+  Controlleur gérant les procédures, c'est-à-dire les recevant et les traitant.
+  """
   use LdQWeb, :controller
 
   import Ecto.Query, only: [from: 2]
   alias LdQ.Repo
   import LdQ.ProcedureMethods
 
+  @doc ~S"""
+  Fonction recevant la route `/proc/new/<proc_dim>` pour créer la procédure voulue après confirmation. Ici, on s'assure donc :
+
+  1. Que l'utilisateur peut accomplir la démarche voulue
+  2. Confirme qu'elle veut vraiment le faire.
+
+  NOTE : Plutôt que de reprogrammer une méthode `confirme_procedure` qui sera en gros toujours la même : vérifier que l'user soit identifié et confirmer l'opération (dont il suffirait de connaitre le nom humain — qu'on peut connaitre en chargeant le module — on pourrait tout faire ici.)
+  """
+  def newp(conn, %{"proc_dim" => proc_dim} = params) do
+    module = LdQ.Procedure.get_proc_module(proc_dim)
+    IO.inspect(module.proc_name, label: "Module")
+    curuser = conn.assigns.current_user
+    template =
+    if is_nil(curuser) do
+      :login_required
+    else
+      :confirmation
+    end
+    render(conn, template, procedure: module.proc_name, proc_dim: proc_dim, user: curuser)
+  end
+
   @doc """
   Pour créer une nouvelle procédure
 
-  C'est la fonction qui est appelée par le lien /proc/new/<proc dim>
+  Ce n'est plus la fonction appelée par le lien `/proc/new/<proc dim>`, car on ne doit pas créer tout de suite la procédure sans savoir qu'il faut vraiment la faire. Par exemple, lorsqu'un user veut se proposer pour le comité de lecture, on doit d'abord s'assurer qu'il est inscrit et qu'il veut réellement faire ça. Après confirmation, on passe par ici pour déclencher la procédure
   """
   def create(conn, %{"proc_dim" => proc_dim} = params) do
     cur_user = conn.assigns.current_user

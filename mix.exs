@@ -20,7 +20,7 @@ defmodule LdQ.MixProject do
       main: "LdQ",
       extra_section: "GUIDES",
       api_reference: false,
-      extras: ["README.md", "TODO.md", "doc/ARCHITECTURE.md", "doc/TESTS.md", "doc/doc.livemd"],
+      extras: ["README.md", "TODO.md", "doc/FONCTIONNEMENT.md", "doc/ARCHITECTURE.md", "doc/TESTS.md", "doc/doc.livemd"],
       groups_for_modules: [
         Comptes: [
           LdQ.Comptes,

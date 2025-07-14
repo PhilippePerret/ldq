@@ -18,7 +18,7 @@ defmodule BookEvaluationMethods do
 
   def get_user_of_proc(procedure) do
     procedure.data["user_id"]
-    |> LdQ.Comptes.get_user!()
+    |> LdQ.Comptes.Getters.get_user!()
   end
 
   def get_author_of_proc(procedure) do

@@ -65,4 +65,29 @@ defmodule Html.Helpers do
     ~s(<#{tagIn}>#{code}</#{tagOut}>)
   end
 
+
+  @doc """
+  Traitement markdown-like du code transmis.
+
+  ## Paramètres
+
+    - `code` - Un code quelconque mais pouvant contenir du markage Markdown.
+
+  ## Transformations
+  
+  Pour le moment, la fonction transforme (et dans cet ordre)…
+
+  * les `[titre](lien)` en `<a href="lien">titre</a>`
+  * les `***...***` en `<strong><em>...</em></strong>`
+  * les `**..**` en `<strong>...</strong>`
+  * les `*...*` en `<em>...</em>`
+
+  """
+  def md_to_html(code) do
+    code
+    |> String.replace(~r/\[(.+?)\]\((.+?)\)/, ~s(<a href="\\2">\\1</a>))
+    |> String.replace(~r/\*\*\*(.+?)\*\*\*/, ~s(<strong><em>\\1</em></strong>))
+    |> String.replace(~r/\*\*(.+?)\*\*/, ~s(<strong>\\1</strong>))
+    |> String.replace(~r/\*(.+?)\*/, ~s(<em>\\1</em>))
+  end
 end

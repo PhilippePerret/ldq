@@ -82,7 +82,7 @@ defmodule FeaturePublicMethods do
   """
   def get_user(i \\ [])
   def get_user(user_id) when is_binary(user_id) do
-    LdQ.Comptes.get_user!(user_id)
+    LdQ.Comptes.Getters.get_user!(user_id)
   end
   # @param {Keyword} params Paramètres à prendre en compte
   def get_user(params) when is_list(params), do: Compt.get_simple_user(params)

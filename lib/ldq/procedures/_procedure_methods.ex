@@ -335,7 +335,7 @@ defmodule LdQ.ProcedureMethods do
     if is_nil(user_id) do
       nil
     else
-      Comptes.get_user!(user_id)
+      Comptes.Getters.get_user!(user_id)
     end
   end
 
@@ -681,7 +681,7 @@ defmodule LdQ.ProcedureMethods do
     user = cond do
       Map.get(params, :user) -> params.user
       Map.get(params, :user_id) ->
-        Comptes.get_user!(params.user_id)
+        Comptes.Getters.get_user!(params.user_id)
       true -> nil
     end
 

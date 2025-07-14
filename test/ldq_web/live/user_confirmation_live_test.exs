@@ -36,7 +36,7 @@ defmodule LdQWeb.UserConfirmationLiveTest do
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~
                "User confirmed successfully"
 
-      assert Comptes.get_user!(user.id).confirmed_at
+      assert Comptes.Getters.get_user!(user.id).confirmed_at
       refute get_session(conn, :user_token)
       assert Repo.all(Comptes.UserToken) == []
 
@@ -83,7 +83,7 @@ defmodule LdQWeb.UserConfirmationLiveTest do
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~
                "User confirmation link is invalid or it has expired"
 
-      refute Comptes.get_user!(user.id).confirmed_at
+      refute Comptes.Getters.get_user!(user.id).confirmed_at
     end
   end
 end

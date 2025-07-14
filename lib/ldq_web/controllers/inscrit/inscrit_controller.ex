@@ -16,7 +16,7 @@ defmodule LdQWeb.InscritController do
 
   # Pour afficher un autre profil que le sien
   def show(conn, %{"user_id" => user_id} = _params) do
-    user = Comptes.get_user!(user_id)
+    user = Comptes.Getters.get_user!(user_id)
     render(conn, "show.html", user: user)
   end
 

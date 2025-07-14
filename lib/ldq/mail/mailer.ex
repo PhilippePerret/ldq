@@ -279,7 +279,7 @@ defmodule LdQ.Mailer do
     user = cond do
       Map.get(params, :user) -> params.user
       Map.get(params, :user_id) ->
-        Comptes.get_user!(params.user_id)
+        Comptes.Getters.get_user!(params.user_id)
       true -> nil
     end
 

@@ -39,7 +39,7 @@ defmodule LdQWeb.BookSubmissionTestsChoixLivrePerMembre1 do
     |> et_voit("div.book", book.title)
     # Il clique sur le 4e livre
     |> et_voit("section#new-books div.title", book.title)
-    # |> pause(120) # pour voir
+    |> pause(180) # pour voir
     |> clique_le_lien("btn-eval-#{book.id}")
     |> pause(2)
     # Le livre ne se trouve plus dans sa section de livre à choisir

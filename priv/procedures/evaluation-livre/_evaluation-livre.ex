@@ -33,7 +33,7 @@ defmodule LdQ.Procedure.PropositionLivre do
     %{name: "Choix du parrain", fun: :attribution_parrain, required: :user_is_author_or_admin?, admin_required: false, owner_required: false},
     %{name: "Attribution du parrain", fun: :proceed_attribute_parrain, required: :user_is_author_or_admin?, admin_required: false, owner_required: false},
     %{name: "Lancement de l'évaluation", fun: :start_evaluation, required: :user_is_author_or_admin?, admin_required: false, owner_required: false},
-    %{name: "Prise en main du livre par un membre", fun: :membre_choisit_livre, required: :user_is_membre_college?(1)}
+    %{name: "Prise en main du livre par un membre", fun: :on_membre_choisit_livre, required: :user_is_membre_college?(1)}
   
     %{name: "Suppression complète du livre", fun: :complete_book_remove, admin_required: true, owner_required: false}
   ]
@@ -637,7 +637,7 @@ defmodule LdQ.Procedure.PropositionLivre do
     book = procedure.book
 
     parrain_id = procedure.params["book"]["parrain_id"]
-    parrain = Comptes.get_user!(parrain_id)
+    parrain = Comptes.Getters.get_user!(parrain_id)
     
     # On renseigne le parrain et la phase du livre
     Book.save(book, %{parrain_id: parrain_id, last_phase: "15", current_phase: "18"})
@@ -753,7 +753,7 @@ defmodule LdQ.Procedure.PropositionLivre do
   QUESTION: EST-CE QUE LA MÉTHODE POURRAIT SERVIR POUR D'AUTRES 
   COLLÈGES AUSSI
   """
-  def membre_choisit_livre(procedure) do
+  def on_membre_choisit_livre(procedure) do
     raise "Je dois apprendre à attribuer le livre"
   end
 

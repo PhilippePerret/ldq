@@ -26,7 +26,7 @@ defmodule LdQ.LibraryFixtures do
     else attrs end
 
     user = if attrs[:user] || attrs[:user_id] do
-      if attrs[:user], do: attrs[:user], else: Comptes.get_user!(attrs[:user_id])
+      if attrs[:user], do: attrs[:user], else: Comptes.Getters.get_user!(attrs[:user_id])
     else 
       nil 
     end

@@ -54,17 +54,16 @@ defmodule LdQ.Library.Book do
   end
 
   @doc """
-  @api 
-  Établit et retourne la liste des livres évalués par le +membre+ 
-  avec les options +options
+  Établit et retourne la liste des livres évalués par le +membre+ avec les options +options
+  
+  tags: @api 
 
-  TODO Pouvoir relever aussi le nombre de membres qui évaluent le 
-  livre (ou fonction séparée ?)
-
-  @param {Membre} membre Le membre du comité de lecture
-  @param {Keyword} options Liste des options, donc :
-    :type    Si :current, on s'intéresse seulement aux livres en cours d'évaluation, i.e. sans note
-              Si :all (défaut) tous les livres
+  ## Paramètres
+    - `membre` - `LdQ.Comptes.User` de type membre du comité de lecture
+    - `options`- `Keyword` des options.
+      - `:type` - `Atom`. Les valeurs peuvent être :
+        - `:current` - Seulement les livres en cours d'évaluation (i.e. sans note)
+        - `:all` - Tous les livres sans distinction.
   """
   def get_books_evaluated_by(membre, options \\ [type: :all]) when is_struct(membre, Membre) do
     query = from(b in __MODULE__, 
@@ -463,7 +462,7 @@ defmodule LdQ.Library.Book do
       else book end
     book =
       if Enum.member?(fields, :parrain) && Map.get(book, :parrain_id) do
-        Map.put(book, :parrain, Comptes.get_user!(book.parrain_id))
+        Map.put(book, :parrain, Comptes.Getters.get_user!(book.parrain_id))
       else book end
 
     book
@@ -786,7 +785,7 @@ defmodule LdQ.Library.Book do
     cond do
       is_nil(nval)        -> :ok
       nval == ""          -> :ok
-      parrain = Comptes.get_user!(nval) ->
+      parrain = Comptes.Getters.get_user!(nval) ->
         case User.membre?(parrain) do
           true  -> :ok
           false -> {:error, "#{parrain.name} (#{parrain.email}) n'est pas membre du comité de lecture… Il ne peut pas être parrain"}

@@ -38,13 +38,13 @@ defmodule LdQ.ComptesTest do
   describe "get_user!/1" do
     test "raises if id is invalid" do
       assert_raise Ecto.NoResultsError, fn ->
-        Comptes.get_user!("11111111-1111-1111-1111-111111111111")
+        Comptes.Getters.get_user!("11111111-1111-1111-1111-111111111111")
       end
     end
 
     test "returns the user with the given id" do
       %{id: id} = user = user_fixture()
-      assert %User{id: ^id} = Comptes.get_user!(user.id)
+      assert %User{id: ^id} = Comptes.Getters.(user.id)
     end
   end
 

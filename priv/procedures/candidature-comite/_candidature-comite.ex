@@ -1,8 +1,6 @@
 defmodule LdQ.Procedure.CandidatureComite do
   @moduledoc """
-  Module qui gère la candidature d'un postulant au comité de lecture,
-  depuis la soumission de sa candidature jusqu'à son acceptation ou 
-  son refus.
+  Module qui gère la candidature d’un postulant au comité de lecture, depuis la soumission de sa candidature jusqu’à son acceptation ou son refus.
   """
   use LdQWeb.Procedure
 
@@ -13,18 +11,17 @@ defmodule LdQ.Procedure.CandidatureComite do
     %{name: "Soumission de la candidature", fun: :submit_candidature, admin_required: false, owner_required: true},
     %{name: "Accepter, refuser ou soumettre à un test", fun: :accepte_refuse_or_test, admin_required: true, owner_required: false},
     %{name: "Accepter la candidature", fun: :accepter_candidature, admin_required: true, owner_required: false},
-    %{name: "Procéder à l'acceptation", fun: :proceed_acceptation_candidature, admin_required: true, owner_required: false},
+    %{name: "Procéder à l’acceptation", fun: :proceed_acceptation_candidature, admin_required: true, owner_required: false},
     %{name: "Refus de la candidature", fun: :refuser_candidature, admin_required: true, owner_required: false},
     %{name: "Procéder au refus", fun: :proceed_refus_candidature, admin_required: true, owner_required: false},
     %{name: "Soumettre à un test", fun: :soumettre_a_test, admin_required: true, owner_required: false},
-    %{name: "Test d'admission", fun: :test_admission_comite, admin_required: false, owner_required: true},
-    %{name: "Résultat du test d'admission", fun: :eval_test_admission, admin_required: false, owner_required: true}
+    %{name: "Test d’admission", fun: :test_admission_comite, admin_required: false, owner_required: true},
+    %{name: "Résultat du test d’admission", fun: :eval_test_admission, admin_required: false, owner_required: true}
   ] |> Enum.with_index() |> Enum.map(fn {s, index} -> Map.put(s, :index, index) end)
   def steps, do: @steps
 
   @doc """
-  Fonction qui détermine (en fonction de la procédure) les données à
-  enregistrer dans la table
+  Fonction qui détermine (en fonction de la procédure) les données à enregistrer dans la table
   """
   def procedure_attributes(params) do
     user = params.user
@@ -43,6 +40,42 @@ defmodule LdQ.Procedure.CandidatureComite do
     }
   end
 
+  @doc ~S"""
+  Validation et confirmation de la procédure de candidature
+
+  ## Paramètres
+
+    - `data` - Les données dont a besoin la procédure propre.
+      - `user` - Dans tous les cas les données contiennent l’user courant, mais qui est à nil s’il n’est pas identifié ou inscrit.
+  """
+  def confirme_procedure(data) when is_map(data) do
+    if is_nil(data[:user]) do
+      """
+      <p>Merci de votre intérêt, mais il faut être inscrit, pour postuler au comité de lecture.</p>
+
+      <p>Si vous êtes déjà inscrit(e), il vous suffit de **[vous identifier](/users/log_in)**, sinon, merci de **[vous inscrire](/users/register)**.</p>
+      """
+    else
+      form = %Html.Form{
+        id: "confirmation-candidature-comite",
+        action: "/prop/create/candidature-comite",
+        captcha: true,
+        fields: [
+          %{tag: :hidden, name: "proc_dim", value: data["proc_dim"]},
+          %{tag: :checkbox, name: "cgu", label: "J’ai lu et j’accepte les Conditions Générales d’Utilisation"}
+        ],
+        buttons: [
+          %{type: :submit, name: "Proposer ma candidature"}
+        ]
+      }
+      """
+      <p>Merci de confirmer vos désir de rejoindre le comité de lecture du label « Lecture de Qualité ».</p>
+       
+      #{Html.Form.formate(form)}
+      """
+    end
+  end
+
   @doc """
 
   @return {HTMLString} Le formulaire pour poser sa candidature.
@@ -55,7 +88,7 @@ defmodule LdQ.Procedure.CandidatureComite do
       fields: [
         %{tag: :hidden, name: "procedure_id", value: procedure.id},
         %{tag: :input, type: :hidden, strict_name: "nstep", value: "submit_candidature"},
-        %{tag: :textarea, name: "motivation", label: "Motivation", required: true, explication: "Merci d'expliquer en quelques mots vos motivations."},
+        %{tag: :textarea, name: "motivation", label: "Motivation", required: true, explication: "Merci d’expliquer en quelques mots vos motivations."},
         %{tag: :input, type: :text, name: "genres", label: "Genres de prédilection", explication: "Si vous avez des genres littéraires de prédilection, merci de les indiquer en les séparant par une virgule."}
       ],
       buttons: [
@@ -78,10 +111,10 @@ defmodule LdQ.Procedure.CandidatureComite do
   @doc """
   Le candidat rejoint cette étape quand il soumet sa candidature pour
   le comité de lecture.
-  On l'enregistre et on prévient l'administration.
+  On l’enregistre et on prévient l’administration.
   """
   def submit_candidature(procedure) do
-    # IO.inspect(procedure, label: "\nProcédure à l'entrée de submit_candidature")
+    # IO.inspect(procedure, label: "\nProcédure à l’entrée de submit_candidature")
     form_values = procedure.params["f"]
     if Html.Form.captcha_valid?(form_values) do
       user = get_owner(procedure)
@@ -134,7 +167,7 @@ defmodule LdQ.Procedure.CandidatureComite do
 
 
   @doc """
-  Ce n'est pas la fonction qui procède au refus, c'est la fonction
+  Ce n’est pas la fonction qui procède au refus, c’est la fonction
   qui va permettre de le faire. Elle affiche le formulaire pour 
   donner le motif du refus.
   """
@@ -146,7 +179,7 @@ defmodule LdQ.Procedure.CandidatureComite do
       fields: [
         %{tag: :hidden, name: "procedure_id", value: procedure.id},
         %{tag: :hidden, strict_name: "nstep", value: "proceed_refus_candidature"},
-        %{tag: :textarea, label: "Motif du refus", name: "motif_refus", strict_id: "motif_refus", required: true, explication: "Merci de motiver le refus (ce texte est à l'intention du candidat)"}
+        %{tag: :textarea, label: "Motif du refus", name: "motif_refus", strict_id: "motif_refus", required: true, explication: "Merci de motiver le refus (ce texte est à l’intention du candidat)"}
       ],
       buttons: [
         %{type: :submit, name: "Soumettre"}
@@ -159,7 +192,7 @@ defmodule LdQ.Procedure.CandidatureComite do
   end
 
   @doc """
-  Méthode qui procède vraiment au refus de la candidature de l'user
+  Méthode qui procède vraiment au refus de la candidature de l’user
   candidat pour un motif donné en paramètre.
   """
   def proceed_refus_candidature(procedure) do
@@ -174,8 +207,8 @@ defmodule LdQ.Procedure.CandidatureComite do
     })
     send_mail(user, :admin, data_mail)
 
-    # L'historique reçoit l'information (pour affichage sur la
-    # page d'accueil et de suivi du label)
+    # L’historique reçoit l’information (pour affichage sur la
+    # page d’accueil et de suivi du label)
     log_activity(%{
       owner: user,
       public: false,
@@ -186,7 +219,7 @@ defmodule LdQ.Procedure.CandidatureComite do
     log_activity(%{
       owner: user,
       public: false,
-      text: "<p>La candidature de #{user.name} (#{user.email}) vient d'être refusée par #{procedure.current_user.name}.</p>",
+      text: "<p>La candidature de #{user.name} (#{user.email}) vient d’être refusée par #{procedure.current_user.name}.</p>",
       creator: procedure.current_user
     })
     delete_procedure(procedure)
@@ -197,10 +230,10 @@ defmodule LdQ.Procedure.CandidatureComite do
   end
 
   @doc """
-  Étape d'acceptation de la candidature du candidate
+  Étape d’acceptation de la candidature du candidate
 
   NB : Cette fonction est appelée aussi bien lorsque le candidat est
-  accepté aussi que lorsqu'il a passé le test. S'il y a besoin de 
+  accepté aussi que lorsqu’il a passé le test. S’il y a besoin de 
   faire une distinction, on peut utiliser les procedure.data pour le
   savoir.
   """
@@ -220,23 +253,23 @@ defmodule LdQ.Procedure.CandidatureComite do
     }
 
     # Le CANDIDAT reçoit un mail lui annonçant la nouvelle et
-    # lui expliquant ce qu'il doit faire maintenant
+    # lui expliquant ce qu’il doit faire maintenant
     mail_data = %{defmaildata | mail_id: "user-admission-comite"}
     send_mail(to: user, from: :admin, with: mail_data)
 
-    # les ADMINISTRATEURS reçoivent tous l'information du nouveau
+    # les ADMINISTRATEURS reçoivent tous l’information du nouveau
     # lecture
     mail_data = %{defmaildata | mail_id: "admin-new-membre-comite"}
     mail_data = %{mail_data | variables: variables}
     send_mail(to: :admin, from: :admin, with: mail_data)
-    # Les MEMBRES DU COMITÉ reçoivent l'information du nouveau 
+    # Les MEMBRES DU COMITÉ reçoivent l’information du nouveau 
     # membre
     mail_data = %{defmaildata | mail_id: "membre-new-membre-comite"}
     mail_data = %{mail_data | variables: variables}
     send_mail(to: :membres, from: :admin, with: mail_data)
 
-    # L'historique reçoit l'information (pour affichage sur la
-    # page d'accueil et de suivi du label)
+    # L’historique reçoit l’information (pour affichage sur la
+    # page d’accueil et de suivi du label)
     log_activity(%{
       owner: user,
       text: "<p>#{user.name} vient de rejoindre le comité de lecture du label.</p>",
@@ -268,7 +301,7 @@ defmodule LdQ.Procedure.CandidatureComite do
     # Marquage de procédure suivante
     update_procedure(procedure, %{next_step: "test_admission_comite"})
     """
-    <p>Une demande a été adressée au candidat pour passer le test d'admission. La balle est dans son camp.</p>
+    <p>Une demande a été adressée au candidat pour passer le test d’admission. La balle est dans son camp.</p>
     """
   end
 
@@ -276,17 +309,17 @@ defmodule LdQ.Procedure.CandidatureComite do
 
   @questions_test_admission [
     %{id:  1, question: "Dans un bon style, les adjectifs sont-ils les bienvenus ?", answers: @ans_yesno, right: 1},
-    %{id:  2, question: "Un auteur est-il meilleur qu'une autrice ?", answers: @ans_yesno, right: 1},
-    %{id:  3, question: "Un roman long est-il meilleur qu'un roman court ?", answers: @ans_yesno, right: 1},
+    %{id:  2, question: "Un auteur est-il meilleur qu’une autrice ?", answers: @ans_yesno, right: 1},
+    %{id:  3, question: "Un roman long est-il meilleur qu’un roman court ?", answers: @ans_yesno, right: 1},
     %{id:  4, question: "Parmi ces phrases, laquelle vous semble-t-elle la meilleure ?", answers: [
       "Il approcha de la porte, sortit son épée et frappa six coups.", 
       "Il approcha de la grande et belle porte, sortit son épée lustrée et frappa six grands coups.", 
       "Il approcha de la grande et belle porte, sortit sa grande épée lustrée et frappa six grands coups."], right: 0
     },
     %{id:  5, question: "Pour vous, quelle est la meilleure phrase ?", right: 0, answers: [
-      "Délicatement, il lui fit une caresse en pensée. Si elle avait été sincère, elle l'aurait touchée.", 
-      "Délicatement, il lui fit, en pensée, une caresse qui, si elle avait été sincère, l'aurait touchée.",
-      "Il lui fit, délicatement, en pensée, une caresse qui l'aurait touchée si elle avait été sincère."
+      "Délicatement, il lui fit une caresse en pensée. Si elle avait été sincère, elle l’aurait touchée.", 
+      "Délicatement, il lui fit, en pensée, une caresse qui, si elle avait été sincère, l’aurait touchée.",
+      "Il lui fit, délicatement, en pensée, une caresse qui l’aurait touchée si elle avait été sincère."
     ]},
     %{id:  6, 
       question: "Quelle est la meilleure phrase ?", right: 0, answers: [
@@ -300,13 +333,13 @@ defmodule LdQ.Procedure.CandidatureComite do
     %{id:  8, 
       question: "Quelle est pour vous la collocations la plus naturelle ?", answers: [
       "Briser ses chaines", "Rompre ses chaines", "Couper ses chaines"], right: 0},
-    %{id:  9, question: "Quel est l'idiome le plus courant ?", answers: [
+    %{id:  9, question: "Quel est l’idiome le plus courant ?", answers: [
       "idiome 1", "idiome2", "idiome3"], right: 0},
-    %{id: 10, question: "L'orthographe n'est pas très importante pour estimer un livre. C'est vrai ?", answers: @ans_yesno, right: 1},
+    %{id: 10, question: "L’orthographe n’est pas très importante pour estimer un livre. C’est vrai ?", answers: @ans_yesno, right: 1},
     %{id: 11, question: "La clarté passe-t-elle avant le style ?", answers: @ans_yesno, right: 0},
     %{id: 12, question: "Le style passe-t-il avant la structure ?", answers: @ans_yesno, right: 1},
-    %{id: 13, question: "Quelle phrase ne comporte aucune faute d'ortographe ?", right: 0, answers: [
-      "Quand elle est venue devant lui, il l'a serrée dans ses bras.",
+    %{id: 13, question: "Quelle phrase ne comporte aucune faute d’ortographe ?", right: 0, answers: [
+      "Quand elle est venue devant lui, il l’a serrée dans ses bras.",
       "Quand elle est venue devant lui, il la serrait dans ses bras.",
       "Quand elle est venue devant lui, il la pressait contre lui."
     ]},
@@ -319,7 +352,7 @@ defmodule LdQ.Procedure.CandidatureComite do
     %{id: 15, question: "Quelle phrase est valide ?", right: 0, answers: [
       "– Ne ris pas ! lui demanda-t-elle.",
       "–Ne ris pas ! lui demanda-t-elle.",
-      "- Ne ris pas ! Lui demanda-t'elle.",
+      "- Ne ris pas ! Lui demanda-t’elle.",
       "– Ne ris pas ! Lui demanda-t-elle.",
       " Ne ris pas! lui demanda-t-elle."
     ]},
@@ -329,18 +362,18 @@ defmodule LdQ.Procedure.CandidatureComite do
       "Comme il approchait de la ville, il eut aperçu le feu."
     ]},
     %{id: 17, question: "La répétition de mots améliore le style.", right: 1, answers: @ans_yesno},
-    %{id: 18, question: "L'usage des comparaisons en “comme…” (“comme une fusée orpheline”) améliore grandement le style.", right: 1, answers: @ans_yesno},
-    %{id: 19, question: "L'usage des pronoms personnels apporte de la confusion.", right: 0, answers: @ans_yesno},
+    %{id: 18, question: "L’usage des comparaisons en “comme…” (“comme une fusée orpheline”) améliore grandement le style.", right: 1, answers: @ans_yesno},
+    %{id: 19, question: "L’usage des pronoms personnels apporte de la confusion.", right: 0, answers: @ans_yesno},
   ]
 
   @doc """
   Grosse fonction étape qui permet au candidat de passer le test
-  d'admission au comité.
+  d’admission au comité.
   La page présente le test est permet de le remplir et de le soumet-
   tre comme un formulaire "normal"
   """
   def test_admission_comite(procedure) do
-    # On inscrit le temps de départ, sauf s'il a déjà été déterminé
+    # On inscrit le temps de départ, sauf s’il a déjà été déterminé
     # par une autre venue
     procedure = 
       if Map.get(procedure.data, :test_start_time) do
@@ -378,7 +411,7 @@ defmodule LdQ.Procedure.CandidatureComite do
     
     """
     <p>Merci de remplir ce test et de le soumettre.</p>
-    <p class="warning">Attention : le principe d'incitation à l'honnêteté est appliqué dans ce <nowrap>test :</nowrap> une mauvaise réponse retire un point tandis que la réponse « je ne sais pas » n'en ôte pas.</p>
+    <p class="warning">Attention : le principe d’incitation à l’honnêteté est appliqué dans ce <nowrap>test :</nowrap> une mauvaise réponse retire un point tandis que la réponse « je ne sais pas » n’en ôte pas.</p>
     <section class="quiz">
       #{Html.Form.formate(form)}
     </section>
@@ -386,9 +419,9 @@ defmodule LdQ.Procedure.CandidatureComite do
   end
 
     @doc """
-  Évaluation du test d'admission
+  Évaluation du test d’admission
   Dans cette étape de la procédure, on finalise de toute façon : soit
-  l'user a réussi son test et il est pris, soit il a échoué et il ne
+  l’user a réussi son test et il est pris, soit il a échoué et il ne
   peut pas le repasser.
   """
   def eval_test_admission(procedure) do
@@ -437,7 +470,7 @@ defmodule LdQ.Procedure.CandidatureComite do
                 {report.note, ~s[<span class="notice bold">+ 0 pts</span> — Bonne réponse : #{good_answer}.]}
               else
                 bad_answer = Enum.at(dquest.answers, choix)
-                {report.note - 1, ~s[<span class="error bold">-1 pt</span> — La bonne réponse n'était pas “#{bad_answer}” mais “#{good_answer}”.]}
+                {report.note - 1, ~s[<span class="error bold">-1 pt</span> — La bonne réponse n’était pas “#{bad_answer}” mais “#{good_answer}”.]}
               end
             end
           Map.merge(report, %{
@@ -458,22 +491,22 @@ defmodule LdQ.Procedure.CandidatureComite do
 
     is_success = report.note / report.total >= 0.65
 
-    # Avertir l'administration avec les résultats
+    # Avertir l’administration avec les résultats
     # TODO
 
-    # Enregistrer le passage du test dans la fiche de l'user
+    # Enregistrer le passage du test dans la fiche de l’user
     # TODO (il faut créer la table de ces fiches)
 
-    # TODO (même nom de mail avec juste 'success' ou 'failure')
+    # TODO (même nom de mail avec juste ’success’ ou ’failure’)
     # mail_suffix = is_success && "success" || "failure"
 
     if is_success do
-      # Acceptation du candidat (comme l'acceptation directe)
+      # Acceptation du candidat (comme l’acceptation directe)
       accepter_candidature(procedure)
       # Calculer le crédit du nouveau candidat en fonction de son score
       # TODO
     else
-      # En cas d'échec, on n'envoie pas de mail, on indique simplement
+      # En cas d’échec, on n’envoie pas de mail, on indique simplement
       # que le candidat a déjà candidaté
     end
 
@@ -481,7 +514,7 @@ defmodule LdQ.Procedure.CandidatureComite do
     msg_resultat = if is_success do
       "Bravo ! Vous avez passé ce test avec succès, votre candidature est validée !"
     else
-      "Désolé, vous n'avez pas le niveau requis pour rejoindre le comité de lecture du label. Nous en sommes désolés pour vous."
+      "Désolé, vous n’avez pas le niveau requis pour rejoindre le comité de lecture du label. Nous en sommes désolés pour vous."
     end
 
     delete_procedure(procedure)
@@ -490,7 +523,7 @@ defmodule LdQ.Procedure.CandidatureComite do
     <p class="bigger bold center #{main_class}">Votre total est de #{report.note} / #{report.total}.</p>
     <p class="bigger #{main_class}">#{msg_resultat}</p>
     #{report.rapport}
-    <p>Merci d'avoir participer à ce test.</p>
+    <p>Merci d’avoir participer à ce test.</p>
     """
   end
 

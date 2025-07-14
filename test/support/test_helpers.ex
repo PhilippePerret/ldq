@@ -266,7 +266,7 @@ defmodule TestHelpers do
     end
   end
   def get_user(user_id) when is_binary(user_id) do
-    Comptes.get_user!(user_id)
+    Comptes.Getters.get_user!(user_id)
   end
 
   @doc """

@@ -35,7 +35,7 @@ defmodule LdQWeb.MembreController do
   end
 
   defp get_membre_from(%{"membre_id" => membre_id} = _params) do
-    Comptes.get_user_as_membre!(membre_id) || raise("Intrusion inopinée.")
+    Comptes.Getters.get_user_as_membre!(membre_id) || raise("Intrusion inopinée.")
   end
 
   # === Toutes les méthodes d'opération ===
@@ -46,7 +46,10 @@ defmodule LdQWeb.MembreController do
   # le bouton "évaluer" dans la liste des livres qui sont nouvelle-
   # ment à évaluer.
   # À quoi correspond le fait d'évaluer un livre ? C'est en fait la
-  # création d'une fiche d'évaluation association le membre au livre
+  # création d'une fiche d'évaluation associant le membre au livre
+  # 
+  # REFLEXION : Sauf que normalement, ça devrait être la procédure qui
+  # est appelée pour que tout le processus se trouve dans la procédure
   defp exec_op("choose-for-eval", membre, %{"id" => book_id, "type" => type} = _params) do
     type == "book" || raise(@errors[:book_required])
     # Vérifier que ce livre existe bel et bien
