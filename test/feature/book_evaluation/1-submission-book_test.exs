@@ -16,9 +16,6 @@ defmodule LdQWeb.BookSubmissionTestsStep1 do
 
   """
   use LdQWeb.FeatureCase, async: false
-
-  # alias Helpers.Feminines, as: Fem
-
   import TestHelpers, except: [now: 0]
   import FeaturePublicMethods
 

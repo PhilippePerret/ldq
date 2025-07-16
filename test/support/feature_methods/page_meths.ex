@@ -109,9 +109,14 @@ defmodule Feature.PageTestMethods do
       ~r/#{Regex.escape(searched)}/
     else searched end
 
-    # IO.inspect(WB.page_source(session), label: "\n\n+++ PAGE COMPLÈTE", printable_limit: :infinity)
-    err_msg = IO.ANSI.red() <> "On devrait trouver #{inspect searched} dans la page. La page contient : #{inspect WB.all(session, css("body")) |> Enum.at(0) |> WE.text()}" <> IO.ANSI.reset()
-    assert(Regex.match?(searched, WB.page_source(session)), err_msg)
+    texte_visible = WB.text(session)
+    err_msg = IO.ANSI.red() <> "On devrait trouver #{inspect searched} dans la page. La page contient : #{inspect texte_visible}" <> IO.ANSI.reset()
+    autre_brut_contient   = Regex.match?(searched, WB.all(session, css("body")) |> Enum.at(0) |> WE.text())
+    code_visible_contient = String.match?(texte_visible, searched)
+    assert(
+      code_visible_contient || autre_brut_contient, 
+      err_msg
+      )
     sujet
   end
 
