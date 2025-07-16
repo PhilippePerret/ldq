@@ -15,6 +15,8 @@ defmodule LdQ.MixProject do
   end
 
   def docs do
+    # Jouer `mix docs --formatter html` si des éléments sont modifiés et régulièrement 
+    # pour actualiser la documentation.
     [
       output: "doc/mix_doc/",
       main: "LdQ",
@@ -76,6 +78,7 @@ defmodule LdQ.MixProject do
         ],
         "Procédures": [
           LdQ.Procedure,
+          LdQ.Procedure.ProcedureObject,
           LdQ.ProcedureMethods,
           LdQWeb.Procedure,
           LdQWeb.ProcedureController,

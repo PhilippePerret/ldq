@@ -60,6 +60,7 @@ defmodule TestHelpers do
 
   @tables [
       LdQ.Procedure,
+      LdQ.Procedure.ProcedureObject,
       LdQ.Notification,
       LdQ.Library.Book,
       # LdQ.Library.Book.Evaluation,
