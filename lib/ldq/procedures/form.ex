@@ -415,7 +415,7 @@ defmodule Html.Form do
     })
     select_field = build_field(:select, dfield)
     """
-    <div class="explication">Merci de répondre à cette question pour nous assurer que vous êtes bien un être humain.</div>
+    <div class="explication">Merci de répondre à la question ci-dessous afin de nous assurer que vous êtes bien un être humain.</div>
     <label for="#{dfield.id}">#{dfield.label}</label>
     <input type="hidden" id="#{dfield.prefix}_captcha_index" name="#{dfield.prefix}[captcha_index]" value="#{captcha.index}" />
     #{select_field}

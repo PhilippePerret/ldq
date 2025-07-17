@@ -20,7 +20,7 @@ defmodule LdQWeb.CandidatureMembreStep0103 do
     |> clique_le_lien("rejoindre le comité")
     # |> pause(2)
     |> et_voit("vous devez vous identifier ou vous inscrire")
-    |> pause(10)
+    |> pause(2)
   end
 
 end

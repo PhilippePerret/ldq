@@ -53,7 +53,7 @@ defmodule LdQWeb.Router do
   scope "/proc", LdQWeb do
     pipe_through [:browser, :require_authenticated_user]
     
-    get "/create/:proc_dim", ProcedureController, :create
+    post "/create/:proc_dim", ProcedureController, :create
     get "/:proc_id", ProcedureController, :run
     post "/:proc_id", ProcedureController, :run
   end

@@ -32,9 +32,33 @@ defmodule LdQWeb.ProcedureController do
   @doc """
   Pour créer une nouvelle procédure
 
-  Ce n'est plus la fonction appelée par le lien `/proc/new/<proc dim>`, car on ne doit pas créer tout de suite la procédure sans savoir qu'il faut vraiment la faire. Par exemple, lorsqu'un user veut se proposer pour le comité de lecture, on doit d'abord s'assurer qu'il est inscrit et qu'il veut réellement faire ça. Après confirmation, on passe par ici pour déclencher la procédure
+  Ce n'est plus la fonction appelée par le lien `/proc/new/<proc dim>`, car on ne doit pas créer tout de suite la procédure sans savoir qu'il faut vraiment la faire. Par exemple, lorsqu'un user veut se proposer pour le comité de lecture, on doit d'abord s'assurer qu'il est inscrit et qu'il veut réellement faire ça. Après confirmation, on passe par ici pour déclencher la procédure.
+
+  Si l'user n'a pas coché la case d'acceptation des CGU et le captcha, il doit recommencer l'opération.
   """
   def create(conn, %{"proc_dim" => proc_dim} = params) do
+    IO.inspect(params, label: "\nPARAMS")
+    form_data = params["f"]
+    captcha_is_valide = Html.Form.captcha_valid?(form_data)
+    cgu_are_approuved = form_data["cgu"] == "accepted"
+    case cgu_are_approuved and captcha_is_valide do
+    true -> do_create(conn, params)
+    false ->
+      errors = []
+      errors = if captcha_is_valide do errors else
+        errors ++ ["Merci de répondre au captcha pour prouver que vous êtes humain."] 
+      end
+      errors = if cgu_are_approuved do errors else
+        errors ++ ["Merci d’appouver les CGU afin de passer à la suite."]
+      end
+      errors = errors |> Enum.join("")
+      conn = put_flash(conn, :error, errors)
+      redirect(conn, to: ~p"/proc/new/#{proc_dim}")
+    end
+  end
+
+  def do_create(conn, %{"proc_dim" => proc_dim} = params) do
+
     cur_user = conn.assigns.current_user
     params = params |> Map.merge(%{user: cur_user})
     module = LdQ.Procedure.get_proc_module(proc_dim)
