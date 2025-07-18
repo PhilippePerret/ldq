@@ -51,8 +51,7 @@ defmodule LdQ.Procedure do
 
 
   @doc """
-  Principalement appelée par la page du contrôleur de procédure pour
-  afficher le code HTML de la procédure.
+  Principalement appelée par la page du contrôleur de procédure pour afficher le code HTML de la procédure.
   """
   def run(procedure) when is_struct(procedure, __MODULE__) do
     module = get_proc_module(procedure)
@@ -60,7 +59,7 @@ defmodule LdQ.Procedure do
   end
 
   @doc """
-  Retourne la procédure d'identifiant +id+
+  Retourne l'instance de procédure d'identifiant +id+.
 
   """
   def get(proc_id) do

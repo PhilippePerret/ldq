@@ -18,7 +18,7 @@ defmodule LdQWeb.ProcedureController do
   """
   def newp(conn, %{"proc_dim" => proc_dim} = params) do
     module = LdQ.Procedure.get_proc_module(proc_dim)
-    IO.inspect(module.proc_name, label: "Module")
+    # IO.inspect(module.proc_name, label: "Module")
     curuser = conn.assigns.current_user
     template =
     if is_nil(curuser) do
@@ -37,7 +37,7 @@ defmodule LdQWeb.ProcedureController do
   Si l'user n'a pas coché la case d'acceptation des CGU et le captcha, il doit recommencer l'opération.
   """
   def create(conn, %{"proc_dim" => proc_dim} = params) do
-    IO.inspect(params, label: "\nPARAMS")
+    # IO.inspect(params, label: "\nPARAMS")
     form_data = params["f"]
     captcha_is_valide = Html.Form.captcha_valid?(form_data)
     cgu_are_approuved = form_data["cgu"] == "accepted"
@@ -89,8 +89,7 @@ defmodule LdQWeb.ProcedureController do
   end
 
   @doc """
-  On ajoute quelques données à la map procédure, par exemples les
-  paramètres et le nom humain de la procédure.
+  On ajoute quelques données à la map procédure, par exemples les paramètres et le nom humain de la procédure.
   """
   def fill_procedure(procedure, params, module \\ nil) do
     module = 
@@ -129,14 +128,31 @@ defmodule LdQWeb.ProcedureController do
 
 
   @doc """
-  Joue la prochaine étape de la procédure d'identifiant +proc_id+
-  Cette étape peut être définie dans l'enregistrement de la procédure
-  si c'est la prochaine naturelle, ou dans le paramètre "nstep" quand
-  il faut la définir explicitement.
+  Joue la prochaine étape de la procédure d'identifiant +proc_id+.
+  
+  Cette étape peut être définie dans l'enregistrement de la procédure si c'est la prochaine naturelle, ou dans le paramètre "nstep" quand il faut la définir explicitement.
 
   @param
   """
-  def run(conn, %{"proc_id" => proc_id} = params) do
+  def run(conn, %{"proc_id" => proc_dim} = params) do
+    IO.inspect(params, label: "\nparams")
+    form_data = params["f"]
+    captcha_absent_or_valide = 
+      is_nil(form_data["captcha"]) or Html.Form.captcha_valid?(form_data)
+    case captcha_absent_or_valide do
+    true ->
+      # Quand c'est bon
+      ok_run(conn, params)
+    false ->
+      # Quand le captcha n'a pas été founi ou qu'il est faux
+      errors = "Merci de répondre au captcha pour prouver que vous êtes humain."
+      conn = put_flash(conn, :error, errors)
+      redirect(conn, to: ~p"/proc/#{proc_dim}")
+    end
+  end
+
+  # Finalement jouée quand le captcha a été fourni
+  defp ok_run(conn, %{"proc_id" => proc_id} = params) do
     # IO.puts "-> run procédure #{proc_id}"
     procedure = get_procedure(proc_id)
 
@@ -165,8 +181,9 @@ defmodule LdQWeb.ProcedureController do
   end
 
   @doc """
-  L'utilisateur courant doit être autorisé à jouer l'étape courante
-  de la procédure +procedure+
+  L'utilisateur courant doit être autorisé à jouer l'étape courante de la procédure +procedure+.
+
+  On définit cette autorisation dans la définition des étapes de la procédure, dans `@steps` qu'on peut trouver dans le fichier `steps.ex` de la procédure.
   """
   def run_avec_autorisation(conn, procedure, _params) do
     case current_user_can_run_step(conn.assigns.current_user, procedure) do

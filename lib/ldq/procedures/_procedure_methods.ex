@@ -270,8 +270,7 @@ defmodule LdQ.ProcedureMethods do
   end
 
   @doc """
-  Joue l'étape désirée (next_step) de la procédure courante et 
-  retourne son résultat.
+  Joue l'étape désirée (next_step) de la procédure courante et retourne son résultat.
 
   @return {HTMLString} Le code HTML à écrire dans la page
   """

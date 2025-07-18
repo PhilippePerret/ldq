@@ -4,8 +4,6 @@ defmodule LdQ.Procedure.CandidatureComite do
   """
   use LdQWeb.Procedure
 
-  def proc_name, do: "Candidature au comité de lecture"
-
   @steps [
     %{name: "Formulaire de candidature", fun: :fill_candidature, admin_required: false, owner_required: false},
     %{name: "Soumission de la candidature", fun: :submit_candidature, admin_required: false, owner_required: true},
@@ -19,6 +17,8 @@ defmodule LdQ.Procedure.CandidatureComite do
     %{name: "Résultat du test d’admission", fun: :eval_test_admission, admin_required: false, owner_required: true}
   ] |> Enum.with_index() |> Enum.map(fn {s, index} -> Map.put(s, :index, index) end)
   def steps, do: @steps
+
+  def proc_name, do: "Candidature au comité de lecture"
 
   @doc """
   Fonction qui détermine (en fonction de la procédure) les données à enregistrer dans la table
@@ -41,7 +41,9 @@ defmodule LdQ.Procedure.CandidatureComite do
   end
 
   @doc ~S"""
-  Validation et confirmation de la procédure de candidature
+  Validation et confirmation du lancement de la procédure de candidature.
+
+  Après s'être inscrit ou identifié, l'utilisateur peut proposer sa candidature pour le comité de lecture. La page le renvoie aux ressources utiles sur le site pour bien mesurer ce que c'est.
 
   ## Paramètres
 
@@ -109,47 +111,46 @@ defmodule LdQ.Procedure.CandidatureComite do
   end
 
   @doc """
-  Le candidat rejoint cette étape quand il soumet sa candidature pour
-  le comité de lecture.
-  On l’enregistre et on prévient l’administration.
+  Le candidat rejoint cette étape quand il soumet sa candidature pour le comité de lecture. On l’enregistre et on prévient l’administration.
+
+  Note : Dorénavant, le captcha, s'il existe, est toujours vérifié dans le contrôleur, on n'arrive ici que s'il est bon.
   """
   def submit_candidature(procedure) do
     # IO.inspect(procedure, label: "\nProcédure à l’entrée de submit_candidature")
     form_values = procedure.params["f"]
-    if Html.Form.captcha_valid?(form_values) do
-      user = get_owner(procedure)
-      _params = procedure.params
+    user = get_owner(procedure)
+    _params = procedure.params
 
-      data = procedure.data
-      data = Map.merge(data, %{
-        motivation: form_values["motivation"],
-        genres:     form_values["genres"] |> String.split() |> Enum.map(&String.trim/1) |> Enum.filter(fn g -> g != "" end),
-        submit_candidature_at: NaiveDateTime.utc_now() 
-      })
-  
-      new_proc_attrs = %{
-        data: data,
-        next_step: "accepte_refuse_or_test"
-      }
-      procedure = update_procedure(procedure, new_proc_attrs)
-  
-      mail_data = %{
-        mail_id:    nil,
-        procedure:  procedure,
-        user:       user,
-        folder:     __DIR__
-      }
-  
-      send_mail(to: user, from: :admin, with: %{mail_data | mail_id: "user-candidature-recue"})
-      send_mail(to: :admins, from: user, with: %{mail_data | mail_id: "admin-new-candidature"})
+    data = procedure.data
+    data = Map.merge(data, %{
+      motivation: form_values["motivation"],
+      genres:     form_values["genres"] |> String.split() |> Enum.map(&String.trim/1) |> Enum.filter(fn g -> g != "" end),
+      submit_candidature_at: NaiveDateTime.utc_now() 
+    })
 
-      load_phil_text(__DIR__, "submit_candidature", %{user: user})
-    else 
-      # Quand le captcha est mauvais
-      "<p>Seul un humain ou une humaine peut entamer cette procédure, désolé.</p>" 
-    end
+    new_proc_attrs = %{
+      data: data,
+      next_step: "accepte_refuse_or_test"
+    }
+    procedure = update_procedure(procedure, new_proc_attrs)
+
+    mail_data = %{
+      mail_id:    nil,
+      procedure:  procedure,
+      user:       user,
+      folder:     __DIR__
+    }
+
+    send_mail(to: user, from: :admin, with: %{mail_data | mail_id: "user-candidature-recue"})
+    send_mail(to: :admins, from: user, with: %{mail_data | mail_id: "admin-new-candidature"})
+
+    load_phil_text(__DIR__, "submit_candidature", %{user: user})
   end
 
+  @doc ~S"""
+  Dans cette étape, un administrateur peut accepter directement la candidature proposer ou inviter le candidat à passer un test d'évaluation pour savoir s'il est au niveau pour estimer les livres.
+  
+  """
   def accepte_refuse_or_test(procedure) do
     user = get_owner(procedure)
     """

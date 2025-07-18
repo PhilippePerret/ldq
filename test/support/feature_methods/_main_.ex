@@ -426,4 +426,8 @@ defmodule FeaturePublicMethods do
   def depose_le_fichier(suj, file, field) when is_binary(file) do
     Form.deposer_les_fichiers(suj, [path: file], field)
   end
+
+  # Raccourcis pour qu'elles soient utilisables dans les tests
+  def mettre_bon_captcha(a, b), do: Form.mettre_bon_captcha(a, b)
+  def cocher_la_case(a, b), do: Form.cocher_la_case(a, b)
 end

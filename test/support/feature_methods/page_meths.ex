@@ -1,7 +1,7 @@
 defmodule Feature.PageTestMethods do
   use LdQWeb.FeatureCase, async: false
   alias Wallaby.Browser,  as: WB
-  # alias Wallaby.Query,    as: WQ
+  alias Wallaby.Query,    as: WQ
   alias Wallaby.Element,  as: WE
 
   import Feature.SessionMethods
@@ -109,7 +109,8 @@ defmodule Feature.PageTestMethods do
       ~r/#{Regex.escape(searched)}/
     else searched end
 
-    texte_visible = WB.text(session)
+    # texte_visible = WB.text(session)
+    texte_visible = WB.find(session, WQ.css("body")) |> Wallaby.Element.text()
     err_msg = IO.ANSI.red() <> "On devrait trouver #{inspect searched} dans la page. La page contient : #{inspect texte_visible}" <> IO.ANSI.reset()
     autre_brut_contient   = Regex.match?(searched, WB.all(session, css("body")) |> Enum.at(0) |> WE.text())
     code_visible_contient = String.match?(texte_visible, searched)
