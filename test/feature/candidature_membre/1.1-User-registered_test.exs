@@ -12,7 +12,7 @@ defmodule LdQWeb.CandidatureMembreStep0101 do
     # 
     # = PHOTOGRAPHIE =
     # 
-    # Ce test produit la photographie '1.1-Depot-candidature-comite'
+    # Ce test produit la photographie 'candidature-comite/Depot-candidature-comite'
     # 
     # Elle contient donc un user lambda enregistré avec une requête
     # (procédure) de demande de candidature au comité de lecture.
@@ -56,7 +56,7 @@ defmodule LdQWeb.CandidatureMembreStep0101 do
     |> la_page_contient(["Soumission de la candidature", "votre candidature a bien été enregistrée."])
 
     
-    bddshot("1.1-Depot-candidature-comite", %{
+    bddshot("candidature-comite/Depot-candidature-comite", %{
       user: user
     })
   end
